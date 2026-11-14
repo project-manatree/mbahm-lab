@@ -1,7 +1,7 @@
 // ============================================================================
-// BAHM330-A1: Project Hospital (2018) 2.5D Isometric Renderer
-// Powered by PH Engine & PHSprites — Procedural Textiles, Cutaway/Full Walls,
-// Multi-Part Medical/Luxury Furniture, Surroundings & Moving Vehicles
+// BAHM330-A1: Project Hospital (2018) 2.5D Isometric Facility Renderer
+// Focused 100% on Clinical & Retreat Facilities, Doctors, Nurses, Staff,
+// Patients, and the Stage 3 Step-Down Transfer Ambulance / Medical Van
 // ============================================================================
 
 const IsoRenderer = (() => {
@@ -11,18 +11,15 @@ const IsoRenderer = (() => {
   let upgradePulse = 0;
   let upgradeMode = 'future';
 
-  // Project Hospital Map Definition (Partner Acute Hospital + Central Avenue + Luxury Retreat)
+  // Clean architectural floorplan: Partner Hospital (Left) + S3 Transfer Bay + Retreat (Right)
   const MAP = {
-    bounds: { x0: -2, y0: -2, x1: 30, y1: 24 },
-    view: { x0: -1, y0: -1, x1: 29, y1: 23 },
+    bounds: { x0: 0.5, y0: 0.5, x1: 27.5, y1: 20.5 },
+    view: { x0: 0.5, y0: 0.5, x1: 27.5, y1: 20.5 },
     ground: [
-      // Surrounding lush grass lawn
-      { x: -2, y: -2, w: 32, d: 26, mat: 'grass' },
-      // Exterior paved sidewalks around both wings
-      { x: 0, y: 0, w: 10.5, d: 21.5, mat: 'paver' },
-      { x: 15.5, y: 0, w: 12.5, d: 21.5, mat: 'travertine' },
-      // Central 4-Lane Asphalt Avenue & Ambulance/VIP Transfer Bay
-      { x: 10.2, y: -2, w: 5.6, d: 26, mat: 'asphalt' },
+      // Clean neutral architectural base slab
+      { x: 0.5, y: 0.5, w: 27, d: 20, mat: 'concrete' },
+      // S3: Dedicated Hospital-to-Retreat Step-Down Transfer Bay (gx: 10.2..15.8)
+      { x: 10.2, y: 1, w: 5.6, d: 19, mat: 'asphalt' },
       // Partner Hospital Main Corridor (gy: 9..11)
       { x: 1, y: 9, w: 9.2, d: 2.2, mat: { cur: 'linoWorn', fut: 'terrazzo' } },
       // S1: Acute Geriatric Ward B4 (gx: 1..10, gy: 1..9)
@@ -43,19 +40,13 @@ const IsoRenderer = (() => {
       { x: 22, y: 11, w: 5, d: 9, mat: 'deck' }
     ],
     decals: [
-      // Road lane markings on Central Avenue
-      { type: 'line', x1: 10.4, y1: -2, x2: 10.4, y2: 24, w: 0.08, col: '#e2e8f0' },
-      { type: 'line', x1: 15.6, y1: -2, x2: 15.6, y2: 24, w: 0.08, col: '#e2e8f0' },
-      { type: 'line', x1: 13.0, y1: -2, x2: 13.0, y2: 24, w: 0.09, col: '#facc15', dash: [0.7, 0.5] },
-      // Pedestrian Zebra Crosswalk linking Hospital & Retreat
-      { type: 'zebra', x: 10.4, y: 9.2, w: 5.2, d: 1.8, axis: 'x', col: 'rgba(248,250,252,0.88)' },
-      // VIP Transfer Boarding Bay Hatch Box
-      { type: 'hatch', x: 10.5, y: 12.4, w: 2.2, d: 3.4, col: 'rgba(250,204,21,0.55)' },
-      { type: 'hatch', x: 13.3, y: 12.4, w: 2.2, d: 3.4, col: 'rgba(16,185,129,0.55)', when: 'fut' },
-      // Hospital corridor wayfinding stripe
+      // S3 Transfer Bay Lane & Patient Boarding Crosswalk
+      { type: 'zebra', x: 10.4, y: 9.2, w: 5.2, d: 1.8, axis: 'x', col: 'rgba(248,250,252,0.85)' },
+      { type: 'hatch', x: 11.0, y: 12.4, w: 4.0, d: 3.4, col: 'rgba(250,204,21,0.50)' },
+      // Hospital & Retreat corridor wayfinding lines
       { type: 'line', x1: 1.5, y1: 10.0, x2: 10.2, y2: 10.0, w: 0.14, col: '#0ea5e9', when: 'fut' },
       { type: 'line', x1: 15.8, y1: 10.0, x2: 26.5, y2: 10.0, w: 0.14, col: '#10b981', when: 'fut' },
-      // Pool lane lines
+      // Hydrotherapy pool lane lines
       { type: 'line', x1: 23.8, y1: 2.2, x2: 23.8, y2: 7.6, w: 0.06, col: 'rgba(224,242,254,0.65)' },
       { type: 'line', x1: 25.2, y1: 2.2, x2: 25.2, y2: 7.6, w: 0.06, col: 'rgba(224,242,254,0.65)' }
     ],
@@ -143,22 +134,7 @@ const IsoRenderer = (() => {
     PH.setCondition(isFut ? 'fut' : 'cur');
     PH.begin();
 
-    // ----------------------------------------- 1. SURROUNDING TREES & EXTERIOR
-    PHSprites.tree(-0.8, 1.5, 1.1, 0);
-    PHSprites.tree(-0.8, 8.5, 1.0, 1);
-    PHSprites.tree(-0.8, 16.5, 1.15, 0);
-    PHSprites.tree(28.4, 2.0, 1.1, 1);
-    PHSprites.tree(28.4, 9.5, 1.2, 0);
-    PHSprites.tree(28.4, 17.5, 1.1, 1);
-    PHSprites.streetLamp(10.0, 4.0);
-    PHSprites.streetLamp(10.0, 17.5);
-    PHSprites.streetLamp(15.8, 4.0);
-    PHSprites.streetLamp(15.8, 17.5);
-    PHSprites.parkedCar(-1.2, 4.2, 1, '#3b82f6');
-    PHSprites.parkedCar(-1.2, 12.2, 1, '#64748b');
-    PHSprites.parkedCar(28.0, 5.2, 3, '#0f172a');
-
-    // ----------------------------------------- 2. S1: PARTNER HOSPITAL WARD B4
+    // ------------------------------- 1. S1: PARTNER HOSPITAL ACUTE WARD B4 (1..10, 1..9)
     const bedBlanket = isFut ? '#0ea5e9' : '#64748b';
     PHSprites.hospitalBed(1.5, 1.6, 0, { blanket: bedBlanket, alert: !isFut, ready: isFut, seed: 1 });
     PHSprites.privacyCurtain(1.5, 3.2, 0, 2.0, '#bae6fd');
@@ -170,9 +146,8 @@ const IsoRenderer = (() => {
     // Ward Discharge Nurse Station & HL7/FHIR Terminal
     PHSprites.receptionDesk(7.2, 1.8, 1, 2.6, { col: isFut ? '#10b981' : '#0284c7', clutter: !isFut });
     PHSprites.waitingBench(4.5, 7.6, 0, 4, '#3b82f6');
-    PHSprites.planter(9.1, 7.8, 0.7, 0.7);
 
-    // ------------------------------- 3. S2: BILLING & FAST-TRACK LOUNGE (1..10, 11..20)
+    // ------------------------------- 2. S2: BILLING & FAST-TRACK LOUNGE (1..10, 11..20)
     PHSprites.receptionDesk(1.5, 11.8, 0, 3.4, { col: isFut ? '#10b981' : '#f59e0b', clutter: !isFut });
     PHSprites.pharmacyShelf(1.5, 15.2, 0, { stockout: !isFut, rfid: isFut });
     PHSprites.waitingBench(1.6, 17.6, 0, 5, '#475569');
@@ -184,38 +159,33 @@ const IsoRenderer = (() => {
       PHSprites.sofa(6.6, 15.2, 0, 2.2, '#0284c7');
       PHSprites.kiosk(8.8, 12.2, 1, { col: '#10b981' });
       PHSprites.kiosk(8.8, 13.4, 1, { col: '#0ea5e9' });
-      PHSprites.planter(9.0, 18.2, 0.75, 0.75);
     } else {
-      // Cramped overflow bench in Current State
       PHSprites.waitingBench(6.5, 14.5, 0, 3, '#64748b');
     }
 
-    // ------------------------------- 4. S5: VISITING MD & TELEMETRY SUITE (16..22, 1..9)
+    // ------------------------------- 3. S5: VISITING MD & TELEMETRY SUITE (16..22, 1..9)
     PHSprites.officeDesk(17.2, 1.6, 0, { clutter: !isFut, screenStyle: isFut ? 'ok' : 'alert', seed: 11 });
     PHSprites.examTable(16.8, 4.5, 0, { col: isFut ? '#10b981' : '#0284c7' });
     PHSprites.privacyCurtain(16.8, 6.2, 0, 1.9, '#a7f3d0');
     PHSprites.officeDesk(19.6, 4.5, 0, { clutter: !isFut, screenStyle: 'ecg', seed: 12, visitorChair: false });
 
-    // ------------------------------- 5. S4: BIOMETRIC POD & KING SUITES (16..22, 11..20)
+    // ------------------------------- 4. S4: BIOMETRIC POD & KING SUITES (16..22, 11..20)
     PHSprites.receptionDesk(16.6, 11.6, 0, 2.8, { col: isFut ? '#10b981' : '#d97706', wood: '#78350f', clutter: !isFut });
     if (isFut) {
       PHSprites.kiosk(19.8, 11.6, 0, { col: '#10b981' });
     }
-    // Luxury Residential King Suites 201 & 202
     PHSprites.luxuryBed(16.8, 13.8, 0, { duvet: isFut ? '#10b981' : '#d97706', smartHub: isFut });
     PHSprites.luxuryBed(16.8, 17.2, 0, { duvet: isFut ? '#0ea5e9' : '#b45309', smartHub: isFut });
     PHSprites.sofa(19.6, 17.4, 1, 1.8, '#b45309');
 
-    // ------------------------------- 6. S6: HYDRO POOL, SPA & BISTRO (22..27, 1..20)
-    PHSprites.poolLounger ? PHSprites.spaTable(22.6, 11.8, 0, { col: '#6ee7b7' }) : null;
+    // ------------------------------- 5. S6: HYDRO POOL, SPA & BISTRO (22..27, 1..20)
+    PHSprites.spaTable(22.6, 11.8, 0, { col: '#6ee7b7' });
     PHSprites.spaTable(24.8, 11.8, 0, { col: '#6ee7b7' });
     PHSprites.diningTable(22.8, 15.2, 0, { cloth: '#fef3c7' });
     PHSprites.diningTable(25.0, 15.2, 0, { cloth: '#fef3c7' });
     PHSprites.diningTable(23.8, 17.6, 0, { cloth: '#fde68a' });
-    PHSprites.planter(26.1, 1.4, 0.7, 0.7);
-    PHSprites.planter(26.1, 18.8, 0.7, 0.7);
 
-    // ------------------------------- 7. BOTTLENECK HALOS vs SMART CONDUITS
+    // ------------------------------- 6. BOTTLENECK HALOS vs SMART CONDUITS
     if (!isFut) {
       PHSprites.floorHalo(4.5, 7.5, 28, 14, '#ef4444', 'S1: +45m WARD DISCHARGE QUEUE');
       PHSprites.floorHalo(6.0, 14.2, 28, 14, '#ef4444', 'S2: +45m PAPER GL BILLING WAIT');
@@ -227,30 +197,15 @@ const IsoRenderer = (() => {
       PHSprites.signalBeam(8.8, 12.8, 18.2, 3.2, '#0ea5e9', 'e-GL + TELEMETRY SYNC');
     }
 
-    // ------------------------------- 8. MOVING VEHICLES ON CENTRAL AVENUE
-    PHSprites.movingVehicle(simState.van.gx, simState.van.gy, {
+    // ------------------------------- 7. S3: PATIENT STEP-DOWN TRANSFER AMBULANCE (PART OF WORKFLOW)
+    PHSprites.movingVehicle(12.2, simState.van.gy, {
       type: isFut ? 'vip' : 'ambulance',
       dir: 1,
       openDoor: simState.van.doorsOpen,
-      label: isFut ? 'VIP Concierge Van #1 (Lift Ready)' : 'Standard Ambulance (+30m Wait)'
+      label: isFut ? 'S3: Medical Concierge Transfer Van' : 'S3: Patient Transfer Ambulance'
     });
-    if (isFut) {
-      PHSprites.movingVehicle(simState.van2.gx, simState.van2.gy, {
-        type: 'vip',
-        dir: -1,
-        openDoor: simState.van2.doorsOpen,
-        label: 'VIP Concierge Van #2 (Parallel)'
-      });
-    } else {
-      PHSprites.movingVehicle(simState.van2.gx, simState.van2.gy, {
-        type: 'shuttle',
-        dir: -1,
-        openDoor: false,
-        label: 'Hospital Supply Van'
-      });
-    }
 
-    // ------------------------------- 9. 24 ARTICULATED AGENTS
+    // ------------------------------- 8. 24 ARTICULATED DOCTORS, NURSES, STAFF & PATIENTS
     simState.agents.forEach(ag => {
       const isSel = ag.id === simState.selectedAgentId;
       let role = ag.role;
@@ -277,21 +232,18 @@ const IsoRenderer = (() => {
       });
     });
 
-    // Flush depth-sorted walls, furniture & characters
     PH.end();
 
     // Room architectural header signs
     PHSprites.roomSign(5.0, 1.2, 'S1 · Partner Hospital Ward B4', '#0ea5e9');
     PHSprites.roomSign(5.0, 11.2, isFut ? 'S2 · Fast-Track e-GL Lounge' : 'S2 · Manual Billing Office (+45m)', isFut ? '#10b981' : '#ef4444');
-    PHSprites.roomSign(13.0, 11.8, isFut ? 'S3 · Dual VIP Concierge Van Bay' : 'S3 · Ambulance Pickup Bay', isFut ? '#10b981' : '#f59e0b');
+    PHSprites.roomSign(13.0, 11.8, isFut ? 'S3 · Medical Transfer Bay (0m Wait)' : 'S3 · Ambulance Transfer Bay (+30m)', isFut ? '#10b981' : '#f59e0b');
     PHSprites.roomSign(19.0, 1.2, isFut ? 'S5 · On-Site Visiting MD & Telemetry' : 'S5 · Visiting Clinic (+30m Wait)', isFut ? '#10b981' : '#f59e0b');
     PHSprites.roomSign(19.0, 11.2, isFut ? 'S4 · Biometric Pod & Luxury Suites' : 'S4 · Retreat Lobby & Suites (+30m)', isFut ? '#10b981' : '#f59e0b');
     PHSprites.roomSign(24.5, 1.2, 'S6 · Hydrotherapy Pool, Spa & Bistro', '#06b6d4');
 
-    // Render clean nameplates & bubbles on top
     PH.overlay(simState.showActionLabels);
 
-    // Upgrade Transformation Shockwave Ring
     if (upgradePulse > 0.01) {
       const c = PH.S.ctx;
       const center = PH.P(14, 11, 10);

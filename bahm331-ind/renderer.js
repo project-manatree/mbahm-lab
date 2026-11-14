@@ -1,7 +1,7 @@
 // ============================================================================
 // BAHM331-IND: Luxury Geriatric Retreat 28x22 Project Hospital Renderer
-// Powered by PH Engine & PHSprites — Procedural Textiles, Cutaway/Full Walls,
-// Hydrotherapy Pool, Thermal Spa, Yoga Studio, Bistro, Nurse Command & Suites
+// Focused 100% on Retreat Clinical & Wellness Facilities, Doctors, Nurses,
+// Staff, Residents & Indoor Rapid-Response Medical Cart (Zero Car Distractions)
 // ============================================================================
 
 const IsoRenderer = (() => {
@@ -12,15 +12,11 @@ const IsoRenderer = (() => {
   let upgradeMode = 'tiered';
 
   const MAP = {
-    bounds: { x0: -2, y0: -2, x1: 30, y1: 24 },
-    view: { x0: -1, y0: -1, x1: 29, y1: 23 },
+    bounds: { x0: 1.5, y0: 0.5, x1: 26.5, y1: 20.5 },
+    view: { x0: 1.5, y0: 0.5, x1: 26.5, y1: 20.5 },
     ground: [
-      // Surrounding landscaped resort gardens
-      { x: -2, y: -2, w: 32, d: 26, mat: 'grass' },
-      // Travertine perimeter terrace
-      { x: 1.8, y: 0, w: 25.2, d: 21.5, mat: 'travertine' },
-      // West Resort Arrival Asphalt Driveway (x: -0.8..1.8)
-      { x: -0.8, y: -2, w: 2.6, d: 26, mat: 'asphalt' },
+      // Clean travertine architectural base
+      { x: 1.5, y: 0.5, w: 25, d: 20, mat: 'travertine' },
       // Central Marble Promenade (x: 2..26, y: 9..11)
       { x: 2, y: 9, w: 24, d: 2.2, mat: 'marble' },
       // Zone 1: Heated Hydrotherapy Lap Pool & Ceramic Deck (x: 2..10, y: 1..9)
@@ -38,10 +34,7 @@ const IsoRenderer = (() => {
       { x: 18, y: 11, w: 8, d: 9, mat: 'oak' }
     ],
     decals: [
-      // West Driveway road lines & crosswalk
-      { type: 'line', x1: 0.5, y1: -2, x2: 0.5, y2: 24, w: 0.08, col: '#facc15', dash: [0.7, 0.5] },
-      { type: 'zebra', x: -0.6, y: 9.2, w: 2.4, d: 1.8, axis: 'x', col: 'rgba(248,250,252,0.88)' },
-      // Hydrotherapy pool coping border & underwater lane lines
+      // Hydrotherapy pool underwater lane lines
       { type: 'line', x1: 4.7, y1: 2.2, x2: 4.7, y2: 7.0, w: 0.07, col: 'rgba(224,242,254,0.65)' },
       { type: 'line', x1: 6.5, y1: 2.2, x2: 6.5, y2: 7.0, w: 0.07, col: 'rgba(224,242,254,0.65)' },
       // Promenade smart medical cart guide stripe
@@ -174,34 +167,7 @@ const IsoRenderer = (() => {
     PH.setCondition(isTiered ? 'fut' : 'cur');
     PH.begin();
 
-    // ------------------------ 1. EXTERIOR TREES, LAMPS & MOVING CARS
-    PHSprites.tree(-1.4, 2.5, 1.1, 0);
-    PHSprites.tree(-1.4, 16.0, 1.15, 1);
-    PHSprites.tree(27.5, 2.5, 1.15, 1);
-    PHSprites.tree(27.5, 10.5, 1.2, 0);
-    PHSprites.tree(27.5, 18.0, 1.1, 1);
-    PHSprites.streetLamp(1.9, 3.5);
-    PHSprites.streetLamp(1.9, 16.5);
-    PHSprites.parkedCar(27.2, 6.0, 3, '#0f172a');
-    PHSprites.parkedCar(27.2, 14.2, 3, '#d97706');
-
-    const shuttleY = ((PH.t * 0.055) % 19) + 0.5;
-    const ambY = 19.5 - ((PH.t * 0.045) % 19);
-    PHSprites.movingVehicle(-0.2, shuttleY, {
-      type: 'vip',
-      dir: 1,
-      openDoor: false,
-      label: 'VIP Retreat Shuttle'
-    });
-    PHSprites.movingVehicle(-0.2, ambY, {
-      type: 'ambulance',
-      dir: -1,
-      openDoor: false,
-      label: isTiered ? 'ALS Standby Unit' : 'Emergency Transfer'
-    });
-
-    // ------------------------ 2. ZONE 1: HYDROTHERAPY POOL (2..10, 1..9)
-    // Animated water ripples inside pool basin
+    // ------------------------ 1. ZONE 1: HYDROTHERAPY POOL (2..10, 1..9)
     PH.item(4.5 + 4.0, () => {
       const p1 = PH.P(4.5, 4.0, 0.4);
       const p2 = PH.P(6.5, 4.5, 0.4);
@@ -214,8 +180,6 @@ const IsoRenderer = (() => {
       c.ellipse(p2.x, p2.y, rad * 1.1, rad * 0.55, 0, 0, Math.PI * 2);
       c.stroke();
     });
-    PHSprites.planter(2.3, 1.3, 0.65, 0.65);
-    PHSprites.planter(8.8, 1.3, 0.65, 0.65);
     if (isTiered) {
       drawAILifeguardArch(4.2, 2.0);
       drawAILifeguardArch(6.8, 2.0);
@@ -223,7 +187,7 @@ const IsoRenderer = (() => {
       drawRapidMedicalCart(17.5 + cartOffset, 9.4);
     }
 
-    // ------------------------ 3. ZONE 2: THERMAL SPA & PHYSIO WING (2..10, 11..20)
+    // ------------------------ 2. ZONE 2: THERMAL SPA & PHYSIO WING (2..10, 11..20)
     PHSprites.spaTable(3.0, 12.2, 0, { col: '#6ee7b7' });
     PHSprites.spaTable(6.0, 12.2, 0, { col: '#6ee7b7' });
     PHSprites.privacyCurtain(2.8, 14.8, 0, 5.2, '#a7f3d0');
@@ -233,17 +197,16 @@ const IsoRenderer = (() => {
       PHSprites.kiosk(8.6, 12.2, 1, { col: '#10b981' });
     }
 
-    // ------------------------ 4. ZONE 3: BIOMETRIC YOGA PAVILION (10..18, 1..9)
+    // ------------------------ 3. ZONE 3: BIOMETRIC YOGA PAVILION (10..18, 1..9)
     for (let m = 0; m < 3; m++) {
       drawYogaMat(11.1 + m * 2.0, 2.4, '#ec4899');
       drawYogaMat(11.1 + m * 2.0, 5.1, '#8b5cf6');
     }
-    PHSprites.planter(16.8, 7.5, 0.7, 0.7);
     if (isTiered) {
       PHSprites.kiosk(16.6, 2.0, 1, { col: '#0ea5e9' });
     }
 
-    // ------------------------ 5. ZONE 4: NUTRITIONAL SMART-BISTRO (10..18, 11..20)
+    // ------------------------ 4. ZONE 4: NUTRITIONAL SMART-BISTRO (10..18, 11..20)
     PHSprites.diningTable(11.2, 12.4, 0, { cloth: '#fef3c7' });
     PHSprites.diningTable(14.2, 12.4, 0, { cloth: '#fef3c7' });
     PHSprites.diningTable(11.2, 15.4, 0, { cloth: '#fde68a' });
@@ -253,18 +216,18 @@ const IsoRenderer = (() => {
       PHSprites.kiosk(15.6, 18.0, 0, { col: '#10b981' });
     }
 
-    // ------------------------ 6. ZONE 5: 24/7 NURSE COMMAND & TELE-MD (18..26, 1..9)
+    // ------------------------ 5. ZONE 5: 24/7 NURSE COMMAND & TELE-MD (18..26, 1..9)
     PHSprites.receptionDesk(18.6, 2.0, 0, 2.6, { col: isTiered ? '#10b981' : '#0ea5e9', clutter: !isTiered });
     PHSprites.officeDesk(22.4, 2.0, 0, { clutter: !isTiered, screenStyle: isTiered ? 'ok' : 'alert', seed: 61 });
     PHSprites.hospitalBed(22.4, 5.2, 0, { blanket: '#0ea5e9', alert: !isTiered, ready: isTiered, seed: 62 });
 
-    // ------------------------ 7. ZONE 6: 4 LUXURY KING SUITES 301-309 (18..26, 11..20)
+    // ------------------------ 6. ZONE 6: 4 LUXURY KING SUITES 301-309 (18..26, 11..20)
     PHSprites.luxuryBed(18.8, 12.2, 0, { duvet: '#f59e0b', smartHub: isTiered });
     PHSprites.luxuryBed(22.6, 12.2, 0, { duvet: '#10b981', smartHub: isTiered });
     PHSprites.luxuryBed(18.8, 16.4, 0, { duvet: '#0ea5e9', smartHub: isTiered });
     PHSprites.luxuryBed(22.6, 16.4, 0, { duvet: '#a855f7', smartHub: isTiered });
 
-    // ------------------------ 8. RISK HALOS vs ENCRYPTED RBAC & TELEMETRY BEAMS
+    // ------------------------ 7. RISK HALOS vs ENCRYPTED RBAC & TELEMETRY BEAMS
     const nursePos = { gx: 20.0, gy: 3.5 };
     const docPos = { gx: 23.2, gy: 3.2 };
     if (!isTiered) {
@@ -281,7 +244,7 @@ const IsoRenderer = (() => {
       }
     }
 
-    // ------------------------ 9. 24 ARTICULATED RESORT RESIDENTS & STAFF
+    // ------------------------ 8. 24 ARTICULATED DOCTORS, NURSES, STAFF & RESIDENTS
     simState.agents.forEach(ag => {
       const isSel = ag.id === simState.selectedAgentId;
       let role = ag.role;
