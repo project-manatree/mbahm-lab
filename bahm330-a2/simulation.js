@@ -373,6 +373,8 @@ const SimApp = (() => {
   }
 
   function updateHUD() {
+    const c1 = document.getElementById('kpi-c1');
+    if (!c1) return;
     const isCur = simState.mode === 'current';
 
     const strip = document.getElementById('impact-strip');

@@ -1,104 +1,84 @@
 // ============================================================================
 // BAHM330-A1: Two-Building Hospital-to-Retreat Step-Down Transfer Renderer
-// Building 1 (Left, x: 1..10): Partner Hospital
-// Open Distance Gap (x: 10..20): Concierge Transport Road (Pick-Up Left -> Drop-Off Right & Return)
-// Building 2 (Right, x: 20..32): Retreat Centre
-// Zero random traffic/parked cars, zero exterior trees, short role labels, plain room titles
+// Horizontal Left-to-Right 2.5D Layout:
+// - Left Building (x: 1..11, y: 1..14): Partner Hospital (Main Entrance facing DOWN at y=14)
+// - Wide Open Distance (x: 11..19): Horizontal Separation Between Buildings
+// - Right Building (x: 19..31, y: 1..14): Retreat Centre (Main Entrance facing DOWN at y=14)
+// - Front Road (x: 1..31, y: 14..18.2): Concierge Transport picks up at Left Entrance ->
+//   drives Left-to-Right -> drops off at Right Entrance -> returns Right-to-Left
 // ============================================================================
 
 const IsoRenderer = (() => {
-  const GRID_W = 33;
-  const GRID_H = 22;
+  const GRID_W = 32;
+  const GRID_H = 19;
 
   let upgradePulse = 0;
   let upgradeMode = 'future';
 
-  // Two distinct buildings separated by a wide 10-tile transit distance (x: 10..20)
   const MAP = {
-    bounds: { x0: 0.5, y0: 0.5, x1: 32.5, y1: 20.5 },
-    view: { x0: 0.5, y0: 0.5, x1: 32.5, y1: 20.5 },
+    // Horizontal 2.5D cabinet-isometric projection: +gx goes Left->Right, +gy goes Top->Down
+    proj: { ax: 44, ay: 2, bx: -11, by: 30 },
+    bounds: { x0: 0.5, y0: 0.5, x1: 31.5, y1: 18.6 },
+    view: { x0: 0.5, y0: 0.5, x1: 31.5, y1: 18.6 },
     ground: [
-      // BUILDING 1 (Left: Partner Hospital, x: 1..10, y: 1..20)
-      { x: 1, y: 1, w: 9, d: 8, mat: { cur: 'linoWorn', fut: 'linoBlue' } },       // Hospital Ward
-      { x: 1, y: 9, w: 9, d: 2.2, mat: { cur: 'linoWorn', fut: 'terrazzo' } },     // Hospital Corridor
-      { x: 1, y: 11, w: 5, d: 9, mat: { cur: 'linoGrey', fut: 'linoWhite' } },     // Billing Office
-      { x: 6, y: 11, w: 4, d: 9, mat: { cur: 'linoWorn', fut: 'carpetTeal' } },    // Discharge Lounge
+      // BUILDING 1 (LEFT: PARTNER HOSPITAL, x: 1..11, y: 1..14)
+      { x: 1, y: 1, w: 10, d: 6.5, mat: { cur: 'linoWorn', fut: 'linoBlue' } },       // Hospital Ward
+      { x: 1, y: 7.5, w: 5.5, d: 6.5, mat: { cur: 'linoGrey', fut: 'linoWhite' } },   // Billing & Discharge
+      { x: 6.5, y: 7.5, w: 4.5, d: 6.5, mat: { cur: 'linoWorn', fut: 'carpetTeal' } },// Main Entrance Lobby
 
-      // CONCIERGE TRANSPORT ROAD across the 10-tile distance between buildings (x: 10..20)
-      { x: 10, y: 7.8, w: 10, d: 4.4, mat: 'asphalt' },
-      { x: 10, y: 7.3, w: 10, d: 0.5, mat: 'paver' },
-      { x: 10, y: 12.2, w: 10, d: 0.5, mat: 'paver' },
+      // BUILDING 2 (RIGHT: RETREAT CENTRE, x: 19..31, y: 1..14)
+      { x: 19, y: 1, w: 6.5, d: 6.5, mat: { cur: 'linoGrey', fut: 'ceramicBlue' } },  // Doctor Check-Up Room
+      { x: 19, y: 7.5, w: 6.5, d: 6.5, mat: 'oak' },                                  // Retreat Reception & Suites
+      { x: 25.5, y: 1, w: 5.5, d: 6.5, mat: 'ceramicCream' },                         // Hydro Pool Deck
+      { x: 26.2, y: 1.8, w: 4.1, d: 4.8, mat: 'water' },                              // Hydro Pool Water
+      { x: 25.5, y: 7.5, w: 5.5, d: 6.5, mat: 'deck' },                               // Spa & Dining Bistro
 
-      // BUILDING 2 (Right: Luxury Retreat Centre, x: 20..32, y: 1..20)
-      { x: 20, y: 9, w: 12, d: 2.2, mat: 'marble' },                               // Retreat Main Hallway
-      { x: 20, y: 1, w: 6.5, d: 8, mat: { cur: 'linoGrey', fut: 'ceramicBlue' } }, // Doctor Check-Up Room
-      { x: 26.5, y: 1, w: 5.5, d: 8, mat: 'ceramicCream' },                        // Hydro Pool Deck
-      { x: 27.2, y: 2.0, w: 4.1, d: 5.8, mat: 'water' },                           // Hydro Pool Water
-      { x: 20, y: 11, w: 6.5, d: 9, mat: 'oak' },                                  // Retreat Reception & Suites
-      { x: 26.5, y: 11, w: 5.5, d: 9, mat: 'deck' }                                // Spa & Dining Bistro
+      // FRONT WALKWAY & HORIZONTAL CONCIERGE TRANSPORT ROAD (y: 14..18.2, Left <-> Right)
+      { x: 1, y: 14.0, w: 10, d: 0.6, mat: 'paver' },                                 // Hospital Front Entrance Apron
+      { x: 19, y: 14.0, w: 12, d: 0.6, mat: 'paver' },                                // Retreat Front Entrance Apron
+      { x: 1, y: 14.6, w: 30, d: 3.6, mat: 'asphalt' }                                // Horizontal Left<->Right Road
     ],
     decals: [
-      // Center divider line on the Concierge Transport Road (x: 10..20)
-      { type: 'line', x1: 10.2, y1: 10.0, x2: 19.8, y2: 10.0, w: 0.10, col: 'rgba(250,204,21,0.75)', dash: [0.5, 0.35] },
-      // Hospital Pick-Up Bay markings (Left, outside Hospital Exit x = 10)
-      { type: 'box', x: 10.3, y: 8.1, w: 2.5, d: 1.6, col: 'rgba(14,165,233,0.75)', fill: 'rgba(14,165,233,0.12)', hatch: true },
-      // Retreat Drop-Off Bay markings (Right, outside Retreat Entrance x = 20)
-      { type: 'box', x: 17.2, y: 8.1, w: 2.5, d: 1.6, col: 'rgba(16,185,129,0.75)', fill: 'rgba(16,185,129,0.12)', hatch: true },
+      // Center dashed road divider (Left <-> Right)
+      { type: 'line', x1: 1.5, y1: 16.4, x2: 30.5, y2: 16.4, w: 0.09, col: 'rgba(250,204,21,0.75)', dash: [0.6, 0.4] },
+      // Hospital Main Entrance Pick-Up Bay (Facing Down at x: 4.8..7.6, y: 14.7..16.1)
+      { type: 'hatch', x: 4.8, y: 14.7, w: 2.8, d: 1.4, col: 'rgba(14,165,233,0.65)' },
+      // Retreat Main Entrance Drop-Off Bay (Facing Down at x: 20.8..23.6, y: 14.7..16.1)
+      { type: 'hatch', x: 20.8, y: 14.7, w: 2.8, d: 1.4, col: 'rgba(16,185,129,0.65)' },
       // Pool lane lines
-      { type: 'line', x1: 28.6, y1: 2.2, x2: 28.6, y2: 7.6, w: 0.06, col: 'rgba(224,242,254,0.65)' },
-      { type: 'line', x1: 30.0, y1: 2.2, x2: 30.0, y2: 7.6, w: 0.06, col: 'rgba(224,242,254,0.65)' }
+      { type: 'line', x1: 27.6, y1: 2.0, x2: 27.6, y2: 6.4, w: 0.06, col: 'rgba(224,242,254,0.65)' },
+      { type: 'line', x1: 29.0, y1: 2.0, x2: 29.0, y2: 6.4, w: 0.06, col: 'rgba(224,242,254,0.65)' }
     ],
     wear: [
-      { x: 1, y: 1, w: 9, d: 19 },
-      { x: 20, y: 11, w: 6.5, d: 9 }
+      { x: 1, y: 1, w: 10, d: 13 },
+      { x: 19, y: 7.5, w: 6.5, d: 6.5 }
     ],
     walls: [
-      // BUILDING 1 (LEFT — PARTNER HOSPITAL, x: 1..10)
-      { x1: 1, y1: 1, x2: 10, y2: 1, kind: 'ext', col: '#e2e8f0', windows: true },
-      { x1: 1, y1: 1, x2: 1, y2: 20, kind: 'ext', col: '#e2e8f0', windows: true },
-      { x1: 1, y1: 20, x2: 10, y2: 20, kind: 'ext', col: '#e2e8f0', windows: true },
-      // Building 1 Right Exterior Wall (x = 10) with Pick-Up Exit Door at y = 8.8..10.8
-      { x1: 10, y1: 1, x2: 10, y2: 20, kind: 'ext', col: '#e2e8f0', windows: true, open: [{ at: 8.8, w: 2.0, type: 'slide' }] },
+      // BUILDING 1 (LEFT — PARTNER HOSPITAL, x: 1..11, y: 1..14)
+      { x1: 1, y1: 1, x2: 11, y2: 1, kind: 'ext', col: '#e2e8f0', windows: true },
+      { x1: 1, y1: 1, x2: 1, y2: 14, kind: 'ext', col: '#e2e8f0', windows: true },
+      { x1: 11, y1: 1, x2: 11, y2: 14, kind: 'ext', col: '#e2e8f0', windows: true },
+      // Building 1 Bottom Front Wall (y = 14) — MAIN ENTRANCE FACING DOWN at x = 5.2..7.4
+      { x1: 1, y1: 14, x2: 11, y2: 14, kind: 'ext', col: '#e2e8f0', windows: true, open: [{ at: 5.2, w: 2.2, type: 'slide', alwaysOpen: true }] },
       // Building 1 Interior Walls
-      { x1: 1, y1: 9, x2: 10, y2: 9, kind: 'int', col: '#cbd5e1', open: [{ at: 4.8, w: 1.6, type: 'double' }] },
-      { x1: 1, y1: 11, x2: 10, y2: 11, kind: 'int', col: '#cbd5e1', open: [{ at: 3.0, w: 1.4, type: 'door' }, { at: 7.2, w: 1.5, type: { cur: 'locked', fut: 'slide' } }] },
-      { x1: 6, y1: 11, x2: 6, y2: 20, kind: 'glass', col: '#cbd5e1', open: [{ at: 14.5, w: 1.4, type: 'door' }] },
+      { x1: 1, y1: 7.5, x2: 11, y2: 7.5, kind: 'int', col: '#cbd5e1', open: [{ at: 3.2, w: 1.5, type: 'door' }, { at: 7.8, w: 1.6, type: 'double' }] },
+      { x1: 6.5, y1: 7.5, x2: 6.5, y2: 14, kind: 'glass', col: '#cbd5e1', open: [{ at: 10.2, w: 1.5, type: 'door' }] },
 
-      // BUILDING 2 (RIGHT — RETREAT CENTRE, x: 20..32)
-      { x1: 20, y1: 1, x2: 32, y2: 1, kind: 'ext', col: '#f5f0e6', windows: true },
-      // Building 2 Left Exterior Wall (x = 20) with Drop-Off Entrance Door at y = 8.8..10.8
-      { x1: 20, y1: 1, x2: 20, y2: 20, kind: 'ext', col: '#f5f0e6', windows: true, open: [{ at: 8.8, w: 2.0, type: 'slide' }] },
-      { x1: 20, y1: 20, x2: 32, y2: 20, kind: 'ext', col: '#f5f0e6', windows: true },
-      { x1: 32, y1: 1, x2: 32, y2: 20, kind: 'ext', col: '#f5f0e6', windows: true },
+      // BUILDING 2 (RIGHT — RETREAT CENTRE, x: 19..31, y: 1..14)
+      { x1: 19, y1: 1, x2: 31, y2: 1, kind: 'ext', col: '#f5f0e6', windows: true },
+      { x1: 19, y1: 1, x2: 19, y2: 14, kind: 'ext', col: '#f5f0e6', windows: true },
+      { x1: 31, y1: 1, x2: 31, y2: 14, kind: 'ext', col: '#f5f0e6', windows: true },
+      // Building 2 Bottom Front Wall (y = 14) — MAIN ENTRANCE FACING DOWN at x = 21.1..23.3
+      { x1: 19, y1: 14, x2: 31, y2: 14, kind: 'ext', col: '#f5f0e6', windows: true, open: [{ at: 21.1, w: 2.2, type: 'slide', alwaysOpen: true }] },
       // Building 2 Interior Walls
-      { x1: 20, y1: 9, x2: 32, y2: 9, kind: 'glass', open: [{ at: 22.5, w: 1.5, type: 'door' }, { at: 28.5, w: 1.6, type: 'slide' }] },
-      { x1: 26.5, y1: 1, x2: 26.5, y2: 9, kind: 'glass', open: [{ at: 4.5, w: 1.4, type: 'door' }] },
-      { x1: 20, y1: 11, x2: 32, y2: 11, kind: 'int', col: '#ede4d3', open: [{ at: 22.0, w: 1.6, type: 'slide' }, { at: 28.5, w: 1.6, type: 'door' }] },
-      { x1: 26.5, y1: 11, x2: 26.5, y2: 20, kind: 'int', col: '#ede4d3', open: [{ at: 15.0, w: 1.4, type: 'door' }] },
-      { x1: 20, y1: 15.8, x2: 26.5, y2: 15.8, kind: 'int', col: '#ede4d3', open: [{ at: 22.5, w: 1.2, type: 'door' }] }
+      { x1: 19, y1: 7.5, x2: 31, y2: 7.5, kind: 'glass', open: [{ at: 21.5, w: 1.5, type: 'door' }, { at: 27.5, w: 1.6, type: 'slide' }] },
+      { x1: 25.5, y1: 1, x2: 25.5, y2: 14, kind: 'int', col: '#ede4d3', open: [{ at: 4.0, w: 1.4, type: 'door' }, { at: 10.5, w: 1.5, type: 'door' }] }
     ]
   };
 
   function init(canvasId, onClickWorld) {
     const canvas = document.getElementById(canvasId);
     PH.init(canvas, MAP, onClickWorld);
-    injectWallToggleButton();
-  }
-
-  function injectWallToggleButton() {
-    const ctrl = document.querySelector('.hud-controls');
-    if (ctrl && !document.getElementById('btn-walls')) {
-      const btn = document.createElement('button');
-      btn.id = 'btn-walls';
-      btn.className = 'btn';
-      btn.textContent = '🧱 Walls: Cutaway';
-      btn.onclick = () => {
-        PH.wallsUp = !PH.wallsUp;
-        btn.textContent = PH.wallsUp ? '🧱 Walls: Full Height' : '🧱 Walls: Cutaway';
-        btn.classList.toggle('active', PH.wallsUp);
-      };
-      ctrl.insertBefore(btn, ctrl.children[1]);
-    }
   }
 
   function toIso(gx, gy, gz = 0) {
@@ -128,34 +108,52 @@ const IsoRenderer = (() => {
     PH.setCondition(isFut ? 'fut' : 'cur');
     PH.begin();
 
-    // ------------------------------- BUILDING 1 (LEFT, x: 1..10): PARTNER HOSPITAL
-    // Top Room: Hospital Ward (1..10, 1..9)
+    // ------------------------------- BUILDING 1 (LEFT, x: 1..11, y: 1..14): PARTNER HOSPITAL
+    // Top Room: Hospital Ward (1..11, 1..7.5)
     const bedBlanket = isFut ? '#0ea5e9' : '#64748b';
-    PHSprites.hospitalBed(1.5, 1.6, 0, { blanket: bedBlanket, alert: !isFut, ready: isFut, seed: 1 });
-    PHSprites.privacyCurtain(1.5, 3.2, 0, 2.0, '#bae6fd');
-    PHSprites.hospitalBed(1.5, 3.8, 0, { blanket: bedBlanket, alert: false, ready: isFut, seed: 2 });
-    PHSprites.privacyCurtain(1.5, 5.4, 0, 2.0, '#bae6fd');
-    PHSprites.hospitalBed(1.5, 6.0, 0, { blanket: bedBlanket, alert: !isFut, ready: isFut, seed: 3 });
-    PHSprites.hospitalBed(5.0, 1.6, 0, { blanket: bedBlanket, alert: false, ready: isFut, seed: 4 });
-    PHSprites.receptionDesk(7.2, 1.8, 1, 2.6, { col: isFut ? '#10b981' : '#0284c7', clutter: !isFut });
-    PHSprites.waitingBench(4.5, 7.6, 0, 4, '#3b82f6');
+    PHSprites.hospitalBed(1.5, 1.5, 0, { blanket: bedBlanket, alert: !isFut, ready: isFut, seed: 1 });
+    PHSprites.privacyCurtain(1.5, 3.1, 0, 1.9, '#bae6fd');
+    PHSprites.hospitalBed(1.5, 3.6, 0, { blanket: bedBlanket, alert: false, ready: isFut, seed: 2 });
+    PHSprites.hospitalBed(4.8, 1.5, 0, { blanket: bedBlanket, alert: !isFut, ready: isFut, seed: 3 });
+    PHSprites.hospitalBed(4.8, 3.6, 0, { blanket: bedBlanket, alert: false, ready: isFut, seed: 4 });
+    PHSprites.receptionDesk(8.0, 1.8, 1, 2.4, { col: isFut ? '#10b981' : '#0284c7', clutter: !isFut });
+    PHSprites.waitingBench(4.5, 6.1, 0, 4, '#3b82f6');
 
-    // Bottom Room: Billing & Discharge (1..10, 11..20)
-    PHSprites.receptionDesk(1.5, 11.8, 0, 3.4, { col: isFut ? '#10b981' : '#f59e0b', clutter: !isFut });
-    PHSprites.pharmacyShelf(1.5, 15.2, 0, { stockout: !isFut, rfid: isFut });
-    PHSprites.waitingBench(1.6, 17.6, 0, 5, '#475569');
-    PHSprites.vendingAndWater(4.2, 18.2, 0);
+    // Bottom Room: Billing & Main Entrance Lobby (1..11, 7.5..14)
+    PHSprites.receptionDesk(1.5, 8.2, 0, 3.0, { col: isFut ? '#10b981' : '#f59e0b', clutter: !isFut });
+    PHSprites.waitingBench(1.6, 11.4, 0, 4, '#475569');
+    PHSprites.waitingBench(1.6, 12.8, 0, 4, '#475569');
 
     if (isFut) {
-      PHSprites.sofa(6.6, 12.4, 0, 2.2, '#0d9488');
-      PHSprites.sofa(6.6, 15.2, 0, 2.2, '#0284c7');
-      PHSprites.kiosk(8.8, 12.2, 1, { col: '#10b981' });
-      PHSprites.kiosk(8.8, 13.4, 1, { col: '#0ea5e9' });
+      PHSprites.sofa(7.2, 8.5, 0, 2.0, '#0d9488');
+      PHSprites.kiosk(9.5, 8.5, 1, { col: '#10b981' });
+      PHSprites.kiosk(9.5, 10.0, 1, { col: '#0ea5e9' });
     } else {
-      PHSprites.waitingBench(6.5, 14.5, 0, 3, '#64748b');
+      PHSprites.waitingBench(7.2, 9.5, 0, 3, '#64748b');
     }
 
-    // ------------------------------- CONCIERGE TRANSPORT VEHICLES (x: 10..20)
+    // ------------------------------- BUILDING 2 (RIGHT, x: 19..31, y: 1..14): RETREAT CENTRE
+    // Top-Left Room: Doctor Check-Up Room (19..25.5, 1..7.5)
+    PHSprites.officeDesk(19.8, 1.5, 0, { clutter: !isFut, screenStyle: isFut ? 'ok' : 'alert', seed: 11 });
+    PHSprites.examTable(19.8, 4.2, 0, { col: isFut ? '#10b981' : '#0284c7' });
+    PHSprites.privacyCurtain(19.8, 5.8, 0, 1.8, '#a7f3d0');
+    PHSprites.officeDesk(22.8, 4.0, 0, { clutter: !isFut, screenStyle: 'ecg', seed: 12, visitorChair: false });
+
+    // Bottom-Left Room: Retreat Reception & Suites (19..25.5, 7.5..14)
+    PHSprites.receptionDesk(19.5, 8.2, 0, 2.6, { col: isFut ? '#10b981' : '#d97706', wood: '#78350f', clutter: !isFut });
+    if (isFut) {
+      PHSprites.kiosk(23.5, 8.2, 0, { col: '#10b981' });
+    }
+    PHSprites.luxuryBed(19.6, 10.2, 0, { duvet: isFut ? '#10b981' : '#d97706', smartHub: isFut });
+    PHSprites.luxuryBed(22.6, 10.2, 0, { duvet: isFut ? '#0ea5e9' : '#b45309', smartHub: isFut });
+
+    // Right Wing: Hydro Pool, Spa & Dining (25.5..31, 1..14)
+    PHSprites.spaTable(26.2, 8.2, 0, { col: '#6ee7b7' });
+    PHSprites.spaTable(28.6, 8.2, 0, { col: '#6ee7b7' });
+    PHSprites.diningTable(26.4, 11.2, 0, { cloth: '#fef3c7' });
+    PHSprites.diningTable(28.8, 11.2, 0, { cloth: '#fef3c7' });
+
+    // ------------------------------- CONCIERGE TRANSPORT VEHICLES ON FRONT ROAD (y: 14.6..17.6)
     if (simState.transports) {
       simState.transports.forEach(tr => {
         if (!tr.active) return;
@@ -168,32 +166,9 @@ const IsoRenderer = (() => {
       });
     }
 
-    // ------------------------------- BUILDING 2 (RIGHT, x: 20..32): RETREAT CENTRE
-    // Top-Left Room: Doctor Check-Up Room (20..26.5, 1..9)
-    PHSprites.officeDesk(21.0, 1.6, 0, { clutter: !isFut, screenStyle: isFut ? 'ok' : 'alert', seed: 11 });
-    PHSprites.examTable(20.8, 4.5, 0, { col: isFut ? '#10b981' : '#0284c7' });
-    PHSprites.privacyCurtain(20.8, 6.2, 0, 1.9, '#a7f3d0');
-    PHSprites.officeDesk(23.8, 4.5, 0, { clutter: !isFut, screenStyle: 'ecg', seed: 12, visitorChair: false });
-
-    // Bottom-Left Room: Retreat Reception & Suites (20..26.5, 11..20)
-    PHSprites.receptionDesk(20.6, 11.5, 0, 2.8, { col: isFut ? '#10b981' : '#d97706', wood: '#78350f', clutter: !isFut });
-    if (isFut) {
-      PHSprites.kiosk(24.0, 11.5, 0, { col: '#10b981' });
-    }
-    PHSprites.luxuryBed(20.8, 13.5, 0, { duvet: isFut ? '#10b981' : '#d97706', smartHub: isFut });
-    PHSprites.luxuryBed(20.8, 16.8, 0, { duvet: isFut ? '#0ea5e9' : '#b45309', smartHub: isFut });
-    PHSprites.sofa(23.8, 17.2, 1, 1.8, '#b45309');
-
-    // Right Wing: Hydro Pool, Spa & Dining (26.5..32, 1..20)
-    PHSprites.spaTable(27.2, 11.8, 0, { col: '#6ee7b7' });
-    PHSprites.spaTable(29.6, 11.8, 0, { col: '#6ee7b7' });
-    PHSprites.diningTable(27.4, 15.2, 0, { cloth: '#fef3c7' });
-    PHSprites.diningTable(29.8, 15.2, 0, { cloth: '#fef3c7' });
-    PHSprites.diningTable(28.6, 17.6, 0, { cloth: '#fde68a' });
-
-    // ------------------------------- DOCTORS, NURSES, CONCIERGE, STAFF & PATIENTS
+    // ------------------------------- PATIENTS, DOCTORS, NURSES, CONCIERGE & STAFF
     simState.agents.forEach(ag => {
-      if (ag.inVehicle) return; // Inside the moving Concierge Transport
+      if (ag.inVehicle) return;
       const isSel = ag.id === simState.selectedAgentId;
       let role = ag.role;
       if (role === 'cleaner') role = 'janitor';
@@ -201,7 +176,7 @@ const IsoRenderer = (() => {
         id: ag.id,
         gx: ag.gx,
         gy: ag.gy,
-        z: ag.pose === 'LYING_ON_BED' ? 9.5 : 0,
+        z: ag.pose === 'LYING_ON_BED' ? 9.5 : (ag.z || 0),
         pose: ag.pose,
         dir: ag.dir,
         role,
@@ -221,19 +196,21 @@ const IsoRenderer = (() => {
 
     PH.end();
 
-    // Plain, Simple Room Signs (No cryptic S1..S6 codes)
-    PHSprites.roomSign(5.5, 1.2, 'Hospital Ward', '#0ea5e9');
-    PHSprites.roomSign(5.5, 11.2, isFut ? 'Fast-Track Discharge' : 'Billing & Discharge', isFut ? '#10b981' : '#f59e0b');
-    PHSprites.roomSign(15.0, 7.6, 'Concierge Transport (Left ↔ Right)', '#a855f7');
-    PHSprites.roomSign(23.2, 1.2, 'Doctor Check-Up Room', '#38bdf8');
-    PHSprites.roomSign(23.2, 11.2, 'Retreat Reception & Suites', '#10b981');
-    PHSprites.roomSign(29.2, 1.2, 'Hydro Pool & Dining', '#06b6d4');
+    // Plain Room & Main Entrance Signs
+    PHSprites.roomSign(6.0, 1.1, 'Hospital Ward', '#0ea5e9');
+    PHSprites.roomSign(3.8, 7.7, isFut ? 'Fast-Track Discharge' : 'Billing & Discharge', isFut ? '#10b981' : '#f59e0b');
+    PHSprites.roomSign(6.3, 13.8, 'Hospital Main Entrance ↓', '#0ea5e9');
+
+    PHSprites.roomSign(22.2, 1.1, 'Doctor Check-Up Room', '#38bdf8');
+    PHSprites.roomSign(22.2, 7.7, 'Retreat Reception & Suites', '#10b981');
+    PHSprites.roomSign(28.2, 1.1, 'Hydro Pool & Dining', '#06b6d4');
+    PHSprites.roomSign(22.2, 13.8, 'Retreat Main Entrance ↓', '#10b981');
 
     PH.overlay(simState.showActionLabels);
 
     if (upgradePulse > 0.01) {
       const c = PH.S.ctx;
-      const center = PH.P(16, 11, 10);
+      const center = PH.P(16, 9, 10);
       const maxR = Math.max(PH.S.vpW, PH.S.vpH) * 0.9;
       const curR = (1 - upgradePulse) * maxR;
       c.save();

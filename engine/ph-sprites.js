@@ -577,14 +577,13 @@
         c.beginPath(); c.arc(wp.x, wp.y, 2.5 * z, 0, Math.PI * 2); c.fill();
       }
 
-      // Deployable patient boarding ramp when stopped at Hospital Pick-Up or Retreat Drop-Off
+      // Deployable patient boarding ramp facing UP towards the building's downward-facing Main Entrance
       if (openDoor) {
-        const rampX = dirX > 0 ? gx - 0.55 : gx + 2.15;
-        PH.box(rampX, gy + 0.18, 0.4, 0.6, 0.72, 1.3, trimCol);
+        PH.box(gx + 0.7, gy - 0.55, 0.4, 0.8, 0.6, 1.2, trimCol);
       }
 
       // Floating badge above the Concierge Transport
-      const tp = PH.P(gx + 1.1, gy + 0.54, 23 + bounce);
+      const tp = PH.P(gx + 1.1, gy + 0.54, 24 + bounce);
       PH.bubble(tp.x, tp.y, label, isVIP ? 'ok' : 'warn');
     });
   }

@@ -3,180 +3,64 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BAHM330-A1 | Project Hospital 28x22 Step-Down Transfer Twin</title>
+  <title>Hospital to Retreat Concierge Transfer</title>
   <link rel="stylesheet" href="./styles.css" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0b1220;
+    }
+    .viewport {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+    #iso-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .simple-switcher {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      display: flex;
+      gap: 6px;
+      padding: 5px;
+      background: rgba(9, 13, 22, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 999px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    }
+    .simple-switcher .mode-btn {
+      padding: 7px 22px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <div class="academic-badge">
-    SIMULATED ILLUSTRATIVE MODEL DATA — FOR ACADEMIC PROCESS ANALYSIS ONLY
+  <div class="simple-switcher">
+    <button id="btn-mode-current" class="mode-btn active-current" onclick="SimApp.setMode('current')">
+      Before
+    </button>
+    <button id="btn-mode-future" class="mode-btn" onclick="SimApp.setMode('future')">
+      After
+    </button>
   </div>
-
-  <header class="top-hud">
-    <div class="hud-left">
-      <a href="../index.html" class="btn">← Hub</a>
-      <h1>Concierge Hospital-to-Retreat Step-Down Transfer Pathway</h1>
-      <span class="tag">BAHM330-A1 · 28×22 FACILITY TRANSFORMATION</span>
-    </div>
-
-    <div class="hud-controls">
-      <div class="mode-switcher">
-        <button id="btn-mode-current" class="mode-btn active-current" onclick="SimApp.setMode('current')">
-          Mode 1: Current State (Broken · 275m / 34.5% PCE)
-        </button>
-        <button id="btn-mode-future" class="mode-btn" onclick="SimApp.setMode('future')">
-          Mode 2: Future State (Smart Facility · 110m / 90.9% PCE)
-        </button>
-      </div>
-      <button id="btn-labels" class="btn active" onclick="SimApp.toggleActionLabels()">🏷️ Show Action Labels</button>
-      <button id="btn-play" class="btn active" onclick="SimApp.togglePlay()">⏸ Pause</button>
-      <button id="btn-speed" class="btn" onclick="SimApp.toggleSpeed()">1x</button>
-      <button class="btn" onclick="SimApp.resetSim()">↺ Reset</button>
-      <button class="btn btn-csv" onclick="SimApp.exportCSV()">⬇ Export KPI Snapshot (CSV)</button>
-    </div>
-  </header>
-
-  <!-- Prominent Before vs. After Impact Summary Strip -->
-  <section class="impact-strip" id="impact-strip">
-    <div class="impact-badges">
-      <span class="impact-title">⚡ BEFORE vs. AFTER IMPACT:</span>
-      <span class="impact-pill">-60.0% Cycle Time (275m → 110m)</span>
-      <span class="impact-pill">-94.4% Wasted Wait (180m → 10m)</span>
-      <span class="impact-pill">+56.4% Efficiency (34.5% → 90.9% PCE)</span>
-      <span class="impact-pill warn">Unlocks: Fast-Track Lounge · 2 VIP Vans · Biometric Pod · On-Site MD Suite</span>
-    </div>
-    <span class="facility-state-tag" id="facility-state-tag">CURRENT: OUTDATED &amp; SILOED FACILITY</span>
-  </section>
-
-  <nav class="dept-bar">
-    <div class="dept-tabs" id="dept-tabs">
-      <button class="dept-tab active" onclick="SimApp.focusZone(-1, this)">Both Buildings</button>
-      <button class="dept-tab" onclick="SimApp.focusZone(0, this)">1. Hospital Ward</button>
-      <button class="dept-tab" onclick="SimApp.focusZone(1, this)">2. Billing &amp; Discharge</button>
-      <button class="dept-tab" onclick="SimApp.focusZone(2, this)">3. Concierge Transport</button>
-      <button class="dept-tab" onclick="SimApp.focusZone(3, this)">4. Retreat Reception &amp; Suites</button>
-      <button class="dept-tab" onclick="SimApp.focusZone(4, this)">5. Doctor Check-Up Room</button>
-      <button class="dept-tab" onclick="SimApp.focusZone(5, this)">6. Hydro Pool &amp; Dining</button>
-    </div>
-    <div class="roster-summary" id="roster-summary">
-      Left Building: Partner Hospital · Transit Road: Concierge Transport (Left ↔ Right) · Right Building: Retreat Centre
-    </div>
-  </nav>
 
   <main class="viewport" id="viewport">
     <canvas id="iso-canvas"></canvas>
-
-    <!-- Floating KPIs -->
-    <div class="floating-kpis">
-      <div class="kpi-pill optimal">
-        <div class="lbl">Active Value-Added Time</div>
-        <div class="val" id="kpi-va" style="color:var(--optimal)">95 mins</div>
-        <div class="sub" id="kpi-va-sub">Future Smart Care: 100 mins</div>
-      </div>
-      <div class="kpi-pill bottleneck">
-        <div class="lbl">Non-Value-Added Waiting</div>
-        <div class="val" id="kpi-nva" style="color:var(--bottleneck)">180 mins</div>
-        <div class="sub" id="kpi-nva-sub">Future Target: 10 mins (-94.4%)</div>
-      </div>
-      <div class="kpi-pill">
-        <div class="lbl">Total Elapsed Cycle Time</div>
-        <div class="val" id="kpi-total" style="color:var(--primary)">275 mins</div>
-        <div class="sub" id="kpi-total-sub">Future: 110 mins (-60.0% Faster)</div>
-      </div>
-      <div class="kpi-pill warning">
-        <div class="lbl">Process Cycle Efficiency</div>
-        <div class="val" id="kpi-pce" style="color:var(--bottleneck)">34.5%</div>
-        <div class="sub" id="kpi-pce-sub">Future Target: 90.9% (+56.4%)</div>
-      </div>
-    </div>
-
-    <!-- Project Hospital Tabbed Clinical & Operations Inspector Card -->
-    <aside class="inspector-card">
-      <div class="insp-header">
-        <div>
-          <div class="insp-title" id="insp-name">Resident Tan Sri Dato' Lim (#G-101)</div>
-          <div class="insp-subtitle" id="insp-role">78M · Post-Orthopaedic Step-Down</div>
-        </div>
-        <span class="insp-badge" id="insp-badge">STAGE 1 · WARD</span>
-      </div>
-
-      <div class="insp-tabs">
-        <button class="insp-tab active" onclick="SimApp.setInspectorTab(0, this)">(a) Profile &amp; Vitals</button>
-        <button class="insp-tab" onclick="SimApp.setInspectorTab(1, this)">(b) Journey Log</button>
-        <button class="insp-tab" onclick="SimApp.setInspectorTab(2, this)">(c) Root-Cause</button>
-      </div>
-
-      <!-- Tab (a): Profile & Live Vitals -->
-      <div class="tab-pane active" id="insp-pane-0">
-        <div class="vitals-grid">
-          <div class="vital-box"><span>HEART RATE</span><strong style="color:#10b981" id="insp-hr">76 bpm</strong></div>
-          <div class="vital-box"><span>BP / SPO2</span><strong style="color:#0ea5e9" id="insp-bp">124/78 · 98%</strong></div>
-          <div class="vital-box"><span>POSE / DIR</span><strong style="color:#f59e0b" id="insp-pose">WALKING · SE</strong></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.64rem;font-family:var(--mono);">
-          <span id="insp-stage-txt">S1: Ward Discharge Handover</span>
-          <span id="insp-pct">18%</span>
-        </div>
-        <div class="progress-bar-wrap">
-          <div class="progress-bar-fill" id="insp-progress"></div>
-        </div>
-        <div class="rca-box" id="insp-micro-summary">
-          Toggle between Mode 1 (Current Broken Facility) and Mode 2 (Future Smart Facility) to watch the architectural renovation on the canvas.
-        </div>
-      </div>
-
-      <!-- Tab (b): Step-by-Step Timestamped Journey Log -->
-      <div class="tab-pane" id="insp-pane-1">
-        <div class="log-box" id="insp-log-list"></div>
-      </div>
-
-      <!-- Tab (c): Operational Bottleneck / Root-Cause Analysis -->
-      <div class="tab-pane" id="insp-pane-2">
-        <div class="rca-box" id="insp-rca-body"></div>
-      </div>
-    </aside>
-
-    <!-- Bottom Event Ticker & Stacked Bottleneck Compare -->
-    <div class="bottom-hud">
-      <div class="ticker-dock">
-        <div class="compare-bars">
-          <div>
-            <div style="display:flex;justify-content:space-between;">
-              <span>Before — Current State (275m): 95m VA / 180m Wasted Wait</span>
-              <span style="color:var(--bottleneck)">PCE 34.5%</span>
-            </div>
-            <div class="bar-line">
-              <div style="width:34.5%;background:var(--optimal)"></div>
-              <div style="width:65.5%;background:var(--bottleneck)"></div>
-            </div>
-          </div>
-          <div>
-            <div style="display:flex;justify-content:space-between;">
-              <span>After — Future Smart Facility (110m): 100m VA / 10m Wait</span>
-              <span style="color:var(--optimal)">PCE 90.9% (-60% Faster)</span>
-            </div>
-            <div class="bar-line">
-              <div style="width:36.4%;background:var(--optimal)"></div>
-              <div style="width:3.6%;background:var(--warning)"></div>
-              <div style="width:60.0%;background:#1e293b"></div>
-            </div>
-          </div>
-        </div>
-        <div class="ticker-text" id="bottom-ticker">
-          [LIVE TELEMETRY]: 8 concurrent geriatric step-down transfers active across 28×22 Partner Hospital &amp; Luxury Retreat campus.
-        </div>
-      </div>
-
-      <div class="cam-dock">
-        <button class="btn" onclick="IsoRenderer.zoomCam(1.15)">＋ Zoom</button>
-        <button class="btn" onclick="IsoRenderer.zoomCam(0.87)">－ Zoom</button>
-        <button class="btn" onclick="IsoRenderer.resetCam()">⌖ Reset Camera</button>
-      </div>
-    </div>
   </main>
-
-  <footer>
-    SIMULATED ILLUSTRATIVE MODEL DATA — FOR ACADEMIC PROCESS ANALYSIS ONLY · DRAG TO PAN / SCROLL TO ZOOM / CLICK ANY AGENT TO INSPECT
-  </footer>
 
   <script src="../engine/ph-engine.js"></script>
   <script src="../engine/ph-sprites.js"></script>

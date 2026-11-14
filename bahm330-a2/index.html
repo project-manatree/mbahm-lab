@@ -3,182 +3,64 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BAHM330-A2 | Meridian Specialist Hospital (MSH) 28x22 Operations Twin</title>
+  <title>Outpatient &amp; Diagnostic Clinic</title>
   <link rel="stylesheet" href="./styles.css" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0b1220;
+    }
+    .viewport {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+    #iso-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .simple-switcher {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      display: flex;
+      gap: 6px;
+      padding: 5px;
+      background: rgba(9, 13, 22, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 999px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    }
+    .simple-switcher .mode-btn {
+      padding: 7px 22px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <div class="academic-badge">
-    SIMULATED ILLUSTRATIVE MODEL DATA — FOR ACADEMIC PROCESS ANALYSIS ONLY
+  <div class="simple-switcher">
+    <button id="btn-mode-current" class="mode-btn active-current" onclick="SimApp.setMode('current')">
+      Before
+    </button>
+    <button id="btn-mode-future" class="mode-btn" onclick="SimApp.setMode('future')">
+      After
+    </button>
   </div>
-
-  <header class="top-hud">
-    <div class="hud-left">
-      <a href="../index.html" class="btn">← Hub</a>
-      <h1>Meridian Specialist Hospital (MSH) — Operations &amp; Supply Chain Twin</h1>
-      <span class="tag">BAHM330-A2 · 28×22 FACILITY TRANSFORMATION</span>
-    </div>
-
-    <div class="hud-controls">
-      <div class="mode-switcher">
-        <button id="btn-mode-current" class="mode-btn active-current" onclick="SimApp.setMode('current')">
-          Mode 1: Current State (Broken Facility · C1–C5 Bottlenecks)
-        </button>
-        <button id="btn-mode-future" class="mode-btn" onclick="SimApp.setMode('future')">
-          Mode 2: Future State (Expanded Smart Wing &amp; Robotic Rx)
-        </button>
-      </div>
-      <button id="btn-labels" class="btn active" onclick="SimApp.toggleActionLabels()">🏷️ Show Action Labels</button>
-      <button id="btn-analytics" class="btn" onclick="SimApp.toggleAnalytics()">📊 4 Analytics Charts</button>
-      <button id="btn-play" class="btn active" onclick="SimApp.togglePlay()">⏸ Pause</button>
-      <button id="btn-speed" class="btn" onclick="SimApp.toggleSpeed()">1x</button>
-      <button class="btn" onclick="SimApp.resetSim()">↺ Reset</button>
-      <button class="btn btn-spawn" onclick="SimApp.focusComplaint('C1')">⚡ C1</button>
-      <button class="btn btn-spawn" onclick="SimApp.focusComplaint('C2')">⚡ C2</button>
-      <button class="btn btn-spawn" onclick="SimApp.focusComplaint('C3')">⚡ C3</button>
-      <button class="btn btn-spawn" onclick="SimApp.focusComplaint('C5')">⚡ C5</button>
-      <button class="btn btn-csv" onclick="SimApp.exportCSV()">⬇ Export KPI Snapshot (CSV)</button>
-    </div>
-  </header>
-
-  <!-- Prominent Before vs. After Impact Summary Strip -->
-  <section class="impact-strip" id="impact-strip">
-    <div class="impact-badges">
-      <span class="impact-title">⚡ BEFORE vs. AFTER IMPACT:</span>
-      <span class="impact-pill">-82% Outpatient Wait (68m → 12m)</span>
-      <span class="impact-pill">99.2% First-Pass Scan (Dual 3T MRI + CT)</span>
-      <span class="impact-pill">-80% Discharge Delay (92m → 18m Robotic Rx)</span>
-      <span class="impact-pill warn">99.9% SSOT Schedule Sync (68.0% → 99.9%)</span>
-    </div>
-    <span class="facility-state-tag" id="facility-state-tag">CURRENT: CONGESTED 2-ROOM CLINIC &amp; MANUAL RX</span>
-  </section>
-
-  <nav class="dept-bar">
-    <div class="dept-tabs" id="dept-tabs">
-      <button class="dept-tab active" onclick="SimApp.focusDept('ALL', this)">Full Wing (28×22)</button>
-      <button class="dept-tab" onclick="SimApp.focusDept('REC', this)">1. Reception &amp; Kiosks</button>
-      <button class="dept-tab" onclick="SimApp.focusDept('C1', this)">2. 4-Room Specialist Pod (C1)</button>
-      <button class="dept-tab" onclick="SimApp.focusDept('C2', this)">3. Dual 3T MRI + CT Wing (C2)</button>
-      <button class="dept-tab" onclick="SimApp.focusDept('WARD', this)">4. Ward &amp; Discharge Lounge (C3)</button>
-      <button class="dept-tab" onclick="SimApp.focusDept('PHARM', this)">5. Robotic Pharmacy + RFID (C3)</button>
-      <button class="dept-tab" onclick="SimApp.focusDept('C5', this)">6. Central SSOT HIS Hub (C5)</button>
-    </div>
-    <div class="roster-summary" id="roster-summary">
-      Active Agents: 30 (18 Patients · 12 Doctors/Nurses/Radiographers/Pharmacists) · Click Mode 2 to Expand Facility
-    </div>
-  </nav>
 
   <main class="viewport" id="viewport">
     <canvas id="iso-canvas"></canvas>
-
-    <!-- Floating KPIs -->
-    <div class="floating-kpis">
-      <div class="kpi-pill" onclick="SimApp.focusComplaint('C1')">
-        <div class="lbl">C1 · Outpatient Wait</div>
-        <div class="val" id="kpi-c1" style="color:var(--bottleneck)">68 mins</div>
-        <div class="sub" id="kpi-c1-sub">14+ Crowded · 2 Rooms Only</div>
-      </div>
-      <div class="kpi-pill" onclick="SimApp.focusComplaint('C2')">
-        <div class="lbl">C2 · Diagnostic First-Pass</div>
-        <div class="val" id="kpi-c2" style="color:var(--bottleneck)">60.0%</div>
-        <div class="sub" id="kpi-c2-sub">40% Rejected at Single X-Ray</div>
-      </div>
-      <div class="kpi-pill" onclick="SimApp.focusComplaint('C3')">
-        <div class="lbl">C3 · Discharge Rx Turnaround</div>
-        <div class="val" id="kpi-c3" style="color:var(--bottleneck)">92 mins</div>
-        <div class="sub" id="kpi-c3-sub">Stockout + 4 Beds Blocked</div>
-      </div>
-      <div class="kpi-pill" onclick="SimApp.focusComplaint('C5')">
-        <div class="lbl">C5 · Schedule Sync Accuracy</div>
-        <div class="val" id="kpi-c5" style="color:var(--warning)">68.0%</div>
-        <div class="sub" id="kpi-c5-sub">SMS != Phone Clash Sparks</div>
-      </div>
-    </div>
-
-    <!-- Tabbed Project Hospital Clinical & Operations Inspector Card -->
-    <aside class="inspector-card">
-      <div class="insp-header">
-        <div>
-          <div class="insp-title" id="insp-name">Patient Puan Faridah (#MSH-401)</div>
-          <div class="insp-subtitle" id="insp-role">C1 · Specialist Outpatient Clinic</div>
-        </div>
-        <span class="insp-badge" id="insp-badge">C1 QUEUE</span>
-      </div>
-
-      <div class="insp-tabs">
-        <button class="insp-tab active" onclick="SimApp.setInspectorTab(0, this)">(a) Profile &amp; Vitals</button>
-        <button class="insp-tab" onclick="SimApp.setInspectorTab(1, this)">(b) Journey Log</button>
-        <button class="insp-tab" onclick="SimApp.setInspectorTab(2, this)">(c) Root-Cause</button>
-      </div>
-
-      <!-- Tab (a): Profile & Live Vitals -->
-      <div class="tab-pane active" id="insp-pane-0">
-        <div class="vitals-grid">
-          <div class="vital-box"><span>ARRIVAL / REF</span><strong style="color:#0ea5e9" id="insp-v1">09:40 Slot 10:00</strong></div>
-          <div class="vital-box"><span>WAIT / TURN</span><strong style="color:#ef4444" id="insp-v2">68m Wait</strong></div>
-          <div class="vital-box"><span>POSE / DIR</span><strong style="color:#f59e0b" id="insp-v3">SITTING_WAIT</strong></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.64rem;font-family:var(--mono);">
-          <span id="insp-stage-txt">Department Process Efficiency</span>
-          <span id="insp-pct">30%</span>
-        </div>
-        <div class="progress-bar-wrap">
-          <div class="progress-bar-fill" id="insp-progress"></div>
-        </div>
-        <div class="rca-box" id="insp-micro-summary">
-          Toggle Mode 2 to unlock the 4-Room Specialist Pod, Dual 3T MRI + CT Wing, Robotic Pharmacy, and SSOT HIS Conduits.
-        </div>
-      </div>
-
-      <!-- Tab (b): Step-by-Step Timestamped Journey Log -->
-      <div class="tab-pane" id="insp-pane-1">
-        <div class="log-box" id="insp-log-list"></div>
-      </div>
-
-      <!-- Tab (c): Root-Cause Analysis -->
-      <div class="tab-pane" id="insp-pane-2">
-        <div class="rca-box" id="insp-rca-body"></div>
-      </div>
-    </aside>
-
-    <!-- Toggleable 4 SVG Comparison Charts Drawer -->
-    <section class="analytics-drawer" id="analytics-drawer">
-      <div class="chart-box">
-        <h3>1. C1 — Mean Outpatient Wait Time (-82% Improvement)</h3>
-        <p>Before: 2 slow consult rooms + 14 crowded patients (68m, ETA Unknown) vs. After: Expanded 4-Room Pod + Live Queue Screens (12m).</p>
-        <svg id="chart-c1" viewBox="0 0 420 140" style="width:100%;height:auto;"></svg>
-      </div>
-      <div class="chart-box">
-        <h3>2. C2 — First-Pass Diagnostic Completion (60.0% → 99.2%)</h3>
-        <p>Before: Single X-Ray room turning away 40% incomplete paper referrals vs. After: Dual 3T MRI + High-Speed CT with CPOE Hard-Stop (99.2%).</p>
-        <svg id="chart-c2" viewBox="0 0 420 140" style="width:100%;height:auto;"></svg>
-      </div>
-      <div class="chart-box">
-        <h3>3. C3 — Discharge Medication Turnaround (-80% Delay)</h3>
-        <p>Before: Manual stockouts + landline phone loop blocking 4 beds (92m) vs. After: Robotic Dispensing + RFID Racks + Discharge Lounge (18m).</p>
-        <svg id="chart-c3" viewBox="0 0 420 140" style="width:100%;height:auto;"></svg>
-      </div>
-      <div class="chart-box">
-        <h3>4. C5 — Appointment Schedule Sync Accuracy (68.0% → 99.9%)</h3>
-        <p>Before: Clashing SMS != Phone bookings (68.0%) vs. After: Central HIS Single-Source-of-Truth (SSOT) Command Hub (99.9%).</p>
-        <svg id="chart-c5" viewBox="0 0 420 140" style="width:100%;height:auto;"></svg>
-      </div>
-    </section>
-
-    <div class="bottom-hud">
-      <div class="ticker-dock" id="bottom-ticker">
-        [MSH LIVE TELEMETRY]: 30 concurrent agents active across Reception, Outpatient Clinic (C1), Imaging Wing (C2), Ward/Pharmacy (C3) &amp; HIS Hub (C5).
-      </div>
-      <div class="cam-dock">
-        <button class="btn" onclick="IsoRenderer.zoomCam(1.15)">＋ Zoom</button>
-        <button class="btn" onclick="IsoRenderer.zoomCam(0.87)">－ Zoom</button>
-        <button class="btn" onclick="IsoRenderer.resetCam()">⌖ Reset Camera</button>
-      </div>
-    </div>
   </main>
-
-  <footer>
-    SIMULATED ILLUSTRATIVE MODEL DATA — FOR ACADEMIC PROCESS ANALYSIS ONLY · DRAG TO PAN / SCROLL TO ZOOM / CLICK ANY AGENT TO INSPECT
-  </footer>
 
   <script src="../engine/ph-engine.js"></script>
   <script src="../engine/ph-sprites.js"></script>

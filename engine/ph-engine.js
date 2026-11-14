@@ -49,6 +49,7 @@
   const S = {
     canvas: null, ctx: null, dpr: 1, vpW: 800, vpH: 600,
     cam: { cx: 0, cy: 0, z: 1 }, ox: 0, oy: 0, t: 0,
+    proj: { ax: TW / 2, ay: TH / 2, bx: -TW / 2, by: TH / 2 },
     map: null, cond: 'cur', bakes: {}, items: [], labels: [], wallsUp: false,
     agentsPrev: new Map(), doorOpen: new Map(), agentsNow: []
   };
@@ -56,18 +57,24 @@
 
   // ------------------------------------------------------------- projection
   function P(gx, gy, gz) {
-    const z = S.cam.z;
-    return { x: S.ox + (gx - gy) * (TW / 2) * z, y: S.oy + ((gx + gy) * (TH / 2) - (gz || 0)) * z };
+    const z = S.cam.z, pr = S.proj;
+    return {
+      x: S.ox + (gx * pr.ax + gy * pr.bx) * z,
+      y: S.oy + (gx * pr.ay + gy * pr.by - (gz || 0)) * z
+    };
   }
   function updateOrigin() {
     S.ox = S.vpW / 2 - S.cam.cx * S.cam.z;
     S.oy = S.vpH / 2 - S.cam.cy * S.cam.z;
   }
   function screenToGrid(sx, sy) {
-    const z = S.cam.z;
+    const z = S.cam.z, pr = S.proj;
     const wx = (sx - S.ox) / z, wy = (sy - S.oy) / z;
-    const a = wx / (TW / 2), b = wy / (TH / 2);
-    return { gx: (a + b) / 2, gy: (b - a) / 2 };
+    const det = pr.ax * pr.by - pr.bx * pr.ay || 1;
+    return {
+      gx: (wx * pr.by - wy * pr.bx) / det,
+      gy: (-wx * pr.ay + wy * pr.ax) / det
+    };
   }
 
   // ------------------------------------------------------------- materials
@@ -305,9 +312,9 @@
   }
   // grid-plane affine (draw in grid units * TEX)
   function gridSpace(z, fn) {
-    const c = S.ctx, k = S.cam.z * S.dpr;
+    const c = S.ctx, k = S.cam.z * S.dpr, pr = S.proj;
     c.save();
-    c.setTransform((TW / 2 / TEX) * k, (TH / 2 / TEX) * k, -(TW / 2 / TEX) * k, (TH / 2 / TEX) * k, S.ox * S.dpr, (S.oy - z * S.cam.z) * S.dpr);
+    c.setTransform((pr.ax / TEX) * k, (pr.ay / TEX) * k, (pr.bx / TEX) * k, (pr.by / TEX) * k, S.ox * S.dpr, (S.oy - z * S.cam.z) * S.dpr);
     fn(c);
     c.restore();
   }
@@ -486,17 +493,20 @@
   // ------------------------------------------------------------ floor bake
   function pick(v) { return (v && typeof v === 'object' && !Array.isArray(v) && ('cur' in v || 'fut' in v)) ? v[S.cond] : v; }
   function worldBounds(b) {
-    const xs = [], ys = [];
-    [[b.x0, b.y0], [b.x1, b.y0], [b.x1, b.y1], [b.x0, b.y1]].forEach(([gx, gy]) => { xs.push((gx - gy) * TW / 2); ys.push((gx + gy) * TH / 2); });
+    const pr = S.proj, xs = [], ys = [];
+    [[b.x0, b.y0], [b.x1, b.y0], [b.x1, b.y1], [b.x0, b.y1]].forEach(([gx, gy]) => {
+      xs.push(gx * pr.ax + gy * pr.bx);
+      ys.push(gx * pr.ay + gy * pr.by);
+    });
     return { minX: Math.min(...xs) - 4, maxX: Math.max(...xs) + 4, minY: Math.min(...ys) - 4, maxY: Math.max(...ys) + 4 };
   }
   function bakeFloor(cond) {
-    const map = S.map, wb = worldBounds(map.bounds);
+    const map = S.map, wb = worldBounds(map.bounds), pr = S.proj;
     const cw = Math.ceil((wb.maxX - wb.minX) * BAKE), ch = Math.ceil((wb.maxY - wb.minY) * BAKE);
     const cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
     const g = cv.getContext('2d');
     const k = BAKE;
-    g.setTransform((TW / 2 / TEX) * k, (TH / 2 / TEX) * k, -(TW / 2 / TEX) * k, (TH / 2 / TEX) * k, -wb.minX * k, -wb.minY * k);
+    g.setTransform((pr.ax / TEX) * k, (pr.ay / TEX) * k, (pr.bx / TEX) * k, (pr.by / TEX) * k, -wb.minX * k, -wb.minY * k);
     const prev = S.cond; S.cond = cond;
     const U = TEX;
     // ground
@@ -1160,7 +1170,7 @@
     for (const L of S.labels) {
       const sp = L.spec;
       const foot = P(L.gx, L.gy, L.z);
-      const shortRole = roleName(sp.role);
+      const shortRole = sp.label || roleName(sp.role);
       let y = foot.y + 4 * S.cam.z;
       for (const q of placed) if (Math.abs(q.x - foot.x) < 46 && Math.abs(q.y - y) < 15) y = q.y + 15;
       placed.push({ x: foot.x, y });
@@ -1217,6 +1227,8 @@
   // ----------------------------------------------------------------- public
   function init(canvas, map, onClick) {
     S.canvas = canvas; S.ctx = canvas.getContext('2d'); S.map = map;
+    S.proj = map.proj || { ax: TW / 2, ay: TH / 2, bx: -TW / 2, by: TH / 2 };
+    S.bakes = {};
     resize(); window.addEventListener('resize', resize);
     if (typeof ResizeObserver !== 'undefined') new ResizeObserver(resize).observe(canvas.parentElement);
     attachInput(onClick);
@@ -1237,8 +1249,9 @@
     S.cam.cx = (wb.minX + wb.maxX) / 2; S.cam.cy = (wb.minY + wb.maxY) / 2 - 24;
   }
   function panTo(gx, gy, z) {
+    const pr = S.proj;
     if (z) S.cam.z = Math.max(zoomMin, Math.min(zoomMax, z));
-    S.cam.cx = (gx - gy) * TW / 2; S.cam.cy = (gx + gy) * TH / 2 - 20;
+    S.cam.cx = gx * pr.ax + gy * pr.bx; S.cam.cy = gx * pr.ay + gy * pr.by - 20;
   }
   function setCondition(cond) { S.cond = cond; }
   function invalidate() { S.bakes = {}; }
