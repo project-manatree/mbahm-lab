@@ -1,7 +1,9 @@
 // ============================================================================
 // BAHM330-A1: Two-Building Hospital-to-Retreat Step-Down Transfer Simulation
-// Concierge picks up Patient from Left Building (Hospital), escorts Left-to-Right
-// across the transfer walkway into Right Building (Retreat), and returns.
+// Building 1 (Left, x: 1..10): Partner Hospital
+// Distance Road Gap (x: 10..20): Concierge Transport picks up Patient from Left
+// Building, drives Left -> Right to Right Building, drops off, and returns Right -> Left.
+// Building 2 (Right, x: 20..32): Retreat Centre
 // ============================================================================
 
 const SimApp = (() => {
@@ -26,12 +28,12 @@ const SimApp = (() => {
     },
     {
       id: 3,
-      short: "Concierge Transfer",
-      name: "Concierge Pick-Up & Transfer (Left Building → Right Building)",
-      current: { va: 30, nva: 30, rca: "Patients wait +30m at the Hospital exit for a single Concierge escort." },
-      future:  { va: 35, nva: 0,  rca: "Dedicated Concierge team immediately escorts patients Left-to-Right into the Retreat (0m wait)." },
-      wp: { gx: 12.5, gy: 9.8 },
-      waitWp: { gx: 9.2, gy: 9.8 }
+      short: "Concierge Transport",
+      name: "Concierge Transport (Pick-Up Left Building → Drop-Off Right Building)",
+      current: { va: 30, nva: 30, rca: "Patients wait +30m at the Hospital exit for the single returning Concierge Transport." },
+      future:  { va: 35, nva: 0,  rca: "Dedicated Concierge Transport fleet immediately picks up patients Left-to-Right (0m wait)." },
+      wp: { gx: 15.0, gy: 9.6 },
+      waitWp: { gx: 9.2, gy: 9.6 }
     },
     {
       id: 4,
@@ -39,8 +41,8 @@ const SimApp = (() => {
       name: "Retreat Reception & Suite Check-In",
       current: { va: 10, nva: 30, rca: "Unprepared suites and paper check-in cause a +30m lobby wait." },
       future:  { va: 10, nva: 0,  rca: "Instant check-in directly into pre-prepared Retreat Suites (0m wait)." },
-      wp: { gx: 17.5, gy: 14.8 },
-      waitWp: { gx: 16.5, gy: 12.5 }
+      wp: { gx: 22.5, gy: 14.8 },
+      waitWp: { gx: 21.5, gy: 12.5 }
     },
     {
       id: 5,
@@ -48,8 +50,8 @@ const SimApp = (() => {
       name: "Doctor Check-Up Room (Baseline Vitals & ECG)",
       current: { va: 15, nva: 30, rca: "Doctor is paged after arrival, causing a +30m wait for check-up." },
       future:  { va: 15, nva: 5,  rca: "On-site Doctor in the Check-Up Room completes baseline exam in 5m." },
-      wp: { gx: 17.2, gy: 4.5 },
-      waitWp: { gx: 17.2, gy: 6.8 }
+      wp: { gx: 22.2, gy: 4.5 },
+      waitWp: { gx: 22.2, gy: 6.8 }
     },
     {
       id: 6,
@@ -57,8 +59,8 @@ const SimApp = (() => {
       name: "Hydro Pool, Spa & Dining Onboarding",
       current: { va: 10, nva: 0,  rca: "Manual sign-off for Hydro Pool, Spa, and Dining Bistro." },
       future:  { va: 10, nva: 0,  rca: "Cleared for Hydro Pool, Spa, and Dining Bistro." },
-      wp: { gx: 23.8, gy: 14.5 },
-      waitWp: { gx: 23.8, gy: 16.5 }
+      wp: { gx: 28.8, gy: 14.5 },
+      waitWp: { gx: 28.8, gy: 16.5 }
     }
   ];
 
@@ -71,6 +73,10 @@ const SimApp = (() => {
     selectedAgentId: 'res-1',
     masterClock: 0,
     conciergeCycle: 0,
+    transports: [
+      { id: 'tr-1', gx: 10.4, gy: 8.4, dirX: 1, openDoor: true, active: true, label: 'Concierge Transport' },
+      { id: 'tr-2', gx: 17.4, gy: 10.4, dirX: -1, openDoor: false, active: false, label: 'Concierge Transport #2' }
+    ],
     agents: []
   };
 
@@ -88,15 +94,14 @@ const SimApp = (() => {
     { id: 'st-2', roleLabel: 'Nurse', name: 'Nurse (Hospital Ward)', sub: 'Hospital Ward Nurse', role: 'nurse', gx: 7.4, gy: 2.8, pose: 'TYPING_TERMINAL', label: 'Discharge Prep', stageIdx: 0 },
     { id: 'st-3', roleLabel: 'Nurse', name: 'Nurse (Ward Round)', sub: 'Hospital Ward Nurse', role: 'nurse', gx: 5.2, gy: 5.5, pose: 'WALKING', label: 'Ward Care', stageIdx: 0, patrol: [{ gx: 5.2, gy: 2.8 }, { gx: 5.2, gy: 6.5 }] },
     { id: 'st-4', roleLabel: 'Staff', name: 'Staff (Billing)', sub: 'Billing & Discharge Staff', role: 'reception', gx: 2.6, gy: 12.6, pose: 'TYPING_TERMINAL', label: 'Billing Clearance', stageIdx: 1 },
-    // Concierge #1 & #2 picking up patients from Left Building (x=9.5) to Right Building (x=15.8) and returning
-    { id: 'st-5', roleLabel: 'Concierge', name: 'Concierge (Transfer Escort)', sub: 'Picks up Patient Left → Right & Returns', role: 'concierge', gx: 11.0, gy: 9.6, pose: 'WALKING', label: 'Picking Up Patient', stageIdx: 2 },
-    { id: 'st-6', roleLabel: 'Concierge', name: 'Concierge (Transfer Escort)', sub: 'Picks up Patient Left → Right & Returns', role: 'concierge', gx: 14.0, gy: 10.5, pose: 'WALKING', label: 'Returning to Hospital', stageIdx: 2 },
-    { id: 'st-7', roleLabel: 'Concierge', name: 'Concierge (Retreat Desk)', sub: 'Retreat Reception Concierge', role: 'concierge', gx: 16.8, gy: 12.2, pose: 'TYPING_TERMINAL', label: 'Suite Check-In', stageIdx: 3 },
-    { id: 'st-8', roleLabel: 'Staff', name: 'Staff (Suite Care)', sub: 'Retreat Suite Attendant', role: 'cleaner', gx: 18.2, gy: 15.0, pose: 'MOPPING', label: 'Suite Prep', stageIdx: 3 },
-    { id: 'st-9', roleLabel: 'Doctor', name: 'Doctor (Check-Up Room)', sub: 'Retreat Check-Up Doctor', role: 'doctor', gx: 16.8, gy: 2.8, pose: 'EXAMINING', label: 'Doctor Check-Up', stageIdx: 4 },
-    { id: 'st-10', roleLabel: 'Nurse', name: 'Nurse (Check-Up Room)', sub: 'Retreat Check-Up Nurse', role: 'nurse', gx: 19.2, gy: 3.8, pose: 'TYPING_TERMINAL', label: 'Vitals Check', stageIdx: 4 },
-    { id: 'st-11', roleLabel: 'Nurse', name: 'Nurse (Hydro Pool)', sub: 'Hydro Pool Nurse', role: 'nurse', gx: 22.8, gy: 5.0, pose: 'EXAMINING', label: 'Pool Supervision', stageIdx: 5 },
-    { id: 'st-12', roleLabel: 'Staff', name: 'Staff (Dining Bistro)', sub: 'Retreat Dining Staff', role: 'concierge', gx: 24.2, gy: 17.0, pose: 'IDLE', label: 'Dining Service', stageIdx: 5 }
+    // Concierge Driver/Escort at the Pick-Up / Drop-Off Bays
+    { id: 'st-5', roleLabel: 'Concierge', name: 'Concierge (Transport Driver)', sub: 'Drives Concierge Transport Left ↔ Right', role: 'concierge', gx: 10.2, gy: 9.2, pose: 'IDLE', label: 'Boarding Patient', stageIdx: 2 },
+    { id: 'st-7', roleLabel: 'Concierge', name: 'Concierge (Retreat Desk)', sub: 'Retreat Reception Concierge', role: 'concierge', gx: 21.8, gy: 12.2, pose: 'TYPING_TERMINAL', label: 'Suite Check-In', stageIdx: 3 },
+    { id: 'st-8', roleLabel: 'Staff', name: 'Staff (Suite Care)', sub: 'Retreat Suite Attendant', role: 'cleaner', gx: 23.2, gy: 15.0, pose: 'MOPPING', label: 'Suite Prep', stageIdx: 3 },
+    { id: 'st-9', roleLabel: 'Doctor', name: 'Doctor (Check-Up Room)', sub: 'Retreat Check-Up Doctor', role: 'doctor', gx: 21.8, gy: 2.8, pose: 'EXAMINING', label: 'Doctor Check-Up', stageIdx: 4 },
+    { id: 'st-10', roleLabel: 'Nurse', name: 'Nurse (Check-Up Room)', sub: 'Retreat Check-Up Nurse', role: 'nurse', gx: 24.2, gy: 3.8, pose: 'TYPING_TERMINAL', label: 'Vitals Check', stageIdx: 4 },
+    { id: 'st-11', roleLabel: 'Nurse', name: 'Nurse (Hydro Pool)', sub: 'Hydro Pool Nurse', role: 'nurse', gx: 27.8, gy: 5.0, pose: 'EXAMINING', label: 'Pool Supervision', stageIdx: 5 },
+    { id: 'st-12', roleLabel: 'Staff', name: 'Staff (Dining Bistro)', sub: 'Retreat Dining Staff', role: 'concierge', gx: 29.2, gy: 17.0, pose: 'IDLE', label: 'Dining Service', stageIdx: 5 }
   ];
 
   function getTotals(mode) {
@@ -156,6 +161,7 @@ const SimApp = (() => {
         bubbleType: 'ok',
         stageIdx: 0,
         inWait: false,
+        inVehicle: false,
         elapsed: 0
       });
     });
@@ -181,47 +187,90 @@ const SimApp = (() => {
         bubbleType: 'ok',
         stageIdx: sd.stageIdx,
         inWait: false,
+        inVehicle: false,
         elapsed: 0
       });
     });
+  }
+
+  // Updates a single Concierge Transport vehicle along the 10-tile road (x: 10.4 <-> 17.4)
+  function updateTransport(tr, ph) {
+    if (ph < 0.16) {
+      // Phase 1: Stopped at Left Building (Hospital Pick-Up Bay) boarding Patient
+      tr.gx = 10.4;
+      tr.gy = 8.35;
+      tr.dirX = 1;
+      tr.openDoor = true;
+      tr.label = 'Concierge: Picking Up →';
+    } else if (ph < 0.50) {
+      // Phase 2: Driving Left -> Right from Hospital (x=10.4) to Retreat (x=17.4)
+      const t = (ph - 0.16) / 0.34;
+      tr.gx = 10.4 + t * 7.0;
+      tr.gy = 8.35;
+      tr.dirX = 1;
+      tr.openDoor = false;
+      tr.label = 'Concierge Transport →';
+    } else if (ph < 0.66) {
+      // Phase 3: Stopped at Right Building (Retreat Drop-Off Bay) dropping off Patient
+      tr.gx = 17.4;
+      tr.gy = 8.35;
+      tr.dirX = 1;
+      tr.openDoor = true;
+      tr.label = 'Concierge: Dropping Off';
+    } else {
+      // Phase 4: Returning Right -> Left from Retreat (x=17.4) back to Hospital (x=10.4)
+      const t = (ph - 0.66) / 0.34;
+      tr.gx = 17.4 - t * 7.0;
+      tr.gy = 10.45;
+      tr.dirX = -1;
+      tr.openDoor = false;
+      tr.label = '← Concierge Returning';
+    }
   }
 
   function stepSimulation() {
     if (!simState.playing) return;
     const totals = getTotals(simState.mode);
     simState.masterClock = (simState.masterClock + 0.14 * simState.speed) % totals.total;
-    simState.conciergeCycle = (simState.conciergeCycle + 0.0045 * simState.speed) % 1;
+    simState.conciergeCycle = (simState.conciergeCycle + 0.0042 * simState.speed) % 1;
 
-    // Concierge #1 (`st-5`) & Concierge #2 (`st-6`) loop:
-    // 0.0 -> 0.5: Pick up Patient at Left Building (x = 9.2) and escort Left-to-Right to Right Building (x = 15.8)
-    // 0.5 -> 1.0: Return Right-to-Left from Right Building (x = 15.8) back to Left Building (x = 9.2)
-    const c1 = simState.agents.find(a => a.id === 'st-5');
-    const c2 = simState.agents.find(a => a.id === 'st-6');
-    const updateConcierge = (c, ph) => {
-      if (!c) return;
-      if (ph < 0.5) {
-        const t = ph / 0.5;
-        c.gx = 9.2 + t * 6.6;
-        c.gy = 9.6;
-        c.dir = 'SE';
-        c.pose = 'WALKING';
-        c.actionLabel = 'Escorting Patient Left → Right';
-        c.bubble = 'Escorting Patient →';
+    const ph1 = simState.conciergeCycle;
+    const ph2 = (simState.conciergeCycle + 0.5) % 1;
+
+    simState.transports[0].active = true;
+    updateTransport(simState.transports[0], ph1);
+
+    simState.transports[1].active = simState.mode === 'future';
+    if (simState.transports[1].active) {
+      updateTransport(simState.transports[1], ph2);
+    }
+
+    // Concierge driver/escort (`st-5`) steps out at Pick-Up (Left) and Drop-Off (Right), and rides inside while driving
+    const driver = simState.agents.find(a => a.id === 'st-5');
+    if (driver) {
+      if (ph1 < 0.16) {
+        driver.inVehicle = false;
+        driver.gx = 10.0;
+        driver.gy = 9.4;
+        driver.pose = 'HANDOVER_INTERACTION';
+        driver.actionLabel = 'Picking Up Patient at Hospital';
+      } else if (ph1 >= 0.50 && ph1 < 0.66) {
+        driver.inVehicle = false;
+        driver.gx = 19.7;
+        driver.gy = 9.4;
+        driver.pose = 'HANDOVER_INTERACTION';
+        driver.actionLabel = 'Dropping Off Patient at Retreat';
       } else {
-        const t = (ph - 0.5) / 0.5;
-        c.gx = 15.8 - t * 6.6;
-        c.gy = 10.5;
-        c.dir = 'NW';
-        c.pose = 'WALKING';
-        c.actionLabel = 'Returning to Hospital ←';
-        c.bubble = '← Returning';
+        driver.inVehicle = true;
+        driver.gx = simState.transports[0].gx + 1.1;
+        driver.gy = simState.transports[0].gy + 0.5;
+        driver.actionLabel = ph1 < 0.50 ? 'Driving Patient Left → Right' : 'Returning Right → Left to Hospital';
       }
-    };
-    updateConcierge(c1, simState.conciergeCycle);
-    updateConcierge(c2, (simState.conciergeCycle + 0.5) % 1);
+    }
 
     simState.agents.forEach((ag, idx) => {
       if (ag.role === 'resident') {
+        ag.inVehicle = false;
         const el = (simState.masterClock + ag.offset) % totals.total;
         ag.elapsed = el;
         const loc = locateStage(el, simState.mode);
@@ -271,37 +320,58 @@ const SimApp = (() => {
             ag.bubbleType = 'ok';
           }
         } else if (loc.stageIdx === 2) {
-          // Stage 3: Concierge Pick-Up & Left-to-Right Transfer across Walkway
+          // Stage 3: Concierge Transport (Pick-Up at Left Building -> Drive -> Drop-Off at Right Building)
           if (loc.inWait) {
-            // Waiting at Left Building Exit Door (x = 9.0) for Concierge
-            ag.gx = 8.8 - (idx % 2) * 0.8;
-            ag.gy = 9.6 + (idx % 2) * 0.7;
+            // Waiting at Left Building Pick-Up Exit (x = 9.0) for the returning Concierge Transport
+            ag.gx = 8.9 - (idx % 2) * 0.7;
+            ag.gy = 9.4 + (idx % 2) * 0.7;
             ag.pose = 'FRUSTRATED_WAIT';
-            ag.actionLabel = 'Waiting for Concierge Pick-Up';
-            ag.bubble = 'Waiting Pick-Up';
+            ag.actionLabel = 'Waiting for Concierge Transport';
+            ag.bubble = 'Wait Pick-Up';
             ag.bubbleType = 'wait';
           } else {
-            // Walking side-by-side with Concierge #1 from Left Building (x=9.2) to Right Building (x=15.8)
-            const t = simState.conciergeCycle < 0.5 ? (simState.conciergeCycle / 0.5) : loc.vaProg;
-            ag.gx = 9.2 + t * 6.6;
-            ag.gy = 9.9;
-            ag.dir = 'SE';
-            ag.pose = 'WALKING';
-            ag.actionLabel = 'Picked up by Concierge (Left → Right)';
-            ag.bubble = 'Transfer →';
-            ag.bubbleType = 'ok';
+            // Boarding at Hospital (x=9.8), riding inside Concierge Transport (x: 10.4->17.4), or stepping off at Retreat (x=19.6)
+            const tr = simState.transports[0];
+            if (ph1 < 0.16) {
+              ag.inVehicle = false;
+              ag.gx = 9.6;
+              ag.gy = 8.9;
+              ag.dir = 'SE';
+              ag.pose = 'WALKING';
+              ag.actionLabel = 'Boarding Concierge Transport (Left)';
+              ag.bubble = 'Boarding →';
+              ag.bubbleType = 'ok';
+            } else if (ph1 >= 0.50 && ph1 < 0.66) {
+              ag.inVehicle = false;
+              ag.gx = 19.9;
+              ag.gy = 9.4;
+              ag.dir = 'SE';
+              ag.pose = 'WALKING';
+              ag.actionLabel = 'Arriving at Retreat (Right)';
+              ag.bubble = 'Arrived';
+              ag.bubbleType = 'ok';
+            } else {
+              // Inside moving Concierge Transport
+              ag.inVehicle = true;
+              ag.gx = tr.gx + 1.1;
+              ag.gy = tr.gy + 0.5;
+              ag.pose = 'SITTING';
+              ag.actionLabel = 'In Concierge Transport (Left → Right)';
+              ag.bubble = 'In Transit →';
+              ag.bubbleType = 'ok';
+            }
           }
         } else if (loc.stageIdx === 3) {
-          // Stage 4: Retreat Reception & Suite
+          // Stage 4: Retreat Reception & Suite (Right Building x: 20..26.5)
           if (loc.inWait) {
-            ag.gx = 16.5 + (idx % 2) * 0.8;
+            ag.gx = 21.5 + (idx % 2) * 0.8;
             ag.gy = 12.5;
             ag.pose = 'FRUSTRATED_WAIT';
             ag.actionLabel = 'Waiting at Retreat Reception';
             ag.bubble = `Wait +${loc.waitMins}m`;
             ag.bubbleType = 'wait';
           } else {
-            ag.gx = 16.7;
+            ag.gx = 21.7;
             ag.gy = idx % 2 === 0 ? 14.1 : 17.4;
             ag.pose = 'LYING_ON_BED';
             ag.actionLabel = 'Resting in Retreat Suite';
@@ -309,16 +379,16 @@ const SimApp = (() => {
             ag.bubbleType = 'ok';
           }
         } else if (loc.stageIdx === 4) {
-          // Stage 5: Doctor Check-Up Room
+          // Stage 5: Doctor Check-Up Room (Right Building x: 20..26.5)
           if (loc.inWait) {
-            ag.gx = 17.5 + (idx % 2) * 0.8;
+            ag.gx = 22.5 + (idx % 2) * 0.8;
             ag.gy = 7.2;
             ag.pose = 'FRUSTRATED_WAIT';
             ag.actionLabel = 'Waiting for Doctor Check-Up';
             ag.bubble = `Wait +${loc.waitMins}m`;
             ag.bubbleType = 'wait';
           } else {
-            ag.gx = 16.6;
+            ag.gx = 21.6;
             ag.gy = 4.8;
             ag.pose = 'LYING_ON_BED';
             ag.actionLabel = 'Doctor Check-Up in Progress';
@@ -326,8 +396,8 @@ const SimApp = (() => {
             ag.bubbleType = 'ok';
           }
         } else {
-          // Stage 6: Pool & Dining
-          ag.gx = 22.8 + (idx % 2) * 2.2;
+          // Stage 6: Pool & Dining (Right Building x: 26.5..32)
+          ag.gx = 27.8 + (idx % 2) * 2.2;
           ag.gy = 15.6;
           ag.pose = 'SITTING';
           ag.actionLabel = `At ${st.short}`;
@@ -375,7 +445,7 @@ const SimApp = (() => {
     if (strip) strip.classList.toggle('future-active', isFut);
     if (stateTag) {
       stateTag.textContent = isFut
-        ? 'AFTER: FAST CONCIERGE TRANSFER (110m · 90.9% EFFICIENCY)'
+        ? 'AFTER: FAST CONCIERGE TRANSPORT (110m · 90.9% EFFICIENCY)'
         : 'BEFORE: SLOW MANUAL TRANSFER (275m · 34.5% EFFICIENCY)';
       stateTag.classList.toggle('upgraded', isFut);
     }
@@ -401,7 +471,7 @@ const SimApp = (() => {
 
     document.getElementById('insp-micro-summary').innerHTML = `
       <strong>Action:</strong> ${sel.actionLabel}<br/>
-      <strong>Room:</strong> ${st.name}
+      <strong>Stage:</strong> ${st.name}
     `;
 
     let cum = 0;

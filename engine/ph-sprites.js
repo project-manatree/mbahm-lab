@@ -525,6 +525,70 @@
     });
   }
 
+  // Horizontal X-axis Concierge Transport Vehicle (drives Left <-> Right between Hospital and Retreat)
+  function conciergeTransportX(gx, gy, opts = {}) {
+    const isVIP = opts.type === 'vip';
+    const openDoor = opts.openDoor;
+    const label = opts.label || 'Concierge Transport';
+    const dirX = opts.dirX || 1; // +1 driving Left->Right (+gx), -1 returning Right->Left (-gx)
+
+    PH.item(gx + gy + 1.6, () => {
+      const bounce = openDoor ? 0 : Math.sin(PH.t * 0.35) * 0.4;
+      const sp = PH.P(gx + 1.1, gy + 0.55, 0);
+      const c = PH.S.ctx, z = PH.zoom;
+      c.fillStyle = 'rgba(10,14,22,0.42)';
+      c.beginPath();
+      c.ellipse(sp.x, sp.y, 26 * z, 13 * z, 0.38, 0, Math.PI * 2);
+      c.fill();
+
+      // Headlight beam along +gx or -gx
+      const frontX = dirX > 0 ? gx + 2.2 : gx;
+      const beamX = dirX > 0 ? gx + 3.8 : gx - 1.6;
+      const h0 = PH.P(frontX, gy + 0.54, 3);
+      const bT = PH.P(beamX, gy + 0.08, 0.2);
+      const bB = PH.P(beamX, gy + 1.0, 0.2);
+      c.save();
+      c.fillStyle = 'rgba(253, 224, 71, 0.20)';
+      c.beginPath();
+      c.moveTo(h0.x, h0.y);
+      c.lineTo(bT.x, bT.y);
+      c.lineTo(bB.x, bB.y);
+      c.closePath();
+      c.fill();
+      c.restore();
+
+      const bodyCol = isVIP ? '#0f172a' : '#f8fafc';
+      const trimCol = isVIP ? '#10b981' : '#0ea5e9';
+      // Main transport body along X-axis (length = 2.2, width = 1.08)
+      PH.box(gx, gy, 2.5 + bounce, 2.2, 1.08, 14.0, bodyCol);
+      // Side stripe
+      PH.box(gx + 0.05, gy - 0.01, 7.2 + bounce, 2.1, 1.10, 2.4, trimCol);
+      // Panoramic patient cabin glass
+      PH.box(gx + 0.22, gy - 0.02, 10.0 + bounce, 1.76, 1.12, 4.6, '#38bdf8', { alpha: 0.6 });
+      // Roof beacon / climate pod
+      PH.box(gx + 0.55, gy + 0.22, 16.5 + bounce, 1.1, 0.64, 2.2, isVIP ? '#10b981' : '#38bdf8');
+
+      // Wheels on near side (gy + 1.06)
+      for (const wx of [gx + 0.45, gx + 1.75]) {
+        const wp = PH.P(wx, gy + 1.06, 2.6);
+        c.fillStyle = '#090d16';
+        c.beginPath(); c.arc(wp.x, wp.y, 5.2 * z, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#cbd5e1';
+        c.beginPath(); c.arc(wp.x, wp.y, 2.5 * z, 0, Math.PI * 2); c.fill();
+      }
+
+      // Deployable patient boarding ramp when stopped at Hospital Pick-Up or Retreat Drop-Off
+      if (openDoor) {
+        const rampX = dirX > 0 ? gx - 0.55 : gx + 2.15;
+        PH.box(rampX, gy + 0.18, 0.4, 0.6, 0.72, 1.3, trimCol);
+      }
+
+      // Floating badge above the Concierge Transport
+      const tp = PH.P(gx + 1.1, gy + 0.54, 23 + bounce);
+      PH.bubble(tp.x, tp.y, label, isVIP ? 'ok' : 'warn');
+    });
+  }
+
   // ---------------------------------------- 6. FLOOR HALOS & CONDUIT BEAMS
   function floorHalo(gx, gy, rx, ry, col, label) {
     const p = PH.P(gx, gy, 0.5);
@@ -640,6 +704,7 @@
     streetLamp,
     parkedCar,
     movingVehicle,
+    conciergeTransportX,
     floorHalo,
     signalBeam,
     roomSign
