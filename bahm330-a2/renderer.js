@@ -218,7 +218,8 @@ const IsoRenderer = (() => {
         sel: isSel,
         showBubble: !!ag.showBubble,
         bubble: ag.bubble,
-        bubbleType: ag.bubbleType
+        bubbleType: ag.bubbleType,
+        taskProg: ag.taskProg
       });
     });
 

@@ -221,6 +221,7 @@ const IsoRenderer = (() => {
         showBubble: !!ag.showBubble,
         bubble: ag.bubble,
         bubbleType: ag.bubbleType === 'wait' ? 'fail' : ag.bubbleType,
+        taskProg: ag.taskProg,
         prop: ag.pose === 'MOPPING' ? 'mop' : ag.pose === 'HANDOVER_INTERACTION' ? 'clipboard' : undefined
       });
     });

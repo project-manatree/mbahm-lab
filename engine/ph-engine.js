@@ -822,13 +822,15 @@
     const skin = Lk.skin, topC = Lk.gown || Lk.top, botC = Lk.bottom;
     const walk = pose === 'walk' || pose === 'push' || pose === 'carry' && spec.moving;
     const ph = Math.sin(t * 0.22);
-    const bob = walk ? -Math.abs(Math.cos(t * 0.22)) * 1.0 : 0;
+    const idleBreath = walk ? 0 : Math.sin(t * 0.075) * 0.48;
+    const idleSway = walk ? 0 : Math.cos(t * 0.05) * 0.35;
+    const bob = walk ? -Math.abs(Math.cos(t * 0.22)) * 1.0 : idleBreath;
     let hipY = -21, torsoTop = -37, headY = -44.5;
     let sit = pose === 'sit' || pose === 'wheelchair' || (pose === 'type' && spec.seated) || (pose === 'phone' && spec.seated);
     if (sit) { hipY = -12.5; torsoTop = -28.5; headY = -36; }
     if (pose === 'situp') { hipY = 0; torsoTop = -15; headY = -22.5; }
     if (pose === 'swim') { hipY = 6; torsoTop = -9; headY = -16; }
-    c.translate(0, bob);
+    c.translate(idleSway, bob);
 
     // ---------- wheelchair (behind body)
     if (pose === 'wheelchair') {
@@ -1154,14 +1156,28 @@
     c.font = nf; c.fillStyle = '#ffffff'; c.textAlign = 'left'; c.textBaseline = 'middle';
     c.fillText(txt, bx + 11.5 * s, by + h / 2 + 0.5);
   }
-  function bubble(x, y, text, type) {
+  function bubble(x, y, text, type, prog) {
     const c = S.ctx, s = Math.max(0.85, Math.min(1.15, S.cam.z));
     c.font = `700 ${Math.round(8.5 * s)}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
-    const w = c.measureText(text).width + 10 * s, h = 14 * s;
+    const hasRing = typeof prog === 'number' && prog >= 0;
+    const ringSpace = hasRing ? 14 * s : 0;
+    const w = c.measureText(text).width + 10 * s + ringSpace, h = 15 * s;
     const pal = { fail: ['#450a0a', '#ef4444', '#fecaca'], ok: ['#052e24', '#10b981', '#a7f3d0'], warn: ['#422006', '#f59e0b', '#fde68a'] }[type] || ['#0f172a', '#0ea5e9', '#e0f2fe'];
+    const bx = x - w / 2, by = y - h;
     c.fillStyle = pal[0]; c.strokeStyle = pal[1]; c.lineWidth = 1.2;
-    c.beginPath(); c.roundRect(x - w / 2, y - h, w, h, 3.5 * s); c.fill(); c.stroke();
-    c.fillStyle = pal[2]; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(text, x, y - h / 2);
+    c.beginPath(); c.roundRect(bx, by, w, h, 4 * s); c.fill(); c.stroke();
+    if (hasRing) {
+      const rx = bx + 8.5 * s, ry = by + h / 2, rad = 4.6 * s;
+      c.strokeStyle = 'rgba(255,255,255,0.22)'; c.lineWidth = 1.8 * s;
+      c.beginPath(); c.arc(rx, ry, rad, 0, Math.PI * 2); c.stroke();
+      c.strokeStyle = pal[1]; c.lineWidth = 1.9 * s;
+      c.beginPath(); c.arc(rx, ry, rad, -Math.PI / 2, -Math.PI / 2 + Math.min(1, Math.max(0.05, prog)) * Math.PI * 2); c.stroke();
+      c.fillStyle = pal[2]; c.textAlign = 'left'; c.textBaseline = 'middle';
+      c.fillText(text, bx + 16 * s, ry + 0.5);
+    } else {
+      c.fillStyle = pal[2]; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(text, x, by + h / 2 + 0.5);
+    }
   }
   function drawLabels(showSub) {
     if (!showSub) return;
@@ -1177,9 +1193,60 @@
       nameplate(foot.x, y, shortRole, '', sp.role, sp.sel);
       if (sp.bubble && (sp.sel || sp.showBubble)) {
         const h = P(L.gx, L.gy, L.headZ + 5);
-        bubble(h.x, h.y, sp.bubble, sp.bubbleType);
+        bubble(h.x, h.y, sp.bubble, sp.bubbleType, sp.taskProg);
       }
     }
+  }
+
+  // Calibrated Role-Based Speed & Ease-In/Ease-Out Physics
+  function roleSpeed(role, pose, urgent) {
+    if (pose === 'WHEELCHAIR') return 0.35;
+    if (role === 'resident' || role === 'elderly') return 0.45;
+    if (role === 'patient' || role === 'gown') return 0.85;
+    if (urgent) return 1.45;
+    return 1.0;
+  }
+
+  function stepAgentPhysics(ag, tx, ty, dtSec, opts) {
+    opts = opts || {};
+    if (opts.snap || Math.hypot(tx - ag.gx, ty - ag.gy) > 7.5) {
+      ag.gx = tx; ag.gy = ty; ag.vx = 0; ag.vy = 0;
+      return;
+    }
+    const dx = tx - ag.gx, dy = ty - ag.gy;
+    const dist = Math.hypot(dx, dy);
+    if (dist < 0.03) {
+      ag.gx = tx; ag.gy = ty; ag.vx = 0; ag.vy = 0;
+      return;
+    }
+    const ux = dx / dist, uy = dy / dist;
+    if (ag.lastUx != null && (ag.lastUx * ux + ag.lastUy * uy) < 0.35 && dist > 0.4) {
+      ag.pauseTimer = 0.4; // 0.4s natural pause when turning corners
+    }
+    ag.lastUx = ux; ag.lastUy = uy;
+    if (ag.pauseTimer > 0) {
+      ag.pauseTimer = Math.max(0, ag.pauseTimer - dtSec);
+      ag.vel = (ag.vel || 0) * 0.5;
+      return;
+    }
+    const mult = roleSpeed(ag.role, ag.pose, opts.urgent);
+    const baseTilesPerSec = (opts.baseSpeed || 2.2) * mult * (opts.simSpeed || 1);
+    // Ease-out deceleration over the final 1.2 tiles
+    const easeOut = Math.min(1, Math.max(0.18, dist / 1.2));
+    const targetSpeed = baseTilesPerSec * easeOut;
+    // Ease-in acceleration
+    ag.vel = (ag.vel || 0) + (targetSpeed - (ag.vel || 0)) * Math.min(1, dtSec * 5.5);
+    const step = Math.min(dist, ag.vel * dtSec);
+    ag.gx += ux * step;
+    ag.gy += uy * step;
+    ag.dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'SE' : 'NW') : (dy > 0 ? 'SW' : 'NE');
+  }
+
+  function formatShiftClock(simMinutes) {
+    const totalMins = Math.floor(8 * 60 + (simMinutes % (16 * 60)));
+    const hh = String(Math.floor(totalMins / 60) % 24).padStart(2, '0');
+    const mm = String(totalMins % 60).padStart(2, '0');
+    return `${hh}:${mm}`;
   }
 
   // ------------------------------------------------------------------ input
@@ -1294,6 +1361,7 @@
     begin, end, overlay, item, furniture, person, look, mapPose,
     box, topQuad, vquad, cyl, disc, blob, line3, poly, gridSpace, planeText, pattern, texCanvas,
     drawPerson, drawLying, nameplate, bubble, kit, runParts,
+    roleSpeed, stepAgentPhysics, formatShiftClock,
     get zoom() { return S.cam.z; }, set wallsUp(v) { S.wallsUp = !!v; }, get wallsUp() { return S.wallsUp; },
     get t() { return S.t; }, get cond() { return S.cond; }
   };
