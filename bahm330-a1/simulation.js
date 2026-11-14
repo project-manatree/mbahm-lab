@@ -142,20 +142,20 @@ const SimApp = (() => {
     inspectorTab: 0,
     selectedAgentId: 'res-1',
     masterClock: 0,
-    van: { gx: 11.8, gy: 14.2, doorsOpen: true, rampExtended: true, brakeLights: true },
-    van2: { gx: 12.2, gy: 8.8, doorsOpen: true, rampExtended: true, brakeLights: false },
+    van: { gx: 11.4, gy: 4.0, dirY: 1, isMoving: true, doorsOpen: false, rampExtended: false, brakeLights: false },
+    van2: { gx: 13.8, gy: 16.0, dirY: -1, isMoving: true, doorsOpen: false, rampExtended: false, brakeLights: false },
     agents: []
   };
 
   const RESIDENT_PROFILES = [
-    { id: 'res-1', name: "Tan Sri Dato' Lim (#G-101)", sub: "78M · Post-Hip Arthroplasty Step-Down", hr: "76 bpm", bp: "124/78 · 98%", offset: 0 },
-    { id: 'res-2', name: "Puan Sri Sharifah (#G-102)", sub: "81F · Cardiac Rehab Step-Down", hr: "72 bpm", bp: "118/74 · 99%", offset: 35 },
-    { id: 'res-3', name: "Dato' Dr. Arumugam (#G-103)", sub: "75M · Post-Stroke Neuro Recovery", hr: "80 bpm", bp: "130/82 · 97%", offset: 72 },
-    { id: 'res-4', name: "Madam Beatrice Wong (#G-104)", sub: "84F · Respiratory Step-Down", hr: "78 bpm", bp: "126/76 · 98%", offset: 110 },
-    { id: 'res-5', name: "Tuan Haji Ismail (#G-105)", sub: "79M · Post-Spinal Decompression", hr: "74 bpm", bp: "122/75 · 99%", offset: 145 },
-    { id: 'res-6', name: "Mrs. Eleanor Khoo (#G-106)", sub: "82F · Geriatric Frailty Conditioning", hr: "77 bpm", bp: "120/74 · 98%", offset: 180 },
-    { id: 'res-7', name: "Encik Kamarul (#G-107)", sub: "73M · Post-Coronary Stent Step-Down", hr: "71 bpm", bp: "119/72 · 99%", offset: 215 },
-    { id: 'res-8', name: "Datin Paduka Rosalind (#G-108)", sub: "80F · Knee Replacement Step-Down", hr: "75 bpm", bp: "125/78 · 98%", offset: 250 }
+    { id: 'res-1', shortName: "Tan Sri Lim (#G-101)", name: "Tan Sri Dato' Lim (#G-101)", sub: "78M · Post-Hip Arthroplasty Step-Down", hr: "76 bpm", bp: "124/78 · 98%", offset: 0 },
+    { id: 'res-2', shortName: "Puan Sri Sharifah (#G-102)", name: "Puan Sri Sharifah (#G-102)", sub: "81F · Cardiac Rehab Step-Down", hr: "72 bpm", bp: "118/74 · 99%", offset: 35 },
+    { id: 'res-3', shortName: "Dr. Arumugam (#G-103)", name: "Dato' Dr. Arumugam (#G-103)", sub: "75M · Post-Stroke Neuro Recovery", hr: "80 bpm", bp: "130/82 · 97%", offset: 72 },
+    { id: 'res-4', shortName: "Mdm. Beatrice (#G-104)", name: "Madam Beatrice Wong (#G-104)", sub: "84F · Respiratory Step-Down", hr: "78 bpm", bp: "126/76 · 98%", offset: 110 },
+    { id: 'res-5', shortName: "Hj. Ismail (#G-105)", name: "Tuan Haji Ismail (#G-105)", sub: "79M · Post-Spinal Decompression", hr: "74 bpm", bp: "122/75 · 99%", offset: 145 },
+    { id: 'res-6', shortName: "Mrs. Khoo (#G-106)", name: "Mrs. Eleanor Khoo (#G-106)", sub: "82F · Geriatric Frailty Conditioning", hr: "77 bpm", bp: "120/74 · 98%", offset: 180 },
+    { id: 'res-7', shortName: "En. Kamarul (#G-107)", name: "Encik Kamarul (#G-107)", sub: "73M · Post-Coronary Stent Step-Down", hr: "71 bpm", bp: "119/72 · 99%", offset: 215 },
+    { id: 'res-8', shortName: "Datin Rosalind (#G-108)", name: "Datin Paduka Rosalind (#G-108)", sub: "80F · Knee Replacement Step-Down", hr: "75 bpm", bp: "125/78 · 98%", offset: 250 }
   ];
 
   const STAFF_DEFS = [
@@ -218,6 +218,7 @@ const SimApp = (() => {
       simState.agents.push({
         id: rp.id,
         idNum: idx + 1,
+        shortName: rp.shortName,
         name: rp.name,
         sub: rp.sub,
         hr: rp.hr,
@@ -285,26 +286,25 @@ const SimApp = (() => {
     const totals = getTotals(simState.mode);
     simState.masterClock = (simState.masterClock + 0.14 * simState.speed) % totals.total;
 
-    const primaryElapsed = simState.masterClock;
-    const pLoc = locateStage(primaryElapsed, simState.mode);
-    if (pLoc.stageIdx === 2 && !pLoc.inWait) {
-      const t = pLoc.vaProg;
-      simState.van.gx = 11.4 + t * 3.2;
-      simState.van.gy = 14.2;
-      simState.van.doorsOpen = t < 0.22 || t > 0.82;
-      simState.van.rampExtended = t < 0.22 || t > 0.82;
-      simState.van.brakeLights = t < 0.22 || t > 0.82;
-    } else {
-      simState.van.gx = pLoc.stageIdx < 2 ? 11.4 : 14.6;
-      simState.van.gy = 14.2;
-      simState.van.doorsOpen = true;
-      simState.van.rampExtended = pLoc.stageIdx === 2;
-      simState.van.brakeLights = true;
-    }
+    // Continuously moving vehicles along the multi-lane avenue (gy = 1..18)
+    simState.van.gy += 0.085 * simState.speed;
+    if (simState.van.gy > 18.5) simState.van.gy = 1.0;
+    simState.van.gx = simState.van.gy > 11.5 && simState.van.gy < 15.2 ? 13.8 : 11.4;
+    const atBay1 = simState.van.gy > 12.6 && simState.van.gy < 14.8;
+    simState.van.isMoving = !atBay1;
+    simState.van.doorsOpen = atBay1;
+    simState.van.rampExtended = atBay1;
+    simState.van.brakeLights = atBay1;
 
-    // Second VIP Van in Future Mode
-    simState.van2.gx = 11.6 + Math.sin(simState.masterClock * 0.05) * 1.4;
-    simState.van2.gy = 8.5;
+    // Second vehicle moving in opposite lane (gy = 18.5..1)
+    simState.van2.gy -= 0.095 * simState.speed;
+    if (simState.van2.gy < 1.0) simState.van2.gy = 18.5;
+    simState.van2.gx = 13.8;
+    const atBay2 = simState.van2.gy > 12.2 && simState.van2.gy < 14.2;
+    simState.van2.isMoving = !atBay2;
+    simState.van2.doorsOpen = atBay2;
+    simState.van2.rampExtended = atBay2 && simState.mode === 'future';
+    simState.van2.brakeLights = atBay2;
 
     simState.agents.forEach((ag, idx) => {
       if (ag.role === 'resident') {

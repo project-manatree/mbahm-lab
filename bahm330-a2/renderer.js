@@ -1,24 +1,30 @@
 // ============================================================================
 // BAHM330-A2: Meridian Specialist Hospital (MSH) 28x22 Isometric Renderer
-// Includes Before vs. After Visual Facility Transformation Engine
+// Clean Readable Patient Nameplates, Realistic Cutaway Rooms & Moving Vehicles
 // ============================================================================
 
 const IsoRenderer = (() => {
   const GRID_W = 28;
   const GRID_H = 22;
-  const TILE_W = 44;
-  const TILE_H = 22;
+  const TILE_W = 46;
+  const TILE_H = 23;
 
   let canvas, ctx;
   let camX = 0;
-  let camY = 55;
-  let zoom = 0.95;
+  let camY = 50;
+  let zoom = 0.98;
   let dragging = false;
   let dragStartX = 0;
   let dragStartY = 0;
   let frameTick = 0;
   let upgradePulse = 0;
   let upgradeMode = 'future';
+
+  // Continuously moving driveway vehicles (Ambulance + Patient Drop-Off Car)
+  let drivewayVehicles = [
+    { gx: 0.7, gy: 2.0, dirY: 1, type: 'ambulance', label: 'MSH AMBULANCE #1' },
+    { gx: 1.5, gy: 18.0, dirY: -1, type: 'car', label: 'PATIENT DROP-OFF' }
+  ];
 
   function init(canvasId, onClickWorld) {
     canvas = document.getElementById(canvasId);
@@ -61,13 +67,13 @@ const IsoRenderer = (() => {
   }
 
   function zoomCam(f) {
-    zoom = Math.max(0.5, Math.min(1.9, zoom * f));
+    zoom = Math.max(0.55, Math.min(2.0, zoom * f));
   }
 
   function resetCam() {
     camX = 0;
-    camY = 55;
-    zoom = 0.95;
+    camY = 50;
+    zoom = 0.98;
   }
 
   function panToGrid(gx, gy, targetZoom = 1.25) {
@@ -86,15 +92,15 @@ const IsoRenderer = (() => {
   function toIso(gx, gy, gz = 0) {
     const vpW = canvas.width / window.devicePixelRatio;
     const vpH = canvas.height / window.devicePixelRatio;
-    const originX = vpW * 0.45 + camX;
-    const originY = vpH * 0.08 + camY;
+    const originX = vpW * 0.44 + camX;
+    const originY = vpH * 0.07 + camY;
     return {
       x: originX + (gx - gy) * (TILE_W * 0.5) * zoom,
       y: originY + (gx + gy) * (TILE_H * 0.5) * zoom - gz * zoom
     };
   }
 
-  function drawTile(gx, gy, fill, stroke = 'rgba(15,23,42,0.16)') {
+  function drawTile(gx, gy, fill, stroke = 'rgba(15,23,42,0.18)') {
     const p0 = toIso(gx, gy);
     const p1 = toIso(gx + 1, gy);
     const p2 = toIso(gx + 1, gy + 1);
@@ -136,6 +142,44 @@ const IsoRenderer = (() => {
     ctx.restore();
   }
 
+  function drawRealisticRoom(gx, gy, w, d, wallTop, wallLeft, wallRight, doorSide = 'S', roomTitle = '') {
+    const t = 0.16;
+    const backH = 22;
+    const frontH = 5;
+
+    drawIsoBox(gx, gy, w, t, backH, wallTop, wallLeft, wallRight);
+    for (let wx = gx + 0.8; wx < gx + w - 1.0; wx += 2.2) {
+      drawIsoBox(wx, gy - 0.02, 1.1, t + 0.04, 9, '#bae6fd', '#38bdf8', '#0284c7', 0.55);
+    }
+    drawIsoBox(gx, gy, t, d, backH, wallTop, wallLeft, wallRight);
+    drawIsoBox(gx + w - t, gy, t, d, frontH + 3, wallTop, wallLeft, wallRight);
+
+    if (doorSide === 'S') {
+      const mid = w * 0.45;
+      drawIsoBox(gx, gy + d - t, mid - 0.6, t, frontH, wallTop, wallLeft, wallRight);
+      drawIsoBox(gx + mid + 0.8, gy + d - t, w - mid - 0.8, t, frontH, wallTop, wallLeft, wallRight);
+    } else if (doorSide === 'N') {
+      drawIsoBox(gx, gy + d - t, w, t, frontH, wallTop, wallLeft, wallRight);
+    }
+
+    if (roomTitle) {
+      const rp = toIso(gx + w * 0.5, gy + 0.55, 24);
+      ctx.font = `700 ${Math.max(9, Math.round(9.2 * zoom))}px -apple-system, BlinkMacSystemFont, sans-serif`;
+      const tw = ctx.measureText(roomTitle).width + 12;
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.55)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.roundRect(rp.x - tw / 2, rp.y - 9, tw, 17, 4);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#f8fafc';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(roomTitle, rp.x, rp.y - 0.5);
+    }
+  }
+
   function drawTree(gx, gy) {
     const base = toIso(gx + 0.5, gy + 0.5, 0);
     ctx.fillStyle = 'rgba(0,0,0,0.3)';
@@ -172,7 +216,7 @@ const IsoRenderer = (() => {
     ctx.lineWidth = 1.6 * zoom;
     ctx.stroke();
     if (label) {
-      ctx.font = `bold ${Math.round(7.3 * zoom)}px monospace`;
+      ctx.font = `bold ${Math.max(8, Math.round(7.6 * zoom))}px monospace`;
       ctx.textAlign = 'center';
       ctx.fillText(label, p.x, p.y + (ry + 6) * zoom);
     }
@@ -180,18 +224,20 @@ const IsoRenderer = (() => {
   }
 
   function drawHospitalBed(gx, gy, blockedAlert = false, freeReady = false) {
-    drawIsoBox(gx, gy, 1.35, 0.8, 8, '#f8fafc', '#94a3b8', '#64748b');
-    drawIsoBox(gx, gy, 0.22, 0.8, 16, '#0284c7', '#0369a1', '#075985');
+    drawIsoBox(gx, gy, 1.38, 0.82, 8, '#f8fafc', '#94a3b8', '#64748b');
+    drawIsoBox(gx, gy, 0.22, 0.82, 16, '#0284c7', '#0369a1', '#075985');
+    drawIsoBox(gx + 0.22, gy + 0.15, 0.26, 0.52, 9.2, '#ffffff', '#e2e8f0', '#cbd5e1');
     drawIsoBox(
-      gx + 0.42,
+      gx + 0.48,
       gy + 0.05,
-      0.88,
-      0.7,
+      0.85,
+      0.72,
       9.5,
       blockedAlert ? '#ef4444' : (freeReady ? '#10b981' : '#38bdf8'),
       blockedAlert ? '#b91c1c' : (freeReady ? '#059669' : '#0284c7'),
       '#0369a1'
     );
+    drawIsoBox(gx + 0.05, gy - 0.35, 0.35, 0.3, 11, '#e2e8f0', '#64748b', '#475569');
     if (blockedAlert && frameTick % 20 < 12) {
       const p = toIso(gx + 0.7, gy + 0.4, 22);
       ctx.fillStyle = '#ef4444';
@@ -199,6 +245,53 @@ const IsoRenderer = (() => {
       ctx.arc(p.x, p.y, 4 * zoom, 0, Math.PI * 2);
       ctx.fill();
     }
+  }
+
+  function drawDrivewayVehicle(v) {
+    const { gx, gy, dirY, type, label } = v;
+    const sh = toIso(gx + 0.6, gy + 0.8, 0);
+    ctx.fillStyle = 'rgba(0,0,0,0.42)';
+    ctx.beginPath();
+    ctx.ellipse(sh.x, sh.y, 26 * zoom, 13 * zoom, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Headlight beam
+    const b0 = toIso(gx + 0.5, dirY > 0 ? gy + 1.8 : gy - 0.1, 2);
+    const b1 = toIso(gx + 0.5, dirY > 0 ? gy + 3.6 : gy - 1.9, 0);
+    ctx.save();
+    const grad = ctx.createLinearGradient(b0.x, b0.y, b1.x, b1.y);
+    grad.addColorStop(0, 'rgba(254, 240, 138, 0.48)');
+    grad.addColorStop(1, 'rgba(254, 240, 138, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(b0.x - 5 * zoom, b0.y);
+    ctx.lineTo(b1.x - 16 * zoom, b1.y);
+    ctx.lineTo(b1.x + 16 * zoom, b1.y);
+    ctx.lineTo(b0.x + 5 * zoom, b0.y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    const bounce = Math.sin(frameTick * 0.4) * 0.6;
+    if (type === 'ambulance') {
+      drawIsoBox(gx, gy, 1.15, 1.75, 16 + bounce, '#f8fafc', '#e2e8f0', '#cbd5e1');
+      drawIsoBox(gx - 0.02, gy + 0.04, 1.19, 1.67, 8 + bounce, '#ef4444', '#b91c1c', '#991b1b');
+      drawIsoBox(gx + 0.1, gy + 0.2, 0.95, 1.35, 19 + bounce, '#1e293b', '#0f172a', '#334155');
+      const bc = toIso(gx + 0.55, gy + 0.85, 22 + bounce);
+      ctx.fillStyle = frameTick % 12 < 6 ? '#ef4444' : '#38bdf8';
+      ctx.beginPath();
+      ctx.arc(bc.x, bc.y, 4 * zoom, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      drawIsoBox(gx, gy, 1.05, 1.55, 11 + bounce, '#38bdf8', '#0284c7', '#0369a1');
+      drawIsoBox(gx + 0.1, gy + 0.25, 0.85, 1.0, 15 + bounce, '#1e293b', '#0f172a', '#334155');
+    }
+
+    const lp = toIso(gx + 0.55, gy + 0.8, 27 + bounce);
+    ctx.font = `bold ${Math.max(8, Math.round(7.8 * zoom))}px monospace`;
+    ctx.fillStyle = '#fde68a';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, lp.x, lp.y);
   }
 
   function drawConduitLine(fromGx, fromGy, toGx, toGy, col, label) {
@@ -223,23 +316,80 @@ const IsoRenderer = (() => {
     ctx.arc(px, py, 3.8 * zoom, 0, Math.PI * 2);
     ctx.fill();
     if (label) {
-      ctx.font = `bold ${Math.round(7 * zoom)}px monospace`;
+      ctx.font = `bold ${Math.round(7.2 * zoom)}px monospace`;
       ctx.fillStyle = '#6ee7b7';
       ctx.textAlign = 'center';
       ctx.fillText(label, (p0.x + p1.x) * 0.5, (p0.y + p1.y) * 0.5 - 6 * zoom);
     }
   }
 
+  // Clean, High-Contrast, Always-Readable Patient & Staff Nameplates
+  function drawCleanNameplate(x, y, agent, isSelected, showDetails) {
+    const shortName = agent.shortName || agent.name.replace(/\s*\(.*?\)/g, '');
+    const statusText = agent.bubble || '';
+
+    let roleDot = '#f59e0b';
+    let borderCol = isSelected ? '#38bdf8' : 'rgba(245, 158, 11, 0.75)';
+    if (agent.role === 'doctor') { roleDot = '#38bdf8'; borderCol = isSelected ? '#38bdf8' : 'rgba(56, 189, 248, 0.65)'; }
+    else if (agent.role === 'nurse') { roleDot = '#10b981'; borderCol = isSelected ? '#38bdf8' : 'rgba(16, 185, 129, 0.65)'; }
+    else if (agent.role === 'concierge') { roleDot = '#a855f7'; borderCol = isSelected ? '#38bdf8' : 'rgba(168, 85, 247, 0.65)'; }
+
+    const isPatient = agent.role === 'patient';
+    if (!isPatient && !showDetails && !isSelected) return;
+
+    const fontSize = Math.max(9.8, Math.round((isPatient ? 10.2 : 9.0) * Math.min(1.25, Math.max(0.88, zoom))));
+    ctx.font = `700 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+    const nameW = ctx.measureText(shortName).width;
+
+    const subFontSize = Math.max(8.2, fontSize - 1.5);
+    let subW = 0;
+    if (showDetails && statusText) {
+      ctx.font = `600 ${subFontSize}px ui-monospace, monospace`;
+      subW = ctx.measureText(statusText).width;
+    }
+
+    const boxW = Math.max(nameW + 18, subW + 14);
+    const boxH = (showDetails && statusText) ? (fontSize + subFontSize + 9) : (fontSize + 8);
+    const bx = x - boxW / 2;
+    const by = y - boxH;
+
+    ctx.fillStyle = isSelected ? 'rgba(8, 47, 73, 0.96)' : 'rgba(9, 13, 22, 0.92)';
+    ctx.strokeStyle = agent.bubbleType === 'fail' ? '#ef4444' : borderCol;
+    ctx.lineWidth = isSelected ? 2.0 : 1.25;
+    ctx.beginPath();
+    ctx.roundRect(bx, by, boxW, boxH, 5);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = roleDot;
+    ctx.beginPath();
+    ctx.arc(bx + 7, by + fontSize * 0.5 + 3.5, 3.0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.font = `700 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(shortName, bx + 13, by + fontSize * 0.5 + 3.5);
+
+    if (showDetails && statusText) {
+      ctx.font = `600 ${subFontSize}px ui-monospace, monospace`;
+      ctx.fillStyle = agent.bubbleType === 'fail' ? '#fca5a5' : '#6ee7b7';
+      ctx.textAlign = 'center';
+      ctx.fillText(statusText, x, by + fontSize + subFontSize * 0.5 + 4.5);
+    }
+  }
+
   function drawAgent(agent, showLabels, isSelected) {
-    const { gx, gy, role, pose, dir, actionLabel, bubble, bubbleType, headShake } = agent;
+    const { gx, gy, role, pose, dir, headShake } = agent;
     const s = zoom;
     const base = toIso(gx, gy, 0);
 
     if (isSelected) {
       ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 2 * s;
+      ctx.lineWidth = 2.2 * s;
       ctx.beginPath();
-      ctx.ellipse(base.x, base.y, 13 * s, 6.5 * s, 0, 0, Math.PI * 2);
+      ctx.ellipse(base.x, base.y, 14 * s, 7 * s, 0, 0, Math.PI * 2);
       ctx.stroke();
     }
 
@@ -275,16 +425,8 @@ const IsoRenderer = (() => {
       ctx.fill();
       ctx.fillStyle = '#fde68a';
       ctx.beginPath();
-      ctx.arc(seat.x, seat.y - 20.5 * s, 4.5 * s, 0, Math.PI * 2);
+      ctx.arc(seat.x, seat.y - 20.5 * s, 4.6 * s, 0, Math.PI * 2);
       ctx.fill();
-      if (pose === 'SITTING_WAIT') {
-        ctx.strokeStyle = '#fde68a';
-        ctx.lineWidth = 2 * s;
-        ctx.beginPath();
-        ctx.moveTo(seat.x + 4 * s, seat.y - 12 * s);
-        ctx.lineTo(seat.x + 8 * s, seat.y - 16 * s);
-        ctx.stroke();
-      }
     } else {
       const isWalk = pose === 'WALKING';
       const stride = isWalk ? Math.sin(frameTick * 0.26 + agent.idNum) * 3.8 * s : 0;
@@ -338,31 +480,13 @@ const IsoRenderer = (() => {
       ctx.fill();
     }
 
-    if (showLabels && actionLabel) {
-      ctx.font = `600 ${Math.round(7.5 * s)}px -apple-system, sans-serif`;
-      const lw = ctx.measureText(actionLabel).width + 8 * s;
-      ctx.fillStyle = 'rgba(9,13,22,0.88)';
-      ctx.strokeStyle = 'rgba(148,163,184,0.4)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.roundRect(base.x - lw / 2, base.y + 4 * s, lw, 12 * s, 3 * s);
-      ctx.fill();
-      ctx.stroke();
-      ctx.fillStyle = '#e2e8f0';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(actionLabel, base.x, base.y + 10 * s);
-    }
-
-    if (bubble) {
-      const top = toIso(gx, gy, 35);
-      drawStatusBubble(top.x, top.y, bubble, bubbleType);
-    }
+    const headTop = toIso(gx, gy, 32);
+    drawCleanNameplate(headTop.x, headTop.y, agent, isSelected, showLabels);
   }
 
   function drawStatusBubble(x, y, text, type) {
     const s = zoom;
-    ctx.font = `bold ${Math.round(8.5 * s)}px ui-monospace, monospace`;
+    ctx.font = `bold ${Math.max(8.5, Math.round(8.5 * s))}px ui-monospace, monospace`;
     const tw = ctx.measureText(text).width;
     const bw = tw + 10 * s;
     const bh = 15 * s;
@@ -386,23 +510,6 @@ const IsoRenderer = (() => {
     ctx.fillText(text, x, y - bh / 2);
   }
 
-  function drawZoneSign(gx, gy, text, accent) {
-    const p = toIso(gx, gy, 2);
-    ctx.font = `bold ${Math.round(9 * zoom)}px -apple-system, sans-serif`;
-    const w = ctx.measureText(text).width + 10 * zoom;
-    ctx.fillStyle = 'rgba(9,13,22,0.88)';
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = 1.3;
-    ctx.beginPath();
-    ctx.roundRect(p.x - w / 2, p.y - 7.5 * zoom, w, 15 * zoom, 4);
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = '#f8fafc';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(text, p.x, p.y);
-  }
-
   function render(simState) {
     if (!ctx) return;
     frameTick++;
@@ -412,12 +519,18 @@ const IsoRenderer = (() => {
 
     const isCur = simState.mode === 'current';
 
-    // 1. Render 28x22 Hospital Floor Tiles (Dim/Scuffed in Current vs Renovated Smart Wing in Future)
+    // Update moving vehicles on the Hospital Driveway (gx = 0..2.8)
+    drivewayVehicles[0].gy += 0.08;
+    if (drivewayVehicles[0].gy > 19.5) drivewayVehicles[0].gy = 0.5;
+    drivewayVehicles[1].gy -= 0.095;
+    if (drivewayVehicles[1].gy < 0.5) drivewayVehicles[1].gy = 19.5;
+
+    // 1. Render 28x22 Hospital Floor Tiles
     for (let gx = 0; gx < GRID_W; gx++) {
       for (let gy = 0; gy < GRID_H; gy++) {
         let fill = '#1e293b';
         if (gx < 3) {
-          fill = '#1e293b';
+          fill = '#1e293b'; // Paved Hospital Driveway
         } else if (gy === 9 || gy === 10) {
           fill = isCur
             ? ((gx + gy) % 2 === 0 ? '#94a3b8' : '#64748b')
@@ -427,14 +540,10 @@ const IsoRenderer = (() => {
             ? ((gx + gy) % 2 === 0 ? '#cbd5e1' : '#94a3b8')
             : ((gx + gy) % 2 === 0 ? '#f8fafc' : '#e0f2fe');
         } else if (gx >= 10 && gx < 19 && gy < 9) {
-          // C1 Specialist Clinic: In Current State, Rooms 3 & 4 (gx >= 14.5) are unrenovated dark shell!
-          if (isCur && gx >= 14.5) {
-            fill = '#1e293b';
-          } else {
-            fill = isCur
-              ? ((gx + gy) % 2 === 0 ? '#cbd5e1' : '#94a3b8')
-              : ((gx + gy) % 2 === 0 ? '#e0f2fe' : '#bae6fd');
-          }
+          if (isCur && gx >= 14.5) fill = '#1e293b';
+          else fill = isCur
+            ? ((gx + gy) % 2 === 0 ? '#cbd5e1' : '#94a3b8')
+            : ((gx + gy) % 2 === 0 ? '#e0f2fe' : '#bae6fd');
         } else if (gx >= 19 && gy < 9) {
           fill = isCur
             ? ((gx + gy) % 2 === 0 ? '#1e293b' : '#0f172a')
@@ -453,143 +562,125 @@ const IsoRenderer = (() => {
             : ((gx + gy) % 2 === 0 ? '#ede9fe' : '#ddd6fe');
         }
         drawTile(gx, gy, fill);
+
+        // Driveway dashed road line
+        if (gx === 1 && gy % 2 === 0) {
+          const r0 = toIso(1.35, gy + 0.15);
+          const r1 = toIso(1.35, gy + 0.85);
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 1.6 * zoom;
+          ctx.beginPath();
+          ctx.moveTo(r0.x, r0.y); ctx.lineTo(r1.x, r1.y);
+          ctx.stroke();
+        }
       }
     }
 
     // 2. Red Congestion Halos (Before) vs Glowing Smart Sync Conduits (After)
     if (isCur) {
-      drawFloorHalo(7.2, 4.5, 34, 17, '#ef4444', 'C1: 14+ CROWDED (68m WAIT · NO ETA)');
-      drawFloorHalo(20.8, 7.2, 24, 12, '#ef4444', 'C2: 40% REJECTED AT SINGLE X-RAY');
-      drawFloorHalo(7.5, 15.0, 34, 16, '#ef4444', 'C3: 4 BEDS BLOCKED (+92m DELAY)');
-      drawFloorHalo(16.2, 16.0, 26, 12, '#ef4444', 'C3: STOCKOUT & LANDLINE LOOP');
+      drawFloorHalo(7.2, 4.5, 30, 15, '#ef4444', 'C1: 14+ CROWDED (68m WAIT · NO ETA)');
+      drawFloorHalo(20.8, 7.2, 22, 11, '#ef4444', 'C2: 40% REJECTED AT SINGLE X-RAY');
+      drawFloorHalo(7.5, 15.0, 30, 15, '#ef4444', 'C3: 4 BEDS BLOCKED (+92m DELAY)');
+      drawFloorHalo(16.2, 16.0, 24, 11, '#ef4444', 'C3: STOCKOUT & LANDLINE LOOP');
     } else {
-      // C5 Central HIS SSOT Glowing Cyan Conduits uniting Reception, Clinic, Imaging & Pharmacy
       drawConduitLine(23.2, 14.0, 4.5, 3.2, '#0ea5e9', 'SSOT 99.9% SYNC');
       drawConduitLine(23.2, 14.0, 14.5, 3.5, '#10b981', 'WAVE ETA FEED');
       drawConduitLine(15.5, 13.0, 11.2, 17.5, '#10b981', 'PNEUMATIC RX POD (18m)');
     }
 
-    // 3. Exterior Trees, Ambulance & Cutaway Walls
-    drawTree(1, 2); drawTree(1, 18);
-    if (!isCur) {
-      drawIndoorPlant(3.5, 1.5);
-      drawIndoorPlant(9.3, 1.5);
-      drawIndoorPlant(18.3, 1.5);
-      drawIndoorPlant(12.2, 11.8);
-    }
-
-    drawIsoBox(0.8, 8.8, 1.8, 0.95, 18, '#f8fafc', '#cbd5e1', '#94a3b8');
-    drawIsoBox(0.85, 8.8, 1.7, 0.98, 9, '#ef4444', '#b91c1c', '#991b1b');
-
-    drawIsoBox(3, 1, 24, 0.14, 24, '#f8fafc', '#94a3b8', '#64748b');
-    drawIsoBox(3, 1, 0.14, 8, 24, '#f8fafc', '#64748b', '#94a3b8');
-    drawIsoBox(3, 11, 0.14, 10, 24, '#f8fafc', '#64748b', '#94a3b8');
-    drawIsoBox(3, 9, 0.12, 2.0, 20, '#38bdf8', '#0ea5e9', '#0284c7', 0.45);
-
-    drawIsoBox(10, 1, 0.14, 7.2, 20, '#e2e8f0', '#64748b', '#475569');
-    drawIsoBox(19, 1, 0.14, 7.2, 20, '#e2e8f0', '#475569', '#334155');
-    drawIsoBox(19, 5.5, 4.5, 0.12, 18, '#38bdf8', '#0ea5e9', '#0284c7', 0.42);
-    drawIsoBox(13, 11.8, 0.14, 9, 20, '#e2e8f0', '#64748b', '#475569');
-    drawIsoBox(21, 11.8, 0.14, 9, 20, '#e2e8f0', '#64748b', '#475569');
-
-    // Wall Queue ETA Display Board in Waiting Hall
-    const qScreen = toIso(8.5, 1.2, 21);
-    ctx.fillStyle = '#090d16';
-    ctx.strokeStyle = isCur ? '#ef4444' : '#10b981';
-    ctx.lineWidth = 1.6;
-    ctx.fillRect(qScreen.x - 46 * zoom, qScreen.y - 9 * zoom, 92 * zoom, 15 * zoom);
-    ctx.strokeRect(qScreen.x - 46 * zoom, qScreen.y - 9 * zoom, 92 * zoom, 15 * zoom);
-    ctx.fillStyle = isCur ? '#fca5a5' : '#6ee7b7';
-    ctx.font = `bold ${Math.round(7.8 * zoom)}px monospace`;
-    ctx.textAlign = 'center';
-    ctx.fillText(isCur ? 'WAIT: 68m · ETA: UNKNOWN' : 'LIVE WAVE ETA: 12m (-82%)', qScreen.x, qScreen.y - 1 * zoom);
-
-    // 4. Module-Specific Before vs. After Furniture & Equipment
-    // Dept 1: Reception Desk + Self-Service Biometric Kiosks (Future) + Waiting Chairs
-    drawIsoBox(3.8, 2.2, 1.2, 2.4, 12, isCur ? '#cbd5e1' : '#0ea5e9', '#0284c7', '#0369a1');
+    // 3. REALISTIC CUTAWAY HOSPITAL ROOMS WITH WALLS, WINDOWS, DOORWAYS & EQUIPMENT
+    // ROOM 1: Reception & Waiting Hall (gx=3..9.8, gy=1..8.5)
+    drawRealisticRoom(3, 1, 6.8, 7.6, '#f8fafc', '#94a3b8', '#64748b', 'S',
+      isCur ? '1. Cramped Waiting Hall (68m · ETA Unknown)' : '1. Smart Biometric Lounge (12m Wave ETA)');
+    drawIsoBox(3.6, 2.2, 1.2, 2.4, 12, isCur ? '#cbd5e1' : '#0ea5e9', '#0284c7', '#0369a1');
     if (isCur) {
-      // Single cramped bench overflowing with standing patients
       drawIsoBox(6.2, 3.8, 2.6, 0.5, 7, '#475569', '#334155', '#1e293b');
     } else {
-      // Open lounge seating + 2 Self-Service Biometric Kiosks
       drawIsoBox(6.0, 2.2, 3.0, 0.55, 7, '#0ea5e9', '#0284c7', '#0369a1');
       drawIsoBox(6.0, 4.2, 3.0, 0.55, 7, '#10b981', '#059669', '#047857');
       drawIsoBox(6.0, 6.2, 3.0, 0.55, 7, '#0ea5e9', '#0284c7', '#0369a1');
       drawIsoBox(4.0, 5.8, 0.45, 0.45, 16, '#10b981', '#059669', '#047857');
       drawIsoBox(4.8, 5.8, 0.45, 0.45, 16, '#10b981', '#059669', '#047857');
+      drawIndoorPlant(3.6, 7.2);
     }
 
-    // Dept 2 (C1): 2 Slow Consult Rooms (Before) vs Expanded 4-Room Specialist Pod (After)
+    // ROOM 2 (C1): 4 Individual Cutaway Specialist Consultation Rooms (gx=10..18.8, gy=1..8.5)
+    drawRealisticRoom(10, 1, 8.8, 7.6, '#e2e8f0', '#64748b', '#475569', 'S',
+      isCur ? '2. C1: 2 Slow Consult Rooms (Rooms 3–4 Locked)' : '2. C1: Expanded 4-Room Specialist Pod (12m)');
     const activeRooms = isCur ? 2 : 4;
     for (let c = 0; c < 4; c++) {
-      const cx = 10.6 + c * 2.05;
+      const cx = 10.4 + c * 2.05;
+      // Individual consultation room partition wall
+      if (c > 0) drawIsoBox(cx - 0.15, 1.2, 0.1, 6.5, 14, '#cbd5e1', '#64748b', '#475569');
       if (c < activeRooms) {
-        drawIsoBox(cx, 1.8, 1.2, 0.7, 9, isCur ? '#f59e0b' : '#10b981', '#0284c7', '#0369a1');
-        drawIsoBox(cx, 4.2, 1.1, 0.65, 11, '#e2e8f0', '#64748b', '#475569');
+        drawIsoBox(cx + 0.15, 1.8, 1.2, 0.7, 9, isCur ? '#f59e0b' : '#10b981', '#0284c7', '#0369a1'); // Exam Couch
+        drawIsoBox(cx + 0.15, 4.2, 1.1, 0.65, 11, '#f8fafc', '#64748b', '#475569'); // Doctor Desk
       } else {
-        // Unrenovated locked shell rooms 3 & 4 in Current State
-        const lk = toIso(cx + 0.6, 3.2, 8);
+        const lk = toIso(cx + 0.8, 4.0, 10);
         ctx.fillStyle = '#fca5a5';
-        ctx.font = `bold ${Math.round(7 * zoom)}px monospace`;
+        ctx.font = `bold ${Math.round(7.5 * zoom)}px monospace`;
         ctx.textAlign = 'center';
-        ctx.fillText('ROOM CLOSED', lk.x, lk.y);
+        ctx.fillText('LOCKED', lk.x, lk.y);
       }
     }
 
-    // Dept 3 (C2): Single Older X-Ray Room (Before) vs Dual-Suite 3T MRI + High-Speed CT Wing (After)
-    drawIsoBox(20.2, 2.0, 2.2, 0.8, 9, '#94a3b8', '#475569', '#334155');
-    drawIsoBox(21.0, 1.7, 0.55, 1.35, 22, isCur ? '#cbd5e1' : '#f8fafc', '#94a3b8', '#64748b'); // Suite 1 Gantry
-    drawIsoBox(20.2, 6.4, 2.2, 0.7, 12, '#0ea5e9', '#0284c7', '#0369a1'); // Control Booth Console
+    // ROOM 3 (C2): Radiology Imaging Wing & Glass Control Booth (gx=19..26.6, gy=1..8.5)
+    drawRealisticRoom(19, 1, 7.6, 7.6, '#e2e8f0', '#475569', '#334155', 'S',
+      isCur ? '3. C2: Single X-Ray Room (40% Rejected)' : '3. C2: Dual 3T MRI + High-Speed CT (99.2%)');
+    // Glass partition separating Scanner Suite from Radiographer Control Booth
+    drawIsoBox(19.2, 5.4, 7.2, 0.12, 16, '#38bdf8', '#0ea5e9', '#0284c7', 0.45);
+    drawIsoBox(20.0, 2.0, 2.2, 0.8, 9, '#94a3b8', '#475569', '#334155');
+    drawIsoBox(20.8, 1.7, 0.55, 1.35, 22, isCur ? '#cbd5e1' : '#f8fafc', '#94a3b8', '#64748b');
+    drawIsoBox(20.0, 6.2, 2.4, 0.7, 12, '#0ea5e9', '#0284c7', '#0369a1');
     if (!isCur) {
-      // Unlocked 2nd Scanner: 3T MRI Gantry + Dual Sweeping Laser Rings
-      drawIsoBox(23.8, 2.0, 2.2, 0.8, 9, '#38bdf8', '#0284c7', '#0369a1');
-      drawIsoBox(24.6, 1.7, 0.65, 1.4, 23, '#e0f2fe', '#38bdf8', '#0284c7');
-      const lp1 = toIso(21.3, 2.3, 14);
-      const lp2 = toIso(24.9, 2.3, 14);
+      drawIsoBox(23.6, 2.0, 2.2, 0.8, 9, '#38bdf8', '#0284c7', '#0369a1');
+      drawIsoBox(24.4, 1.7, 0.65, 1.4, 23, '#e0f2fe', '#38bdf8', '#0284c7');
+      const lp1 = toIso(21.1, 2.3, 14);
+      const lp2 = toIso(24.7, 2.3, 14);
       ctx.strokeStyle = '#0ea5e9';
       ctx.lineWidth = 2.2 * zoom;
-      ctx.beginPath();
-      ctx.arc(lp1.x, lp1.y, (9 + Math.sin(frameTick * 0.3) * 3) * zoom, 0, Math.PI * 2);
-      ctx.stroke();
+      ctx.beginPath(); ctx.arc(lp1.x, lp1.y, (9 + Math.sin(frameTick * 0.3) * 3) * zoom, 0, Math.PI * 2); ctx.stroke();
       ctx.strokeStyle = '#10b981';
-      ctx.beginPath();
-      ctx.arc(lp2.x, lp2.y, (9 + Math.cos(frameTick * 0.3) * 3) * zoom, 0, Math.PI * 2);
-      ctx.stroke();
+      ctx.beginPath(); ctx.arc(lp2.x, lp2.y, (9 + Math.cos(frameTick * 0.3) * 3) * zoom, 0, Math.PI * 2); ctx.stroke();
     }
 
-    // Dept 4 (C3): 4 Blocked Inpatient Ward Beds (Before) vs Free Turnover + Dedicated Discharge Lounge (After)
+    // ROOM 4 (C3): Inpatient Ward & Discharge Lounge (gx=3..12.8, gy=11..20.2)
+    drawRealisticRoom(3, 11, 9.8, 9.2, '#f8fafc', '#94a3b8', '#64748b', 'N',
+      isCur ? '4. C3: Inpatient Ward (4 Beds Blocked · +92m)' : '4. C3: Inpatient Ward + Discharge Lounge (18m)');
     for (let b = 0; b < 3; b++) {
-      drawHospitalBed(4.0 + b * 2.5, 13.0, isCur, !isCur);
-      drawHospitalBed(4.0 + b * 2.5, 16.8, isCur && b === 0, !isCur);
+      drawHospitalBed(3.8 + b * 2.5, 13.0, isCur, !isCur);
+      drawHospitalBed(3.8 + b * 2.5, 16.8, isCur && b === 0, !isCur);
     }
     if (!isCur) {
-      // Dedicated Inpatient Discharge Lounge Sofas & Pneumatic Pod Receiver
       drawIsoBox(10.8, 13.2, 1.4, 2.2, 9, '#10b981', '#059669', '#047857');
       drawIsoBox(10.8, 16.5, 0.8, 0.8, 18, '#38bdf8', '#0284c7', '#0369a1');
     }
 
-    // Dept 5 (C3): Cramped Manual Pharmacy with Red Stockouts (Before) vs Robotic Dispensing + RFID Racks (After)
-    drawIsoBox(14.2, 12.6, 3.2, 0.65, 12, isCur ? '#f59e0b' : '#10b981', '#059669', '#047857');
-    drawIsoBox(14.2, 16.5, 4.5, 0.55, 20, '#cbd5e1', '#64748b', '#475569');
-    drawIsoBox(14.2, 18.5, 4.5, 0.55, 20, '#cbd5e1', '#64748b', '#475569');
+    // ROOM 5 (C3): Automated Pharmacy & RFID Inventory Store (gx=13..20.8, gy=11..20.2)
+    drawRealisticRoom(13, 11, 7.8, 9.2, '#f8fafc', '#94a3b8', '#64748b', 'N',
+      isCur ? '5. C3: Manual Pharmacy (Stockouts & Phone Loop)' : '5. C3: Robotic Pharmacy + RFID Racks (18m)');
+    drawIsoBox(14.0, 12.4, 3.2, 0.65, 12, isCur ? '#f59e0b' : '#10b981', '#059669', '#047857');
+    drawIsoBox(14.0, 16.5, 4.5, 0.55, 20, '#cbd5e1', '#64748b', '#475569');
+    drawIsoBox(14.0, 18.5, 4.5, 0.55, 20, '#cbd5e1', '#64748b', '#475569');
     if (isCur) {
       const sc = frameTick % 18 < 9 ? '#ef4444' : '#7f1d1d';
       drawIsoBox(15.5, 16.45, 0.8, 0.6, 15, sc, sc, sc);
       drawIsoBox(17.2, 18.45, 0.8, 0.6, 15, sc, sc, sc);
     } else {
-      // Automated Robotic Dispensing Arm sliding along RFID Inventory Racks!
       const rSlide = Math.sin(frameTick * 0.12) * 1.4;
       drawIsoBox(16.0 + rSlide, 14.8, 0.8, 0.8, 18, '#0ea5e9', '#0284c7', '#0369a1');
       drawIsoBox(15.5, 16.45, 0.8, 0.6, 15, '#10b981', '#059669', '#047857');
       drawIsoBox(17.2, 18.45, 0.8, 0.6, 15, '#10b981', '#059669', '#047857');
     }
 
-    // Dept 6 (C5): Central HIS Server Racks & SSOT Command Hub
-    drawIsoBox(22.2, 13.0, 2.2, 0.7, 12, '#a855f7', '#7e22ce', '#6b21a8');
-    drawIsoBox(22.5, 16.8, 0.8, 0.8, 22, '#1e293b', '#0f172a', '#334155');
-    drawIsoBox(24.0, 16.8, 0.8, 0.8, 22, '#1e293b', '#0f172a', '#334155');
+    // ROOM 6 (C5): Central HIS Server & SSOT Command Hub (gx=21..26.6, gy=11..20.2)
+    drawRealisticRoom(21, 11, 5.6, 9.2, '#e2e8f0', '#64748b', '#475569', 'N',
+      isCur ? '6. C5: Disconnected Schedule (68% Sync)' : '6. C5: Central SSOT Command Hub (99.9%)');
+    drawIsoBox(22.0, 13.0, 2.2, 0.7, 12, '#a855f7', '#7e22ce', '#6b21a8');
+    drawIsoBox(22.2, 16.8, 0.8, 0.8, 22, '#1e293b', '#0f172a', '#334155');
+    drawIsoBox(23.8, 16.8, 0.8, 0.8, 22, '#1e293b', '#0f172a', '#334155');
     if (!isCur) {
-      drawIsoBox(25.5, 16.8, 0.8, 0.8, 22, '#0ea5e9', '#0284c7', '#0369a1');
+      drawIsoBox(25.2, 16.8, 0.8, 0.8, 22, '#0ea5e9', '#0284c7', '#0369a1');
     }
 
     // C5 Clashing SMS != Phone Red Sparks (Before) vs SSOT Cyan Sync (After)
@@ -602,21 +693,16 @@ const IsoRenderer = (() => {
       drawStatusBubble(c5Anchor.x, c5Anchor.y, '✓ SSOT SYNC: 99.9% ACCURACY', 'ok');
     }
 
-    // 5. Depth-Sort and Render all Agents
+    // 4. Continuously Moving Vehicles on Front Driveway
+    drivewayVehicles.forEach(v => drawDrivewayVehicle(v));
+
+    // 5. Depth-Sort and Render all Agents with Clean Readable Nameplates
     const sorted = [...simState.agents].sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy));
     sorted.forEach(ag => {
       drawAgent(ag, simState.showActionLabels, ag.id === simState.selectedAgentId);
     });
 
-    // 6. Department Signs
-    drawZoneSign(6.5, 1.2, isCur ? '1. Cramped Waiting Hall (68m)' : '1. Smart Kiosks & Lounge (12m)', isCur ? '#ef4444' : '#10b981');
-    drawZoneSign(14.5, 1.2, isCur ? '2. C1: 2 Slow Consult Rooms' : '2. C1: Expanded 4-Room Pod', isCur ? '#ef4444' : '#0ea5e9');
-    drawZoneSign(23.0, 1.2, isCur ? '3. C2: Single X-Ray (40% Reject)' : '3. C2: Dual 3T MRI + CT (99.2%)', isCur ? '#f59e0b' : '#10b981');
-    drawZoneSign(8.0, 12.0, isCur ? '4. C3: 4 Blocked Ward Beds' : '4. C3: Ward + Discharge Lounge', isCur ? '#ef4444' : '#10b981');
-    drawZoneSign(17.0, 12.0, isCur ? '5. C3: Manual Stockout Rx (92m)' : '5. C3: Robotic Rx + RFID (18m)', isCur ? '#ef4444' : '#10b981');
-    drawZoneSign(24.0, 12.0, isCur ? '6. C5: Disconnected Schedule (68%)' : '6. C5: Central SSOT Hub (99.9%)', isCur ? '#f59e0b' : '#a855f7');
-
-    // 7. Facility Upgrade Transformation Shockwave Overlay
+    // 6. Facility Upgrade Transformation Shockwave Overlay
     if (upgradePulse > 0.01) {
       const center = toIso(14, 11, 10);
       const maxR = Math.max(vpW, vpH) * 0.9;

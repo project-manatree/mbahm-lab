@@ -102,40 +102,49 @@ const SimApp = (() => {
 
   function buildAgents() {
     simState.agents = [];
-    // 14 C1 Outpatient Queue & Consult Patients (14+ packed in Current State vs distributed across 4-Room Pod in Future)
+    const c1Names = [
+      'Puan Faridah #401', 'En. Razali #402', 'Mdm. Liew #403', 'Dato’ Tan #404',
+      'Mrs. Krishnan #405', 'Mr. Wong #406', 'Cik Nurul #407', 'Hj. Zulkifli #408',
+      'Mdm. Chong #409', 'En. Hafiz #410', 'Mrs. Devi #411', 'Mr. Lim #412',
+      'Puan Aishah #413', 'Mr. Ravi #414'
+    ];
+    // 14 C1 Outpatient Queue & Consult Patients (spaced cleanly so nameplates are readable)
     for (let i = 0; i < 14; i++) {
-      const row = Math.floor(i / 5);
-      const col = i % 5;
+      const row = Math.floor(i / 4);
+      const col = i % 4;
       simState.agents.push({
         id: `pat-${i + 1}`,
         idNum: i + 1,
-        name: `Outpatient #MSH-${401 + i}`,
+        shortName: c1Names[i],
+        name: `${c1Names[i]} (Outpatient)`,
         sub: `C1 · Arrived 09:40 for 10:00 Slot`,
         code: i === 0 ? 'C5' : 'C1',
         role: 'patient',
-        gx: 5.8 + col * 0.72,
-        gy: 2.3 + row * 1.65,
-        baseGx: 5.8 + col * 0.72,
-        baseGy: 2.3 + row * 1.65,
+        gx: 5.5 + col * 1.15,
+        gy: 2.1 + row * 1.75,
+        baseGx: 5.5 + col * 1.15,
+        baseGy: 2.1 + row * 1.75,
         path: [],
         dir: 'NW',
         pose: i < 5 ? 'SITTING_WAIT' : 'FRUSTRATED_WAIT',
         actionLabel: 'Waiting 68m (ETA: Unknown)',
-        bubble: i < 3 ? '⏳ +68m (NO ETA)' : null,
+        bubble: i < 4 ? '⏳ +68m (NO ETA)' : null,
         bubbleType: 'fail'
       });
     }
 
     // 2 C2 Radiology / MRI Patients
+    const radNames = ['En. Azman #510 (CT)', 'Mdm. Kamala #511 (MRI)'];
     for (let i = 0; i < 2; i++) {
       simState.agents.push({
         id: `pat-rad-${i + 1}`,
         idNum: 15 + i,
-        name: `Imaging Patient #MSH-${510 + i}`,
+        shortName: radNames[i],
+        name: `Imaging Patient ${radNames[i]}`,
         sub: `C2 · ${i === 0 ? 'High-Speed CT' : '3T MRI'} Referral`,
         code: 'C2',
         role: 'patient',
-        gx: 20.2 + i * 2.2,
+        gx: 20.2 + i * 2.5,
         gy: 7.2,
         path: [],
         dir: 'NE',
@@ -147,17 +156,19 @@ const SimApp = (() => {
     }
 
     // 4 C3 Inpatient Discharge Patients in 4 Blocked Ward Beds
+    const wardNames = ['Dato’ Rahim #201', 'Mdm.Siti #202', 'Mr. Cheah #203', 'Puan Salmah #204'];
     const bedCoords = [
-      { gx: 4.5, gy: 13.4 },
-      { gx: 7.0, gy: 13.4 },
-      { gx: 9.5, gy: 13.4 },
-      { gx: 4.5, gy: 17.2 }
+      { gx: 4.3, gy: 13.4 },
+      { gx: 6.8, gy: 13.4 },
+      { gx: 9.3, gy: 13.4 },
+      { gx: 4.3, gy: 17.2 }
     ];
     for (let i = 0; i < 4; i++) {
       simState.agents.push({
         id: `pat-ward-${i + 1}`,
         idNum: 17 + i,
-        name: `Inpatient #MSH-${201 + i}`,
+        shortName: wardNames[i],
+        name: `Inpatient ${wardNames[i]}`,
         sub: `C3 · Ward Bed #${i + 1} Discharge`,
         code: 'C3',
         role: 'patient',
