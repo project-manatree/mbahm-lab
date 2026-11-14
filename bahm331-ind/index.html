@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BAHM331-IND | Luxury Geriatric Retreat 28x22 Clinical Governance Console</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="academic-badge">
+    SIMULATED ILLUSTRATIVE MODEL DATA — FOR ACADEMIC PROCESS ANALYSIS ONLY
+  </div>
+
+  <header class="top-hud">
+    <div class="hud-left">
+      <a href="../index.html" class="btn">← Hub</a>
+      <h1>Luxury Geriatric Retreat — Clinical Governance &amp; IoT Wearable Console</h1>
+      <span class="tag">BAHM331-IND · 28×22 A* ENGINE</span>
+    </div>
+
+    <div class="hud-controls">
+      <div class="mode-switcher">
+        <button id="btn-mode-unfiltered" class="mode-btn active-unfiltered" onclick="SimApp.setMode('unfiltered')">
+          Unfiltered Routing (High Clinical &amp; Privacy Risk)
+        </button>
+        <button id="btn-mode-tiered" class="mode-btn" onclick="SimApp.setMode('tiered')">
+          Tiered Clinical Governance (MSQH / Aged-Care Standard)
+        </button>
+      </div>
+      <button id="btn-labels" class="btn active" onclick="SimApp.toggleActionLabels()">🏷️ Show Action Labels</button>
+      <button id="btn-play" class="btn active" onclick="SimApp.togglePlay()">⏸ Pause</button>
+      <button id="btn-speed" class="btn" onclick="SimApp.toggleSpeed()">1x</button>
+      <button class="btn" onclick="SimApp.resetSim()">↺ Reset</button>
+      <button class="btn btn-trig" onclick="SimApp.triggerEvent(0)">⚡ Pool Tachycardia</button>
+      <button class="btn btn-trig" onclick="SimApp.triggerEvent(1)">⚡ Spa Fall</button>
+      <button class="btn btn-trig" onclick="SimApp.triggerEvent(2)">⚡ Nocturnal ECG</button>
+      <button class="btn btn-trig" onclick="SimApp.triggerEvent(3)">⚡ Yoga Artifact</button>
+      <button class="btn btn-trig" onclick="SimApp.triggerEvent(4)">⚡ Bistro Meds</button>
+      <button class="btn btn-csv" onclick="SimApp.exportCSV()">⬇ Export KPI Snapshot (CSV)</button>
+    </div>
+  </header>
+
+  <nav class="dept-bar">
+    <div class="dept-tabs" id="dept-tabs">
+      <button class="dept-tab active" onclick="SimApp.focusZone(-1, this)">All Retreat Campus (28×22)</button>
+      <button class="dept-tab" onclick="SimApp.focusZone(0, this)">1. Hydrotherapy Pool</button>
+      <button class="dept-tab" onclick="SimApp.focusZone(1, this)">2. Thermal Spa Suites</button>
+      <button class="dept-tab" onclick="SimApp.focusZone(2, this)">3. Resident Suites 301–309</button>
+      <button class="dept-tab" onclick="SimApp.focusZone(3, this)">4. Yoga &amp; Wellness Pavilion</button>
+      <button class="dept-tab" onclick="SimApp.focusZone(4, this)">5. Fine-Dining Bistro</button>
+      <button class="dept-tab" onclick="SimApp.focusZone(5, this)">6. Nurse Triage &amp; MD Clinic</button>
+    </div>
+    <div class="roster-summary">
+      Active Agents: 24 (14 Wearable-Monitored Residents · 10 Wellness/Nurse/MD Staff) · A* Grid Active
+    </div>
+  </nav>
+
+  <main class="viewport" id="viewport">
+    <canvas id="iso-canvas"></canvas>
+
+    <!-- Floating Governance KPIs -->
+    <div class="floating-kpis">
+      <div class="kpi-pill">
+        <div class="lbl">Escalation SLA Compliance</div>
+        <div class="val" id="kpi-sla" style="color:var(--bottleneck)">52.0%</div>
+        <div class="sub" id="kpi-sla-sub">Unfiltered: Delayed Response</div>
+      </div>
+      <div class="kpi-pill">
+        <div class="lbl">Alert Fatigue / False-Pos</div>
+        <div class="val" id="kpi-fat" style="color:var(--bottleneck)">64.0%</div>
+        <div class="sub" id="kpi-fat-sub">MD Paged on Motion Noise</div>
+      </div>
+      <div class="kpi-pill">
+        <div class="lbl">PHI Privacy Exposure</div>
+        <div class="val" id="kpi-phi" style="color:var(--bottleneck)">14 Breaches</div>
+        <div class="sub" id="kpi-phi-sub">Raw EHR on Spa/Pool Tablets</div>
+      </div>
+      <div class="kpi-pill">
+        <div class="lbl">Audit Trail Completeness</div>
+        <div class="val" id="kpi-aud" style="color:var(--warning)">45.0%</div>
+        <div class="sub" id="kpi-aud-sub">Unlogged Verbal Handovers</div>
+      </div>
+    </div>
+
+    <!-- Tabbed Project Hospital Clinical & Governance Inspector Card -->
+    <aside class="inspector-card">
+      <div class="insp-header">
+        <div>
+          <div class="insp-title" id="insp-name">Poolside Tachycardia (#R-204)</div>
+          <div class="insp-subtitle" id="insp-role">Hydrotherapy Pool · Biometric Wristband</div>
+        </div>
+        <span class="insp-badge" id="insp-badge">TIER 3 ACUTE</span>
+      </div>
+
+      <div class="insp-tabs">
+        <button class="insp-tab active" onclick="SimApp.setInspectorTab(0, this)">(a) Profile &amp; Vitals</button>
+        <button class="insp-tab" onclick="SimApp.setInspectorTab(1, this)">(b) Telemetry Log</button>
+        <button class="insp-tab" onclick="SimApp.setInspectorTab(2, this)">(c) Governance</button>
+      </div>
+
+      <!-- Tab (a): Profile & Live Vitals -->
+      <div class="tab-pane active" id="insp-pane-0">
+        <div class="vitals-grid">
+          <div class="vital-box"><span>TELEMETRY</span><strong style="color:#ef4444" id="insp-hr">158 bpm</strong></div>
+          <div class="vital-box"><span>POSE / ZONE</span><strong style="color:#0ea5e9" id="insp-pose">SWIMMING_POOL</strong></div>
+          <div class="vital-box"><span>RBAC MASK</span><strong style="color:#10b981" id="insp-rbac">OFF (BREACH)</strong></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.65rem;font-family:var(--mono);">
+          <span>5-Min Acute Escalation SLA</span>
+          <span id="insp-sla-txt" style="color:var(--bottleneck)">SLA BREACHED</span>
+        </div>
+        <div class="sla-bar">
+          <div class="sla-fill" id="insp-sla-fill"></div>
+        </div>
+        <div class="rca-box" id="insp-micro-summary">
+          Click any of the 24 residents or staff or trigger an IoT event above to inspect RBAC privacy and clinical triage routing.
+        </div>
+      </div>
+
+      <!-- Tab (b): Step-by-Step Timestamped Telemetry Log -->
+      <div class="tab-pane" id="insp-pane-1">
+        <div class="log-box" id="insp-log-list"></div>
+      </div>
+
+      <!-- Tab (c): MSQH / PDPA Governance Root-Cause Analysis -->
+      <div class="tab-pane" id="insp-pane-2">
+        <div class="rca-box" id="insp-rca-body"></div>
+      </div>
+    </aside>
+
+    <div class="bottom-hud">
+      <div class="ticker-dock" id="bottom-ticker">
+        [IMMUTABLE GOVERNANCE LOG]: 24 residents &amp; staff active across Hydrotherapy Pool, Thermal Spa, Yoga Pavilion, Bistro, Suites &amp; Nurse Triage Gate.
+      </div>
+      <div class="cam-dock">
+        <button class="btn" onclick="IsoRenderer.zoomCam(1.15)">＋ Zoom</button>
+        <button class="btn" onclick="IsoRenderer.zoomCam(0.87)">－ Zoom</button>
+        <button class="btn" onclick="IsoRenderer.resetCam()">⌖ Reset Camera</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    SIMULATED ILLUSTRATIVE MODEL DATA — FOR ACADEMIC PROCESS ANALYSIS ONLY · DRAG TO PAN / SCROLL TO ZOOM / CLICK ANY AGENT TO INSPECT
+  </footer>
+
+  <script src="./renderer.js"></script>
+  <script src="./simulation.js"></script>
+</body>
+</html>
