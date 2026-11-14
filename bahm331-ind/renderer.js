@@ -35,8 +35,8 @@ const IsoRenderer = (() => {
 
       // Bottom Wing (y: 11..19)
       { x: 1, y: 11, w: 9, d: 8, mat: 'linoMint' },               // 5. Thermal Spa & Physio Wing
-      { x: 10, y: 11, w: 9.5, d: 8, mat: 'deck' },                // 6. Nutritional Dining Bistro
-      { x: 19.5, y: 11, w: 13.5, d: 8, mat: 'oak' },              // 7. 6 Private King Suites 301-306
+      { x: 10, y: 11, w: 9.5, d: 8, mat: 'ceramicCream' },        // 6. Nutritional Dining Bistro
+      { x: 19.5, y: 11, w: 13.5, d: 8, mat: 'travertine' },       // 7. 6 Private King Suites 301-306
 
       // Front Main Entrance Walkway Apron (y: 19..19.8)
       { x: 1, y: 19.0, w: 32, d: 0.8, mat: 'paver' }
@@ -182,11 +182,13 @@ const IsoRenderer = (() => {
 
     // ---------------- 7. 6 PRIVATE RESIDENTIAL KING SUITES 301-306 (x: 19.5..33, y: 11..19)
     const suiteBeds = [
-      [20.2, 11.6, '#f59e0b'], [24.7, 11.6, '#10b981'], [29.2, 11.6, '#0ea5e9'],
-      [20.2, 15.6, '#a855f7'], [24.7, 15.6, '#ec4899'], [29.2, 15.6, '#10b981']
+      [20.2, 11.6, '#0d9488'], [24.7, 11.6, '#0d9488'], [29.2, 11.6, '#0d9488'],
+      [20.2, 15.6, '#0d9488'], [24.7, 15.6, '#0d9488'], [29.2, 15.6, '#0d9488']
     ];
-    suiteBeds.forEach(([bx, by, col]) => {
-      PHSprites.luxuryBed(bx, by, 0, { duvet: col, smartHub: true });
+    suiteBeds.forEach(([bx, by, col], idx) => {
+      PHSprites.luxuryBed(bx, by, 0, { duvet: col, smartHub: true, seed: 300 + idx });
+      PHSprites.wardrobe(bx, by + 2.2, 0);
+      PHSprites.armchair(bx + 2.2, by + 1.8, 0, { col: '#0d9488' });
     });
 
     // ---------------- 8. 48 ARTICULATED DOCTORS, NURSES, STAFF & PATIENTS

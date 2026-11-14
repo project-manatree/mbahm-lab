@@ -181,7 +181,7 @@
   defMat('linoWorn', 1, linoGen('#b9b29f', { chips: '#8c846f' }));
   defMat('ceramic', 1, tileGen('#eef1f2', '#c3c9cc', 4));
   defMat('ceramicBlue', 1, tileGen('#d8e8ef', '#a9bec8', 4));
-  defMat('ceramicCream', 1, tileGen('#ece2cf', '#bfb19a', 3));
+  defMat('ceramicCream', 1, tileGen('#f7f2e7', '#dfd6c3', 3));
   defMat('oak', 2, woodGen('#c39762', 8, 'x'));
   defMat('oakY', 2, woodGen('#c39762', 8, 'y'));
   defMat('walnut', 2, woodGen('#7d5537', 8, 'x'));
@@ -240,15 +240,15 @@
     g.strokeStyle = 'rgba(60,60,60,0.25)'; g.lineWidth = 1.5; g.strokeRect(0.75, 0.75, size - 1.5, size - 1.5);
   });
   defMat('travertine', 2, (g, size, r) => {
-    g.fillStyle = '#b8ab94'; g.fillRect(0, 0, size, size);
+    g.fillStyle = '#e5dccb'; g.fillRect(0, 0, size, size);
     let y = 0;
     while (y < size) {
       const h = size / 4; let x = -r() * 40;
-      while (x < size) { const w = 30 + r() * 50; g.fillStyle = jitter('#e3d7c1', r, 0.05); g.fillRect(x + 1.2, y + 1.2, w - 2.4, h - 2.4); x += w; }
+      while (x < size) { const w = 30 + r() * 50; g.fillStyle = jitter('#f8f3e8', r, 0.03); g.fillRect(x + 1.2, y + 1.2, w - 2.4, h - 2.4); x += w; }
       y += h;
     }
-    for (let i = 0; i < 300; i++) { g.fillStyle = 'rgba(140,120,90,0.35)'; g.fillRect(r() * size, r() * size, 1 + r() * 2, 1); }
-    noiseImg(g, size, r, 8);
+    for (let i = 0; i < 220; i++) { g.fillStyle = 'rgba(180,165,140,0.28)'; g.fillRect(r() * size, r() * size, 1 + r() * 2, 1); }
+    noiseImg(g, size, r, 5);
   });
   defMat('rubber', 1, (g, size, r) => {
     g.fillStyle = '#3d4a57'; g.fillRect(0, 0, size, size);
@@ -820,7 +820,7 @@
     if (pose !== 'swim' && !spec.noShadow) { c.fillStyle = 'rgba(15,20,28,0.28)'; c.beginPath(); c.ellipse(0, 0, 8.5 * s, 4 * s, 0, 0, Math.PI * 2); c.fill(); }
     c.scale(flip * s, s);
     const skin = Lk.skin, topC = Lk.gown || Lk.top, botC = Lk.bottom;
-    const walk = pose === 'walk' || pose === 'push' || pose === 'carry' && spec.moving;
+    const walk = (pose === 'walk' || pose === 'push' || pose === 'carry') && spec.moving;
     const ph = Math.sin(t * 0.22);
     const idleBreath = walk ? 0 : Math.sin(t * 0.075) * 0.48;
     const idleSway = walk ? 0 : Math.cos(t * 0.05) * 0.35;
@@ -1095,9 +1095,9 @@
     const prev = S.agentsPrev.get(spec.id);
     if (prev) {
       const dx = spec.gx - prev.gx, dy = spec.gy - prev.gy;
-      if (Math.abs(dx) + Math.abs(dy) > 0.002) {
+      if (Math.hypot(dx, dy) > 0.008) {
         dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'SE' : 'NW') : (dy > 0 ? 'SW' : 'NE');
-        prev.dir = dir; prev.moving = 8;
+        prev.dir = dir; prev.moving = 2;
       } else if (prev.moving > 0) { prev.moving--; dir = prev.dir; }
       else if (!spec.dir) dir = prev.dir;
       prev.gx = spec.gx; prev.gy = spec.gy;
@@ -1198,47 +1198,59 @@
     }
   }
 
-  // Calibrated Role-Based Speed & Ease-In/Ease-Out Physics
+  // Calibrated Role-Based Speed & Ease-In/Ease-Out Physics (with Corridor Waypoint Routing)
   function roleSpeed(role, pose, urgent) {
-    if (pose === 'WHEELCHAIR') return 0.35;
-    if (role === 'resident' || role === 'elderly') return 0.45;
-    if (role === 'patient' || role === 'gown') return 0.85;
+    if (pose === 'WHEELCHAIR') return 0.55;
+    if (role === 'resident' || role === 'elderly') return 0.72;
+    if (role === 'patient' || role === 'gown') return 0.90;
     if (urgent) return 1.45;
-    return 1.0;
+    return 1.05;
   }
 
   function stepAgentPhysics(ag, tx, ty, dtSec, opts) {
     opts = opts || {};
-    if (opts.snap || Math.hypot(tx - ag.gx, ty - ag.gy) > 7.5) {
-      ag.gx = tx; ag.gy = ty; ag.vx = 0; ag.vy = 0;
+    const destPose = ag.pose;
+    if (opts.snap || Math.hypot(tx - ag.gx, ty - ag.gy) > 15.0) {
+      ag.gx = tx; ag.gy = ty; ag.vel = 0;
+      if (ag.pose === 'WALKING') ag.pose = 'IDLE';
       return;
     }
-    const dx = tx - ag.gx, dy = ty - ag.gy;
+    const finalDist = Math.hypot(tx - ag.gx, ty - ag.gy);
+    if (finalDist <= 0.06) {
+      ag.gx = tx; ag.gy = ty; ag.vel = 0;
+      if (destPose === 'WALKING') ag.pose = 'IDLE';
+      return;
+    }
+
+    // Orthogonal corridor waypoint routing (A*-like room-to-corridor-to-room path)
+    let wx = tx, wy = ty;
+    const cy = opts.corridorY;
+    if (cy != null && Math.abs(ag.gx - tx) > 2.2) {
+      const agInCorr = Math.abs(ag.gy - cy) <= 0.45;
+      const dstInCorr = Math.abs(ty - cy) <= 0.45;
+      if (!agInCorr && !dstInCorr) {
+        wx = ag.gx; wy = cy;
+      } else if (agInCorr && Math.abs(ag.gx - tx) > 0.35) {
+        wx = tx; wy = cy;
+      }
+    }
+
+    const dx = wx - ag.gx, dy = wy - ag.gy;
     const dist = Math.hypot(dx, dy);
-    if (dist < 0.03) {
-      ag.gx = tx; ag.gy = ty; ag.vx = 0; ag.vy = 0;
+    if (dist < 0.02) {
+      ag.gx = wx; ag.gy = wy;
       return;
     }
     const ux = dx / dist, uy = dy / dist;
-    if (ag.lastUx != null && (ag.lastUx * ux + ag.lastUy * uy) < 0.35 && dist > 0.4) {
-      ag.pauseTimer = 0.4; // 0.4s natural pause when turning corners
-    }
-    ag.lastUx = ux; ag.lastUy = uy;
-    if (ag.pauseTimer > 0) {
-      ag.pauseTimer = Math.max(0, ag.pauseTimer - dtSec);
-      ag.vel = (ag.vel || 0) * 0.5;
-      return;
-    }
-    const mult = roleSpeed(ag.role, ag.pose, opts.urgent);
-    const baseTilesPerSec = (opts.baseSpeed || 2.2) * mult * (opts.simSpeed || 1);
-    // Ease-out deceleration over the final 1.2 tiles
-    const easeOut = Math.min(1, Math.max(0.18, dist / 1.2));
+    const mult = roleSpeed(ag.role, destPose, opts.urgent);
+    const baseTilesPerSec = (opts.baseSpeed || 6.8) * mult * (opts.simSpeed || 1);
+    const easeOut = Math.min(1, Math.max(0.32, finalDist / 0.9));
     const targetSpeed = baseTilesPerSec * easeOut;
-    // Ease-in acceleration
-    ag.vel = (ag.vel || 0) + (targetSpeed - (ag.vel || 0)) * Math.min(1, dtSec * 5.5);
+    ag.vel = (ag.vel || 0) + (targetSpeed - (ag.vel || 0)) * Math.min(1, dtSec * 9.0);
     const step = Math.min(dist, ag.vel * dtSec);
     ag.gx += ux * step;
     ag.gy += uy * step;
+    ag.pose = destPose === 'WHEELCHAIR' ? 'WHEELCHAIR' : 'WALKING';
     ag.dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'SE' : 'NW') : (dy > 0 ? 'SW' : 'NE');
   }
 

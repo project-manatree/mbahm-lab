@@ -72,36 +72,78 @@
   }
 
   function luxuryBed(x, y, rot, opts = {}) {
-    const duvet = opts.duvet || '#f59e0b';
-    const runner = opts.runner || '#78350f';
-    PH.furniture(x, y, 2.25, 1.55, rot, k => {
-      // Plush woven area rug under the king bed
-      k.top(-0.1, -0.15, 0.1, 2.5, 1.85, '#d6c7b2', { tex: 'carpetBeige', texAlpha: 0.7 });
-      // Walnut platform frame
-      k.box(0.08, 0.12, 0, 2.02, 1.3, 5.5, '#78350f', { tex: 'walnut', texAlpha: 0.55 });
-      // Tall tufted walnut & velvet headboard
-      k.box(0.04, 0.06, 0, 0.16, 1.42, 21, '#5c3a21', { tex: 'walnut', texAlpha: 0.5 });
-      k.box(0.18, 0.16, 6, 0.07, 1.22, 12, '#e7dec8', { tex: 'quilt', texAlpha: 0.45 });
-      // Thick pillow-top mattress
-      k.box(0.22, 0.16, 5.5, 1.84, 1.22, 5.0, '#ffffff', { tex: 'fabric', texAlpha: 0.3 });
-      // Quilted luxury duvet + folded throw runner at foot
-      k.box(0.66, 0.15, 6.0, 1.38, 1.24, 5.0, duvet, { tex: 'quilt', texAlpha: 0.42 });
-      k.box(1.62, 0.14, 6.2, 0.38, 1.26, 5.1, runner, { tex: 'fabric', texAlpha: 0.5 });
-      // 4 Hotel pillows
-      k.box(0.26, 0.22, 10.5, 0.32, 0.48, 2.8, '#ffffff');
-      k.box(0.26, 0.84, 10.5, 0.32, 0.48, 2.8, '#ffffff');
-      k.box(0.42, 0.26, 10.8, 0.24, 0.4, 2.4, shade(duvet, 1.15));
-      k.box(0.42, 0.88, 10.8, 0.24, 0.4, 2.4, shade(duvet, 1.15));
-      // Twin nightstands + warm brass bedside lamps
-      for (const ny of [-0.36, 1.46]) {
-        k.box(0.12, ny, 0, 0.42, 0.4, 9.5, '#78350f', { tex: 'walnut', texAlpha: 0.5 });
-        k.cyl(0.32, ny + 0.2, 9.5, 0.06, 3.0, '#d97706');
-        k.cyl(0.32, ny + 0.2, 12.2, 0.13, 3.8, '#fef3c7');
-      }
+    const duvet = opts.duvet || '#0d9488';
+    const runner = opts.runner || '#115e59';
+    PH.furniture(x, y, 2.2, 1.5, rot, k => {
+      // Soft cream travertine-toned woven area rug under the king recovery bed
+      k.top(-0.06, -0.10, 0.1, 2.32, 1.70, '#f5efe6', { stroke: '#cbd5e1' });
+      // Crisp white king recovery platform frame with warm oak trim
+      k.box(0.08, 0.12, 0, 1.98, 1.26, 5.2, '#f8fafc');
+      k.box(0.06, 0.10, 0, 2.02, 1.30, 1.4, '#d4a373', { tex: 'deskwood', texAlpha: 0.45 });
+      // Crisp white clinical-luxury headboard with soft padded panel
+      k.box(0.04, 0.06, 0, 0.15, 1.38, 20, '#f8fafc');
+      k.box(0.16, 0.14, 5.5, 0.07, 1.22, 12.5, '#ffffff', { tex: 'quilt', texAlpha: 0.35 });
+      k.box(0.03, 0.05, 19.5, 0.17, 1.40, 1.4, '#d4a373');
+      // Thick white orthopaedic pillow-top mattress
+      k.box(0.20, 0.15, 5.2, 1.82, 1.20, 4.8, '#ffffff', { tex: 'fabric', texAlpha: 0.25 });
+      // Teal quilted duvet + folded dark-teal runner at foot of bed
+      k.box(0.64, 0.14, 5.8, 1.36, 1.22, 4.8, duvet, { tex: 'quilt', texAlpha: 0.38 });
+      k.box(1.60, 0.13, 6.0, 0.36, 1.24, 4.9, runner, { tex: 'fabric', texAlpha: 0.45 });
+      // Crisp white top sheet fold
+      k.box(0.52, 0.14, 5.9, 0.16, 1.22, 4.8, '#ffffff');
+      // 2 Crisp white recovery pillows + 2 teal accent pillows
+      k.box(0.24, 0.20, 10.0, 0.30, 0.46, 2.6, '#ffffff');
+      k.box(0.24, 0.82, 10.0, 0.30, 0.46, 2.6, '#ffffff');
+      k.box(0.40, 0.24, 10.3, 0.22, 0.38, 2.2, '#2dd4bf');
+      k.box(0.40, 0.86, 10.3, 0.22, 0.38, 2.2, '#2dd4bf');
+      // White & light-oak nightstand on right side
+      k.box(0.12, 1.42, 0, 0.40, 0.36, 9.0, '#f8fafc');
+      k.box(0.10, 1.40, 9.0, 0.44, 0.40, 1.2, '#d4a373');
+      k.cyl(0.30, 1.58, 10.2, 0.06, 2.6, '#0d9488');
+      k.cyl(0.30, 1.58, 12.6, 0.12, 3.2, '#fef3c7');
+      // Bedside vital-sign monitor on clinical stand (left of headboard)
+      k.cyl(0.42, -0.26, 0, 0.11, 1.2, '#64748b');
+      k.cyl(0.42, -0.26, 1.2, 0.03, 12.5, '#cbd5e1');
+      k.box(0.26, -0.40, 13.5, 0.34, 0.22, 6.2, '#0f172a');
+      k.part(0.42, -0.16, 3, () => {
+        k.now.screen('+v', -0.17, 0.28, 0.58, 14.1, 19.2, 'ecg', opts.seed || 7);
+      });
       // Contactless biometric wall hub above headboard
-      if (opts.smartHub) {
-        k.box(0.02, 0.62, 22, 0.08, 0.32, 4.5, '#0ea5e9');
+      if (opts.smartHub !== false) {
+        k.box(0.02, 0.58, 21, 0.08, 0.34, 4.2, '#0ea5e9');
       }
+    });
+  }
+
+  function wardrobe(x, y, rot, opts = {}) {
+    const wood = opts.wood || '#d4a373';
+    PH.furniture(x, y, 1.15, 0.55, rot, k => {
+      // Light oak wooden wardrobe body
+      k.box(0.04, 0.04, 0, 1.07, 0.47, 21.5, wood, { tex: 'deskwood', texAlpha: 0.5 });
+      // Crisp white/cream double doors on front face
+      k.box(0.08, 0.46, 1.5, 0.48, 0.06, 18.5, '#f8fafc');
+      k.box(0.59, 0.46, 1.5, 0.48, 0.06, 18.5, '#f8fafc');
+      // Brushed metal vertical door handles
+      k.box(0.50, 0.51, 8.0, 0.03, 0.03, 4.5, '#64748b');
+      k.box(0.62, 0.51, 8.0, 0.03, 0.03, 4.5, '#64748b');
+      // Top crown cap
+      k.box(0.02, 0.02, 21.5, 1.11, 0.51, 1.2, shade(wood, 0.88));
+    });
+  }
+
+  function armchair(x, y, rot, opts = {}) {
+    const col = opts.col || '#0d9488';
+    PH.furniture(x, y, 0.86, 0.82, rot, k => {
+      // Warm oak legs & base frame
+      k.box(0.08, 0.08, 0, 0.70, 0.66, 2.2, '#d4a373');
+      // Plush seat cushion
+      k.box(0.10, 0.12, 2.2, 0.66, 0.60, 3.2, '#f8fafc', { tex: 'fabric', texAlpha: 0.35 });
+      // Teal ergonomic backrest & armrests
+      k.box(0.08, 0.06, 5.0, 0.70, 0.18, 7.8, col, { tex: 'fabric', texAlpha: 0.4 });
+      k.box(0.06, 0.08, 4.5, 0.14, 0.64, 4.8, shade(col, 0.9));
+      k.box(0.66, 0.08, 4.5, 0.14, 0.64, 4.8, shade(col, 0.9));
+      // Accent lumbar pillow
+      k.box(0.22, 0.22, 5.5, 0.42, 0.14, 3.2, '#fef3c7');
     });
   }
 
@@ -347,40 +389,40 @@
   }
 
   function diningTable(x, y, rot, opts = {}) {
-    const cloth = opts.cloth || '#fef3c7';
+    const cloth = opts.cloth || '#ffffff';
     PH.furniture(x, y, 1.35, 1.35, rot, k => {
-      // 4 Dining chairs around table
+      // 4 Dining chairs around table (warm light oak + teal upholstery)
       const chairs = [[0.48, 0.02], [0.48, 0.96], [0.02, 0.48], [0.96, 0.48]];
       chairs.forEach(([cx, cy]) => {
-        k.box(cx, cy, 0, 0.36, 0.36, 5.2, '#78350f');
-        k.box(cx + 0.02, cy + 0.02, 5.2, 0.32, 0.32, 1.4, '#d97706', { tex: 'fabric', texAlpha: 0.4 });
+        k.box(cx, cy, 0, 0.36, 0.36, 5.2, '#d4a373');
+        k.box(cx + 0.02, cy + 0.02, 5.2, 0.32, 0.32, 1.4, '#0d9488', { tex: 'fabric', texAlpha: 0.4 });
       });
-      // Center pedestal + tabletop with draped tablecloth
-      k.cyl(0.68, 0.68, 0, 0.12, 9.2, '#451a03');
-      k.box(0.22, 0.22, 9.2, 0.92, 0.92, 1.6, cloth, { tex: 'fabric', texAlpha: 0.4 });
+      // Center pedestal + tabletop with crisp linen tablecloth
+      k.cyl(0.68, 0.68, 0, 0.12, 9.2, '#cbd5e1');
+      k.box(0.22, 0.22, 9.2, 0.92, 0.92, 1.6, cloth, { tex: 'fabric', texAlpha: 0.3 });
       // Plates & centerpiece
-      k.cyl(0.42, 0.68, 10.8, 0.11, 0.5, '#ffffff');
-      k.cyl(0.92, 0.68, 10.8, 0.11, 0.5, '#ffffff');
-      k.cyl(0.68, 0.42, 10.8, 0.11, 0.5, '#ffffff');
-      k.cyl(0.68, 0.92, 10.8, 0.11, 0.5, '#ffffff');
+      k.cyl(0.42, 0.68, 10.8, 0.11, 0.5, '#f8fafc');
+      k.cyl(0.92, 0.68, 10.8, 0.11, 0.5, '#f8fafc');
+      k.cyl(0.68, 0.42, 10.8, 0.11, 0.5, '#f8fafc');
+      k.cyl(0.68, 0.92, 10.8, 0.11, 0.5, '#f8fafc');
       k.cyl(0.68, 0.68, 10.8, 0.07, 2.8, '#10b981');
     });
   }
 
   function spaTable(x, y, rot, opts = {}) {
-    const col = opts.col || '#a7f3d0';
+    const col = opts.col || '#5eead4';
     PH.furniture(x, y, 1.75, 0.85, rot, k => {
-      // Teak timber frame
-      k.box(0.14, 0.12, 0, 1.48, 0.6, 7.5, '#78350f', { tex: 'walnut', texAlpha: 0.55 });
+      // Warm light oak timber frame
+      k.box(0.14, 0.12, 0, 1.48, 0.6, 7.5, '#d4a373', { tex: 'deskwood', texAlpha: 0.45 });
       // Padded wellness cushion + face cradle hole
-      k.box(0.08, 0.08, 7.5, 1.6, 0.68, 2.6, col, { tex: 'fabric', texAlpha: 0.4 });
+      k.box(0.08, 0.08, 7.5, 1.6, 0.68, 2.6, col, { tex: 'fabric', texAlpha: 0.35 });
       k.box(0.18, 0.22, 10.1, 0.28, 0.4, 1.2, '#ffffff');
       // Rolled white spa towels at foot
       k.cyl(1.48, 0.32, 10.2, 0.09, 2.2, '#ffffff');
       k.cyl(1.48, 0.54, 10.2, 0.09, 2.2, '#ffffff');
-      // Hot stone aromatherapy side cart
-      k.box(0.2, -0.36, 0, 0.38, 0.32, 9.0, '#334155');
-      k.cyl(0.38, -0.2, 9.0, 0.08, 2.5, '#f59e0b');
+      // Aromatherapy side cart
+      k.box(0.2, -0.36, 0, 0.38, 0.32, 9.0, '#e2e8f0');
+      k.cyl(0.38, -0.2, 9.0, 0.08, 2.5, '#14b8a6');
     });
   }
 
@@ -684,6 +726,8 @@
   global.PHSprites = {
     hospitalBed,
     luxuryBed,
+    wardrobe,
+    armchair,
     examTable,
     privacyCurtain,
     officeDesk,
