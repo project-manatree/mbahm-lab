@@ -338,23 +338,23 @@
     <section class="kpi-strip">
       <div class="kpi-card">
         <div class="kpi-label">Module 1 · Step-Down Transfer PCE</div>
-        <div class="kpi-val">41.8% → 88.0%</div>
-        <div class="kpi-sub">8 Concurrent Transfers · -150m Wait</div>
+        <div class="kpi-val">34.5% → 90.9%</div>
+        <div class="kpi-sub">275m → 110m (-60% Faster) · 180m → 10m Wait</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Module 2 · MSH 250-Bed Wing</div>
-        <div class="kpi-val">65m → 14m Wait</div>
-        <div class="kpi-sub">28+ Agents · C1, C2, C3, C5 Resolved</div>
+        <div class="kpi-label">Module 2 · MSH Smart Wing Upgrade</div>
+        <div class="kpi-val">68m → 12m (-82%)</div>
+        <div class="kpi-sub">4-Room Pod · Dual 3T MRI+CT · 18m Robotic Rx</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Module 3 · Retreat IoT Governance</div>
-        <div class="kpi-val">99.2% SLA · 0 PHI</div>
-        <div class="kpi-sub">24+ Agents · RBAC + 5-Min SLA Ring</div>
+        <div class="kpi-label">Module 3 · Accredited Retreat Campus</div>
+        <div class="kpi-val">98.5% SLA · 0 PHI</div>
+        <div class="kpi-sub">68% → 6% Fatigue · &lt;3m Rapid Medical Cart</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Engine Architecture</div>
+        <div class="kpi-label">Facility Transformation Engine</div>
         <div class="kpi-val">28×22 Iso Grid</div>
-        <div class="kpi-sub">A* Pathfinding · 8-Dir Multi-Pose Sprites</div>
+        <div class="kpi-sub">Real-Time Before/After Architectural Redraw</div>
       </div>
     </section>
 
@@ -380,9 +380,9 @@
             Split-campus 28×22 isometric simulation tracking 8 concurrent geriatric step-down transfers across Partner Hospital Ward, Billing, Concierge Van Transit, Luxury Suites, Visiting MD Clinic &amp; Hydrotherapy Pool.
           </p>
           <div class="metrics-preview">
-            <div><span>Current Sequential Cycle:</span><span class="val" style="color:var(--bottleneck)">275 mins (PCE 41.8%)</span></div>
-            <div><span>Future Parallel Pre-Arrival:</span><span class="val">125 mins (PCE 88.0%)</span></div>
-            <div><span>Active / Waiting Breakdown:</span><span class="val">115m/160m → 110m/15m</span></div>
+            <div><span>Before (Broken Facility):</span><span class="val" style="color:var(--bottleneck)">275 mins (PCE 34.5%)</span></div>
+            <div><span>After (Smart Facility):</span><span class="val">110 mins (PCE 90.9% · -60%)</span></div>
+            <div><span>Active / Waiting Breakdown:</span><span class="val">95m/180m → 100m/10m</span></div>
           </div>
         </div>
         <div>
@@ -418,9 +418,9 @@
             250-bed hospital wing with 28+ A* pathfinding agents resolving C1 outpatient queues, C2 radiology 40% incomplete referrals, C3 90-min pharmacy stockouts, and C5 SMS/phone sync conflicts.
           </p>
           <div class="metrics-preview">
-            <div><span>C1 Outpatient Wait / C2 Pass:</span><span class="val" style="color:var(--bottleneck)">65m / 60% → 14m / 98.5%</span></div>
-            <div><span>C3 Discharge Rx Turnaround:</span><span class="val">90 mins → 22 mins</span></div>
-            <div><span>C5 Schedule Sync Accuracy:</span><span class="val">68.0% → 99.8% (SSOT)</span></div>
+            <div><span>C1 Outpatient Wait / C2 Pass:</span><span class="val" style="color:var(--bottleneck)">68m / 60% → 12m / 99.2%</span></div>
+            <div><span>C3 Discharge Rx Turnaround:</span><span class="val">92 mins → 18 mins (-80%)</span></div>
+            <div><span>C5 Schedule Sync Accuracy:</span><span class="val">68.0% → 99.9% (SSOT)</span></div>
           </div>
         </div>
         <div>
@@ -456,9 +456,9 @@
             Full luxury geriatric retreat campus with 24+ elderly residents wearing biometric wristbands, governing wellness staff, nurse triage gates, and visiting physicians under MSQH &amp; PDPA standards.
           </p>
           <div class="metrics-preview">
-            <div><span>Unfiltered Routing Risk:</span><span class="val" style="color:var(--bottleneck)">14 PHI Leaks · 64% False Pos</span></div>
-            <div><span>Tiered RBAC Governance:</span><span class="val">0 PHI Leaks · 99.2% SLA</span></div>
-            <div><span>Audit Trail Completeness:</span><span class="val">45.0% → 100.0% Immutable</span></div>
+            <div><span>Before (Unfiltered Risk):</span><span class="val" style="color:var(--bottleneck)">14 PHI Leaks · 68% Fatigue</span></div>
+            <div><span>After (Smart Accredited):</span><span class="val">0 PHI Leaks · 98.5% SLA (&lt;3m)</span></div>
+            <div><span>Alert Fatigue / Audit Trail:</span><span class="val">68%→6% (-91%) · 100% Audit</span></div>
           </div>
         </div>
         <div>
@@ -513,18 +513,18 @@
 
     function exportSuiteSummaryCSV() {
       const rows = [
-        ['Module_Code', 'Simulator_Title', 'Metric_Name', 'Current_Baseline', 'Future_Target', 'Unit', 'Data_Notice'],
-        ['BAHM330-A1', 'Concierge Step-Down Transfer Twin', 'Active Value-Added Time', '115', '110', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM330-A1', 'Concierge Step-Down Transfer Twin', 'Non-Value-Added Waiting Time', '160', '15', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM330-A1', 'Concierge Step-Down Transfer Twin', 'Total Elapsed Cycle Time', '275', '125', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM330-A1', 'Concierge Step-Down Transfer Twin', 'Process Cycle Efficiency (PCE)', '41.8', '88.0', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM330-A2', 'Meridian Specialist Hospital Twin', 'C1 Mean Outpatient Wait Time', '65', '14', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM330-A2', 'Meridian Specialist Hospital Twin', 'C2 First-Pass Diagnostic Completion', '60.0', '98.5', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM330-A2', 'Meridian Specialist Hospital Twin', 'C3 Discharge Medication Turnaround', '90', '22', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM330-A2', 'Meridian Specialist Hospital Twin', 'C5 Appointment Schedule Sync Accuracy', '68.0', '99.8', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM331-IND', 'Luxury Retreat IoT Governance Console', 'Clinical Escalation SLA Compliance', '52.0', '99.2', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM331-IND', 'Luxury Retreat IoT Governance Console', 'Alert Fatigue False-Positive Rate', '64.0', '6.5', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM331-IND', 'Luxury Retreat IoT Governance Console', 'PHI Privacy Exposure Incidents', '14', '0', 'incidents/shift', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['Module_Code', 'Simulator_Title', 'Metric_Name', 'Before_Current_Baseline', 'After_Future_Smart_Facility', 'Unit', 'Data_Notice'],
+        ['BAHM330-A1', 'Concierge Step-Down Transfer Twin', 'Active Value-Added Time', '95', '100', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM330-A1', 'Concierge Step-Down Transfer Twin', 'Non-Value-Added Waiting Time', '180', '10', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM330-A1', 'Concierge Step-Down Transfer Twin', 'Total Elapsed Cycle Time', '275', '110 (-60% Faster)', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM330-A1', 'Concierge Step-Down Transfer Twin', 'Process Cycle Efficiency (PCE)', '34.5', '90.9', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM330-A2', 'Meridian Specialist Hospital Twin', 'C1 Mean Outpatient Wait Time', '68', '12 (-82%)', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM330-A2', 'Meridian Specialist Hospital Twin', 'C2 First-Pass Diagnostic Completion', '60.0', '99.2 (Dual 3T MRI + CT)', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM330-A2', 'Meridian Specialist Hospital Twin', 'C3 Discharge Medication Turnaround', '92', '18 (-80% Robotic Rx)', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM330-A2', 'Meridian Specialist Hospital Twin', 'C5 Appointment Schedule Sync Accuracy', '68.0', '99.9 (SSOT)', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM331-IND', 'Luxury Retreat IoT Governance Console', 'Clinical Escalation SLA Compliance', '50.0', '98.5 (<3m Rapid Cart)', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM331-IND', 'Luxury Retreat IoT Governance Console', 'Alert Fatigue False-Positive Rate', '68.0', '6.0 (95% Noise Filtered)', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM331-IND', 'Luxury Retreat IoT Governance Console', 'PHI Privacy Exposure Incidents', '14', '0 (Encrypted RBAC Shield)', 'incidents/shift', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
         ['BAHM331-IND', 'Luxury Retreat IoT Governance Console', 'Audit Trail Completeness', '45.0', '100.0', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA']
       ];
       const csvContent = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');

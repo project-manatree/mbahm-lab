@@ -15,16 +15,16 @@
     <div class="hud-left">
       <a href="../index.html" class="btn">← Hub</a>
       <h1>Luxury Geriatric Retreat — Clinical Governance &amp; IoT Wearable Console</h1>
-      <span class="tag">BAHM331-IND · 28×22 A* ENGINE</span>
+      <span class="tag">BAHM331-IND · 28×22 FACILITY TRANSFORMATION</span>
     </div>
 
     <div class="hud-controls">
       <div class="mode-switcher">
         <button id="btn-mode-unfiltered" class="mode-btn active-unfiltered" onclick="SimApp.setMode('unfiltered')">
-          Unfiltered Routing (High Clinical &amp; Privacy Risk)
+          Mode 1: Current State (Unfiltered Risk · 14 PHI Breaches)
         </button>
         <button id="btn-mode-tiered" class="mode-btn" onclick="SimApp.setMode('tiered')">
-          Tiered Clinical Governance (MSQH / Aged-Care Standard)
+          Mode 2: Future State (Smart Accredited Campus · 0 PHI Breaches)
         </button>
       </div>
       <button id="btn-labels" class="btn active" onclick="SimApp.toggleActionLabels()">🏷️ Show Action Labels</button>
@@ -40,18 +40,30 @@
     </div>
   </header>
 
+  <!-- Prominent Before vs. After Impact Summary Strip -->
+  <section class="impact-strip" id="impact-strip">
+    <div class="impact-badges">
+      <span class="impact-title">⚡ BEFORE vs. AFTER IMPACT:</span>
+      <span class="impact-pill">0 PHI Breaches (14 → 0 Encrypted RBAC Shield)</span>
+      <span class="impact-pill">-91% Alert Fatigue (68% → 6% Nurse AI Filter)</span>
+      <span class="impact-pill">98.5% SLA Compliance (50% → 98.5% · &lt;3m Cart)</span>
+      <span class="impact-pill warn">Unlocks: AI Lifeguard Pool · Physio Wing · Smart Bistro · 24/7 Tele-MD</span>
+    </div>
+    <span class="facility-state-tag" id="facility-state-tag">BEFORE: BASIC POOL/SPA &amp; UNFILTERED PHI LEAKS</span>
+  </section>
+
   <nav class="dept-bar">
     <div class="dept-tabs" id="dept-tabs">
       <button class="dept-tab active" onclick="SimApp.focusZone(-1, this)">All Retreat Campus (28×22)</button>
-      <button class="dept-tab" onclick="SimApp.focusZone(0, this)">1. Hydrotherapy Pool</button>
-      <button class="dept-tab" onclick="SimApp.focusZone(1, this)">2. Thermal Spa Suites</button>
-      <button class="dept-tab" onclick="SimApp.focusZone(2, this)">3. Resident Suites 301–309</button>
-      <button class="dept-tab" onclick="SimApp.focusZone(3, this)">4. Yoga &amp; Wellness Pavilion</button>
-      <button class="dept-tab" onclick="SimApp.focusZone(4, this)">5. Fine-Dining Bistro</button>
-      <button class="dept-tab" onclick="SimApp.focusZone(5, this)">6. Nurse Triage &amp; MD Clinic</button>
+      <button class="dept-tab" onclick="SimApp.focusZone(0, this)">1. AI Lifeguard Hydro Pool</button>
+      <button class="dept-tab" onclick="SimApp.focusZone(1, this)">2. Thermal Spa &amp; Physio Wing</button>
+      <button class="dept-tab" onclick="SimApp.focusZone(2, this)">3. Smart Suites 301–309</button>
+      <button class="dept-tab" onclick="SimApp.focusZone(3, this)">4. Biometric Yoga Pavilion</button>
+      <button class="dept-tab" onclick="SimApp.focusZone(4, this)">5. Nutritional Smart-Bistro</button>
+      <button class="dept-tab" onclick="SimApp.focusZone(5, this)">6. 24/7 Nurse Command &amp; Tele-MD</button>
     </div>
     <div class="roster-summary">
-      Active Agents: 24 (14 Wearable-Monitored Residents · 10 Wellness/Nurse/MD Staff) · A* Grid Active
+      Active Agents: 24 (14 Wearable-Monitored Residents · 10 Wellness/Nurse/MD Staff) · Click Mode 2 to Upgrade Campus
     </div>
   </nav>
 
@@ -62,13 +74,13 @@
     <div class="floating-kpis">
       <div class="kpi-pill">
         <div class="lbl">Escalation SLA Compliance</div>
-        <div class="val" id="kpi-sla" style="color:var(--bottleneck)">52.0%</div>
+        <div class="val" id="kpi-sla" style="color:var(--bottleneck)">50.0%</div>
         <div class="sub" id="kpi-sla-sub">Unfiltered: Delayed Response</div>
       </div>
       <div class="kpi-pill">
         <div class="lbl">Alert Fatigue / False-Pos</div>
-        <div class="val" id="kpi-fat" style="color:var(--bottleneck)">64.0%</div>
-        <div class="sub" id="kpi-fat-sub">MD Paged on Motion Noise</div>
+        <div class="val" id="kpi-fat" style="color:var(--bottleneck)">68.0%</div>
+        <div class="sub" id="kpi-fat-sub">MD Overwhelmed by Noise</div>
       </div>
       <div class="kpi-pill">
         <div class="lbl">PHI Privacy Exposure</div>
@@ -103,17 +115,17 @@
         <div class="vitals-grid">
           <div class="vital-box"><span>TELEMETRY</span><strong style="color:#ef4444" id="insp-hr">158 bpm</strong></div>
           <div class="vital-box"><span>POSE / ZONE</span><strong style="color:#0ea5e9" id="insp-pose">SWIMMING_POOL</strong></div>
-          <div class="vital-box"><span>RBAC MASK</span><strong style="color:#10b981" id="insp-rbac">OFF (BREACH)</strong></div>
+          <div class="vital-box"><span>RBAC SHIELD</span><strong style="color:#ef4444" id="insp-rbac">OFF (14 BREACHES)</strong></div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.65rem;font-family:var(--mono);">
-          <span>5-Min Acute Escalation SLA</span>
+        <div style="display:flex;justify-content:space-between;font-size:0.64rem;font-family:var(--mono);">
+          <span>&lt;3-Min Rapid-Response Cart SLA</span>
           <span id="insp-sla-txt" style="color:var(--bottleneck)">SLA BREACHED</span>
         </div>
         <div class="sla-bar">
           <div class="sla-fill" id="insp-sla-fill"></div>
         </div>
         <div class="rca-box" id="insp-micro-summary">
-          Click any of the 24 residents or staff or trigger an IoT event above to inspect RBAC privacy and clinical triage routing.
+          Toggle Mode 2 to unlock AI-Assisted Lifeguard Sensors, Encrypted RBAC Privacy Shields, and the &lt;3m Rapid-Response Medical Cart.
         </div>
       </div>
 
@@ -130,7 +142,7 @@
 
     <div class="bottom-hud">
       <div class="ticker-dock" id="bottom-ticker">
-        [IMMUTABLE GOVERNANCE LOG]: 24 residents &amp; staff active across Hydrotherapy Pool, Thermal Spa, Yoga Pavilion, Bistro, Suites &amp; Nurse Triage Gate.
+        [IMMUTABLE GOVERNANCE LOG]: 24 residents &amp; staff active across Hydrotherapy Pool, Thermal Spa, Yoga Pavilion, Bistro, Suites &amp; Nurse Command.
       </div>
       <div class="cam-dock">
         <button class="btn" onclick="IsoRenderer.zoomCam(1.15)">＋ Zoom</button>

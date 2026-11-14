@@ -1,5 +1,6 @@
 // ============================================================================
 // BAHM331-IND: Luxury Geriatric Retreat 28x22 Isometric Renderer
+// Includes Before vs. After Smart Accredited Wellness Campus Transformation
 // ============================================================================
 
 const IsoRenderer = (() => {
@@ -16,6 +17,8 @@ const IsoRenderer = (() => {
   let dragStartX = 0;
   let dragStartY = 0;
   let frameTick = 0;
+  let upgradePulse = 0;
+  let upgradeMode = 'tiered';
 
   function init(canvasId, onClickWorld) {
     canvas = document.getElementById(canvasId);
@@ -73,6 +76,11 @@ const IsoRenderer = (() => {
     const dy = (gx + gy) * (TILE_H * 0.5) * zoom;
     camX = -dx + (GRID_W - GRID_H) * 6;
     camY = 210 - dy;
+  }
+
+  function triggerUpgradePulse(mode) {
+    upgradePulse = 1.0;
+    upgradeMode = mode;
   }
 
   function toIso(gx, gy, gz = 0) {
@@ -143,13 +151,74 @@ const IsoRenderer = (() => {
     ctx.beginPath(); ctx.arc(c2.x, c2.y, 6.5 * zoom, 0, Math.PI * 2); ctx.fill();
   }
 
+  function drawFloorHalo(gx, gy, rx, ry, col, label) {
+    const p = toIso(gx, gy, 1);
+    const pulse = 1 + Math.sin(frameTick * 0.14) * 0.12;
+    ctx.save();
+    ctx.strokeStyle = col;
+    ctx.fillStyle = col;
+    ctx.globalAlpha = 0.2;
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y, rx * zoom * pulse, ry * zoom * pulse, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 0.78;
+    ctx.lineWidth = 1.6 * zoom;
+    ctx.stroke();
+    if (label) {
+      ctx.font = `bold ${Math.round(7.2 * zoom)}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText(label, p.x, p.y + (ry + 6) * zoom);
+    }
+    ctx.restore();
+  }
+
+  function drawAILifeguardArch(gx, gy) {
+    // Overhead AI-Assisted Lifeguarding Sensor Arch over Hydrotherapy Lap Pool
+    drawIsoBox(gx, gy, 0.22, 0.22, 26, '#38bdf8', '#0284c7', '#0369a1');
+    drawIsoBox(gx, gy + 4.2, 0.22, 0.22, 26, '#38bdf8', '#0284c7', '#0369a1');
+    drawIsoBox(gx, gy, 0.25, 4.4, 3, '#e0f2fe', '#38bdf8', '#0284c7');
+    const sensor = toIso(gx + 0.1, gy + 2.2, 26);
+    ctx.fillStyle = frameTick % 20 < 10 ? '#10b981' : '#38bdf8';
+    ctx.beginPath();
+    ctx.arc(sensor.x, sensor.y, 4 * zoom, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawRBACShieldDome(gx, gy) {
+    // Encrypted RBAC Privacy Shield Dome protecting hospitality tablet from raw PHI
+    const p = toIso(gx, gy, 14);
+    ctx.save();
+    ctx.strokeStyle = '#10b981';
+    ctx.fillStyle = 'rgba(16, 185, 129, 0.16)';
+    ctx.lineWidth = 1.6 * zoom;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 13 * zoom, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawRapidMedicalCart(gx, gy) {
+    // Rapid-Response Medical Cart (<3 mins SLA)
+    drawIsoBox(gx, gy, 1.1, 0.65, 11, '#f8fafc', '#ef4444', '#b91c1c');
+    const beacon = toIso(gx + 0.55, gy + 0.32, 14);
+    ctx.fillStyle = frameTick % 12 < 6 ? '#ef4444' : '#10b981';
+    ctx.beginPath();
+    ctx.arc(beacon.x, beacon.y, 4 * zoom, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.font = `bold ${Math.round(6.8 * zoom)}px monospace`;
+    ctx.fillStyle = '#6ee7b7';
+    ctx.textAlign = 'center';
+    ctx.fillText('<3m RAPID CART', beacon.x, beacon.y - 6 * zoom);
+  }
+
   function drawSignalBeamWithPacket(from, to, color, packetLabel) {
     const p0 = toIso(from.gx, from.gy, 14);
     const p1 = toIso(to.gx, to.gy, 14);
     const s = zoom;
     ctx.save();
     ctx.strokeStyle = color;
-    ctx.lineWidth = 2.2 * s;
+    ctx.lineWidth = 2.3 * s;
     ctx.setLineDash([6 * s, 5 * s]);
     ctx.lineDashOffset = -(frameTick * 1.6);
     ctx.beginPath();
@@ -163,7 +232,7 @@ const IsoRenderer = (() => {
     const py = p0.y + (p1.y - p0.y) * t;
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.arc(px, py, 4 * s, 0, Math.PI * 2);
+    ctx.arc(px, py, 4.2 * s, 0, Math.PI * 2);
     ctx.fill();
     if (packetLabel) {
       ctx.fillStyle = '#f8fafc';
@@ -282,11 +351,12 @@ const IsoRenderer = (() => {
       ctx.stroke();
 
       if (pose === 'CARRYING_AID') {
-        ctx.strokeStyle = '#ef4444';
+        ctx.strokeStyle = '#10b981';
         ctx.lineWidth = 2.4 * s;
         ctx.beginPath();
         ctx.arc(pos.x - 11 * s, pos.y - 14 * s, 4 * s, 0, Math.PI * 2);
         ctx.stroke();
+        drawRBACShieldDome(gx, gy);
       } else if (pose === 'HOLDING_TABLET_LEAK') {
         ctx.fillStyle = '#ef4444';
         ctx.fillRect(pos.x + 6.5 * s, pos.y - 16 * s, 5.5 * s, 7.5 * s);
@@ -360,9 +430,9 @@ const IsoRenderer = (() => {
     const p = toIso(gx, gy, 2);
     ctx.font = `bold ${Math.round(9 * zoom)}px -apple-system, sans-serif`;
     const w = ctx.measureText(text).width + 10 * zoom;
-    ctx.fillStyle = 'rgba(9,13,22,0.86)';
+    ctx.fillStyle = 'rgba(9,13,22,0.88)';
     ctx.strokeStyle = accent;
-    ctx.lineWidth = 1.2;
+    ctx.lineWidth = 1.3;
     ctx.beginPath();
     ctx.roundRect(p.x - w / 2, p.y - 7.5 * zoom, w, 15 * zoom, 4);
     ctx.fill();
@@ -383,30 +453,61 @@ const IsoRenderer = (() => {
     const isTiered = simState.mode === 'tiered';
     const ev = simState.activeEvent;
 
-    // 1. Render 28x22 Luxury Retreat Floorplan Tiles
+    // 1. Render 28x22 Luxury Retreat Floorplan Tiles (Dim/Basic in Unfiltered vs Accredited Smart Campus in Tiered)
     for (let gx = 0; gx < GRID_W; gx++) {
       for (let gy = 0; gy < GRID_H; gy++) {
         let fill = '#1e293b';
         if (gx < 2 || gx > 25 || gy === 0 || gy === 21) {
-          fill = '#1e293b'; // Landscaped perimeter
+          fill = '#1e293b';
         } else if (gy === 9 || gy === 10) {
-          fill = (gx + gy) % 2 === 0 ? '#d97706' : '#b45309'; // Central Retreat Promenade
+          fill = isTiered
+            ? ((gx + gy) % 2 === 0 ? '#f59e0b' : '#d97706')
+            : ((gx + gy) % 2 === 0 ? '#92400e' : '#78350f');
         } else if (gx >= 2 && gx < 10 && gy < 9) {
-          if (gx >= 3 && gx <= 7 && gy >= 2 && gy <= 6) fill = '#0891b2'; // Hydrotherapy Pool Water
-          else fill = (gx + gy) % 2 === 0 ? '#cbd5e1' : '#94a3b8'; // Pool Deck
+          if (gx >= 3 && gx <= 8 && gy >= 2 && gy <= 6) {
+            fill = isTiered ? '#06b6d4' : '#0e7490'; // Heated Hydrotherapy Lap Pool
+          } else {
+            fill = isTiered
+              ? ((gx + gy) % 2 === 0 ? '#f1f5f9' : '#cbd5e1')
+              : ((gx + gy) % 2 === 0 ? '#94a3b8' : '#64748b');
+          }
         } else if (gx >= 2 && gx < 10 && gy > 10) {
-          fill = (gx + gy) % 2 === 0 ? '#a7f3d0' : '#6ee7b7'; // Thermal Spa Suites
+          fill = isTiered
+            ? ((gx + gy) % 2 === 0 ? '#a7f3d0' : '#6ee7b7') // Upgraded Thermal Spa & Physio Recovery Wing
+            : ((gx + gy) % 2 === 0 ? '#64748b' : '#475569');
         } else if (gx >= 10 && gx < 18 && gy < 9) {
-          fill = (gx + gy) % 2 === 0 ? '#b47b48' : '#9c6638'; // Yoga & Wellness Pavilion Oak
+          fill = isTiered
+            ? ((gx + gy) % 2 === 0 ? '#d97706' : '#b45309') // Biometric Yoga Pavilion
+            : ((gx + gy) % 2 === 0 ? '#78350f' : '#5c2408');
         } else if (gx >= 10 && gx < 18 && gy > 10) {
-          fill = (gx + gy) % 2 === 0 ? '#78350f' : '#92400e'; // Fine-Dining Bistro & Concierge
+          fill = isTiered
+            ? ((gx + gy) % 2 === 0 ? '#b45309' : '#92400e') // Nutritional Smart-Bistro
+            : ((gx + gy) % 2 === 0 ? '#5c2408' : '#451a03');
         } else if (gx >= 18 && gy < 9) {
-          fill = (gx + gy) % 2 === 0 ? '#e0f2fe' : '#bae6fd'; // On-Site Nurse Triage & Visiting MD Clinic
+          fill = isTiered
+            ? ((gx + gy) % 2 === 0 ? '#e0f2fe' : '#bae6fd') // 24/7 Smart Nurse Command & Tele-MD Clinic
+            : ((gx + gy) % 2 === 0 ? '#94a3b8' : '#64748b');
         } else {
-          fill = (gx + gy) % 2 === 0 ? '#d97706' : '#b45309'; // Residential Suites 301-309
+          fill = isTiered
+            ? ((gx + gy) % 2 === 0 ? '#d97706' : '#b45309')
+            : ((gx + gy) % 2 === 0 ? '#78350f' : '#5c2408');
         }
         drawTile(gx, gy, fill);
       }
+    }
+
+    // 2. Red Risk Halos (Before) vs Smart Accredited Sensors & Rapid Cart (After)
+    if (!isTiered) {
+      drawFloorHalo(ev.sourcePos.gx, ev.sourcePos.gy, 26, 13, '#ef4444', 'UNFILTERED BROADCAST · BLIND SPOT');
+      drawFloorHalo(ev.staffPos.gx, ev.staffPos.gy, 28, 14, '#ef4444', '14 PHI BREACHES ON TABLET');
+      drawFloorHalo(23.2, 3.2, 26, 13, '#f59e0b', '68% MD ALERT FATIGUE (50% SLA)');
+    } else {
+      // Overhead AI-Assisted Lifeguarding Sensor Arches over Hydrotherapy Pool
+      drawAILifeguardArch(4.2, 2.0);
+      drawAILifeguardArch(6.8, 2.0);
+      // Rapid-Response Medical Cart (<3m SLA) moving along promenade
+      const cartOffset = Math.sin(frameTick * 0.08) * 1.5;
+      drawRapidMedicalCart(18.5 + cartOffset, 9.2);
     }
 
     // Animated Hydrotherapy Pool Ripples
@@ -420,7 +521,7 @@ const IsoRenderer = (() => {
     ctx.ellipse(pc2.x, pc2.y, rad * 1.1, rad * 0.55, 0, 0, Math.PI * 2);
     ctx.stroke();
 
-    // 2. Trees & Cutaway Walls
+    // 3. Trees & Cutaway Walls
     drawTree(0.5, 3); drawTree(0.5, 16); drawTree(26.2, 3); drawTree(26.2, 16);
     drawIsoBox(2, 1, 24, 0.14, 24, '#f8fafc', '#94a3b8', '#64748b');
     drawIsoBox(2, 1, 0.14, 8, 24, '#f8fafc', '#64748b', '#94a3b8');
@@ -430,30 +531,42 @@ const IsoRenderer = (() => {
     drawIsoBox(10, 11.5, 0.14, 9, 20, '#fef3c7', '#78350f', '#451a03');
     drawIsoBox(18, 11.5, 0.14, 9, 20, '#fef3c7', '#78350f', '#451a03');
 
-    // 3. Detailed Furniture & Equipment
-    // Zone 2: 4 Thermal Spa Massage Tables
+    // 4. Detailed Furniture & Upgraded Resort Equipment
+    // Zone 2: Thermal Spa Suites + Physio Recovery Wing (Upgraded in Tiered Mode)
     drawIsoBox(3.2, 12.5, 1.4, 0.75, 9, '#f8fafc', '#059669', '#047857');
     drawIsoBox(6.2, 12.5, 1.4, 0.75, 9, '#f8fafc', '#059669', '#047857');
     drawIsoBox(3.2, 16.5, 1.4, 0.75, 9, '#f8fafc', '#059669', '#047857');
     drawIsoBox(6.2, 16.5, 1.4, 0.75, 9, '#f8fafc', '#059669', '#047857');
+    if (isTiered) {
+      // Unlocked Physio Recovery Parallel Bars & Anti-Slip Smart Sensor Towers
+      drawIsoBox(4.8, 14.5, 1.2, 0.5, 12, '#38bdf8', '#0284c7', '#0369a1');
+      drawIsoBox(8.2, 12.5, 0.45, 0.45, 16, '#10b981', '#059669', '#047857');
+    }
 
-    // Zone 3: 6 Yoga Mats in Yoga Pavilion
+    // Zone 3: 6 Yoga Mats + Biometric Cadence Filter Tower (Tiered Mode)
     for (let m = 0; m < 3; m++) {
       drawIsoBox(11.2 + m * 2.0, 2.5, 1.2, 0.65, 2, '#ec4899', '#be185d', '#9d174d');
       drawIsoBox(11.2 + m * 2.0, 5.2, 1.2, 0.65, 2, '#8b5cf6', '#6d28d9', '#5b21b6');
     }
+    if (isTiered) {
+      drawIsoBox(16.6, 2.2, 0.5, 0.5, 18, '#0ea5e9', '#0284c7', '#0369a1');
+    }
 
-    // Zone 4: Fine-Dining Bistro Tables & Concierge Counter
+    // Zone 4: Nutritional Smart-Bistro Tables & RFID Menu Kiosk
     for (let t = 0; t < 2; t++) {
       drawIsoBox(11.4 + t * 2.8, 12.8, 1.1, 1.1, 10, '#fde68a', '#b45309', '#78350f');
       drawIsoBox(11.4 + t * 2.8, 16.0, 1.1, 1.1, 10, '#fde68a', '#b45309', '#78350f');
     }
-    drawIsoBox(15.2, 18.2, 1.8, 0.7, 12, '#f59e0b', '#b45309', '#78350f'); // Concierge Desk
+    drawIsoBox(15.2, 18.2, 1.8, 0.7, 12, isTiered ? '#10b981' : '#f59e0b', '#b45309', '#78350f');
 
-    // Zone 5: Nurse Triage Monitor Desk & Visiting Physician Exam Room
+    // Zone 5: 24/7 Smart Nurse Command & Tele-Physician Clinic
     drawIsoBox(19.2, 2.5, 1.8, 0.75, 12, '#0ea5e9', '#0284c7', '#0369a1');
     drawIsoBox(22.5, 2.2, 1.6, 0.75, 10, '#f8fafc', '#64748b', '#475569');
     drawIsoBox(22.5, 5.2, 1.4, 0.8, 9, '#38bdf8', '#0284c7', '#0369a1');
+    if (isTiered) {
+      // Tele-Physician Multi-Monitor Wall Array
+      drawIsoBox(24.5, 2.2, 0.6, 1.8, 20, '#10b981', '#059669', '#047857');
+    }
 
     // Zone 6: 4 Luxury Residential King Suites (Suites 301-309)
     for (let s = 0; s < 2; s++) {
@@ -461,19 +574,19 @@ const IsoRenderer = (() => {
       drawIsoBox(19.5 + s * 3.2, 16.8, 1.5, 0.9, 10, '#fef3c7', '#b45309', '#78350f');
     }
 
-    // 4. Signal Routing Beams & Flying Telemetry Packets
+    // 5. Signal Routing Beams & Flying Telemetry Packets
     const nursePos = { gx: 20.0, gy: 3.5 };
     const docPos = { gx: 23.2, gy: 3.2 };
     if (!isTiered) {
-      drawSignalBeamWithPacket(ev.sourcePos, ev.staffPos, '#ef4444', 'PHI LEAK');
-      drawSignalBeamWithPacket(ev.sourcePos, docPos, '#f59e0b', 'RAW NOISE');
+      drawSignalBeamWithPacket(ev.sourcePos, ev.staffPos, '#ef4444', 'RAW PHI LEAK (14x)');
+      drawSignalBeamWithPacket(ev.sourcePos, docPos, '#f59e0b', '68% NOISE FATIGUE');
     } else {
-      drawSignalBeamWithPacket(ev.sourcePos, nursePos, '#0ea5e9', 'TELEMETRY');
-      drawSignalBeamWithPacket(nursePos, ev.staffPos, '#10b981', 'WELFARE PING');
+      drawSignalBeamWithPacket(ev.sourcePos, nursePos, '#0ea5e9', 'AI TELEMETRY');
+      drawSignalBeamWithPacket(nursePos, ev.staffPos, '#10b981', 'RBAC SHIELD PING');
       if (ev.id !== 'EVT-04') {
-        drawSignalBeamWithPacket(nursePos, docPos, '#ef4444', '5m SLA ESCALATION');
+        drawSignalBeamWithPacket(nursePos, docPos, '#10b981', '<3m SLA CART DISPATCH');
         const mdRing = toIso(docPos.gx, docPos.gy, 1);
-        ctx.strokeStyle = '#ef4444';
+        ctx.strokeStyle = '#10b981';
         ctx.lineWidth = 2.4 * zoom;
         ctx.beginPath();
         ctx.ellipse(mdRing.x, mdRing.y, 26 * zoom, 13 * zoom, 0, 0, Math.PI * 2);
@@ -481,19 +594,46 @@ const IsoRenderer = (() => {
       }
     }
 
-    // 5. Depth-Sort and Render all 24 Agents
+    // 6. Depth-Sort and Render all 24 Agents
     const sorted = [...simState.agents].sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy));
     sorted.forEach(ag => {
       drawAgent(ag, simState.showActionLabels, ag.id === simState.selectedAgentId, simState.mode);
     });
 
-    // 6. Zone Signs
-    drawZoneSign(5.5, 1.2, '1. Hydrotherapy Pool', '#06b6d4');
-    drawZoneSign(5.5, 11.5, '2. Thermal Spa Suites', '#10b981');
-    drawZoneSign(14.0, 1.2, '3. Yoga & Wellness Pavilion', '#ec4899');
-    drawZoneSign(14.0, 11.5, '4. Fine-Dining Bistro & Lobby', '#f59e0b');
-    drawZoneSign(22.0, 1.2, '5. Nurse Triage & MD Clinic', '#0ea5e9');
-    drawZoneSign(22.0, 11.5, '6. Residential Suites 301–309', '#f59e0b');
+    // 7. Zone Signs
+    drawZoneSign(5.5, 1.2, isTiered ? '1. AI Lifeguard Hydro Pool' : '1. Basic Pool (Blind Spots)', isTiered ? '#06b6d4' : '#ef4444');
+    drawZoneSign(5.5, 11.5, isTiered ? '2. Thermal Spa & Physio Wing' : '2. Basic Spa (PHI Leaks)', isTiered ? '#10b981' : '#ef4444');
+    drawZoneSign(14.0, 1.2, isTiered ? '3. Biometric Yoga Pavilion' : '3. Yoga Area (Motion Noise)', isTiered ? '#ec4899' : '#f59e0b');
+    drawZoneSign(14.0, 11.5, isTiered ? '4. Nutritional Smart-Bistro' : '4. Bistro (Raw Med Leaks)', isTiered ? '#10b981' : '#ef4444');
+    drawZoneSign(22.0, 1.2, isTiered ? '5. 24/7 Nurse Command & Tele-MD' : '5. Overwhelmed Single MD (68%)', isTiered ? '#0ea5e9' : '#ef4444');
+    drawZoneSign(22.0, 11.5, '6. Smart Suites 301–309', '#f59e0b');
+
+    // 8. Facility Upgrade Transformation Shockwave Overlay
+    if (upgradePulse > 0.01) {
+      const center = toIso(14, 11, 10);
+      const maxR = Math.max(vpW, vpH) * 0.9;
+      const curR = (1 - upgradePulse) * maxR;
+      ctx.save();
+      ctx.strokeStyle = upgradeMode === 'tiered' ? '#10b981' : '#ef4444';
+      ctx.lineWidth = 6 * upgradePulse;
+      ctx.globalAlpha = upgradePulse;
+      ctx.beginPath();
+      ctx.ellipse(center.x, center.y, curR, curR * 0.55, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.font = `bold ${Math.round(13.5 * zoom)}px ui-monospace, monospace`;
+      ctx.fillStyle = upgradeMode === 'tiered' ? '#6ee7b7' : '#fca5a5';
+      ctx.textAlign = 'center';
+      ctx.fillText(
+        upgradeMode === 'tiered'
+          ? '⚡ SMART ACCREDITED CAMPUS UNLOCKED: 0 PHI BREACHES · 6% FATIGUE · 98.5% SLA (<3m CART)'
+          : '⚠ REVERTED TO UNFILTERED CAMPUS: 14 PHI BREACHES · 68% FATIGUE · 50.0% SLA',
+        vpW * 0.45,
+        46
+      );
+      ctx.restore();
+      upgradePulse *= 0.93;
+    }
   }
 
   return {
@@ -503,6 +643,7 @@ const IsoRenderer = (() => {
     zoomCam,
     resetCam,
     panToGrid,
+    triggerUpgradePulse,
     GRID_W,
     GRID_H
   };

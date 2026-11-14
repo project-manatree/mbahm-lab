@@ -15,16 +15,16 @@
     <div class="hud-left">
       <a href="../index.html" class="btn">← Hub</a>
       <h1>Meridian Specialist Hospital (MSH) — Operations &amp; Supply Chain Twin</h1>
-      <span class="tag">BAHM330-A2 · 28×22 A* ENGINE</span>
+      <span class="tag">BAHM330-A2 · 28×22 FACILITY TRANSFORMATION</span>
     </div>
 
     <div class="hud-controls">
       <div class="mode-switcher">
         <button id="btn-mode-current" class="mode-btn active-current" onclick="SimApp.setMode('current')">
-          Current State (Fragmented Operations)
+          Mode 1: Current State (Broken Facility · C1–C5 Bottlenecks)
         </button>
         <button id="btn-mode-future" class="mode-btn" onclick="SimApp.setMode('future')">
-          Future State (Integrated HIS &amp; Lean Supply Chain)
+          Mode 2: Future State (Expanded Smart Wing &amp; Robotic Rx)
         </button>
       </div>
       <button id="btn-labels" class="btn active" onclick="SimApp.toggleActionLabels()">🏷️ Show Action Labels</button>
@@ -40,18 +40,30 @@
     </div>
   </header>
 
+  <!-- Prominent Before vs. After Impact Summary Strip -->
+  <section class="impact-strip" id="impact-strip">
+    <div class="impact-badges">
+      <span class="impact-title">⚡ BEFORE vs. AFTER IMPACT:</span>
+      <span class="impact-pill">-82% Outpatient Wait (68m → 12m)</span>
+      <span class="impact-pill">99.2% First-Pass Scan (Dual 3T MRI + CT)</span>
+      <span class="impact-pill">-80% Discharge Delay (92m → 18m Robotic Rx)</span>
+      <span class="impact-pill warn">99.9% SSOT Schedule Sync (68.0% → 99.9%)</span>
+    </div>
+    <span class="facility-state-tag" id="facility-state-tag">CURRENT: CONGESTED 2-ROOM CLINIC &amp; MANUAL RX</span>
+  </section>
+
   <nav class="dept-bar">
     <div class="dept-tabs" id="dept-tabs">
       <button class="dept-tab active" onclick="SimApp.focusDept('ALL', this)">Full Wing (28×22)</button>
-      <button class="dept-tab" onclick="SimApp.focusDept('REC', this)">1. Reception &amp; Triage</button>
-      <button class="dept-tab" onclick="SimApp.focusDept('C1', this)">2. Specialist Clinic (C1)</button>
-      <button class="dept-tab" onclick="SimApp.focusDept('C2', this)">3. Radiology CT Suite (C2)</button>
-      <button class="dept-tab" onclick="SimApp.focusDept('WARD', this)">4. Inpatient Ward (C3)</button>
-      <button class="dept-tab" onclick="SimApp.focusDept('PHARM', this)">5. Pharmacy Store (C3)</button>
-      <button class="dept-tab" onclick="SimApp.focusDept('C5', this)">6. Central HIS Hub (C5)</button>
+      <button class="dept-tab" onclick="SimApp.focusDept('REC', this)">1. Reception &amp; Kiosks</button>
+      <button class="dept-tab" onclick="SimApp.focusDept('C1', this)">2. 4-Room Specialist Pod (C1)</button>
+      <button class="dept-tab" onclick="SimApp.focusDept('C2', this)">3. Dual 3T MRI + CT Wing (C2)</button>
+      <button class="dept-tab" onclick="SimApp.focusDept('WARD', this)">4. Ward &amp; Discharge Lounge (C3)</button>
+      <button class="dept-tab" onclick="SimApp.focusDept('PHARM', this)">5. Robotic Pharmacy + RFID (C3)</button>
+      <button class="dept-tab" onclick="SimApp.focusDept('C5', this)">6. Central SSOT HIS Hub (C5)</button>
     </div>
     <div class="roster-summary" id="roster-summary">
-      Active Agents: 28 (16 Patients · 12 Doctors/Nurses/Radiographers/Pharmacists) · A* Grid Active
+      Active Agents: 30 (18 Patients · 12 Doctors/Nurses/Radiographers/Pharmacists) · Click Mode 2 to Expand Facility
     </div>
   </nav>
 
@@ -62,23 +74,23 @@
     <div class="floating-kpis">
       <div class="kpi-pill" onclick="SimApp.focusComplaint('C1')">
         <div class="lbl">C1 · Outpatient Wait</div>
-        <div class="val" id="kpi-c1" style="color:var(--bottleneck)">65 mins</div>
-        <div class="sub" id="kpi-c1-sub">09:40 Arrival · ETA: Unknown</div>
+        <div class="val" id="kpi-c1" style="color:var(--bottleneck)">68 mins</div>
+        <div class="sub" id="kpi-c1-sub">14+ Crowded · 2 Rooms Only</div>
       </div>
       <div class="kpi-pill" onclick="SimApp.focusComplaint('C2')">
         <div class="lbl">C2 · Diagnostic First-Pass</div>
         <div class="val" id="kpi-c2" style="color:var(--bottleneck)">60.0%</div>
-        <div class="sub" id="kpi-c2-sub">40% Repeat Visit Rejections</div>
+        <div class="sub" id="kpi-c2-sub">40% Rejected at Single X-Ray</div>
       </div>
       <div class="kpi-pill" onclick="SimApp.focusComplaint('C3')">
         <div class="lbl">C3 · Discharge Rx Turnaround</div>
-        <div class="val" id="kpi-c3" style="color:var(--bottleneck)">90 mins</div>
-        <div class="sub" id="kpi-c3-sub">Stockout + Ward Clarification</div>
+        <div class="val" id="kpi-c3" style="color:var(--bottleneck)">92 mins</div>
+        <div class="sub" id="kpi-c3-sub">Stockout + 4 Beds Blocked</div>
       </div>
       <div class="kpi-pill" onclick="SimApp.focusComplaint('C5')">
         <div class="lbl">C5 · Schedule Sync Accuracy</div>
         <div class="val" id="kpi-c5" style="color:var(--warning)">68.0%</div>
-        <div class="sub" id="kpi-c5-sub">HIS Sync: OFF · SMS Conflict</div>
+        <div class="sub" id="kpi-c5-sub">SMS != Phone Clash Sparks</div>
       </div>
     </div>
 
@@ -102,18 +114,18 @@
       <div class="tab-pane active" id="insp-pane-0">
         <div class="vitals-grid">
           <div class="vital-box"><span>ARRIVAL / REF</span><strong style="color:#0ea5e9" id="insp-v1">09:40 Slot 10:00</strong></div>
-          <div class="vital-box"><span>WAIT / TURN</span><strong style="color:#ef4444" id="insp-v2">65m Wait</strong></div>
+          <div class="vital-box"><span>WAIT / TURN</span><strong style="color:#ef4444" id="insp-v2">68m Wait</strong></div>
           <div class="vital-box"><span>POSE / DIR</span><strong style="color:#f59e0b" id="insp-v3">SITTING_WAIT</strong></div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.65rem;font-family:var(--mono);">
+        <div style="display:flex;justify-content:space-between;font-size:0.64rem;font-family:var(--mono);">
           <span id="insp-stage-txt">Department Process Efficiency</span>
-          <span id="insp-pct">32%</span>
+          <span id="insp-pct">30%</span>
         </div>
         <div class="progress-bar-wrap">
           <div class="progress-bar-fill" id="insp-progress"></div>
         </div>
         <div class="rca-box" id="insp-micro-summary">
-          Click any of the 28 agents or use C1–C5 buttons to inspect real-time hospital bottlenecks.
+          Toggle Mode 2 to unlock the 4-Room Specialist Pod, Dual 3T MRI + CT Wing, Robotic Pharmacy, and SSOT HIS Conduits.
         </div>
       </div>
 
@@ -131,30 +143,30 @@
     <!-- Toggleable 4 SVG Comparison Charts Drawer -->
     <section class="analytics-drawer" id="analytics-drawer">
       <div class="chart-box">
-        <h3>1. C1 — Mean Outpatient Wait Time (Mins)</h3>
-        <p>09:40 early arrival for 10:00 slot: unbuffered consult variance (65m) vs. wave-scheduling buffers + live ETA board (14m).</p>
+        <h3>1. C1 — Mean Outpatient Wait Time (-82% Improvement)</h3>
+        <p>Before: 2 slow consult rooms + 14 crowded patients (68m, ETA Unknown) vs. After: Expanded 4-Room Pod + Live Queue Screens (12m).</p>
         <svg id="chart-c1" viewBox="0 0 420 140" style="width:100%;height:auto;"></svg>
       </div>
       <div class="chart-box">
-        <h3>2. C2 — First-Pass Diagnostic Completion (%)</h3>
-        <p>Incomplete imaging referrals (40% rejection loop back to Reception) vs. mandatory CPOE digital order hard-stops (98.5%).</p>
+        <h3>2. C2 — First-Pass Diagnostic Completion (60.0% → 99.2%)</h3>
+        <p>Before: Single X-Ray room turning away 40% incomplete paper referrals vs. After: Dual 3T MRI + High-Speed CT with CPOE Hard-Stop (99.2%).</p>
         <svg id="chart-c2" viewBox="0 0 420 140" style="width:100%;height:auto;"></svg>
       </div>
       <div class="chart-box">
-        <h3>3. C3 — Discharge Medication Turnaround (Mins)</h3>
-        <p>Inpatient pharmacy stockouts &amp; ward clarification delay (90m) vs. automated e-Kanban safety-stock par &amp; CPOE (22m).</p>
+        <h3>3. C3 — Discharge Medication Turnaround (-80% Delay)</h3>
+        <p>Before: Manual stockouts + landline phone loop blocking 4 beds (92m) vs. After: Robotic Dispensing + RFID Racks + Discharge Lounge (18m).</p>
         <svg id="chart-c3" viewBox="0 0 420 140" style="width:100%;height:auto;"></svg>
       </div>
       <div class="chart-box">
-        <h3>4. C5 — Appointment Schedule Sync Accuracy (%)</h3>
-        <p>Manual phone rescheduling vs. Single-Source-of-Truth (SSOT) HIS bidirectional SMS gateway (99.8%).</p>
+        <h3>4. C5 — Appointment Schedule Sync Accuracy (68.0% → 99.9%)</h3>
+        <p>Before: Clashing SMS != Phone bookings (68.0%) vs. After: Central HIS Single-Source-of-Truth (SSOT) Command Hub (99.9%).</p>
         <svg id="chart-c5" viewBox="0 0 420 140" style="width:100%;height:auto;"></svg>
       </div>
     </section>
 
     <div class="bottom-hud">
       <div class="ticker-dock" id="bottom-ticker">
-        [MSH LIVE TELEMETRY]: 28 concurrent agents active across Reception, Outpatient Clinic (C1), Radiology CT Suite (C2), Ward/Pharmacy (C3) &amp; HIS Hub (C5).
+        [MSH LIVE TELEMETRY]: 30 concurrent agents active across Reception, Outpatient Clinic (C1), Imaging Wing (C2), Ward/Pharmacy (C3) &amp; HIS Hub (C5).
       </div>
       <div class="cam-dock">
         <button class="btn" onclick="IsoRenderer.zoomCam(1.15)">＋ Zoom</button>

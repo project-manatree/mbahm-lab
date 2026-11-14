@@ -1,5 +1,5 @@
 // ============================================================================
-// BAHM330-A1: 28x22 Project Hospital Isometric Renderer Engine
+// BAHM330-A1: 28x22 Project Hospital Isometric Renderer & Facility Upgrade Engine
 // ============================================================================
 
 const IsoRenderer = (() => {
@@ -16,6 +16,8 @@ const IsoRenderer = (() => {
   let dragStartX = 0;
   let dragStartY = 0;
   let frameTick = 0;
+  let upgradePulse = 0;
+  let upgradeMode = 'future';
 
   function init(canvasId, onClickWorld) {
     canvas = document.getElementById(canvasId);
@@ -73,6 +75,11 @@ const IsoRenderer = (() => {
     const dy = (gx + gy) * (TILE_H * 0.5) * zoom;
     camX = -dx + (GRID_W - GRID_H) * 6;
     camY = 210 - dy;
+  }
+
+  function triggerUpgradePulse(mode) {
+    upgradePulse = 1.0;
+    upgradeMode = mode;
   }
 
   function toIso(gx, gy, gz = 0) {
@@ -150,13 +157,93 @@ const IsoRenderer = (() => {
     ctx.fill();
   }
 
-  function drawHospitalBedFull(gx, gy, luxury = false) {
-    // Adjustable headrest + mattress + IV pole + vitals monitor
+  function drawIndoorPlant(gx, gy) {
+    drawIsoBox(gx, gy, 0.36, 0.36, 6, '#e2e8f0', '#94a3b8', '#64748b');
+    const p = toIso(gx + 0.18, gy + 0.18, 10);
+    ctx.fillStyle = '#10b981';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 5.2 * zoom, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#34d399';
+    ctx.beginPath();
+    ctx.arc(p.x - 1.5 * zoom, p.y - 2 * zoom, 3.2 * zoom, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawFloorHalo(gx, gy, rx, ry, col, label) {
+    const p = toIso(gx, gy, 1);
+    const pulse = 1 + Math.sin(frameTick * 0.14) * 0.12;
+    ctx.save();
+    ctx.strokeStyle = col;
+    ctx.fillStyle = col;
+    ctx.globalAlpha = 0.22;
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y, rx * zoom * pulse, ry * zoom * pulse, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 0.75;
+    ctx.lineWidth = 1.6 * zoom;
+    ctx.stroke();
+    if (label) {
+      ctx.font = `bold ${Math.round(7.5 * zoom)}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText(label, p.x, p.y + (ry + 6) * zoom);
+    }
+    ctx.restore();
+  }
+
+  function drawPaperClutter(gx, gy) {
+    // Stacks of messy paper folders & manual clipboards on desks in Current State
+    drawIsoBox(gx, gy, 0.35, 0.28, 4.5, '#fef08a', '#ca8a04', '#a16207');
+    drawIsoBox(gx + 0.42, gy + 0.08, 0.32, 0.26, 3.2, '#fca5a5', '#dc2626', '#991b1b');
+  }
+
+  function drawFlickeringWarningLight(gx, gy, text) {
+    const on = frameTick % 24 < 14;
+    const p = toIso(gx, gy, 28);
+    ctx.fillStyle = on ? '#ef4444' : '#7f1d1d';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 4.5 * zoom, 0, Math.PI * 2);
+    ctx.fill();
+    if (on && text) {
+      ctx.font = `bold ${Math.round(7 * zoom)}px monospace`;
+      ctx.fillStyle = '#fca5a5';
+      ctx.textAlign = 'center';
+      ctx.fillText(text, p.x, p.y - 7 * zoom);
+    }
+  }
+
+  function drawBiometricKiosk(gx, gy, label) {
+    drawIsoBox(gx, gy, 0.45, 0.45, 16, '#0ea5e9', '#0284c7', '#0369a1');
+    const scr = toIso(gx + 0.22, gy + 0.22, 18);
+    ctx.fillStyle = '#10b981';
+    ctx.beginPath();
+    ctx.arc(scr.x, scr.y, 4 * zoom, 0, Math.PI * 2);
+    ctx.fill();
+    if (label) {
+      ctx.font = `bold ${Math.round(6.8 * zoom)}px monospace`;
+      ctx.fillStyle = '#6ee7b7';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, scr.x, scr.y - 7 * zoom);
+    }
+  }
+
+  function drawHospitalBedFull(gx, gy, luxury = false, glowingReady = false) {
+    if (glowingReady) {
+      drawFloorHalo(gx + 0.7, gy + 0.4, 20, 10, '#10b981', 'FRESH LINEN & AMENITIES');
+    }
     drawIsoBox(gx, gy, 1.4, 0.8, 8, luxury ? '#fef3c7' : '#f8fafc', '#94a3b8', '#64748b');
     drawIsoBox(gx, gy, 0.22, 0.8, 16, luxury ? '#78350f' : '#0284c7', '#451a03', '#0369a1');
-    drawIsoBox(gx + 0.45, gy + 0.05, 0.9, 0.7, 9.5, luxury ? '#d97706' : '#38bdf8', '#b45309', '#0284c7');
+    drawIsoBox(
+      gx + 0.45,
+      gy + 0.05,
+      0.9,
+      0.7,
+      9.5,
+      glowingReady ? '#10b981' : (luxury ? '#d97706' : '#38bdf8'),
+      glowingReady ? '#059669' : '#b45309',
+      '#0284c7'
+    );
     if (!luxury) {
-      // IV pole + Vital sign tower beside bed
       drawIsoBox(gx + 0.1, gy - 0.25, 0.25, 0.25, 18, '#e2e8f0', '#64748b', '#475569');
       const scr = toIso(gx + 0.22, gy - 0.12, 16);
       ctx.fillStyle = '#10b981';
@@ -164,22 +251,25 @@ const IsoRenderer = (() => {
     }
   }
 
-  function drawReceptionDeskDual(gx, gy, w, d, active) {
-    drawIsoBox(gx, gy, w, d, 12, '#e2e8f0', '#475569', '#334155');
-    // Dual monitors on desk
-    for (let m = 0; m < 2; m++) {
-      const mp = toIso(gx + 0.4 + m * 0.7, gy + d * 0.5, 16);
+  function drawReceptionDeskDual(gx, gy, w, d, isFuture) {
+    drawIsoBox(gx, gy, w, d, 12, isFuture ? '#f8fafc' : '#cbd5e1', '#475569', '#334155');
+    if (!isFuture) {
+      drawPaperClutter(gx + 0.2, gy + 0.15);
+    }
+    const count = isFuture ? 2 : 1;
+    for (let m = 0; m < count; m++) {
+      const mp = toIso(gx + 0.45 + m * 0.75, gy + d * 0.5, 16);
       ctx.fillStyle = '#090d16';
-      ctx.strokeStyle = active ? '#10b981' : '#0ea5e9';
+      ctx.strokeStyle = isFuture ? '#10b981' : '#f59e0b';
       ctx.lineWidth = 1.2;
       ctx.fillRect(mp.x - 7 * zoom, mp.y - 6 * zoom, 14 * zoom, 9 * zoom);
       ctx.strokeRect(mp.x - 7 * zoom, mp.y - 6 * zoom, 14 * zoom, 9 * zoom);
-      ctx.fillStyle = active && frameTick % 8 < 4 ? '#10b981' : '#38bdf8';
+      ctx.fillStyle = isFuture ? '#10b981' : '#ef4444';
       ctx.fillRect(mp.x - 5 * zoom, mp.y - 4 * zoom, 9 * zoom, 2 * zoom);
     }
   }
 
-  function drawConciergeVan(van) {
+  function drawConciergeVan(van, isVipFuture, labelText) {
     const { gx, gy, doorsOpen, rampExtended, brakeLights } = van;
     const sh = toIso(gx + 1.0, gy + 0.6, 0);
     ctx.fillStyle = 'rgba(0,0,0,0.42)';
@@ -188,16 +278,25 @@ const IsoRenderer = (() => {
     ctx.fill();
 
     if (rampExtended) {
-      drawIsoBox(gx - 0.9, gy + 0.15, 0.9, 0.7, 2.5, '#94a3b8', '#475569', '#334155');
+      drawIsoBox(gx - 0.9, gy + 0.15, 0.9, 0.7, 2.5, isVipFuture ? '#38bdf8' : '#94a3b8', '#0284c7', '#334155');
       const rp = toIso(gx - 0.45, gy + 0.5, 4);
-      ctx.fillStyle = '#38bdf8';
-      ctx.font = `bold ${Math.round(7.5 * zoom)}px monospace`;
+      ctx.fillStyle = isVipFuture ? '#6ee7b7' : '#fca5a5';
+      ctx.font = `bold ${Math.round(7.2 * zoom)}px monospace`;
       ctx.textAlign = 'center';
-      ctx.fillText('LIFT EXTENDED', rp.x, rp.y);
+      ctx.fillText(isVipFuture ? 'HYDRAULIC VIP LIFT' : 'WAIT +30m STAGING', rp.x, rp.y);
     }
 
     drawIsoBox(gx, gy, 2.0, 1.05, 19, '#f8fafc', '#cbd5e1', '#94a3b8');
-    drawIsoBox(gx + 0.05, gy - 0.02, 1.9, 1.09, 10, '#0ea5e9', '#0284c7', '#0369a1');
+    drawIsoBox(
+      gx + 0.05,
+      gy - 0.02,
+      1.9,
+      1.09,
+      10,
+      isVipFuture ? '#0ea5e9' : '#dc2626',
+      isVipFuture ? '#0284c7' : '#b91c1c',
+      isVipFuture ? '#0369a1' : '#991b1b'
+    );
     drawIsoBox(gx + 0.3, gy + 0.08, 1.3, 0.88, 25, '#1e293b', '#0f172a', '#334155');
 
     if (doorsOpen) {
@@ -216,10 +315,18 @@ const IsoRenderer = (() => {
     }
 
     const beacon = toIso(gx + 1.0, gy + 0.5, 27);
-    ctx.fillStyle = frameTick % 18 < 9 ? '#0ea5e9' : '#10b981';
+    ctx.fillStyle = isVipFuture ? (frameTick % 18 < 9 ? '#10b981' : '#0ea5e9') : (frameTick % 18 < 9 ? '#ef4444' : '#f59e0b');
     ctx.beginPath();
     ctx.arc(beacon.x, beacon.y, 4.2 * zoom, 0, Math.PI * 2);
     ctx.fill();
+
+    if (labelText) {
+      const lp = toIso(gx + 1.0, gy + 0.5, 34);
+      ctx.font = `bold ${Math.round(7.5 * zoom)}px monospace`;
+      ctx.fillStyle = isVipFuture ? '#6ee7b7' : '#fcd34d';
+      ctx.textAlign = 'center';
+      ctx.fillText(labelText, lp.x, lp.y);
+    }
   }
 
   function drawAgent(agent, showLabels, isSelected) {
@@ -227,7 +334,6 @@ const IsoRenderer = (() => {
     const s = zoom;
     const base = toIso(gx, gy, 0);
 
-    // Selection highlight ring
     if (isSelected) {
       ctx.strokeStyle = '#38bdf8';
       ctx.lineWidth = 2 * s;
@@ -236,7 +342,6 @@ const IsoRenderer = (() => {
       ctx.stroke();
     }
 
-    // Shadow
     ctx.fillStyle = 'rgba(0,0,0,0.36)';
     ctx.beginPath();
     ctx.ellipse(base.x, base.y, 8 * s, 4 * s, 0, 0, Math.PI * 2);
@@ -286,7 +391,6 @@ const IsoRenderer = (() => {
       const bob = isWalk ? Math.abs(Math.sin(frameTick * 0.26 + agent.idNum)) * 2.5 : 0;
       const pos = toIso(gx, gy, bob);
 
-      // 8-Directional facing offset for head/shoulders
       const dirMap = {
         N: { dx: 0, dy: -1.5 }, NE: { dx: 1.5, dy: -1 }, E: { dx: 2, dy: 0 }, SE: { dx: 1.5, dy: 1 },
         S: { dx: 0, dy: 1.5 }, SW: { dx: -1.5, dy: 1 }, W: { dx: -2, dy: 0 }, NW: { dx: -1.5, dy: -1 }
@@ -303,7 +407,6 @@ const IsoRenderer = (() => {
       ctx.roundRect(pos.x - 5.2 * s + f.dx * 0.4 * s, pos.y - 20 * s, 10.4 * s, 12 * s, 2.8 * s);
       ctx.fill();
 
-      // Arms
       ctx.strokeStyle = coat;
       ctx.lineWidth = 2.2 * s;
       ctx.beginPath();
@@ -386,9 +489,9 @@ const IsoRenderer = (() => {
     const p = toIso(gx, gy, 2);
     ctx.font = `bold ${Math.round(9 * zoom)}px -apple-system, sans-serif`;
     const w = ctx.measureText(text).width + 10 * zoom;
-    ctx.fillStyle = 'rgba(9,13,22,0.86)';
+    ctx.fillStyle = 'rgba(9,13,22,0.88)';
     ctx.strokeStyle = accent;
-    ctx.lineWidth = 1.2;
+    ctx.lineWidth = 1.3;
     ctx.beginPath();
     ctx.roundRect(p.x - w / 2, p.y - 7.5 * zoom, w, 15 * zoom, 4);
     ctx.fill();
@@ -406,47 +509,73 @@ const IsoRenderer = (() => {
     const vpH = canvas.height / window.devicePixelRatio;
     ctx.clearRect(0, 0, vpW, vpH);
 
-    // 1. Render 28x22 Floor Grid
+    const isFuture = simState.mode === 'future';
+
+    // 1. Render 28x22 Floor Grid (Aged/Scuffed in Current vs Renovated Smart Flooring in Future)
     for (let gx = 0; gx < GRID_W; gx++) {
       for (let gy = 0; gy < GRID_H; gy++) {
         let fill = '#0f172a';
         if (gx === 0 || gx === 27 || gy === 0 || gy === 21) {
-          fill = '#1e293b'; // Exterior concrete perimeter
+          fill = '#1e293b';
         } else if (gx >= 11 && gx <= 15) {
-          fill = '#1e293b'; // S3 Multi-lane Asphalt Roadway
+          fill = isFuture ? '#0f172a' : '#1e293b'; // S3 Transit Roadway / Covered VIP Bay
         } else if (gx < 11) {
           // Left Campus: Partner Hospital
           if (gy === 9 || gy === 10) {
-            fill = (gx + gy) % 2 === 0 ? '#bae6fd' : '#7dd3fc'; // Directional hospital corridor stripe
+            fill = isFuture
+              ? ((gx + gy) % 2 === 0 ? '#38bdf8' : '#0ea5e9')
+              : ((gx + gy) % 2 === 0 ? '#94a3b8' : '#64748b');
           } else if (gy < 9) {
-            fill = (gx + gy) % 2 === 0 ? '#f1f5f9' : '#e2e8f0'; // S1 Acute Ward
+            fill = isFuture
+              ? ((gx + gy) % 2 === 0 ? '#f8fafc' : '#e0f2fe')
+              : ((gx + gy) % 2 === 0 ? '#cbd5e1' : '#94a3b8');
           } else {
-            fill = (gx + gy) % 2 === 0 ? '#e2e8f0' : '#cbd5e1'; // S2 Billing & Waiting Hall
+            fill = isFuture
+              ? ((gx + gy) % 2 === 0 ? '#ecfdf5' : '#d1fae5') // Fast-Track Discharge & e-Clearance Lounge
+              : ((gx + gy) % 2 === 0 ? '#cbd5e1' : '#94a3b8'); // Cramped Billing Hall
           }
         } else {
           // Right Campus: Luxury Geriatric Retreat
           if (gy === 9 || gy === 10) {
-            fill = (gx + gy) % 2 === 0 ? '#d97706' : '#b45309'; // Retreat Grand Promenade
+            fill = isFuture
+              ? ((gx + gy) % 2 === 0 ? '#f59e0b' : '#d97706')
+              : ((gx + gy) % 2 === 0 ? '#92400e' : '#78350f');
           } else if (gx <= 21 && gy < 9) {
-            fill = (gx + gy) % 2 === 0 ? '#e0f2fe' : '#bae6fd'; // S5 Visiting Physician Clinic
+            fill = isFuture
+              ? ((gx + gy) % 2 === 0 ? '#e0f2fe' : '#bae6fd') // Dedicated On-Site Visiting MD Telemetry Suite
+              : ((gx + gy) % 2 === 0 ? '#94a3b8' : '#64748b');
           } else if (gx <= 21 && gy > 10) {
-            fill = (gx + gy) % 2 === 0 ? '#b47b48' : '#a16207'; // S4 Luxury King Suites Oak
+            fill = isFuture
+              ? ((gx + gy) % 2 === 0 ? '#d97706' : '#b45309') // Pre-Prepared Luxury Suites
+              : ((gx + gy) % 2 === 0 ? '#78350f' : '#5c2408');
           } else {
-            // S6 Hydrotherapy Pool, Spa & Dining Terrace
             if (gx >= 23 && gx <= 25 && gy >= 2 && gy <= 7) {
-              fill = '#0891b2'; // Hydrotherapy Pool Water
+              fill = isFuture ? '#06b6d4' : '#0e7490'; // Heated Hydrotherapy Pool
             } else {
-              fill = (gx + gy) % 2 === 0 ? '#9c6638' : '#854d0e';
+              fill = isFuture
+                ? ((gx + gy) % 2 === 0 ? '#b47b48' : '#9c6638')
+                : ((gx + gy) % 2 === 0 ? '#78350f' : '#5c2408');
             }
           }
         }
         drawTile(gx, gy, fill);
 
-        // Roadway dashed yellow dividing line
+        // Current State floor scuff marks
+        if (!isFuture && (gx * 7 + gy * 13) % 19 === 0 && gx > 1 && gx < 26 && gy > 1 && gy < 20) {
+          const sc = toIso(gx + 0.5, gy + 0.5, 0.2);
+          ctx.strokeStyle = 'rgba(15,23,42,0.45)';
+          ctx.lineWidth = 1.2 * zoom;
+          ctx.beginPath();
+          ctx.moveTo(sc.x - 4 * zoom, sc.y - 2 * zoom);
+          ctx.lineTo(sc.x + 4 * zoom, sc.y + 2 * zoom);
+          ctx.stroke();
+        }
+
+        // Roadway dividing line
         if (gx === 13 && gy % 2 === 1) {
           const r0 = toIso(13.2, gy + 0.15);
           const r1 = toIso(13.2, gy + 0.85);
-          ctx.strokeStyle = '#f59e0b';
+          ctx.strokeStyle = isFuture ? '#10b981' : '#f59e0b';
           ctx.lineWidth = 1.8 * zoom;
           ctx.beginPath();
           ctx.moveTo(r0.x, r0.y); ctx.lineTo(r1.x, r1.y);
@@ -455,25 +584,60 @@ const IsoRenderer = (() => {
       }
     }
 
+    // 2. Red Congestion Halos (Before) vs Glowing Emerald-Cyan Flow Paths (After)
+    if (!isFuture) {
+      drawFloorHalo(4.5, 7.2, 26, 12, '#ef4444', 'WARD HANDOVER BACKLOG (+45m)');
+      drawFloorHalo(5.8, 14.2, 32, 15, '#ef4444', 'PAPER GL QUEUE (+45m)');
+      drawFloorHalo(10.0, 14.5, 22, 11, '#f59e0b', 'VAN STAGING WAIT (+30m)');
+      drawFloorHalo(17.8, 14.5, 25, 12, '#ef4444', 'UNREADY SUITE WAIT (+30m)');
+      drawFloorHalo(18.5, 5.5, 24, 11, '#ef4444', 'DISTANT MD DELAY (+30m)');
+    } else {
+      // Smooth Emerald-Cyan Fast-Track Flow Path
+      const flowPts = [
+        toIso(4.5, 5.5, 2),
+        toIso(4.5, 13.5, 2),
+        toIso(11.5, 14.2, 2),
+        toIso(18.5, 14.5, 2),
+        toIso(18.5, 4.5, 2),
+        toIso(24.0, 12.5, 2)
+      ];
+      ctx.save();
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 2.8 * zoom;
+      ctx.setLineDash([7 * zoom, 5 * zoom]);
+      ctx.lineDashOffset = -(frameTick * 1.6);
+      ctx.beginPath();
+      ctx.moveTo(flowPts[0].x, flowPts[0].y);
+      for (let i = 1; i < flowPts.length; i++) ctx.lineTo(flowPts[i].x, flowPts[i].y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
     // Hydrotherapy Pool Ripples
     const poolCenter = toIso(24.5, 4.8, 1);
     const rad = (9 + (frameTick % 36) * 0.65) * zoom;
-    ctx.strokeStyle = 'rgba(186,230,253,0.6)';
+    ctx.strokeStyle = 'rgba(186,230,253,0.65)';
     ctx.lineWidth = 1.4;
     ctx.beginPath();
     ctx.ellipse(poolCenter.x, poolCenter.y, rad * 1.4, rad * 0.7, 0, 0, Math.PI * 2);
     ctx.stroke();
 
-    // 2. Exterior Trees & Cutaway Architectural Walls
+    // 3. Exterior Trees, Cutaway Walls & Indoor Greenery
     drawTree(11, 2); drawTree(11, 7); drawTree(15, 2); drawTree(15, 7);
     drawTree(11, 18); drawTree(15, 18);
+    if (isFuture) {
+      drawIndoorPlant(2.2, 11.2);
+      drawIndoorPlant(9.5, 11.2);
+      drawIndoorPlant(16.6, 11.2);
+      drawIndoorPlant(21.2, 11.2);
+      drawIndoorPlant(16.6, 2.0);
+    }
 
     // Hospital Outer & Partition Walls
     drawIsoBox(1, 1, 10, 0.14, 24, '#f8fafc', '#94a3b8', '#64748b');
     drawIsoBox(1, 1, 0.14, 19, 24, '#f8fafc', '#64748b', '#94a3b8');
     drawIsoBox(1, 9, 4, 0.14, 18, '#e2e8f0', '#64748b', '#475569');
     drawIsoBox(7, 9, 4, 0.14, 18, '#e2e8f0', '#64748b', '#475569');
-    // Automatic Sliding Glass Doors at Hospital Departure (10.8, 13..15)
     drawIsoBox(10.8, 12, 0.12, 2.2, 20, '#38bdf8', '#0ea5e9', '#0284c7', 0.45);
 
     // Retreat Outer & Partition Walls
@@ -482,32 +646,62 @@ const IsoRenderer = (() => {
     drawIsoBox(16, 16, 0.14, 5, 22, '#fef3c7', '#78350f', '#451a03');
     drawIsoBox(22, 1, 0.14, 7, 18, '#bae6fd', '#0891b2', '#06b6d4', 0.45);
 
-    // 3. Detailed Furniture & Clinical Equipment
+    // 4. Module-Specific Before vs. After Furniture & Architectural Unlocks
     // S1: 6 Acute Hospital Ward Beds + Nurse Station
     for (let b = 0; b < 3; b++) {
-      drawHospitalBedFull(2.0 + b * 2.5, 2.0, false);
-      drawHospitalBedFull(2.0 + b * 2.5, 5.2, false);
+      drawHospitalBedFull(2.0 + b * 2.5, 2.0, false, false);
+      drawHospitalBedFull(2.0 + b * 2.5, 5.2, false, false);
     }
-    drawReceptionDeskDual(8.2, 2.5, 1.8, 0.8, true);
-
-    // S2: Billing Counter + 2 Waiting Chair Rows + Drink Dispenser + Wall Queue TV
-    drawReceptionDeskDual(2.0, 12.2, 2.2, 0.8, true);
-    drawIsoBox(5.2, 13.0, 2.8, 0.5, 7, '#64748b', '#334155', '#1e293b');
-    drawIsoBox(5.2, 15.0, 2.8, 0.5, 7, '#64748b', '#334155', '#1e293b');
-    drawIsoBox(2.0, 17.5, 0.45, 0.45, 15, '#38bdf8', '#0284c7', '#0369a1'); // Water cooler
-
-    // S4: Retreat Concierge Podium + 3 Luxury King Suites
-    drawReceptionDeskDual(16.8, 12.2, 1.8, 0.8, true);
-    drawHospitalBedFull(18.5, 14.5, true);
-    drawHospitalBedFull(18.5, 17.5, true);
-    if (simState.mode === 'current') {
-      drawIsoBox(17.8, 15.8, 0.4, 0.4, 8, '#facc15', '#ca8a04', '#854d0e'); // Housekeeping Mop Bucket
+    drawReceptionDeskDual(8.2, 2.5, 1.8, 0.8, isFuture);
+    if (!isFuture) {
+      drawFlickeringWarningLight(8.8, 2.8, 'FAX / PAPER HANDOVER');
+    } else {
+      drawBiometricKiosk(9.4, 6.2, 'HL7 PRE-ALERT');
     }
 
-    // S5: Visiting Physician Clinic Exam Couches & Vitals Towers
-    drawHospitalBedFull(17.2, 2.2, false);
-    drawHospitalBedFull(17.2, 5.2, false);
-    drawReceptionDeskDual(19.6, 2.5, 1.6, 0.8, true);
+    // S2: Cramped Paper Billing Office (Before) vs Digital Fast-Track Discharge Lounge & e-Clearance (After)
+    drawReceptionDeskDual(2.0, 12.2, 2.2, 0.8, isFuture);
+    if (!isFuture) {
+      // Single cramped bench overflowing with waiting patients + warning light
+      drawIsoBox(5.2, 14.0, 2.6, 0.5, 7, '#475569', '#334155', '#1e293b');
+      drawFlickeringWarningLight(3.0, 12.5, 'GL BACKLOG +45m');
+    } else {
+      // Unlocked Digital Fast-Track Discharge Lounge + 2 e-Clearance Kiosks + Plush Lounge Sofas
+      drawIsoBox(4.8, 12.5, 2.8, 0.65, 8, '#10b981', '#059669', '#047857');
+      drawIsoBox(4.8, 15.0, 2.8, 0.65, 8, '#0ea5e9', '#0284c7', '#0369a1');
+      drawBiometricKiosk(8.4, 12.5, 'AUTO E-GL KIOSK #1');
+      drawBiometricKiosk(8.4, 15.0, 'AUTO E-GL KIOSK #2');
+    }
+
+    // S3: Single Standard Ambulance (Before) vs 2 Luxury VIP Medical Concierge Vans (After)
+    drawConciergeVan(simState.van, isFuture, isFuture ? 'VIP CONCIERGE VAN #1' : 'STANDARD AMBULANCE (DELAYED)');
+    if (isFuture && simState.van2) {
+      drawConciergeVan(simState.van2, true, 'VIP CONCIERGE VAN #2 (STAGED)');
+    }
+
+    // S4: Manual Ledger Desk & Mop Carts (Before) vs Smart Biometric Concierge Pod & Pre-Prepared Suites (After)
+    drawReceptionDeskDual(16.8, 12.2, 1.8, 0.8, isFuture);
+    drawHospitalBedFull(18.5, 14.5, true, isFuture);
+    drawHospitalBedFull(18.5, 17.5, true, isFuture);
+    if (!isFuture) {
+      // Housekeeping Mop Carts & Hazard Cones blocking suites
+      drawIsoBox(17.6, 15.5, 0.48, 0.48, 9, '#facc15', '#ca8a04', '#854d0e');
+      drawIsoBox(17.6, 18.0, 0.48, 0.48, 9, '#facc15', '#ca8a04', '#854d0e');
+      drawFlickeringWarningLight(17.8, 15.5, 'SUITE UNCLEAN +30m');
+    } else {
+      drawBiometricKiosk(16.8, 14.2, 'SMART BIOMETRIC POD');
+      drawHospitalBedFull(20.3, 14.5, true, true); // Unlocked 3rd VIP Suite
+    }
+
+    // S5: Distant Cramped Desk (Before) vs Dedicated On-Site Visiting MD Telemetry Suite (After)
+    drawHospitalBedFull(17.2, 2.2, false, false);
+    drawReceptionDeskDual(19.6, 2.5, 1.6, 0.8, isFuture);
+    if (!isFuture) {
+      drawFlickeringWarningLight(19.8, 2.5, 'MD PAGED AD-HOC +30m');
+    } else {
+      drawHospitalBedFull(17.2, 5.2, false, false);
+      drawBiometricKiosk(19.8, 5.5, 'MOBILE ECG TELEMETRY CART');
+    }
 
     // S6: Spa Massage Beds & Fine-Dining Bistro Tables
     drawIsoBox(23.0, 11.5, 1.4, 0.75, 9, '#a7f3d0', '#059669', '#047857');
@@ -515,22 +709,46 @@ const IsoRenderer = (() => {
     drawIsoBox(23.2, 16.5, 1.1, 1.1, 10, '#fde68a', '#b45309', '#78350f');
     drawIsoBox(25.0, 16.5, 1.1, 1.1, 10, '#fde68a', '#b45309', '#78350f');
 
-    // 4. Concierge Van
-    drawConciergeVan(simState.van);
-
-    // 5. Depth-Sort and Render all 24 Agents
+    // 5. Depth-Sort and Render all Agents
     const sorted = [...simState.agents].sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy));
     sorted.forEach(ag => {
       drawAgent(ag, simState.showActionLabels, ag.id === simState.selectedAgentId);
     });
 
     // 6. Zone Signs
-    drawZoneSign(5.0, 1.2, 'S1: Acute Hospital Ward (6 Beds)', '#0ea5e9');
-    drawZoneSign(5.0, 11.5, 'S2: Billing & Insurance Hall', '#f59e0b');
-    drawZoneSign(13.2, 4.0, 'S3: Concierge Medical Transit', '#38bdf8');
-    drawZoneSign(18.8, 11.5, 'S4: Retreat Lobby & King Suites', '#10b981');
-    drawZoneSign(18.8, 1.2, 'S5: Visiting Physician Clinic', '#0ea5e9');
+    drawZoneSign(5.0, 1.2, isFuture ? 'S1: Digital Ward Pre-Alert (5m Wait)' : 'S1: Paper Ward Handover (+45m Wait)', isFuture ? '#10b981' : '#ef4444');
+    drawZoneSign(5.0, 11.5, isFuture ? 'S2: Fast-Track Discharge Lounge (0m)' : 'S2: Paper Billing Backlog (+45m)', isFuture ? '#10b981' : '#ef4444');
+    drawZoneSign(13.2, 4.0, isFuture ? 'S3: 2 VIP Concierge Vans (0m Wait)' : 'S3: Single Ambulance (+30m Wait)', isFuture ? '#0ea5e9' : '#f59e0b');
+    drawZoneSign(18.8, 11.5, isFuture ? 'S4: Smart Biometric Pod & Ready Suites' : 'S4: Manual Ledger & Mop Delay (+30m)', isFuture ? '#10b981' : '#ef4444');
+    drawZoneSign(18.8, 1.2, isFuture ? 'S5: Dedicated On-Site MD Telemetry Suite' : 'S5: Ad-Hoc Distant MD (+30m Wait)', isFuture ? '#0ea5e9' : '#ef4444');
     drawZoneSign(24.5, 1.2, 'S6: Hydro Pool, Spa & Dining', '#06b6d4');
+
+    // 7. Facility Upgrade Transformation Shockwave Overlay
+    if (upgradePulse > 0.01) {
+      const center = toIso(14, 11, 10);
+      const maxR = Math.max(vpW, vpH) * 0.9;
+      const curR = (1 - upgradePulse) * maxR;
+      ctx.save();
+      ctx.strokeStyle = upgradeMode === 'future' ? '#10b981' : '#ef4444';
+      ctx.lineWidth = 6 * upgradePulse;
+      ctx.globalAlpha = upgradePulse;
+      ctx.beginPath();
+      ctx.ellipse(center.x, center.y, curR, curR * 0.55, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.font = `bold ${Math.round(14 * zoom)}px ui-monospace, monospace`;
+      ctx.fillStyle = upgradeMode === 'future' ? '#6ee7b7' : '#fca5a5';
+      ctx.textAlign = 'center';
+      ctx.fillText(
+        upgradeMode === 'future'
+          ? '⚡ SMART FACILITY UPGRADE UNLOCKED: 110m CYCLE (-60% FASTER · 90.9% PCE)'
+          : '⚠ REVERTED TO BROKEN FACILITY: 275m CYCLE (180m WASTED WAIT · 34.5% PCE)',
+        vpW * 0.45,
+        46
+      );
+      ctx.restore();
+      upgradePulse *= 0.93;
+    }
   }
 
   return {
@@ -540,6 +758,7 @@ const IsoRenderer = (() => {
     zoomCam,
     resetCam,
     panToGrid,
+    triggerUpgradePulse,
     GRID_W,
     GRID_H
   };

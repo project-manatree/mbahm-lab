@@ -15,16 +15,16 @@
     <div class="hud-left">
       <a href="../index.html" class="btn">← Hub</a>
       <h1>Concierge Hospital-to-Retreat Step-Down Transfer Pathway</h1>
-      <span class="tag">BAHM330-A1 · 28×22 A* ENGINE</span>
+      <span class="tag">BAHM330-A1 · 28×22 FACILITY TRANSFORMATION</span>
     </div>
 
     <div class="hud-controls">
       <div class="mode-switcher">
         <button id="btn-mode-current" class="mode-btn active-current" onclick="SimApp.setMode('current')">
-          Current State (Sequential Siloed · 275m)
+          Mode 1: Current State (Broken · 275m / 34.5% PCE)
         </button>
         <button id="btn-mode-future" class="mode-btn" onclick="SimApp.setMode('future')">
-          Future State (Parallel Pre-Arrival Sync · 125m)
+          Mode 2: Future State (Smart Facility · 110m / 90.9% PCE)
         </button>
       </div>
       <button id="btn-labels" class="btn active" onclick="SimApp.toggleActionLabels()">🏷️ Show Action Labels</button>
@@ -35,18 +35,30 @@
     </div>
   </header>
 
+  <!-- Prominent Before vs. After Impact Summary Strip -->
+  <section class="impact-strip" id="impact-strip">
+    <div class="impact-badges">
+      <span class="impact-title">⚡ BEFORE vs. AFTER IMPACT:</span>
+      <span class="impact-pill">-60.0% Cycle Time (275m → 110m)</span>
+      <span class="impact-pill">-94.4% Wasted Wait (180m → 10m)</span>
+      <span class="impact-pill">+56.4% Efficiency (34.5% → 90.9% PCE)</span>
+      <span class="impact-pill warn">Unlocks: Fast-Track Lounge · 2 VIP Vans · Biometric Pod · On-Site MD Suite</span>
+    </div>
+    <span class="facility-state-tag" id="facility-state-tag">CURRENT: OUTDATED &amp; SILOED FACILITY</span>
+  </section>
+
   <nav class="dept-bar">
     <div class="dept-tabs" id="dept-tabs">
       <button class="dept-tab active" onclick="SimApp.focusZone(-1, this)">All Campus (28×22)</button>
-      <button class="dept-tab" onclick="SimApp.focusZone(0, this)">S1: Hospital Ward</button>
-      <button class="dept-tab" onclick="SimApp.focusZone(1, this)">S2: Billing &amp; Insurance</button>
-      <button class="dept-tab" onclick="SimApp.focusZone(2, this)">S3: Concierge Van Bay</button>
-      <button class="dept-tab" onclick="SimApp.focusZone(3, this)">S4: Retreat King Suites</button>
-      <button class="dept-tab" onclick="SimApp.focusZone(4, this)">S5: Visiting MD Clinic</button>
+      <button class="dept-tab" onclick="SimApp.focusZone(0, this)">S1: Ward / Fast-Track Lounge</button>
+      <button class="dept-tab" onclick="SimApp.focusZone(1, this)">S2: Billing / e-Clearance</button>
+      <button class="dept-tab" onclick="SimApp.focusZone(2, this)">S3: VIP Concierge Van Bay</button>
+      <button class="dept-tab" onclick="SimApp.focusZone(3, this)">S4: Biometric Pod &amp; Suites</button>
+      <button class="dept-tab" onclick="SimApp.focusZone(4, this)">S5: On-Site Visiting MD Suite</button>
       <button class="dept-tab" onclick="SimApp.focusZone(5, this)">S6: Hydro Pool &amp; Dining</button>
     </div>
     <div class="roster-summary" id="roster-summary">
-      Active Agents: 24 (8 Transfer Residents · 16 Clinical/Concierge Staff) · A* Grid Active
+      Active Agents: 24 (8 Step-Down Residents · 16 Clinical/Concierge Staff) · Click Mode 2 to Renovate Facility
     </div>
   </nav>
 
@@ -57,23 +69,23 @@
     <div class="floating-kpis">
       <div class="kpi-pill optimal">
         <div class="lbl">Active Value-Added Time</div>
-        <div class="val" id="kpi-va" style="color:var(--optimal)">115 mins</div>
-        <div class="sub" id="kpi-va-sub">Future Target: 110 mins</div>
+        <div class="val" id="kpi-va" style="color:var(--optimal)">95 mins</div>
+        <div class="sub" id="kpi-va-sub">Future Smart Care: 100 mins</div>
       </div>
       <div class="kpi-pill bottleneck">
         <div class="lbl">Non-Value-Added Waiting</div>
-        <div class="val" id="kpi-nva" style="color:var(--bottleneck)">160 mins</div>
-        <div class="sub" id="kpi-nva-sub">Future Target: 15 mins (-90.6%)</div>
+        <div class="val" id="kpi-nva" style="color:var(--bottleneck)">180 mins</div>
+        <div class="sub" id="kpi-nva-sub">Future Target: 10 mins (-94.4%)</div>
       </div>
       <div class="kpi-pill">
         <div class="lbl">Total Elapsed Cycle Time</div>
         <div class="val" id="kpi-total" style="color:var(--primary)">275 mins</div>
-        <div class="sub" id="kpi-total-sub">Clock: T+000m · 8 Transfers</div>
+        <div class="sub" id="kpi-total-sub">Future: 110 mins (-60.0% Faster)</div>
       </div>
       <div class="kpi-pill warning">
         <div class="lbl">Process Cycle Efficiency</div>
-        <div class="val" id="kpi-pce" style="color:var(--warning)">41.8%</div>
-        <div class="sub" id="kpi-pce-sub">VA / Total Cycle (Target 88.0%)</div>
+        <div class="val" id="kpi-pce" style="color:var(--bottleneck)">34.5%</div>
+        <div class="sub" id="kpi-pce-sub">Future Target: 90.9% (+56.4%)</div>
       </div>
     </div>
 
@@ -100,7 +112,7 @@
           <div class="vital-box"><span>BP / SPO2</span><strong style="color:#0ea5e9" id="insp-bp">124/78 · 98%</strong></div>
           <div class="vital-box"><span>POSE / DIR</span><strong style="color:#f59e0b" id="insp-pose">WALKING · SE</strong></div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.65rem;font-family:var(--mono);">
+        <div style="display:flex;justify-content:space-between;font-size:0.64rem;font-family:var(--mono);">
           <span id="insp-stage-txt">S1: Ward Discharge Handover</span>
           <span id="insp-pct">18%</span>
         </div>
@@ -108,7 +120,7 @@
           <div class="progress-bar-fill" id="insp-progress"></div>
         </div>
         <div class="rca-box" id="insp-micro-summary">
-          Click any of the 24 walking/seated agents or rooms on the 28×22 floorplan to inspect live clinical handover status.
+          Toggle between Mode 1 (Current Broken Facility) and Mode 2 (Future Smart Facility) to watch the architectural renovation on the canvas.
         </div>
       </div>
 
@@ -129,23 +141,23 @@
         <div class="compare-bars">
           <div>
             <div style="display:flex;justify-content:space-between;">
-              <span>Current State (275m): 115m VA / 160m Wait</span>
-              <span style="color:var(--bottleneck)">PCE 41.8%</span>
+              <span>Before — Current State (275m): 95m VA / 180m Wasted Wait</span>
+              <span style="color:var(--bottleneck)">PCE 34.5%</span>
             </div>
             <div class="bar-line">
-              <div style="width:41.8%;background:var(--optimal)"></div>
-              <div style="width:58.2%;background:var(--bottleneck)"></div>
+              <div style="width:34.5%;background:var(--optimal)"></div>
+              <div style="width:65.5%;background:var(--bottleneck)"></div>
             </div>
           </div>
           <div>
             <div style="display:flex;justify-content:space-between;">
-              <span>Future State (125m): 110m VA / 15m Wait</span>
-              <span style="color:var(--optimal)">PCE 88.0% (-150m)</span>
+              <span>After — Future Smart Facility (110m): 100m VA / 10m Wait</span>
+              <span style="color:var(--optimal)">PCE 90.9% (-60% Faster)</span>
             </div>
             <div class="bar-line">
-              <div style="width:40%;background:var(--optimal)"></div>
-              <div style="width:5.5%;background:var(--warning)"></div>
-              <div style="width:54.5%;background:#1e293b"></div>
+              <div style="width:36.4%;background:var(--optimal)"></div>
+              <div style="width:3.6%;background:var(--warning)"></div>
+              <div style="width:60.0%;background:#1e293b"></div>
             </div>
           </div>
         </div>
