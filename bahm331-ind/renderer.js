@@ -183,8 +183,6 @@ const IsoRenderer = (() => {
     if (isTiered) {
       drawAILifeguardArch(4.2, 2.0);
       drawAILifeguardArch(6.8, 2.0);
-      const cartOffset = Math.sin(PH.t * 0.07) * 2.4;
-      drawRapidMedicalCart(17.5 + cartOffset, 9.4);
     }
 
     // ------------------------ 2. ZONE 2: THERMAL SPA & PHYSIO WING (2..10, 11..20)
@@ -227,24 +225,7 @@ const IsoRenderer = (() => {
     PHSprites.luxuryBed(18.8, 16.4, 0, { duvet: '#0ea5e9', smartHub: isTiered });
     PHSprites.luxuryBed(22.6, 16.4, 0, { duvet: '#a855f7', smartHub: isTiered });
 
-    // ------------------------ 7. RISK HALOS vs ENCRYPTED RBAC & TELEMETRY BEAMS
-    const nursePos = { gx: 20.0, gy: 3.5 };
-    const docPos = { gx: 23.2, gy: 3.2 };
-    if (!isTiered) {
-      PHSprites.floorHalo(ev.sourcePos.gx, ev.sourcePos.gy, 26, 13, '#ef4444', 'UNFILTERED BROADCAST · BLIND SPOT');
-      PHSprites.floorHalo(ev.staffPos.gx, ev.staffPos.gy, 28, 14, '#ef4444', '14 PHI BREACHES ON TABLET');
-      PHSprites.floorHalo(23.2, 3.2, 26, 13, '#f59e0b', '68% MD ALERT FATIGUE (50% SLA)');
-      PHSprites.signalBeam(ev.sourcePos.gx, ev.sourcePos.gy, ev.staffPos.gx, ev.staffPos.gy, '#ef4444', 'RAW PHI LEAK (14x)');
-      PHSprites.signalBeam(ev.sourcePos.gx, ev.sourcePos.gy, docPos.gx, docPos.gy, '#f59e0b', '68% NOISE FATIGUE');
-    } else {
-      PHSprites.signalBeam(ev.sourcePos.gx, ev.sourcePos.gy, nursePos.gx, nursePos.gy, '#0ea5e9', 'AI TELEMETRY');
-      PHSprites.signalBeam(nursePos.gx, nursePos.gy, ev.staffPos.gx, ev.staffPos.gy, '#10b981', 'RBAC SHIELD (0 PHI)');
-      if (ev.id !== 'EVT-04') {
-        PHSprites.signalBeam(nursePos.gx, nursePos.gy, docPos.gx, docPos.gy, '#10b981', '<3m SLA CART DISPATCH');
-      }
-    }
-
-    // ------------------------ 8. 24 ARTICULATED DOCTORS, NURSES, STAFF & RESIDENTS
+    // ------------------------ 7. 24 ARTICULATED DOCTORS, NURSES, STAFF & RESIDENTS
     simState.agents.forEach(ag => {
       const isSel = ag.id === simState.selectedAgentId;
       let role = ag.role;
@@ -265,11 +246,11 @@ const IsoRenderer = (() => {
         axis: 'x',
         head: -1,
         blanket: inBed ? '#f59e0b' : null,
-        label: ag.shortName || ag.name,
-        sub: ag.actionLabel,
-        forceLabel: ag.role === 'resident' || isSel || ag.glowingWrist,
+        label: '',
+        sub: '',
+        forceLabel: true,
         sel: isSel,
-        bubble: ag.bubble,
+        bubble: isSel ? ag.bubble : null,
         bubbleType: ag.bubbleType,
         prop: ag.pose === 'HOLDING_TABLET_LEAK' ? 'tablet' : ag.pose === 'CARRYING_AID' ? 'bag' : undefined,
         propCol: ag.pose === 'HOLDING_TABLET_LEAK' ? '#ef4444' : '#10b981'
@@ -278,13 +259,13 @@ const IsoRenderer = (() => {
 
     PH.end();
 
-    // Zone Architectural Signs
-    PHSprites.roomSign(6.0, 1.2, isTiered ? '1. AI Lifeguard Hydro Pool' : '1. Basic Pool (Blind Spots)', isTiered ? '#06b6d4' : '#ef4444');
-    PHSprites.roomSign(6.0, 11.2, isTiered ? '2. Thermal Spa & Physio Wing' : '2. Basic Spa (14 PHI Leaks)', isTiered ? '#10b981' : '#ef4444');
-    PHSprites.roomSign(14.0, 1.2, isTiered ? '3. Biometric Yoga Pavilion' : '3. Yoga Studio (Motion Noise)', isTiered ? '#ec4899' : '#f59e0b');
-    PHSprites.roomSign(14.0, 11.2, isTiered ? '4. Nutritional Smart-Bistro' : '4. Bistro (Raw Med Leaks)', isTiered ? '#10b981' : '#ef4444');
-    PHSprites.roomSign(22.0, 1.2, isTiered ? '5. 24/7 Nurse Command & Tele-MD' : '5. Overwhelmed Single MD (68%)', isTiered ? '#0ea5e9' : '#ef4444');
-    PHSprites.roomSign(22.0, 11.2, '6. Luxury King Suites 301–309', '#f59e0b');
+    // Plain, Simple Room Signs
+    PHSprites.roomSign(6.0, 1.2, 'Hydro Pool', '#06b6d4');
+    PHSprites.roomSign(6.0, 11.2, 'Spa & Physio', '#10b981');
+    PHSprites.roomSign(14.0, 1.2, 'Yoga Studio', '#ec4899');
+    PHSprites.roomSign(14.0, 11.2, 'Dining Bistro', '#10b981');
+    PHSprites.roomSign(22.0, 1.2, 'Nurse & Doctor Station', '#0ea5e9');
+    PHSprites.roomSign(22.0, 11.2, 'Retreat Suites', '#f59e0b');
 
     PH.overlay(simState.showActionLabels);
 

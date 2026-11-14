@@ -1106,46 +1106,69 @@
   }
 
   // ----------------------------------------------------------------- labels
+  function roleName(role) {
+    const map = {
+      doctor: 'Doctor',
+      nurse: 'Nurse',
+      radiographer: 'Nurse',
+      pharmacist: 'Pharmacist',
+      reception: 'Staff',
+      concierge: 'Concierge',
+      admin: 'Staff',
+      janitor: 'Staff',
+      security: 'Staff',
+      therapist: 'Staff',
+      chef: 'Staff',
+      lifeguard: 'Staff',
+      resident: 'Patient',
+      elderly: 'Patient',
+      gown: 'Patient',
+      patient: 'Patient'
+    };
+    return map[role] || 'Patient';
+  }
   function nameplate(x, y, name, sub, role, sel) {
-    const c = S.ctx, s = Math.max(0.9, Math.min(1.25, S.cam.z));
-    const nf = `700 ${Math.round(10.5 * s)}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
-    const sf = `600 ${Math.round(8.5 * s)}px ui-monospace, Menlo, monospace`;
-    c.font = nf; const nw = c.measureText(name).width;
-    c.font = sf; const sw = sub ? c.measureText(sub).width : 0;
-    const w = Math.max(nw + 16 * s, sw + 12 * s), h = sub ? 25 * s : 15 * s;
+    const c = S.ctx, s = Math.max(0.85, Math.min(1.15, S.cam.z));
+    const txt = name || roleName(role);
+    const nf = `700 ${Math.round(9.5 * s)}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+    c.font = nf;
+    const nw = c.measureText(txt).width;
+    const w = nw + 15 * s, h = 13.5 * s;
     const bx = x - w / 2, by = y;
-    const dot = { doctor: '#38bdf8', nurse: '#10b981', radiographer: '#e879f9', pharmacist: '#4ade80', reception: '#a855f7', concierge: '#a855f7', admin: '#a855f7', janitor: '#94a3b8', security: '#94a3b8' }[role] || '#f59e0b';
-    c.fillStyle = 'rgba(9,13,22,0.9)'; c.strokeStyle = sel ? '#38bdf8' : 'rgba(148,163,184,0.5)'; c.lineWidth = sel ? 1.6 : 1;
-    c.beginPath(); c.roundRect(bx, by, w, h, 4 * s); c.fill(); c.stroke();
-    c.fillStyle = dot; c.beginPath(); c.arc(bx + 7 * s, by + 7.5 * s, 2.8 * s, 0, 7); c.fill();
+    const dot = { doctor: '#38bdf8', nurse: '#10b981', radiographer: '#10b981', pharmacist: '#4ade80', reception: '#a855f7', concierge: '#a855f7', admin: '#a855f7', janitor: '#94a3b8', security: '#94a3b8' }[role] || '#f59e0b';
+    c.fillStyle = 'rgba(9,13,22,0.88)';
+    c.strokeStyle = sel ? '#38bdf8' : 'rgba(148,163,184,0.45)';
+    c.lineWidth = sel ? 1.5 : 0.9;
+    c.beginPath(); c.roundRect(bx, by, w, h, 3.5 * s); c.fill(); c.stroke();
+    c.fillStyle = dot; c.beginPath(); c.arc(bx + 6 * s, by + h / 2, 2.5 * s, 0, 7); c.fill();
     c.font = nf; c.fillStyle = '#ffffff'; c.textAlign = 'left'; c.textBaseline = 'middle';
-    c.fillText(name, bx + 13 * s, by + 7.8 * s);
-    if (sub) { c.font = sf; c.fillStyle = '#93c5fd'; c.textAlign = 'center'; c.fillText(sub, x, by + 18.5 * s); }
+    c.fillText(txt, bx + 11.5 * s, by + h / 2 + 0.5);
   }
   function bubble(x, y, text, type) {
-    const c = S.ctx, s = Math.max(0.9, Math.min(1.25, S.cam.z));
-    c.font = `800 ${Math.round(9.5 * s)}px ui-monospace, Menlo, monospace`;
-    const w = c.measureText(text).width + 12 * s, h = 16 * s;
+    const c = S.ctx, s = Math.max(0.85, Math.min(1.15, S.cam.z));
+    c.font = `700 ${Math.round(8.5 * s)}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+    const w = c.measureText(text).width + 10 * s, h = 14 * s;
     const pal = { fail: ['#450a0a', '#ef4444', '#fecaca'], ok: ['#052e24', '#10b981', '#a7f3d0'], warn: ['#422006', '#f59e0b', '#fde68a'] }[type] || ['#0f172a', '#0ea5e9', '#e0f2fe'];
-    c.fillStyle = pal[0]; c.strokeStyle = pal[1]; c.lineWidth = 1.4;
-    c.beginPath(); c.roundRect(x - w / 2, y - h, w, h, 4 * s); c.fill(); c.stroke();
-    c.beginPath(); c.moveTo(x - 3.5 * s, y); c.lineTo(x, y + 4.5 * s); c.lineTo(x + 3.5 * s, y); c.fill();
+    c.fillStyle = pal[0]; c.strokeStyle = pal[1]; c.lineWidth = 1.2;
+    c.beginPath(); c.roundRect(x - w / 2, y - h, w, h, 3.5 * s); c.fill(); c.stroke();
     c.fillStyle = pal[2]; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(text, x, y - h / 2);
   }
   function drawLabels(showSub) {
-    // declutter: draw farther first
+    if (!showSub) return;
     S.labels.sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy));
     const placed = [];
     for (const L of S.labels) {
       const sp = L.spec;
       const foot = P(L.gx, L.gy, L.z);
-      if (sp.label && (sp.forceLabel || S.cam.z > 0.55 || sp.sel)) {
-        let y = foot.y + 5 * S.cam.z;
-        for (const q of placed) if (Math.abs(q.x - foot.x) < 70 && Math.abs(q.y - y) < 22) y = q.y + 24;
-        placed.push({ x: foot.x, y });
-        nameplate(foot.x, y, sp.label, showSub ? sp.sub : '', sp.role, sp.sel);
+      const shortRole = roleName(sp.role);
+      let y = foot.y + 4 * S.cam.z;
+      for (const q of placed) if (Math.abs(q.x - foot.x) < 46 && Math.abs(q.y - y) < 15) y = q.y + 15;
+      placed.push({ x: foot.x, y });
+      nameplate(foot.x, y, shortRole, '', sp.role, sp.sel);
+      if (sp.bubble && sp.sel) {
+        const h = P(L.gx, L.gy, L.headZ + 5);
+        bubble(h.x, h.y, sp.bubble, sp.bubbleType);
       }
-      if (sp.bubble) { const h = P(L.gx, L.gy, L.headZ + 6); bubble(h.x, h.y, sp.bubble, sp.bubbleType); }
     }
   }
 

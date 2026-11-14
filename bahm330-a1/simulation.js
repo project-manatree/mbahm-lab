@@ -1,138 +1,66 @@
 // ============================================================================
-// BAHM330-A1: A* Grid Pathfinding & 24-Agent Step-Down Transfer Simulation
-// Current State (275m Total / 180m Wait / 34.5% PCE) vs Future State (110m / 10m Wait / 90.9% PCE)
+// BAHM330-A1: Two-Building Hospital-to-Retreat Step-Down Transfer Simulation
+// Concierge picks up Patient from Left Building (Hospital), escorts Left-to-Right
+// across the transfer walkway into Right Building (Retreat), and returns.
 // ============================================================================
 
 const SimApp = (() => {
   const STAGES = [
     {
       id: 1,
-      short: "S1: Ward Handover",
-      name: "Hospital Ward Discharge Flag & Medical Summary Handover",
-      current: { va: 15, nva: 45, rca: "Single cramped discharge desk with paper charts and manual fax relay causes a +45m wheelchair queue backlog." },
-      future:  { va: 15, nva: 5,  rca: "HL7/FHIR digital pre-alert pushes medical summary to Retreat Nurse Station upon ward round flag (5m wait)." },
+      short: "Hospital Ward",
+      name: "Hospital Ward Discharge Check",
+      current: { va: 15, nva: 45, rca: "Paper discharge charts cause a +45m wait in the Hospital Ward." },
+      future:  { va: 15, nva: 5,  rca: "Digital discharge summary sent ahead to the Retreat (5m wait)." },
       wp: { gx: 3.5, gy: 3.5 },
       waitWp: { gx: 4.5, gy: 7.5 }
     },
     {
       id: 2,
-      short: "S2: Billing / e-GL",
-      name: "Partner-Hospital Billing & Insurance Clearance",
-      current: { va: 15, nva: 45, rca: "Backed-up billing office with paper Guarantee Letters (GL) forces patients to wait +45m on a single cramped bench." },
-      future:  { va: 15, nva: 0,  rca: "Digital Fast-Track Discharge Lounge with automated insurance e-clearance kiosks clears GL in parallel (0m wait)." },
+      short: "Billing & Discharge",
+      name: "Hospital Billing & Insurance Clearance",
+      current: { va: 15, nva: 45, rca: "Manual paper billing causes a +45m wait at the Billing counter." },
+      future:  { va: 15, nva: 0,  rca: "Fast-Track Discharge Lounge clears billing automatically (0m wait)." },
       wp: { gx: 3.5, gy: 13.5 },
-      waitWp: { gx: 6.0, gy: 14.2 }
+      waitWp: { gx: 7.2, gy: 13.8 }
     },
     {
       id: 3,
-      short: "S3: Concierge Vans",
-      name: "Luxury Medical Concierge Vehicle Dispatch & Transit",
-      current: { va: 30, nva: 30, rca: "Single standard ambulance dispatched only after paper billing release leaves residents waiting +30m in the corridor." },
-      future:  { va: 35, nva: 0,  rca: "2 Luxury Medical Concierge Vans with hydraulic wheelchair lifts staged in covered VIP bays (0m staging wait)." },
-      wp: { gx: 11.2, gy: 14.5 },
-      waitWp: { gx: 9.8, gy: 14.5 }
+      short: "Concierge Transfer",
+      name: "Concierge Pick-Up & Transfer (Left Building → Right Building)",
+      current: { va: 30, nva: 30, rca: "Patients wait +30m at the Hospital exit for a single Concierge escort." },
+      future:  { va: 35, nva: 0,  rca: "Dedicated Concierge team immediately escorts patients Left-to-Right into the Retreat (0m wait)." },
+      wp: { gx: 12.5, gy: 9.8 },
+      waitWp: { gx: 9.2, gy: 9.8 }
     },
     {
       id: 4,
-      short: "S4: Biometric Pod",
-      name: "Retreat Concierge Arrival & Smart Biometric Suite Check-In",
-      current: { va: 10, nva: 30, rca: "1 receptionist flipping paper ledgers while housekeeping carts block half-cleaned suites (+30m lobby wait)." },
-      future:  { va: 10, nva: 0,  rca: "Smart Biometric Concierge Pod auto-checks residents directly into pre-prepared emerald-lit luxury suites (0m wait)." },
-      wp: { gx: 18.8, gy: 15.5 },
-      waitWp: { gx: 17.2, gy: 13.8 }
+      short: "Retreat Suite",
+      name: "Retreat Reception & Suite Check-In",
+      current: { va: 10, nva: 30, rca: "Unprepared suites and paper check-in cause a +30m lobby wait." },
+      future:  { va: 10, nva: 0,  rca: "Instant check-in directly into pre-prepared Retreat Suites (0m wait)." },
+      wp: { gx: 17.5, gy: 14.8 },
+      waitWp: { gx: 16.5, gy: 12.5 }
     },
     {
       id: 5,
-      short: "S5: Visiting MD Suite",
-      name: "Dedicated On-Site Visiting Physician Baseline Inspection",
-      current: { va: 15, nva: 30, rca: "Visiting doctor stuck at a distant clinic desk is paged ad-hoc after check-in (+30m exam wait)." },
-      future:  { va: 15, nva: 5,  rca: "Dedicated On-Site Visiting MD Suite with mobile telemetry cart and wireless ECG completes baseline exam (5m buffer)." },
-      wp: { gx: 18.0, gy: 3.5 },
-      waitWp: { gx: 18.0, gy: 6.2 }
+      short: "Doctor Check-Up",
+      name: "Doctor Check-Up Room (Baseline Vitals & ECG)",
+      current: { va: 15, nva: 30, rca: "Doctor is paged after arrival, causing a +30m wait for check-up." },
+      future:  { va: 15, nva: 5,  rca: "On-site Doctor in the Check-Up Room completes baseline exam in 5m." },
+      wp: { gx: 17.2, gy: 4.5 },
+      waitWp: { gx: 17.2, gy: 6.8 }
     },
     {
       id: 6,
-      short: "S6: Hydro & Dining",
-      name: "Care-Plan & Wellness Onboarding (Pool/Spa/Dining Clearance)",
-      current: { va: 10, nva: 0,  rca: "Manual paper sign-off for hydrotherapy pool, thermal spa & dining." },
-      future:  { va: 10, nva: 0,  rca: "Instant wireless ECG & telemetry clearance for hydrotherapy pool, spa, and therapeutic bistro." },
-      wp: { gx: 24.0, gy: 14.0 },
-      waitWp: { gx: 24.0, gy: 16.5 }
+      short: "Pool & Dining",
+      name: "Hydro Pool, Spa & Dining Onboarding",
+      current: { va: 10, nva: 0,  rca: "Manual sign-off for Hydro Pool, Spa, and Dining Bistro." },
+      future:  { va: 10, nva: 0,  rca: "Cleared for Hydro Pool, Spa, and Dining Bistro." },
+      wp: { gx: 23.8, gy: 14.5 },
+      waitWp: { gx: 23.8, gy: 16.5 }
     }
   ];
-
-  const walkable = Array.from({ length: 28 }, () => Array(22).fill(true));
-  function initWalkGrid() {
-    for (let x = 0; x < 28; x++) {
-      walkable[x][0] = false;
-      walkable[x][21] = false;
-    }
-    for (let y = 0; y < 22; y++) {
-      walkable[0][y] = false;
-      walkable[27][y] = false;
-    }
-    for (let x = 1; x <= 10; x++) {
-      if (x !== 5 && x !== 6) walkable[x][9] = false;
-    }
-  }
-  initWalkGrid();
-
-  function findPathAStar(startGx, startGy, goalGx, goalGy) {
-    const sx = Math.max(1, Math.min(26, Math.round(startGx)));
-    const sy = Math.max(1, Math.min(20, Math.round(startGy)));
-    const tx = Math.max(1, Math.min(26, Math.round(goalGx)));
-    const ty = Math.max(1, Math.min(20, Math.round(goalGy)));
-    if (sx === tx && sy === ty) return [{ gx: goalGx, gy: goalGy }];
-
-    const open = [{ x: sx, y: sy, g: 0, f: Math.hypot(tx - sx, ty - sy), parent: null }];
-    const closed = new Set();
-    const dirs = [
-      { dx: 1, dy: 0 }, { dx: -1, dy: 0 }, { dx: 0, dy: 1 }, { dx: 0, dy: -1 },
-      { dx: 1, dy: 1 }, { dx: 1, dy: -1 }, { dx: -1, dy: 1 }, { dx: -1, dy: -1 }
-    ];
-
-    let bestNode = open[0];
-    let steps = 0;
-    while (open.length > 0 && steps < 380) {
-      steps++;
-      open.sort((a, b) => a.f - b.f);
-      const cur = open.shift();
-      if (cur.x === tx && cur.y === ty) {
-        bestNode = cur;
-        break;
-      }
-      closed.add(`${cur.x},${cur.y}`);
-      for (const d of dirs) {
-        const nx = cur.x + d.dx;
-        const ny = cur.y + d.dy;
-        if (nx < 1 || nx > 26 || ny < 1 || ny > 20) continue;
-        if (!walkable[nx][ny] && !(nx === tx && ny === ty)) continue;
-        const key = `${nx},${ny}`;
-        if (closed.has(key)) continue;
-        const g = cur.g + (d.dx !== 0 && d.dy !== 0 ? 1.414 : 1);
-        const h = Math.hypot(tx - nx, ty - ny);
-        const existing = open.find(o => o.x === nx && o.y === ny);
-        if (!existing) {
-          const node = { x: nx, y: ny, g, f: g + h, parent: cur };
-          open.push(node);
-          if (h < Math.hypot(tx - bestNode.x, ty - bestNode.y)) bestNode = node;
-        } else if (g < existing.g) {
-          existing.g = g;
-          existing.f = g + h;
-          existing.parent = cur;
-        }
-      }
-    }
-
-    const path = [];
-    let curr = bestNode;
-    while (curr) {
-      path.unshift({ gx: curr.x, gy: curr.y });
-      curr = curr.parent;
-    }
-    path.push({ gx: goalGx, gy: goalGy });
-    return path;
-  }
 
   let simState = {
     mode: 'current',
@@ -142,39 +70,33 @@ const SimApp = (() => {
     inspectorTab: 0,
     selectedAgentId: 'res-1',
     masterClock: 0,
-    van: { gx: 11.4, gy: 4.0, dirY: 1, isMoving: true, doorsOpen: false, rampExtended: false, brakeLights: false },
-    van2: { gx: 13.8, gy: 16.0, dirY: -1, isMoving: true, doorsOpen: false, rampExtended: false, brakeLights: false },
+    conciergeCycle: 0,
     agents: []
   };
 
   const RESIDENT_PROFILES = [
-    { id: 'res-1', shortName: "Tan Sri Lim (#G-101)", name: "Tan Sri Dato' Lim (#G-101)", sub: "78M · Post-Hip Arthroplasty Step-Down", hr: "76 bpm", bp: "124/78 · 98%", offset: 0 },
-    { id: 'res-2', shortName: "Puan Sri Sharifah (#G-102)", name: "Puan Sri Sharifah (#G-102)", sub: "81F · Cardiac Rehab Step-Down", hr: "72 bpm", bp: "118/74 · 99%", offset: 35 },
-    { id: 'res-3', shortName: "Dr. Arumugam (#G-103)", name: "Dato' Dr. Arumugam (#G-103)", sub: "75M · Post-Stroke Neuro Recovery", hr: "80 bpm", bp: "130/82 · 97%", offset: 72 },
-    { id: 'res-4', shortName: "Mdm. Beatrice (#G-104)", name: "Madam Beatrice Wong (#G-104)", sub: "84F · Respiratory Step-Down", hr: "78 bpm", bp: "126/76 · 98%", offset: 110 },
-    { id: 'res-5', shortName: "Hj. Ismail (#G-105)", name: "Tuan Haji Ismail (#G-105)", sub: "79M · Post-Spinal Decompression", hr: "74 bpm", bp: "122/75 · 99%", offset: 145 },
-    { id: 'res-6', shortName: "Mrs. Khoo (#G-106)", name: "Mrs. Eleanor Khoo (#G-106)", sub: "82F · Geriatric Frailty Conditioning", hr: "77 bpm", bp: "120/74 · 98%", offset: 180 },
-    { id: 'res-7', shortName: "En. Kamarul (#G-107)", name: "Encik Kamarul (#G-107)", sub: "73M · Post-Coronary Stent Step-Down", hr: "71 bpm", bp: "119/72 · 99%", offset: 215 },
-    { id: 'res-8', shortName: "Datin Rosalind (#G-108)", name: "Datin Paduka Rosalind (#G-108)", sub: "80F · Knee Replacement Step-Down", hr: "75 bpm", bp: "125/78 · 98%", offset: 250 }
+    { id: 'res-1', roleLabel: 'Patient', name: 'Patient #1', sub: 'Step-Down Transfer Patient', hr: '76 bpm', bp: '124/78 · 98%', offset: 0 },
+    { id: 'res-2', roleLabel: 'Patient', name: 'Patient #2', sub: 'Cardiac Rehab Patient', hr: '72 bpm', bp: '118/74 · 99%', offset: 40 },
+    { id: 'res-3', roleLabel: 'Patient', name: 'Patient #3', sub: 'Neuro Recovery Patient', hr: '80 bpm', bp: '130/82 · 97%', offset: 80 },
+    { id: 'res-4', roleLabel: 'Patient', name: 'Patient #4', sub: 'Respiratory Step-Down Patient', hr: '78 bpm', bp: '126/76 · 98%', offset: 120 },
+    { id: 'res-5', roleLabel: 'Patient', name: 'Patient #5', sub: 'Spinal Recovery Patient', hr: '74 bpm', bp: '122/75 · 99%', offset: 160 },
+    { id: 'res-6', roleLabel: 'Patient', name: 'Patient #6', sub: 'Mobility Conditioning Patient', hr: '77 bpm', bp: '120/74 · 98%', offset: 200 }
   ];
 
   const STAFF_DEFS = [
-    { id: 'st-1', name: 'Dr. Ariff (Ward Consultant)', sub: 'Partner Hospital Ward MD', role: 'doctor', gx: 2.5, gy: 2.8, pose: 'EXAMINING', label: 'Reviewing Ward Chart', stageIdx: 0 },
-    { id: 'st-2', name: 'Dr. Mei Ling (Hospitalist)', sub: 'Partner Hospital Ward MD', role: 'doctor', gx: 5.0, gy: 5.8, pose: 'EXAMINING', label: 'Signing Discharge Summary', stageIdx: 0 },
-    { id: 'st-3', name: 'Charge Nurse Siti', sub: 'Ward Discharge Coordinator', role: 'nurse', gx: 8.6, gy: 3.2, pose: 'TYPING_TERMINAL', label: 'Compiling Discharge Summary', stageIdx: 0 },
-    { id: 'st-4', name: 'Staff Nurse Kavitha', sub: 'Acute Ward Nurse', role: 'nurse', gx: 7.0, gy: 2.8, pose: 'WALKING', label: 'Bedside Medication Check', stageIdx: 0, patrol: [{gx:7.0,gy:2.8},{gx:3.0,gy:6.5}] },
-    { id: 'st-5', name: 'Staff Nurse Farhan', sub: 'Transfer Porter Nurse', role: 'nurse', gx: 5.5, gy: 9.8, pose: 'WALKING', label: 'Escorting Step-Down Resident', stageIdx: 1, patrol: [{gx:5.5,gy:8.5},{gx:5.5,gy:13.5}] },
-    { id: 'st-6', name: 'Officer Razak', sub: 'Senior Billing & GL Clerk', role: 'concierge', gx: 2.4, gy: 12.8, pose: 'TYPING_TERMINAL', label: 'Processing Insurance GL', stageIdx: 1 },
-    { id: 'st-7', name: 'Officer Priya', sub: 'Fast-Track e-Clearance Host', role: 'concierge', gx: 3.6, gy: 12.8, pose: 'TYPING_TERMINAL', label: 'Verifying Guarantee Letter', stageIdx: 1 },
-    { id: 'st-8', name: 'Paramedic Driver Zul', sub: 'Luxury Medical Concierge Van #1', role: 'nurse', gx: 11.2, gy: 15.8, pose: 'IDLE', label: 'Operating Hydraulic Lift', stageIdx: 2 },
-    { id: 'st-9', name: 'Concierge Manager Evelyn', sub: 'Retreat Smart Biometric Pod', role: 'concierge', gx: 17.2, gy: 12.8, pose: 'TYPING_TERMINAL', label: 'Encoding Biometric Keycard', stageIdx: 3 },
-    { id: 'st-10', name: 'Suite Hostess Hannah', sub: 'Retreat Guest Relations', role: 'concierge', gx: 18.2, gy: 12.8, pose: 'WALKING', label: 'Escorting to King Suite', stageIdx: 3, patrol: [{gx:17.5,gy:13.0},{gx:19.5,gy:16.5}] },
-    { id: 'st-11', name: 'Housekeeper Amir', sub: 'Suite Environmental Tech', role: 'cleaner', gx: 18.2, gy: 15.5, pose: 'MOPPING', label: 'Mopping Luxury Suite Floor', stageIdx: 3 },
-    { id: 'st-12', name: 'Housekeeper Rohani', sub: 'Linen & Sanitization Crew', role: 'cleaner', gx: 19.5, gy: 18.2, pose: 'MOPPING', label: 'Preparing King Suite Bed', stageIdx: 3 },
-    { id: 'st-13', name: 'Dr. Helena Vance', sub: 'Visiting Consultant Geriatrician', role: 'doctor', gx: 18.2, gy: 2.8, pose: 'EXAMINING', label: 'Auscultating Baseline Vitals', stageIdx: 4 },
-    { id: 'st-14', name: 'Clinic Nurse Pauline', sub: 'Mobile Telemetry & ECG Nurse', role: 'nurse', gx: 20.0, gy: 3.2, pose: 'TYPING_TERMINAL', label: 'Logging Wireless ECG & SpO2', stageIdx: 4 },
-    { id: 'st-15', name: 'Hydro-Physio Chloe', sub: 'Aquatic Rehab Specialist', role: 'nurse', gx: 23.5, gy: 5.5, pose: 'EXAMINING', label: 'Supervising Hydrotherapy Pool', stageIdx: 5 },
-    { id: 'st-16', name: 'Chef Nutritionist Daniel', sub: 'Geriatric Therapeutic Dining', role: 'concierge', gx: 24.5, gy: 17.8, pose: 'IDLE', label: 'Curating Low-Sodium Menu', stageIdx: 5 }
+    { id: 'st-1', roleLabel: 'Doctor', name: 'Doctor (Hospital Ward)', sub: 'Hospital Ward Doctor', role: 'doctor', gx: 2.5, gy: 2.8, pose: 'EXAMINING', label: 'Ward Check', stageIdx: 0 },
+    { id: 'st-2', roleLabel: 'Nurse', name: 'Nurse (Hospital Ward)', sub: 'Hospital Ward Nurse', role: 'nurse', gx: 7.4, gy: 2.8, pose: 'TYPING_TERMINAL', label: 'Discharge Prep', stageIdx: 0 },
+    { id: 'st-3', roleLabel: 'Nurse', name: 'Nurse (Ward Round)', sub: 'Hospital Ward Nurse', role: 'nurse', gx: 5.2, gy: 5.5, pose: 'WALKING', label: 'Ward Care', stageIdx: 0, patrol: [{ gx: 5.2, gy: 2.8 }, { gx: 5.2, gy: 6.5 }] },
+    { id: 'st-4', roleLabel: 'Staff', name: 'Staff (Billing)', sub: 'Billing & Discharge Staff', role: 'reception', gx: 2.6, gy: 12.6, pose: 'TYPING_TERMINAL', label: 'Billing Clearance', stageIdx: 1 },
+    // Concierge #1 & #2 picking up patients from Left Building (x=9.5) to Right Building (x=15.8) and returning
+    { id: 'st-5', roleLabel: 'Concierge', name: 'Concierge (Transfer Escort)', sub: 'Picks up Patient Left → Right & Returns', role: 'concierge', gx: 11.0, gy: 9.6, pose: 'WALKING', label: 'Picking Up Patient', stageIdx: 2 },
+    { id: 'st-6', roleLabel: 'Concierge', name: 'Concierge (Transfer Escort)', sub: 'Picks up Patient Left → Right & Returns', role: 'concierge', gx: 14.0, gy: 10.5, pose: 'WALKING', label: 'Returning to Hospital', stageIdx: 2 },
+    { id: 'st-7', roleLabel: 'Concierge', name: 'Concierge (Retreat Desk)', sub: 'Retreat Reception Concierge', role: 'concierge', gx: 16.8, gy: 12.2, pose: 'TYPING_TERMINAL', label: 'Suite Check-In', stageIdx: 3 },
+    { id: 'st-8', roleLabel: 'Staff', name: 'Staff (Suite Care)', sub: 'Retreat Suite Attendant', role: 'cleaner', gx: 18.2, gy: 15.0, pose: 'MOPPING', label: 'Suite Prep', stageIdx: 3 },
+    { id: 'st-9', roleLabel: 'Doctor', name: 'Doctor (Check-Up Room)', sub: 'Retreat Check-Up Doctor', role: 'doctor', gx: 16.8, gy: 2.8, pose: 'EXAMINING', label: 'Doctor Check-Up', stageIdx: 4 },
+    { id: 'st-10', roleLabel: 'Nurse', name: 'Nurse (Check-Up Room)', sub: 'Retreat Check-Up Nurse', role: 'nurse', gx: 19.2, gy: 3.8, pose: 'TYPING_TERMINAL', label: 'Vitals Check', stageIdx: 4 },
+    { id: 'st-11', roleLabel: 'Nurse', name: 'Nurse (Hydro Pool)', sub: 'Hydro Pool Nurse', role: 'nurse', gx: 22.8, gy: 5.0, pose: 'EXAMINING', label: 'Pool Supervision', stageIdx: 5 },
+    { id: 'st-12', roleLabel: 'Staff', name: 'Staff (Dining Bistro)', sub: 'Retreat Dining Staff', role: 'concierge', gx: 24.2, gy: 17.0, pose: 'IDLE', label: 'Dining Service', stageIdx: 5 }
   ];
 
   function getTotals(mode) {
@@ -218,7 +140,7 @@ const SimApp = (() => {
       simState.agents.push({
         id: rp.id,
         idNum: idx + 1,
-        shortName: rp.shortName,
+        roleLabel: rp.roleLabel,
         name: rp.name,
         sub: rp.sub,
         hr: rp.hr,
@@ -227,12 +149,9 @@ const SimApp = (() => {
         offset: rp.offset,
         gx: 3.5,
         gy: 3.5,
-        targetGx: 3.5,
-        targetGy: 3.5,
-        path: [],
         dir: 'SE',
         pose: 'LYING_ON_BED',
-        actionLabel: 'Ward Bed',
+        actionLabel: 'Hospital Ward',
         bubble: null,
         bubbleType: 'ok',
         stageIdx: 0,
@@ -245,21 +164,19 @@ const SimApp = (() => {
       simState.agents.push({
         id: sd.id,
         idNum: 20 + idx,
+        roleLabel: sd.roleLabel,
         name: sd.name,
         sub: sd.sub,
-        hr: '70 bpm',
-        bp: 'Staff On-Duty',
+        hr: '72 bpm',
+        bp: 'On Duty',
         role: sd.role,
         gx: sd.gx,
         gy: sd.gy,
-        path: [],
         patrol: sd.patrol || null,
         patrolIdx: 0,
         dir: 'SE',
         pose: sd.pose,
-        basePose: sd.pose,
         actionLabel: sd.label,
-        baseLabel: sd.label,
         bubble: null,
         bubbleType: 'ok',
         stageIdx: sd.stageIdx,
@@ -269,42 +186,39 @@ const SimApp = (() => {
     });
   }
 
-  function computeDirection(dx, dy) {
-    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-    if (angle >= -22.5 && angle < 22.5) return 'SE';
-    if (angle >= 22.5 && angle < 67.5) return 'S';
-    if (angle >= 67.5 && angle < 112.5) return 'SW';
-    if (angle >= 112.5 && angle < 157.5) return 'W';
-    if (angle >= 157.5 || angle < -157.5) return 'NW';
-    if (angle >= -157.5 && angle < -112.5) return 'N';
-    if (angle >= -112.5 && angle < -67.5) return 'NE';
-    return 'E';
-  }
-
   function stepSimulation() {
     if (!simState.playing) return;
     const totals = getTotals(simState.mode);
     simState.masterClock = (simState.masterClock + 0.14 * simState.speed) % totals.total;
+    simState.conciergeCycle = (simState.conciergeCycle + 0.0045 * simState.speed) % 1;
 
-    // Continuously moving vehicles along the multi-lane avenue (gy = 1..18)
-    simState.van.gy += 0.085 * simState.speed;
-    if (simState.van.gy > 18.5) simState.van.gy = 1.0;
-    simState.van.gx = simState.van.gy > 11.5 && simState.van.gy < 15.2 ? 13.8 : 11.4;
-    const atBay1 = simState.van.gy > 12.6 && simState.van.gy < 14.8;
-    simState.van.isMoving = !atBay1;
-    simState.van.doorsOpen = atBay1;
-    simState.van.rampExtended = atBay1;
-    simState.van.brakeLights = atBay1;
-
-    // Second vehicle moving in opposite lane (gy = 18.5..1)
-    simState.van2.gy -= 0.095 * simState.speed;
-    if (simState.van2.gy < 1.0) simState.van2.gy = 18.5;
-    simState.van2.gx = 13.8;
-    const atBay2 = simState.van2.gy > 12.2 && simState.van2.gy < 14.2;
-    simState.van2.isMoving = !atBay2;
-    simState.van2.doorsOpen = atBay2;
-    simState.van2.rampExtended = atBay2 && simState.mode === 'future';
-    simState.van2.brakeLights = atBay2;
+    // Concierge #1 (`st-5`) & Concierge #2 (`st-6`) loop:
+    // 0.0 -> 0.5: Pick up Patient at Left Building (x = 9.2) and escort Left-to-Right to Right Building (x = 15.8)
+    // 0.5 -> 1.0: Return Right-to-Left from Right Building (x = 15.8) back to Left Building (x = 9.2)
+    const c1 = simState.agents.find(a => a.id === 'st-5');
+    const c2 = simState.agents.find(a => a.id === 'st-6');
+    const updateConcierge = (c, ph) => {
+      if (!c) return;
+      if (ph < 0.5) {
+        const t = ph / 0.5;
+        c.gx = 9.2 + t * 6.6;
+        c.gy = 9.6;
+        c.dir = 'SE';
+        c.pose = 'WALKING';
+        c.actionLabel = 'Escorting Patient Left → Right';
+        c.bubble = 'Escorting Patient →';
+      } else {
+        const t = (ph - 0.5) / 0.5;
+        c.gx = 15.8 - t * 6.6;
+        c.gy = 10.5;
+        c.dir = 'NW';
+        c.pose = 'WALKING';
+        c.actionLabel = 'Returning to Hospital ←';
+        c.bubble = '← Returning';
+      }
+    };
+    updateConcierge(c1, simState.conciergeCycle);
+    updateConcierge(c2, (simState.conciergeCycle + 0.5) % 1);
 
     simState.agents.forEach((ag, idx) => {
       if (ag.role === 'resident') {
@@ -315,86 +229,126 @@ const SimApp = (() => {
         ag.inWait = loc.inWait;
 
         const st = STAGES[loc.stageIdx];
-        const dest = loc.inWait ? st.waitWp : st.wp;
-        const slotJitterX = ((idx % 3) - 1) * 0.7;
-        const slotJitterY = (Math.floor(idx / 3) - 1) * 0.65;
-        const goalGx = dest.gx + slotJitterX;
-        const goalGy = dest.gy + slotJitterY;
-
-        if (loc.stageIdx === 2 && !loc.inWait && idx === 0) {
-          ag.gx = simState.van.gx + 0.6;
-          ag.gy = simState.van.gy + 0.4;
-          ag.pose = 'SITTING';
-          ag.actionLabel = 'Riding VIP Concierge Van';
-          ag.bubble = '🚐 VIP TRANSIT';
-          ag.bubbleType = 'ok';
-          ag.path = [];
-        } else {
-          const distToGoal = Math.hypot(goalGx - ag.gx, goalGy - ag.gy);
-          if (distToGoal > 1.1 && ag.path.length === 0) {
-            ag.path = findPathAStar(ag.gx, ag.gy, goalGx, goalGy);
-          }
-
-          if (ag.path.length > 0) {
-            const nextPt = ag.path[0];
-            const dx = nextPt.gx - ag.gx;
-            const dy = nextPt.gy - ag.gy;
-            const d = Math.hypot(dx, dy);
-            const step = 0.09 * simState.speed;
-            if (d <= step) {
-              ag.gx = nextPt.gx;
-              ag.gy = nextPt.gy;
-              ag.path.shift();
-            } else {
-              ag.gx += (dx / d) * step;
-              ag.gy += (dy / d) * step;
-              ag.dir = computeDirection(dx, dy);
-            }
-            ag.pose = 'WALKING';
-            ag.actionLabel = `Moving to ${st.short}...`;
-            ag.bubble = `🚶 ${st.short}`;
+        if (loc.stageIdx === 0) {
+          // Stage 1: Hospital Ward
+          const beds = [
+            { gx: 2.3, gy: 2.0 },
+            { gx: 2.3, gy: 4.2 },
+            { gx: 2.3, gy: 6.4 },
+            { gx: 5.8, gy: 2.0 }
+          ];
+          const b = beds[idx % beds.length];
+          if (loc.inWait) {
+            ag.gx = 4.6 + (idx % 3) * 0.8;
+            ag.gy = 7.7;
+            ag.pose = 'FRUSTRATED_WAIT';
+            ag.actionLabel = `Waiting in Ward (+${loc.waitMins}m)`;
+            ag.bubble = `Wait +${loc.waitMins}m`;
+            ag.bubbleType = 'wait';
+          } else {
+            ag.gx = b.gx;
+            ag.gy = b.gy;
+            ag.pose = 'LYING_ON_BED';
+            ag.actionLabel = 'In Hospital Ward Bed';
+            ag.bubble = 'Ward Check';
             ag.bubbleType = 'ok';
-          } else {
-            if (loc.inWait) {
-              ag.pose = loc.stageIdx === 1 ? 'SITTING_WAIT' : 'FRUSTRATED_WAIT';
-              ag.actionLabel = `Bottleneck Wait (+${loc.waitMins}m)`;
-              ag.bubble = `⏳ WAIT +${loc.waitMins}m`;
-              ag.bubbleType = 'wait';
-            } else {
-              if (loc.stageIdx === 0 || loc.stageIdx === 4) ag.pose = 'LYING_ON_BED';
-              else if (loc.stageIdx === 3 || loc.stageIdx === 5) ag.pose = 'SITTING';
-              else ag.pose = 'HANDOVER_INTERACTION';
-              ag.actionLabel = `${st.short}: Active (${st[simState.mode].va}m)`;
-              ag.bubble = `✓ S${st.id} ACTIVE`;
-              ag.bubbleType = 'ok';
-            }
           }
+        } else if (loc.stageIdx === 1) {
+          // Stage 2: Billing & Discharge
+          if (loc.inWait) {
+            ag.gx = 2.0 + (idx % 4) * 0.65;
+            ag.gy = 17.6;
+            ag.pose = 'SITTING_WAIT';
+            ag.actionLabel = `Billing Wait (+${loc.waitMins}m)`;
+            ag.bubble = `Wait +${loc.waitMins}m`;
+            ag.bubbleType = 'wait';
+          } else {
+            ag.gx = 7.2;
+            ag.gy = 12.8 + (idx % 2) * 2.6;
+            ag.pose = 'SITTING';
+            ag.actionLabel = 'Fast-Track Discharge';
+            ag.bubble = 'Cleared';
+            ag.bubbleType = 'ok';
+          }
+        } else if (loc.stageIdx === 2) {
+          // Stage 3: Concierge Pick-Up & Left-to-Right Transfer across Walkway
+          if (loc.inWait) {
+            // Waiting at Left Building Exit Door (x = 9.0) for Concierge
+            ag.gx = 8.8 - (idx % 2) * 0.8;
+            ag.gy = 9.6 + (idx % 2) * 0.7;
+            ag.pose = 'FRUSTRATED_WAIT';
+            ag.actionLabel = 'Waiting for Concierge Pick-Up';
+            ag.bubble = 'Waiting Pick-Up';
+            ag.bubbleType = 'wait';
+          } else {
+            // Walking side-by-side with Concierge #1 from Left Building (x=9.2) to Right Building (x=15.8)
+            const t = simState.conciergeCycle < 0.5 ? (simState.conciergeCycle / 0.5) : loc.vaProg;
+            ag.gx = 9.2 + t * 6.6;
+            ag.gy = 9.9;
+            ag.dir = 'SE';
+            ag.pose = 'WALKING';
+            ag.actionLabel = 'Picked up by Concierge (Left → Right)';
+            ag.bubble = 'Transfer →';
+            ag.bubbleType = 'ok';
+          }
+        } else if (loc.stageIdx === 3) {
+          // Stage 4: Retreat Reception & Suite
+          if (loc.inWait) {
+            ag.gx = 16.5 + (idx % 2) * 0.8;
+            ag.gy = 12.5;
+            ag.pose = 'FRUSTRATED_WAIT';
+            ag.actionLabel = 'Waiting at Retreat Reception';
+            ag.bubble = `Wait +${loc.waitMins}m`;
+            ag.bubbleType = 'wait';
+          } else {
+            ag.gx = 16.7;
+            ag.gy = idx % 2 === 0 ? 14.1 : 17.4;
+            ag.pose = 'LYING_ON_BED';
+            ag.actionLabel = 'Resting in Retreat Suite';
+            ag.bubble = 'Suite Ready';
+            ag.bubbleType = 'ok';
+          }
+        } else if (loc.stageIdx === 4) {
+          // Stage 5: Doctor Check-Up Room
+          if (loc.inWait) {
+            ag.gx = 17.5 + (idx % 2) * 0.8;
+            ag.gy = 7.2;
+            ag.pose = 'FRUSTRATED_WAIT';
+            ag.actionLabel = 'Waiting for Doctor Check-Up';
+            ag.bubble = `Wait +${loc.waitMins}m`;
+            ag.bubbleType = 'wait';
+          } else {
+            ag.gx = 16.6;
+            ag.gy = 4.8;
+            ag.pose = 'LYING_ON_BED';
+            ag.actionLabel = 'Doctor Check-Up in Progress';
+            ag.bubble = 'Doctor Check-Up';
+            ag.bubbleType = 'ok';
+          }
+        } else {
+          // Stage 6: Pool & Dining
+          ag.gx = 22.8 + (idx % 2) * 2.2;
+          ag.gy = 15.6;
+          ag.pose = 'SITTING';
+          ag.actionLabel = `At ${st.short}`;
+          ag.bubble = 'Pool & Dining';
+          ag.bubbleType = 'ok';
         }
-      } else {
-        if (ag.id === 'st-11' || ag.id === 'st-12') {
-          ag.pose = simState.mode === 'current' ? 'MOPPING' : 'IDLE';
-          ag.actionLabel = simState.mode === 'current' ? 'Mopping Half-Cleaned Suite (+30m)' : 'Pre-Prepared Luxury Suite ✓';
-          ag.bubble = simState.mode === 'current' ? '🧹 BLOCKING SUITE' : '✓ SUITE READY';
-          ag.bubbleType = simState.mode === 'current' ? 'wait' : 'ok';
-        } else if (ag.id === 'st-13') {
-          ag.gx = simState.mode === 'current' ? 20.2 : 18.2;
-          ag.gy = simState.mode === 'current' ? 1.8 : 2.8;
-          ag.actionLabel = simState.mode === 'current' ? 'Stuck at Distant Desk (+30m)' : 'On-Site Telemetry MD Exam (5m)';
-          ag.bubble = simState.mode === 'current' ? '⏳ DISTANT MD' : '✓ TELEMETRY MD';
-          ag.bubbleType = simState.mode === 'current' ? 'wait' : 'ok';
-        } else if (ag.patrol) {
-          const target = ag.patrol[ag.patrolIdx];
-          const dx = target.gx - ag.gx;
-          const dy = target.gy - ag.gy;
-          const d = Math.hypot(dx, dy);
-          const step = 0.045 * simState.speed;
-          if (d <= step) {
-            ag.patrolIdx = (ag.patrolIdx + 1) % ag.patrol.length;
-          } else {
-            ag.gx += (dx / d) * step;
-            ag.gy += (dy / d) * step;
-            ag.dir = computeDirection(dx, dy);
-          }
+      } else if (ag.id === 'st-8') {
+        ag.pose = simState.mode === 'current' ? 'MOPPING' : 'IDLE';
+        ag.actionLabel = simState.mode === 'current' ? 'Cleaning Suite (+30m Delay)' : 'Suite Ready';
+      } else if (ag.patrol) {
+        const target = ag.patrol[ag.patrolIdx];
+        const dx = target.gx - ag.gx;
+        const dy = target.gy - ag.gy;
+        const d = Math.hypot(dx, dy);
+        const step = 0.045 * simState.speed;
+        if (d <= step) {
+          ag.patrolIdx = (ag.patrolIdx + 1) % ag.patrol.length;
+        } else {
+          ag.gx += (dx / d) * step;
+          ag.gy += (dy / d) * step;
+          ag.dir = dy > 0 ? 'SW' : 'NE';
         }
       }
     });
@@ -421,8 +375,8 @@ const SimApp = (() => {
     if (strip) strip.classList.toggle('future-active', isFut);
     if (stateTag) {
       stateTag.textContent = isFut
-        ? 'AFTER: SMART RENOVATED FACILITY (110m · 90.9% PCE)'
-        : 'BEFORE: OUTDATED & SILOED FACILITY (275m · 34.5% PCE)';
+        ? 'AFTER: FAST CONCIERGE TRANSFER (110m · 90.9% EFFICIENCY)'
+        : 'BEFORE: SLOW MANUAL TRANSFER (275m · 34.5% EFFICIENCY)';
       stateTag.classList.toggle('upgraded', isFut);
     }
 
@@ -435,23 +389,19 @@ const SimApp = (() => {
 
     document.getElementById('insp-name').textContent = sel.name;
     document.getElementById('insp-role').textContent = sel.sub;
-    document.getElementById('insp-badge').textContent = loc.inWait
-      ? `STAGE ${st.id} · WAITING`
-      : `STAGE ${st.id} · ACTIVE`;
+    document.getElementById('insp-badge').textContent = st.short.toUpperCase();
     document.getElementById('insp-badge').style.color = loc.inWait ? '#fca5a5' : 'var(--primary)';
 
     document.getElementById('insp-hr').textContent = sel.hr;
     document.getElementById('insp-bp').textContent = sel.bp;
-    document.getElementById('insp-pose').textContent = `${sel.pose} · ${sel.dir}`;
+    document.getElementById('insp-pose').textContent = sel.roleLabel;
     document.getElementById('insp-stage-txt').textContent = st.short;
     document.getElementById('insp-pct').textContent = `${pct}%`;
     document.getElementById('insp-progress').style.width = `${pct}%`;
 
     document.getElementById('insp-micro-summary').innerHTML = `
-      <strong>Current Micro-Action:</strong> ${sel.actionLabel}<br/>
-      <strong>Stage ${st.id} Metrics:</strong>
-      <span style="color:var(--optimal)">${st[simState.mode].va}m Active VA</span> ·
-      <span style="color:${st[simState.mode].nva > 10 ? 'var(--bottleneck)' : 'var(--muted)'}">${st[simState.mode].nva}m Wait</span>
+      <strong>Action:</strong> ${sel.actionLabel}<br/>
+      <strong>Room:</strong> ${st.name}
     `;
 
     let cum = 0;
@@ -460,22 +410,22 @@ const SimApp = (() => {
       const tStr = `T+${String(cum).padStart(3, '0')}m`;
       cum += d.va + d.nva;
       if (idx < loc.stageIdx) {
-        return `<div class="log-row done"><span>[${tStr}]</span><span>✓ ${s.short}: ${d.va}m VA / ${d.nva}m Wait</span></div>`;
+        return `<div class="log-row done"><span>[${tStr}]</span><span>✓ ${s.short}: ${d.va}m Active / ${d.nva}m Wait</span></div>`;
       } else if (idx === loc.stageIdx) {
         const cls = loc.inWait ? 'wait' : 'active';
         return `<div class="log-row ${cls}"><span>[${tStr}]</span><span>▶ ${sel.actionLabel}</span></div>`;
       }
-      return `<div class="log-row" style="color:var(--muted)"><span>[${tStr}]</span><span>○ ${s.short}: Scheduled</span></div>`;
+      return `<div class="log-row" style="color:var(--muted)"><span>[${tStr}]</span><span>○ ${s.short}</span></div>`;
     }).join('');
 
     document.getElementById('insp-rca-body').innerHTML = `
       <div style="margin-bottom:6px;color:var(--primary);font-weight:700;">${st.name}</div>
-      <div style="margin-bottom:6px;"><strong>Before — Current State (${st.current.nva}m wait):</strong> ${st.current.rca}</div>
-      <div style="color:#6ee7b7;"><strong>After — Future Smart Facility (${st.future.nva}m wait):</strong> ${st.future.rca}</div>
+      <div style="margin-bottom:6px;"><strong>Before (${st.current.nva}m wait):</strong> ${st.current.rca}</div>
+      <div style="color:#6ee7b7;"><strong>After (${st.future.nva}m wait):</strong> ${st.future.rca}</div>
     `;
 
     document.getElementById('bottom-ticker').textContent =
-      `[${isFut ? 'SMART FACILITY UPGRADE' : 'BROKEN FACILITY'} · ${sel.name}] ${sel.actionLabel} — ${st[simState.mode].rca}`;
+      `[${st.short}] ${sel.actionLabel} — ${st[simState.mode].rca}`;
   }
 
   function handleWorldClick(mx, my) {
@@ -544,11 +494,11 @@ const SimApp = (() => {
 
   function exportCSV() {
     const rows = [
-      ['Stage_ID', 'Stage_Name', 'Current_Active_Mins', 'Current_Wait_Mins', 'Current_Total_Mins', 'Future_Active_Mins', 'Future_Wait_Mins', 'Future_Total_Mins', 'Wait_Reduction_Mins', 'Data_Notice']
+      ['Stage_ID', 'Room_Name', 'Current_Active_Mins', 'Current_Wait_Mins', 'Current_Total_Mins', 'Future_Active_Mins', 'Future_Wait_Mins', 'Future_Total_Mins', 'Wait_Reduction_Mins', 'Data_Notice']
     ];
     STAGES.forEach(s => {
       rows.push([
-        `S${s.id}`,
+        `Stage ${s.id}`,
         s.name,
         s.current.va,
         s.current.nva,

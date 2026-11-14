@@ -211,21 +211,7 @@ const IsoRenderer = (() => {
     PHSprites.pharmacyShelf(22.0, 16.8, 0, { stockout: false, rfid: isFut });
     PHSprites.pharmacyShelf(24.4, 16.8, 0, { stockout: false, rfid: isFut });
 
-    // ------------------------ 7. BOTTLENECK HALOS vs SSOT SYNC CONDUITS
-    if (isCur) {
-      PHSprites.floorHalo(7.2, 4.5, 30, 15, '#ef4444', 'C1: 14+ CROWDED (68m WAIT · NO ETA)');
-      PHSprites.floorHalo(20.8, 7.2, 22, 11, '#ef4444', 'C2: 40% REJECTED AT SINGLE X-RAY');
-      PHSprites.floorHalo(6.2, 14.8, 28, 14, '#ef4444', 'C3: 4 BEDS BLOCKED (+92m DELAY)');
-      PHSprites.floorHalo(15.5, 15.5, 24, 12, '#ef4444', 'C3: STOCKOUT & LANDLINE LOOP');
-      PHSprites.floorHalo(4.5, 3.0, 20, 10, '#f59e0b', 'C5: SMS (10:00) != PHONE (11:30)');
-    } else {
-      PHSprites.signalBeam(23.5, 13.5, 4.5, 2.8, '#0ea5e9', 'SSOT 99.9% RECEPTION SYNC');
-      PHSprites.signalBeam(23.5, 13.5, 14.5, 4.5, '#10b981', '4-POD WAVE SCHEDULE');
-      PHSprites.signalBeam(23.5, 13.5, 21.5, 6.5, '#38bdf8', 'CPOE IMAGING HARD-STOP');
-      PHSprites.signalBeam(18.5, 14.5, 11.2, 14.5, '#10b981', '18m ROBOTIC PNEUMATIC POD');
-    }
-
-    // ------------------------ 8. 30 ARTICULATED DOCTORS, NURSES, STAFF & PATIENTS
+    // ------------------------ 7. 30 ARTICULATED DOCTORS, NURSES, STAFF & PATIENTS
     simState.agents.forEach(ag => {
       const isSel = ag.id === simState.selectedAgentId;
       let role = ag.role;
@@ -246,24 +232,24 @@ const IsoRenderer = (() => {
         axis: ag.pose === 'IN_SCANNER' ? 'y' : 'x',
         head: -1,
         blanket: ag.pose === 'LYING_ON_BED' ? '#38bdf8' : null,
-        label: ag.shortName || ag.name,
-        sub: ag.actionLabel,
-        forceLabel: ag.role === 'patient' || isSel,
+        label: '',
+        sub: '',
+        forceLabel: true,
         sel: isSel,
-        bubble: ag.bubble,
+        bubble: isSel ? ag.bubble : null,
         bubbleType: ag.bubbleType
       });
     });
 
     PH.end();
 
-    // Department Header Signs
-    PHSprites.roomSign(6.5, 1.2, isFut ? '1. Biometric Kiosks & Triage' : '1. Crowded Waiting Hall (68m)', isFut ? '#10b981' : '#ef4444');
-    PHSprites.roomSign(14.5, 1.2, isFut ? '2. 4-Room Specialist Pod (12m)' : '2. 2-Room Clinic (Rooms 3–4 Locked)', isFut ? '#10b981' : '#ef4444');
-    PHSprites.roomSign(23.0, 1.2, isFut ? '3. Dual High-Speed CT + 3T MRI' : '3. Single X-Ray (40% Rejected)', isFut ? '#0ea5e9' : '#ef4444');
-    PHSprites.roomSign(7.5, 11.2, isFut ? '4. Ward 4B & Discharge Lounge' : '4. Ward 4B (4 Beds Blocked +92m)', isFut ? '#10b981' : '#ef4444');
-    PHSprites.roomSign(17.0, 11.2, isFut ? '5. Robotic Pharmacy + RFID (18m)' : '5. Manual Pharmacy (STOCKOUT)', isFut ? '#10b981' : '#ef4444');
-    PHSprites.roomSign(24.0, 11.2, isFut ? '6. Central SSOT HIS Hub (99.9%)' : '6. Siloed IT & Call Sheets (68%)', isFut ? '#0ea5e9' : '#f59e0b');
+    // Plain, Simple Room Signs
+    PHSprites.roomSign(6.5, 1.2, 'Reception & Waiting', '#0ea5e9');
+    PHSprites.roomSign(14.5, 1.2, 'Consultation Rooms 1–4', '#10b981');
+    PHSprites.roomSign(23.0, 1.2, 'CT & MRI Scan Room', '#38bdf8');
+    PHSprites.roomSign(7.5, 11.2, 'Hospital Ward & Lounge', '#0ea5e9');
+    PHSprites.roomSign(17.0, 11.2, 'Pharmacy', '#10b981');
+    PHSprites.roomSign(24.0, 11.2, 'IT & Booking Office', '#a855f7');
 
     PH.overlay(simState.showActionLabels);
 
