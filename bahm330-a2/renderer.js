@@ -129,87 +129,61 @@ const IsoRenderer = (() => {
     PH.panTo(gx, gy, targetZoom);
   }
 
-  function triggerUpgradePulse(mode) {
-    upgradePulse = 1.0;
-    upgradeMode = mode;
-    PH.setCondition(mode === 'future' ? 'fut' : 'cur');
-  }
+  function triggerUpgradePulse() {}
 
   function render(simState) {
     const isCur = simState.mode === 'current';
-    const isFut = !isCur;
-    PH.setCondition(isFut ? 'fut' : 'cur');
+    PH.setCondition('fut');
     PH.begin();
 
     // ------------------------ 1. DEPT 1: RECEPTION & WAITING HALL (3..10, 1..9)
-    PHSprites.receptionDesk(3.4, 1.8, 1, 3.0, { col: isFut ? '#10b981' : '#0284c7', clutter: isCur });
+    PHSprites.receptionDesk(3.4, 1.8, 1, 3.0, { col: '#0284c7', clutter: false });
     PHSprites.waitingBench(5.3, 2.2, 0, 6, '#0284c7');
     PHSprites.waitingBench(5.3, 4.0, 0, 6, '#0284c7');
     PHSprites.waitingBench(5.3, 5.8, 0, 6, '#0284c7');
     PHSprites.vendingAndWater(3.4, 6.8, 0);
-    if (isFut) {
-      PHSprites.kiosk(3.5, 5.0, 1, { col: '#10b981' });
-      PHSprites.kiosk(3.5, 5.9, 1, { col: '#0ea5e9' });
-    }
 
     // ------------------------ 2. DEPT 2 (C1): 4 SPECIALIST CONSULTATION ROOMS (10..19, 1..9)
     const roomXs = [10.2, 12.4, 14.7, 16.9];
     roomXs.forEach((rx, idx) => {
-      const unlocked = isFut || idx < 2;
-      PHSprites.examTable(rx + 0.1, 1.5, 0, { col: unlocked ? '#10b981' : '#64748b' });
+      PHSprites.examTable(rx + 0.1, 1.5, 0, { col: '#10b981' });
       PHSprites.privacyCurtain(rx + 0.1, 3.0, 0, 1.7, '#bae6fd');
       PHSprites.officeDesk(rx + 0.1, 4.4, 0, {
-        clutter: isCur,
-        screenStyle: unlocked ? 'ok' : 'off',
+        clutter: false,
+        screenStyle: 'ok',
         seed: 20 + idx,
         visitorChair: true
       });
     });
 
     // ------------------------ 3. DEPT 3 (C2): DUAL CT + 3T MRI IMAGING WING (19..27, 1..9)
-    PHSprites.ctScanner(19.6, 1.5, 0, { active: isFut });
-    if (isFut) {
-      PHSprites.mriScanner(23.6, 1.4, 0, { active: true });
-    } else {
-      PHSprites.examTable(24.0, 2.2, 0, { col: '#475569' });
-    }
-    // Radiographer Lead-Glass Control Booth Consoles
-    PHSprites.officeDesk(19.6, 6.4, 0, { clutter: isCur, screenStyle: isFut ? 'ok' : 'alert', seed: 31, visitorChair: false });
-    if (isFut) {
-      PHSprites.officeDesk(23.8, 6.4, 0, { clutter: false, screenStyle: 'ecg', seed: 32, visitorChair: false });
-    }
+    PHSprites.ctScanner(19.6, 1.5, 0, { active: true });
+    PHSprites.mriScanner(23.6, 1.4, 0, { active: true });
+    PHSprites.officeDesk(19.6, 6.4, 0, { clutter: false, screenStyle: 'ok', seed: 31, visitorChair: false });
+    PHSprites.officeDesk(23.8, 6.4, 0, { clutter: false, screenStyle: 'ecg', seed: 32, visitorChair: false });
 
     // ------------------------ 4. DEPT 4 (C3a): WARD 4B & DISCHARGE LOUNGE (3..13, 11..20)
-    const wardBlanket = isFut ? '#10b981' : '#ef4444';
-    PHSprites.hospitalBed(3.5, 12.2, 0, { blanket: wardBlanket, alert: isCur, ready: isFut, seed: 41 });
-    PHSprites.hospitalBed(6.4, 12.2, 0, { blanket: wardBlanket, alert: isCur, ready: isFut, seed: 42 });
+    const wardBlanket = '#0ea5e9';
+    PHSprites.hospitalBed(3.5, 12.2, 0, { blanket: wardBlanket, ready: true, seed: 41 });
+    PHSprites.hospitalBed(6.4, 12.2, 0, { blanket: wardBlanket, ready: true, seed: 42 });
     PHSprites.privacyCurtain(3.5, 14.5, 0, 5.2, '#bae6fd');
-    PHSprites.hospitalBed(3.5, 16.0, 0, { blanket: wardBlanket, alert: isCur, ready: isFut, seed: 43 });
-    PHSprites.hospitalBed(6.4, 16.0, 0, { blanket: wardBlanket, alert: isCur, ready: isFut, seed: 44 });
-
-    if (isFut) {
-      PHSprites.sofa(10.5, 12.4, 1, 2.2, '#10b981');
-      PHSprites.sofa(10.5, 15.6, 1, 2.2, '#0ea5e9');
-    } else {
-      PHSprites.waitingBench(10.4, 14.5, 1, 3, '#64748b');
-    }
+    PHSprites.hospitalBed(3.5, 16.0, 0, { blanket: wardBlanket, ready: true, seed: 43 });
+    PHSprites.hospitalBed(6.4, 16.0, 0, { blanket: wardBlanket, ready: true, seed: 44 });
+    PHSprites.sofa(10.5, 12.4, 1, 2.2, '#10b981');
+    PHSprites.sofa(10.5, 15.6, 1, 2.2, '#0ea5e9');
 
     // ------------------------ 5. DEPT 5 (C3b): ROBOTIC PHARMACY & RFID RACKS (13..21, 11..20)
-    PHSprites.receptionDesk(13.6, 12.0, 0, 3.4, { col: isFut ? '#10b981' : '#ef4444', clutter: isCur });
-    PHSprites.pharmacyShelf(13.6, 15.2, 0, { stockout: isCur, rfid: isFut });
-    PHSprites.pharmacyShelf(13.6, 17.2, 0, { stockout: isCur, rfid: isFut });
-    if (isFut) {
-      PHSprites.roboticDispenser(17.8, 13.8, 0);
-      PHSprites.pharmacyShelf(17.8, 17.2, 0, { stockout: false, rfid: true });
-    } else {
-      PHSprites.pharmacyShelf(17.8, 15.2, 0, { stockout: true, rfid: false });
-    }
+    PHSprites.receptionDesk(13.6, 12.0, 0, 3.4, { col: '#10b981', clutter: false });
+    PHSprites.pharmacyShelf(13.6, 15.2, 0, { stockout: false, rfid: true });
+    PHSprites.pharmacyShelf(13.6, 17.2, 0, { stockout: false, rfid: true });
+    PHSprites.roboticDispenser(17.8, 13.8, 0);
+    PHSprites.pharmacyShelf(17.8, 17.2, 0, { stockout: false, rfid: true });
 
     // ------------------------ 6. DEPT 6 (C5): CENTRAL HIS SSOT COMMAND HUB (21..27, 11..20)
-    PHSprites.officeDesk(22.0, 12.6, 0, { clutter: isCur, screenStyle: isFut ? 'ok' : 'alert', seed: 51 });
-    PHSprites.officeDesk(24.4, 12.6, 0, { clutter: isCur, screenStyle: isFut ? 'ui' : 'alert', seed: 52 });
-    PHSprites.pharmacyShelf(22.0, 16.8, 0, { stockout: false, rfid: isFut });
-    PHSprites.pharmacyShelf(24.4, 16.8, 0, { stockout: false, rfid: isFut });
+    PHSprites.officeDesk(22.0, 12.6, 0, { clutter: false, screenStyle: 'ok', seed: 51 });
+    PHSprites.officeDesk(24.4, 12.6, 0, { clutter: false, screenStyle: 'ui', seed: 52 });
+    PHSprites.pharmacyShelf(22.0, 16.8, 0, { stockout: false, rfid: true });
+    PHSprites.pharmacyShelf(24.4, 16.8, 0, { stockout: false, rfid: true });
 
     // ------------------------ 7. 30 ARTICULATED DOCTORS, NURSES, STAFF & PATIENTS
     simState.agents.forEach(ag => {

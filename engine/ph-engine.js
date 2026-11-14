@@ -1175,7 +1175,7 @@
       for (const q of placed) if (Math.abs(q.x - foot.x) < 46 && Math.abs(q.y - y) < 15) y = q.y + 15;
       placed.push({ x: foot.x, y });
       nameplate(foot.x, y, shortRole, '', sp.role, sp.sel);
-      if (sp.bubble && sp.sel) {
+      if (sp.bubble && (sp.sel || sp.showBubble)) {
         const h = P(L.gx, L.gy, L.headZ + 5);
         bubble(h.x, h.y, sp.bubble, sp.bubbleType);
       }

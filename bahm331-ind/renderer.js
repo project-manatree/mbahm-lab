@@ -122,11 +122,7 @@ const IsoRenderer = (() => {
     PH.panTo(gx, gy, targetZoom);
   }
 
-  function triggerUpgradePulse(mode) {
-    upgradePulse = 1.0;
-    upgradeMode = mode;
-    PH.setCondition(mode === 'tiered' ? 'fut' : 'cur');
-  }
+  function triggerUpgradePulse() {}
 
   function drawYogaMat(x, y, col) {
     PH.furniture(x, y, 1.35, 0.72, 0, k => {
@@ -136,35 +132,8 @@ const IsoRenderer = (() => {
     });
   }
 
-  function drawAILifeguardArch(gx, gy) {
-    PH.item(gx + gy + 0.8, () => {
-      PH.box(gx, gy, 0, 0.22, 0.22, 26, '#0ea5e9');
-      PH.box(gx, gy + 4.8, 0, 0.22, 0.22, 26, '#0ea5e9');
-      PH.box(gx, gy, 25, 0.24, 5.0, 2.5, '#e0f2fe');
-      const sp = PH.P(gx + 0.12, gy + 2.5, 27.5);
-      const c = PH.S.ctx;
-      c.fillStyle = (PH.t % 20 < 10) ? '#10b981' : '#38bdf8';
-      c.beginPath();
-      c.arc(sp.x, sp.y, 4.2 * PH.zoom, 0, Math.PI * 2);
-      c.fill();
-    });
-  }
-
-  function drawRapidMedicalCart(gx, gy) {
-    PH.item(gx + gy + 0.9, () => {
-      PH.box(gx, gy, 1.5, 1.15, 0.68, 9.5, '#f8fafc');
-      PH.box(gx - 0.02, gy + 0.05, 5.5, 1.19, 0.58, 2.2, '#ef4444');
-      PH.cyl(gx + 0.22, gy + 0.1, 0, 0.1, 2.0, '#111827');
-      PH.cyl(gx + 0.92, gy + 0.1, 0, 0.1, 2.0, '#111827');
-      const bp = PH.P(gx + 0.58, gy + 0.34, 15);
-      PH.bubble(bp.x, bp.y, '<3m RAPID CART', 'ok');
-    });
-  }
-
   function render(simState) {
-    const isTiered = simState.mode === 'tiered';
-    const ev = simState.activeEvent;
-    PH.setCondition(isTiered ? 'fut' : 'cur');
+    PH.setCondition('fut');
     PH.begin();
 
     // ------------------------ 1. ZONE 1: HYDROTHERAPY POOL (2..10, 1..9)
@@ -180,10 +149,6 @@ const IsoRenderer = (() => {
       c.ellipse(p2.x, p2.y, rad * 1.1, rad * 0.55, 0, 0, Math.PI * 2);
       c.stroke();
     });
-    if (isTiered) {
-      drawAILifeguardArch(4.2, 2.0);
-      drawAILifeguardArch(6.8, 2.0);
-    }
 
     // ------------------------ 2. ZONE 2: THERMAL SPA & PHYSIO WING (2..10, 11..20)
     PHSprites.spaTable(3.0, 12.2, 0, { col: '#6ee7b7' });
@@ -191,17 +156,11 @@ const IsoRenderer = (() => {
     PHSprites.privacyCurtain(2.8, 14.8, 0, 5.2, '#a7f3d0');
     PHSprites.spaTable(3.0, 16.2, 0, { col: '#6ee7b7' });
     PHSprites.spaTable(6.0, 16.2, 0, { col: '#6ee7b7' });
-    if (isTiered) {
-      PHSprites.kiosk(8.6, 12.2, 1, { col: '#10b981' });
-    }
 
     // ------------------------ 3. ZONE 3: BIOMETRIC YOGA PAVILION (10..18, 1..9)
     for (let m = 0; m < 3; m++) {
       drawYogaMat(11.1 + m * 2.0, 2.4, '#ec4899');
       drawYogaMat(11.1 + m * 2.0, 5.1, '#8b5cf6');
-    }
-    if (isTiered) {
-      PHSprites.kiosk(16.6, 2.0, 1, { col: '#0ea5e9' });
     }
 
     // ------------------------ 4. ZONE 4: NUTRITIONAL SMART-BISTRO (10..18, 11..20)
@@ -209,21 +168,18 @@ const IsoRenderer = (() => {
     PHSprites.diningTable(14.2, 12.4, 0, { cloth: '#fef3c7' });
     PHSprites.diningTable(11.2, 15.4, 0, { cloth: '#fde68a' });
     PHSprites.diningTable(14.2, 15.4, 0, { cloth: '#fde68a' });
-    PHSprites.receptionDesk(11.2, 18.0, 0, 3.6, { col: isTiered ? '#10b981' : '#f59e0b', wood: '#78350f', clutter: !isTiered });
-    if (isTiered) {
-      PHSprites.kiosk(15.6, 18.0, 0, { col: '#10b981' });
-    }
+    PHSprites.receptionDesk(11.2, 18.0, 0, 3.6, { col: '#10b981', wood: '#78350f', clutter: false });
 
     // ------------------------ 5. ZONE 5: 24/7 NURSE COMMAND & TELE-MD (18..26, 1..9)
-    PHSprites.receptionDesk(18.6, 2.0, 0, 2.6, { col: isTiered ? '#10b981' : '#0ea5e9', clutter: !isTiered });
-    PHSprites.officeDesk(22.4, 2.0, 0, { clutter: !isTiered, screenStyle: isTiered ? 'ok' : 'alert', seed: 61 });
-    PHSprites.hospitalBed(22.4, 5.2, 0, { blanket: '#0ea5e9', alert: !isTiered, ready: isTiered, seed: 62 });
+    PHSprites.receptionDesk(18.6, 2.0, 0, 2.6, { col: '#0ea5e9', clutter: false });
+    PHSprites.officeDesk(22.4, 2.0, 0, { clutter: false, screenStyle: 'ok', seed: 61 });
+    PHSprites.hospitalBed(22.4, 5.2, 0, { blanket: '#0ea5e9', ready: true, seed: 62 });
 
     // ------------------------ 6. ZONE 6: 4 LUXURY KING SUITES 301-309 (18..26, 11..20)
-    PHSprites.luxuryBed(18.8, 12.2, 0, { duvet: '#f59e0b', smartHub: isTiered });
-    PHSprites.luxuryBed(22.6, 12.2, 0, { duvet: '#10b981', smartHub: isTiered });
-    PHSprites.luxuryBed(18.8, 16.4, 0, { duvet: '#0ea5e9', smartHub: isTiered });
-    PHSprites.luxuryBed(22.6, 16.4, 0, { duvet: '#a855f7', smartHub: isTiered });
+    PHSprites.luxuryBed(18.8, 12.2, 0, { duvet: '#f59e0b', smartHub: true });
+    PHSprites.luxuryBed(22.6, 12.2, 0, { duvet: '#10b981', smartHub: true });
+    PHSprites.luxuryBed(18.8, 16.4, 0, { duvet: '#0ea5e9', smartHub: true });
+    PHSprites.luxuryBed(22.6, 16.4, 0, { duvet: '#a855f7', smartHub: true });
 
     // ------------------------ 7. 24 ARTICULATED DOCTORS, NURSES, STAFF & RESIDENTS
     simState.agents.forEach(ag => {
