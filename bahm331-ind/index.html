@@ -33,15 +33,15 @@
       display: flex;
       gap: 6px;
       padding: 5px;
-      background: rgba(9, 13, 22, 0.88);
+      background: rgba(9, 13, 22, 0.90);
       border: 1px solid rgba(148, 163, 184, 0.35);
       border-radius: 999px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
     }
     .simple-switcher .mode-btn {
-      padding: 7px 22px;
+      padding: 8px 20px;
       border-radius: 999px;
-      font-size: 0.82rem;
+      font-size: 0.80rem;
       font-weight: 700;
       border: none;
       cursor: pointer;
@@ -51,10 +51,10 @@
 <body>
   <div class="simple-switcher">
     <button id="btn-mode-unfiltered" class="mode-btn active-current" onclick="SimApp.setMode('unfiltered')">
-      Before
+      Current Process (Waiting Queues)
     </button>
     <button id="btn-mode-tiered" class="mode-btn" onclick="SimApp.setMode('tiered')">
-      After
+      Optimized Process (Smooth Flow)
     </button>
   </div>
 

@@ -1,116 +1,109 @@
 // ============================================================================
-// BAHM330-A2: Meridian Specialist Hospital (MSH) 28x22 Project Hospital Renderer
-// Focused 100% on Hospital Clinical Departments, Medical Equipment, Doctors,
-// Nurses, Radiographers, Pharmacists, and Patients (Zero Exterior Distractions)
+// BAHM330-A2: Expanded 8-Department Specialist Hospital (34x21 Grid)
+// 100% Identical Building Structure in Both Modes:
+// - Top Wing (y: 1..8.5):
+//   1. Reception, Triage & Main Waiting Hall (x: 1..9)
+//   2. Specialist Consultation Pod — 5 Consultation Rooms (x: 9..21.5)
+//   3. Diagnostic Imaging Wing — CT Suite, 3T MRI Suite & Control Booth (x: 21.5..33)
+// - Central Hospital Thoroughfare Corridor (y: 8.5..11)
+// - Bottom Wing (y: 11..19):
+//   4. Inpatient Ward 4A & 4B — 8 Hospital Beds (x: 1..11)
+//   5. Inpatient Discharge Lounge (x: 11..16)
+//   6. Central Pharmacy & Robotic Dispensing Hall (x: 16..25.5)
+//   7. IT & Appointment Booking Command Centre (x: 25.5..33)
+//   8. Main Hospital Entrance Facing DOWN (y = 19)
 // ============================================================================
 
 const IsoRenderer = (() => {
-  const GRID_W = 28;
-  const GRID_H = 22;
-
-  let upgradePulse = 0;
-  let upgradeMode = 'future';
+  const GRID_W = 34;
+  const GRID_H = 21;
 
   const MAP = {
-    bounds: { x0: 2.5, y0: 0.5, x1: 27.5, y1: 20.5 },
-    view: { x0: 2.5, y0: 0.5, x1: 27.5, y1: 20.5 },
+    proj: { ax: 42, ay: 2, bx: -10, by: 28 },
+    bounds: { x0: 0.5, y0: 0.5, x1: 33.5, y1: 20.2 },
+    view: { x0: 0.5, y0: 0.5, x1: 33.5, y1: 20.2 },
     ground: [
-      // Clean structural hospital slab
-      { x: 2.5, y: 0.5, w: 25, d: 20, mat: 'concrete' },
-      // Main Hospital Central Corridor (x: 3..27, y: 9..11)
-      { x: 3, y: 9, w: 24, d: 2.2, mat: { cur: 'linoWorn', fut: 'terrazzo' } },
-      // 1. Main Triage, Registration & Waiting Hall (x: 3..10, y: 1..9)
-      { x: 3, y: 1, w: 7, d: 8, mat: { cur: 'linoWorn', fut: 'linoBlue' } },
-      { x: 5.0, y: 1.6, w: 4.5, d: 6.5, mat: { cur: 'linoGrey', fut: 'carpetBlue' } },
-      // 2. C1: 4-Room Specialist Consultation Pod (x: 10..19, y: 1..9)
-      { x: 10, y: 1, w: 4.5, d: 8, mat: 'linoMint' },
-      { x: 14.5, y: 1, w: 4.5, d: 8, mat: { cur: 'linoWorn', fut: 'linoMint' } },
-      // 3. C2: Dual-Suite Diagnostic Imaging Wing — CT + 3T MRI (x: 19..27, y: 1..9)
-      { x: 19, y: 1, w: 4.2, d: 8, mat: 'ceramicBlue' },
-      { x: 23.2, y: 1, w: 3.8, d: 8, mat: { cur: 'linoDark', fut: 'ceramicBlue' } },
-      // 4. C3a: Inpatient Ward 4B & Dedicated Discharge Lounge (x: 3..13, y: 11..20)
-      { x: 3, y: 11, w: 7, d: 9, mat: { cur: 'linoWorn', fut: 'linoBlue' } },
-      { x: 10, y: 11, w: 3, d: 9, mat: { cur: 'linoWorn', fut: 'oak' } },
-      // 5. C3b: Robotic Pharmacy & RFID Smart Inventory (x: 13..21, y: 11..20)
-      { x: 13, y: 11, w: 8, d: 9, mat: { cur: 'linoWorn', fut: 'ceramic' } },
-      // 6. C5: Central HIS Single-Source-of-Truth (SSOT) Hub (x: 21..27, y: 11..20)
-      { x: 21, y: 11, w: 6, d: 9, mat: { cur: 'linoGrey', fut: 'carpetTeal' } }
+      // Top Wing (y: 1..8.5)
+      { x: 1, y: 1, w: 8, d: 7.5, mat: 'linoBlue' },            // 1. Reception & Waiting Hall
+      { x: 3.2, y: 1.8, w: 5.2, d: 5.8, mat: 'carpetBlue' },    // Waiting seating carpet
+      { x: 9, y: 1, w: 12.5, d: 7.5, mat: 'linoMint' },         // 2. Consultation Rooms 1-5
+      { x: 21.5, y: 1, w: 11.5, d: 7.5, mat: 'ceramicBlue' },   // 3. CT & 3T MRI Scan Wing
+
+      // Central Hospital Corridor (y: 8.5..11)
+      { x: 1, y: 8.5, w: 32, d: 2.5, mat: 'terrazzo' },
+
+      // Bottom Wing (y: 11..19)
+      { x: 1, y: 11, w: 10, d: 8, mat: 'linoBlue' },            // 4. Inpatient Ward 4A & 4B
+      { x: 11, y: 11, w: 5, d: 8, mat: 'oak' },                 // 5. Discharge Lounge & Main Entrance
+      { x: 16, y: 11, w: 9.5, d: 8, mat: 'ceramic' },           // 6. Central Pharmacy
+      { x: 25.5, y: 11, w: 7.5, d: 8, mat: 'carpetTeal' },      // 7. IT & Booking Command Office
+
+      // Front Main Entrance Walkway Apron (y: 19..19.8)
+      { x: 1, y: 19.0, w: 32, d: 0.8, mat: 'paver' }
     ],
     decals: [
-      // Hospital main corridor color-coded wayfinding lines (Project Hospital style)
-      { type: 'line', x1: 3.2, y1: 9.8, x2: 26.5, y2: 9.8, w: 0.12, col: '#0ea5e9', when: 'fut' },
-      { type: 'line', x1: 3.2, y1: 10.3, x2: 26.5, y2: 10.3, w: 0.12, col: '#10b981', when: 'fut' }
-    ],
-    wear: [
-      { x: 3, y: 1, w: 24, d: 19 }
+      { type: 'line', x1: 1.5, y1: 9.5, x2: 32.5, y2: 9.5, w: 0.11, col: '#0ea5e9' },
+      { type: 'line', x1: 1.5, y1: 10.1, x2: 32.5, y2: 10.1, w: 0.11, col: '#10b981' }
     ],
     walls: [
-      // Outer Hospital Perimeter Walls with framed windows
-      { x1: 3, y1: 1, x2: 27, y2: 1, kind: 'ext', col: '#e2e8f0', windows: true },
-      { x1: 3, y1: 1, x2: 3, y2: 9, kind: 'ext', col: '#e2e8f0', open: [{ at: 4.5, w: 1.8, type: 'slide' }] },
-      { x1: 3, y1: 11, x2: 3, y2: 20, kind: 'ext', col: '#e2e8f0', windows: true },
-      { x1: 3, y1: 20, x2: 27, y2: 20, kind: 'ext', col: '#e2e8f0', windows: true },
-      { x1: 27, y1: 1, x2: 27, y2: 20, kind: 'ext', col: '#e2e8f0', windows: true },
-
-      // North Wing Corridor Wall (y = 9) with doors into Reception, 4 Consult Rooms & Radiology
+      // Outer Hospital Perimeter Walls
+      { x1: 1, y1: 1, x2: 33, y2: 1, kind: 'ext', col: '#e2e8f0', windows: true },
+      { x1: 1, y1: 1, x2: 1, y2: 19, kind: 'ext', col: '#e2e8f0', windows: true },
+      { x1: 33, y1: 1, x2: 33, y2: 19, kind: 'ext', col: '#e2e8f0', windows: true },
+      // Bottom Front Wall (y = 19) with Main Entrance Facing Straight DOWN at x = 12.2..14.8 & Pharmacy Exit at x = 19.5..21.8
       {
-        x1: 3, y1: 9, x2: 27, y2: 9, kind: 'int', col: '#cbd5e1',
+        x1: 1, y1: 19, x2: 33, y2: 19, kind: 'ext', col: '#e2e8f0', windows: true,
         open: [
-          { at: 6.0, w: 1.8, type: 'slide' },
-          { at: 10.6, w: 1.1, type: 'door' },
-          { at: 12.8, w: 1.1, type: 'door' },
-          { at: 15.0, w: 1.1, type: { cur: 'locked', fut: 'door' } },
-          { at: 17.2, w: 1.1, type: { cur: 'locked', fut: 'door' } },
-          { at: 20.5, w: 1.5, type: 'double' },
-          { at: 24.4, w: 1.4, type: { cur: 'locked', fut: 'double' } }
+          { at: 12.2, w: 2.6, type: 'slide', alwaysOpen: true },
+          { at: 19.5, w: 2.2, type: 'slide', alwaysOpen: true }
         ]
       },
-      // Partitions between Reception and the 4 Specialist Consultation Rooms (C1)
-      { x1: 10, y1: 1, x2: 10, y2: 9, kind: 'int', col: '#cbd5e1' },
-      { x1: 12.2, y1: 1, x2: 12.2, y2: 9, kind: 'int', col: '#cbd5e1' },
-      { x1: 14.5, y1: 1, x2: 14.5, y2: 9, kind: 'int', col: '#cbd5e1' },
-      { x1: 16.7, y1: 1, x2: 16.7, y2: 9, kind: 'int', col: '#cbd5e1' },
-      { x1: 19, y1: 1, x2: 19, y2: 9, kind: 'int', col: '#cbd5e1' },
-      // Partition between CT Suite and 3T MRI Suite + Lead-Glass Control Booth (C2)
-      { x1: 23.2, y1: 1, x2: 23.2, y2: 9, kind: 'glass', col: '#94a3b8' },
-      { x1: 19, y1: 5.8, x2: 27, y2: 5.8, kind: 'glass', open: [{ at: 21.0, w: 1.2, type: 'door' }, { at: 24.6, w: 1.2, type: 'door' }] },
 
-      // South Wing Corridor Wall (y = 11) with doors into Ward 4B, Discharge Lounge, Pharmacy & HIS Hub
+      // North Wing Corridor Wall (y = 8.5) — All Doors Open & Identical in Both Modes
       {
-        x1: 3, y1: 11, x2: 27, y2: 11, kind: 'int', col: '#cbd5e1',
+        x1: 1, y1: 8.5, x2: 33, y2: 8.5, kind: 'int', col: '#cbd5e1',
         open: [
-          { at: 5.8, w: 1.6, type: 'double' },
-          { at: 10.8, w: 1.4, type: { cur: 'locked', fut: 'slide' } },
-          { at: 15.8, w: 1.8, type: 'slide' },
-          { at: 23.2, w: 1.5, type: 'slide' }
+          { at: 4.5, w: 2.0, type: 'slide', alwaysOpen: true },
+          { at: 9.7, w: 1.1, type: 'door' },
+          { at: 12.2, w: 1.1, type: 'door' },
+          { at: 14.7, w: 1.1, type: 'door' },
+          { at: 17.2, w: 1.1, type: 'door' },
+          { at: 19.7, w: 1.1, type: 'door' },
+          { at: 23.2, w: 1.6, type: 'double' },
+          { at: 28.8, w: 1.6, type: 'double' }
         ]
       },
-      { x1: 10, y1: 11, x2: 10, y2: 20, kind: 'glass', open: [{ at: 15.0, w: 1.4, type: 'door' }] },
-      { x1: 13, y1: 11, x2: 13, y2: 20, kind: 'int', col: '#cbd5e1' },
-      { x1: 21, y1: 11, x2: 21, y2: 20, kind: 'glass', open: [{ at: 15.0, w: 1.4, type: 'door' }] }
+      // Partitions for the 5 Consultation Rooms (x: 9, 11.5, 14, 16.5, 19, 21.5)
+      { x1: 9, y1: 1, x2: 9, y2: 8.5, kind: 'int', col: '#cbd5e1' },
+      { x1: 11.5, y1: 1, x2: 11.5, y2: 8.5, kind: 'int', col: '#cbd5e1' },
+      { x1: 14.0, y1: 1, x2: 14.0, y2: 8.5, kind: 'int', col: '#cbd5e1' },
+      { x1: 16.5, y1: 1, x2: 16.5, y2: 8.5, kind: 'int', col: '#cbd5e1' },
+      { x1: 19.0, y1: 1, x2: 19.0, y2: 8.5, kind: 'int', col: '#cbd5e1' },
+      { x1: 21.5, y1: 1, x2: 21.5, y2: 8.5, kind: 'int', col: '#cbd5e1' },
+
+      // Diagnostic Imaging Partitions (CT Room, 3T MRI Room, Control Booth)
+      { x1: 27.2, y1: 1, x2: 27.2, y2: 8.5, kind: 'glass', col: '#94a3b8' },
+      { x1: 21.5, y1: 5.5, x2: 33, y2: 5.5, kind: 'glass', open: [{ at: 23.5, w: 1.3, type: 'door' }, { at: 29.0, w: 1.3, type: 'door' }] },
+
+      // South Wing Corridor Wall (y = 11) — All Doors Open & Identical in Both Modes
+      {
+        x1: 1, y1: 11, x2: 33, y2: 11, kind: 'int', col: '#cbd5e1',
+        open: [
+          { at: 4.8, w: 1.8, type: 'double' },
+          { at: 12.5, w: 1.8, type: 'slide', alwaysOpen: true },
+          { at: 19.5, w: 2.0, type: 'slide', alwaysOpen: true },
+          { at: 28.0, w: 1.6, type: 'slide' }
+        ]
+      },
+      { x1: 11, y1: 11, x2: 11, y2: 19, kind: 'glass', open: [{ at: 14.5, w: 1.5, type: 'door' }] },
+      { x1: 16, y1: 11, x2: 16, y2: 19, kind: 'int', col: '#cbd5e1' },
+      { x1: 25.5, y1: 11, x2: 25.5, y2: 19, kind: 'glass', open: [{ at: 14.5, w: 1.5, type: 'door' }] }
     ]
   };
 
   function init(canvasId, onClickWorld) {
     const canvas = document.getElementById(canvasId);
     PH.init(canvas, MAP, onClickWorld);
-    injectWallToggleButton();
-  }
-
-  function injectWallToggleButton() {
-    const ctrl = document.querySelector('.hud-controls');
-    if (ctrl && !document.getElementById('btn-walls')) {
-      const btn = document.createElement('button');
-      btn.id = 'btn-walls';
-      btn.className = 'btn';
-      btn.textContent = '🧱 Walls: Cutaway';
-      btn.onclick = () => {
-        PH.wallsUp = !PH.wallsUp;
-        btn.textContent = PH.wallsUp ? '🧱 Walls: Full Height' : '🧱 Walls: Cutaway';
-        btn.classList.toggle('active', PH.wallsUp);
-      };
-      ctrl.insertBefore(btn, ctrl.children[1]);
-    }
   }
 
   function toIso(gx, gy, gz = 0) {
@@ -132,23 +125,25 @@ const IsoRenderer = (() => {
   function triggerUpgradePulse() {}
 
   function render(simState) {
-    const isCur = simState.mode === 'current';
     PH.setCondition('fut');
     PH.begin();
 
-    // ------------------------ 1. DEPT 1: RECEPTION & WAITING HALL (3..10, 1..9)
-    PHSprites.receptionDesk(3.4, 1.8, 1, 3.0, { col: '#0284c7', clutter: false });
-    PHSprites.waitingBench(5.3, 2.2, 0, 6, '#0284c7');
-    PHSprites.waitingBench(5.3, 4.0, 0, 6, '#0284c7');
-    PHSprites.waitingBench(5.3, 5.8, 0, 6, '#0284c7');
-    PHSprites.vendingAndWater(3.4, 6.8, 0);
+    // ---------------- 1. RECEPTION, TRIAGE & WAITING HALL (x: 1..9, y: 1..8.5)
+    PHSprites.receptionDesk(1.4, 1.6, 1, 3.2, { col: '#0284c7', clutter: false });
+    PHSprites.kiosk(1.5, 5.4, 1, { col: '#10b981' });
+    PHSprites.kiosk(1.5, 6.5, 1, { col: '#0ea5e9' });
+    PHSprites.waitingBench(3.6, 2.2, 0, 6, '#0284c7');
+    PHSprites.waitingBench(3.6, 3.6, 0, 6, '#0284c7');
+    PHSprites.waitingBench(3.6, 5.0, 0, 6, '#0284c7');
+    PHSprites.waitingBench(3.6, 6.4, 0, 6, '#0284c7');
+    PHSprites.vendingAndWater(7.4, 1.8, 0);
 
-    // ------------------------ 2. DEPT 2 (C1): 4 SPECIALIST CONSULTATION ROOMS (10..19, 1..9)
-    const roomXs = [10.2, 12.4, 14.7, 16.9];
+    // ---------------- 2. 5 SPECIALIST CONSULTATION ROOMS (x: 9..21.5, y: 1..8.5)
+    const roomXs = [9.2, 11.7, 14.2, 16.7, 19.2];
     roomXs.forEach((rx, idx) => {
-      PHSprites.examTable(rx + 0.1, 1.5, 0, { col: '#10b981' });
-      PHSprites.privacyCurtain(rx + 0.1, 3.0, 0, 1.7, '#bae6fd');
-      PHSprites.officeDesk(rx + 0.1, 4.4, 0, {
+      PHSprites.examTable(rx + 0.1, 1.4, 0, { col: '#10b981' });
+      PHSprites.privacyCurtain(rx + 0.1, 2.9, 0, 1.7, '#bae6fd');
+      PHSprites.officeDesk(rx + 0.1, 4.3, 0, {
         clutter: false,
         screenStyle: 'ok',
         seed: 20 + idx,
@@ -156,43 +151,54 @@ const IsoRenderer = (() => {
       });
     });
 
-    // ------------------------ 3. DEPT 3 (C2): DUAL CT + 3T MRI IMAGING WING (19..27, 1..9)
-    PHSprites.ctScanner(19.6, 1.5, 0, { active: true });
-    PHSprites.mriScanner(23.6, 1.4, 0, { active: true });
-    PHSprites.officeDesk(19.6, 6.4, 0, { clutter: false, screenStyle: 'ok', seed: 31, visitorChair: false });
-    PHSprites.officeDesk(23.8, 6.4, 0, { clutter: false, screenStyle: 'ecg', seed: 32, visitorChair: false });
+    // ---------------- 3. DIAGNOSTIC IMAGING WING — CT + 3T MRI + CONTROL BOOTH (x: 21.5..33, y: 1..8.5)
+    PHSprites.ctScanner(22.2, 1.4, 0, { active: true });
+    PHSprites.examTable(25.2, 1.8, 0, { col: '#38bdf8' });
+    PHSprites.mriScanner(27.8, 1.4, 0, { active: true });
+    PHSprites.examTable(30.8, 1.8, 0, { col: '#10b981' });
+    // Lead-Glass Control Booth Consoles
+    PHSprites.officeDesk(22.2, 6.1, 0, { clutter: false, screenStyle: 'ok', seed: 31, visitorChair: false });
+    PHSprites.officeDesk(25.0, 6.1, 0, { clutter: false, screenStyle: 'ecg', seed: 32, visitorChair: false });
+    PHSprites.officeDesk(28.2, 6.1, 0, { clutter: false, screenStyle: 'ok', seed: 33, visitorChair: false });
 
-    // ------------------------ 4. DEPT 4 (C3a): WARD 4B & DISCHARGE LOUNGE (3..13, 11..20)
+    // ---------------- 4. INPATIENT WARD 4A & 4B — 8 HOSPITAL BEDS (x: 1..11, y: 11..19)
     const wardBlanket = '#0ea5e9';
-    PHSprites.hospitalBed(3.5, 12.2, 0, { blanket: wardBlanket, ready: true, seed: 41 });
-    PHSprites.hospitalBed(6.4, 12.2, 0, { blanket: wardBlanket, ready: true, seed: 42 });
-    PHSprites.privacyCurtain(3.5, 14.5, 0, 5.2, '#bae6fd');
-    PHSprites.hospitalBed(3.5, 16.0, 0, { blanket: wardBlanket, ready: true, seed: 43 });
-    PHSprites.hospitalBed(6.4, 16.0, 0, { blanket: wardBlanket, ready: true, seed: 44 });
-    PHSprites.sofa(10.5, 12.4, 1, 2.2, '#10b981');
-    PHSprites.sofa(10.5, 15.6, 1, 2.2, '#0ea5e9');
+    const bedCoords = [
+      [1.4, 11.6], [4.2, 11.6], [7.0, 11.6],
+      [1.4, 14.2], [4.2, 14.2], [7.0, 14.2],
+      [1.4, 16.8], [4.2, 16.8]
+    ];
+    bedCoords.forEach(([bx, by], idx) => {
+      PHSprites.hospitalBed(bx, by, 0, { blanket: wardBlanket, ready: true, seed: 40 + idx });
+    });
+    PHSprites.receptionDesk(8.8, 15.2, 1, 2.4, { col: '#0284c7', clutter: false });
 
-    // ------------------------ 5. DEPT 5 (C3b): ROBOTIC PHARMACY & RFID RACKS (13..21, 11..20)
-    PHSprites.receptionDesk(13.6, 12.0, 0, 3.4, { col: '#10b981', clutter: false });
-    PHSprites.pharmacyShelf(13.6, 15.2, 0, { stockout: false, rfid: true });
-    PHSprites.pharmacyShelf(13.6, 17.2, 0, { stockout: false, rfid: true });
-    PHSprites.roboticDispenser(17.8, 13.8, 0);
-    PHSprites.pharmacyShelf(17.8, 17.2, 0, { stockout: false, rfid: true });
+    // ---------------- 5. DISCHARGE LOUNGE & MAIN ENTRANCE (x: 11..16, y: 11..19)
+    PHSprites.sofa(11.6, 12.0, 1, 2.2, '#10b981');
+    PHSprites.sofa(11.6, 15.0, 1, 2.2, '#0ea5e9');
+    PHSprites.kiosk(14.6, 12.2, 1, { col: '#10b981' });
+    PHSprites.vendingAndWater(14.5, 14.2, 0);
 
-    // ------------------------ 6. DEPT 6 (C5): CENTRAL HIS SSOT COMMAND HUB (21..27, 11..20)
-    PHSprites.officeDesk(22.0, 12.6, 0, { clutter: false, screenStyle: 'ok', seed: 51 });
-    PHSprites.officeDesk(24.4, 12.6, 0, { clutter: false, screenStyle: 'ui', seed: 52 });
-    PHSprites.pharmacyShelf(22.0, 16.8, 0, { stockout: false, rfid: true });
-    PHSprites.pharmacyShelf(24.4, 16.8, 0, { stockout: false, rfid: true });
+    // ---------------- 6. CENTRAL PHARMACY & ROBOTIC DISPENSING (x: 16..25.5, y: 11..19)
+    PHSprites.receptionDesk(16.6, 11.6, 0, 3.6, { col: '#10b981', clutter: false });
+    PHSprites.pharmacyShelf(16.6, 14.4, 0, { stockout: false, rfid: true });
+    PHSprites.pharmacyShelf(16.6, 16.0, 0, { stockout: false, rfid: true });
+    PHSprites.pharmacyShelf(16.6, 17.6, 0, { stockout: false, rfid: true });
+    PHSprites.roboticDispenser(21.4, 12.2, 0);
+    PHSprites.pharmacyShelf(21.4, 15.6, 0, { stockout: false, rfid: true });
+    PHSprites.waitingBench(21.2, 17.4, 0, 4, '#475569');
 
-    // ------------------------ 7. 30 ARTICULATED DOCTORS, NURSES, STAFF & PATIENTS
+    // ---------------- 7. IT & BOOKING COMMAND CENTRE (x: 25.5..33, y: 11..19)
+    PHSprites.officeDesk(26.2, 12.0, 0, { clutter: false, screenStyle: 'ok', seed: 51 });
+    PHSprites.officeDesk(29.2, 12.0, 0, { clutter: false, screenStyle: 'ui', seed: 52 });
+    PHSprites.officeDesk(26.2, 14.8, 0, { clutter: false, screenStyle: 'ok', seed: 53 });
+    PHSprites.officeDesk(29.2, 14.8, 0, { clutter: false, screenStyle: 'ui', seed: 54 });
+    PHSprites.pharmacyShelf(26.2, 17.2, 0, { stockout: false, rfid: true });
+    PHSprites.pharmacyShelf(29.2, 17.2, 0, { stockout: false, rfid: true });
+
+    // ---------------- 8. 52 ARTICULATED DOCTORS, NURSES, PHARMACISTS, STAFF & PATIENTS
     simState.agents.forEach(ag => {
       const isSel = ag.id === simState.selectedAgentId;
-      let role = ag.role;
-      if (ag.id.includes('rad')) role = ag.role === 'patient' ? 'gown' : 'radiographer';
-      else if (ag.id === 'st-pharm-1') role = 'pharmacist';
-      else if (ag.id.startsWith('pat-ward') && isCur) role = 'gown';
-
       const inBed = ag.pose === 'LYING_ON_BED' || ag.pose === 'IN_SCANNER';
       PH.person({
         id: ag.id,
@@ -201,47 +207,34 @@ const IsoRenderer = (() => {
         z: inBed ? 9.0 : 0,
         pose: ag.pose,
         dir: ag.dir,
-        role,
+        role: ag.role,
         seed: ag.idNum || 1,
         axis: ag.pose === 'IN_SCANNER' ? 'y' : 'x',
         head: -1,
         blanket: ag.pose === 'LYING_ON_BED' ? '#38bdf8' : null,
-        label: '',
+        label: ag.roleLabel || '',
         sub: '',
         forceLabel: true,
         sel: isSel,
-        bubble: isSel ? ag.bubble : null,
+        showBubble: !!ag.showBubble,
+        bubble: ag.bubble,
         bubbleType: ag.bubbleType
       });
     });
 
     PH.end();
 
-    // Plain, Simple Room Signs
-    PHSprites.roomSign(6.5, 1.2, 'Reception & Waiting', '#0ea5e9');
-    PHSprites.roomSign(14.5, 1.2, 'Consultation Rooms 1–4', '#10b981');
-    PHSprites.roomSign(23.0, 1.2, 'CT & MRI Scan Room', '#38bdf8');
-    PHSprites.roomSign(7.5, 11.2, 'Hospital Ward & Lounge', '#0ea5e9');
-    PHSprites.roomSign(17.0, 11.2, 'Pharmacy', '#10b981');
-    PHSprites.roomSign(24.0, 11.2, 'IT & Booking Office', '#a855f7');
+    // Plain Room Signs
+    PHSprites.roomSign(5.0, 1.1, 'Reception & Waiting Hall', '#0ea5e9');
+    PHSprites.roomSign(15.2, 1.1, 'Consultation Rooms 1–5', '#10b981');
+    PHSprites.roomSign(27.2, 1.1, 'CT & 3T MRI Scan Wing', '#38bdf8');
+    PHSprites.roomSign(6.0, 11.2, 'Hospital Ward 4A & 4B', '#0ea5e9');
+    PHSprites.roomSign(13.5, 11.2, 'Discharge Lounge', '#10b981');
+    PHSprites.roomSign(20.8, 11.2, 'Central Pharmacy', '#10b981');
+    PHSprites.roomSign(29.2, 11.2, 'IT & Booking Office', '#a855f7');
+    PHSprites.roomSign(13.5, 18.8, 'Main Hospital Entrance ↓', '#0ea5e9');
 
     PH.overlay(simState.showActionLabels);
-
-    if (upgradePulse > 0.01) {
-      const c = PH.S.ctx;
-      const center = PH.P(14, 11, 10);
-      const maxR = Math.max(PH.S.vpW, PH.S.vpH) * 0.9;
-      const curR = (1 - upgradePulse) * maxR;
-      c.save();
-      c.strokeStyle = upgradeMode === 'future' ? '#10b981' : '#ef4444';
-      c.lineWidth = 6 * upgradePulse;
-      c.globalAlpha = upgradePulse;
-      c.beginPath();
-      c.ellipse(center.x, center.y, curR, curR * 0.55, 0, 0, Math.PI * 2);
-      c.stroke();
-      c.restore();
-      upgradePulse *= 0.92;
-    }
   }
 
   return {
