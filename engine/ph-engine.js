@@ -51,9 +51,22 @@
     cam: { cx: 0, cy: 0, z: 1 }, ox: 0, oy: 0, t: 0,
     proj: { ax: TW / 2, ay: TH / 2, bx: -TW / 2, by: TH / 2 },
     map: null, cond: 'cur', bakes: {}, items: [], labels: [], wallsUp: false,
-    agentsPrev: new Map(), doorOpen: new Map(), agentsNow: []
+    agentsPrev: new Map(), doorOpen: new Map(), agentsNow: [],
+    lastFocus: null, userCamMoved: false
   };
-  const zoomMin = 0.32, zoomMax = 2.8;
+  const zoomMin = 0.24, zoomMax = 2.8;
+
+  function isCompactViewport() {
+    let inFrame = false;
+    try {
+      inFrame = typeof window !== 'undefined' && typeof window.self !== 'undefined' && typeof window.top !== 'undefined' && window.self !== window.top;
+    } catch (_) {
+      inFrame = true;
+    }
+    const narrowCanvas = !!(S.canvas && S.canvas.width > 0 && S.canvas.width < 1200);
+    const narrowVp = S.vpW > 0 && S.vpW < 1200;
+    return inFrame || narrowCanvas || narrowVp;
+  }
 
   // ------------------------------------------------------------- projection
   function P(gx, gy, gz) {
@@ -1140,82 +1153,126 @@
     return map[role] || 'Patient';
   }
   function nameplate(x, y, name, sub, role, sel) {
-    const c = S.ctx, s = Math.max(0.85, Math.min(1.15, S.cam.z));
+    const c = S.ctx, compact = isCompactViewport();
+    const s = compact ? Math.max(0.76, Math.min(0.90, S.cam.z)) : Math.max(0.85, Math.min(1.15, S.cam.z));
     const txt = name || roleName(role);
-    const nf = `700 ${Math.round(9.5 * s)}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+    const nf = `700 ${compact ? 9 : Math.round(9.5 * s)}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
     c.font = nf;
     const nw = c.measureText(txt).width;
-    const w = nw + 15 * s, h = 13.5 * s;
+    const w = nw + (compact ? 11 : 15 * s), h = compact ? 11.5 : 13.5 * s;
     const bx = x - w / 2, by = y;
     const dot = { doctor: '#38bdf8', nurse: '#10b981', radiographer: '#10b981', pharmacist: '#4ade80', reception: '#a855f7', concierge: '#a855f7', admin: '#a855f7', janitor: '#94a3b8', security: '#94a3b8' }[role] || '#f59e0b';
     c.fillStyle = 'rgba(9,13,22,0.88)';
     c.strokeStyle = sel ? '#38bdf8' : 'rgba(148,163,184,0.45)';
     c.lineWidth = sel ? 1.5 : 0.9;
-    c.beginPath(); c.roundRect(bx, by, w, h, 3.5 * s); c.fill(); c.stroke();
-    c.fillStyle = dot; c.beginPath(); c.arc(bx + 6 * s, by + h / 2, 2.5 * s, 0, 7); c.fill();
+    c.beginPath(); c.roundRect(bx, by, w, h, compact ? 3 : 3.5 * s); c.fill(); c.stroke();
+    c.fillStyle = dot; c.beginPath(); c.arc(bx + (compact ? 4.5 : 6 * s), by + h / 2, compact ? 2.0 : 2.5 * s, 0, 7); c.fill();
     c.font = nf; c.fillStyle = '#ffffff'; c.textAlign = 'left'; c.textBaseline = 'middle';
-    c.fillText(txt, bx + 11.5 * s, by + h / 2 + 0.5);
+    c.fillText(txt, bx + (compact ? 8.5 : 11.5 * s), by + h / 2 + 0.5);
+  }
+  function bubbleMetrics(text, prog) {
+    const c = S.ctx, compact = isCompactViewport();
+    const s = compact ? Math.max(0.76, Math.min(0.90, S.cam.z)) : Math.max(0.85, Math.min(1.15, S.cam.z));
+    c.font = `700 ${compact ? 9 : Math.round(8.5 * s)}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+    const hasRing = typeof prog === 'number' && prog >= 0;
+    const ringSpace = hasRing ? (compact ? 12 : 14 * s) : 0;
+    const w = c.measureText(text).width + (compact ? 7 : 10 * s) + ringSpace;
+    const h = compact ? 12 : 15 * s;
+    return { compact, s, hasRing, w, h };
   }
   function bubble(x, y, text, type, prog) {
-    const c = S.ctx, s = Math.max(0.85, Math.min(1.15, S.cam.z));
-    c.font = `700 ${Math.round(8.5 * s)}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
-    const hasRing = typeof prog === 'number' && prog >= 0;
-    const ringSpace = hasRing ? 14 * s : 0;
-    const w = c.measureText(text).width + 10 * s + ringSpace, h = 15 * s;
+    const c = S.ctx, { compact, s, hasRing, w, h } = bubbleMetrics(text, prog);
     const pal = { fail: ['#450a0a', '#ef4444', '#fecaca'], ok: ['#052e24', '#10b981', '#a7f3d0'], warn: ['#422006', '#f59e0b', '#fde68a'] }[type] || ['#0f172a', '#0ea5e9', '#e0f2fe'];
     const bx = x - w / 2, by = y - h;
     c.fillStyle = pal[0]; c.strokeStyle = pal[1]; c.lineWidth = 1.2;
-    c.beginPath(); c.roundRect(bx, by, w, h, 4 * s); c.fill(); c.stroke();
+    c.beginPath(); c.roundRect(bx, by, w, h, compact ? 3.5 : 4 * s); c.fill(); c.stroke();
     if (hasRing) {
-      const rx = bx + 8.5 * s, ry = by + h / 2, rad = 4.6 * s;
-      c.strokeStyle = 'rgba(255,255,255,0.22)'; c.lineWidth = 1.8 * s;
+      const rx = bx + (compact ? 6.5 : 8.5 * s), ry = by + h / 2, rad = compact ? 3.8 : 4.6 * s;
+      c.strokeStyle = 'rgba(255,255,255,0.22)'; c.lineWidth = compact ? 1.5 : 1.8 * s;
       c.beginPath(); c.arc(rx, ry, rad, 0, Math.PI * 2); c.stroke();
-      c.strokeStyle = pal[1]; c.lineWidth = 1.9 * s;
+      c.strokeStyle = pal[1]; c.lineWidth = compact ? 1.6 : 1.9 * s;
       c.beginPath(); c.arc(rx, ry, rad, -Math.PI / 2, -Math.PI / 2 + Math.min(1, Math.max(0.05, prog)) * Math.PI * 2); c.stroke();
       c.fillStyle = pal[2]; c.textAlign = 'left'; c.textBaseline = 'middle';
-      c.fillText(text, bx + 16 * s, ry + 0.5);
+      c.fillText(text, bx + (compact ? 12.5 : 16 * s), ry + 0.5);
     } else {
       c.fillStyle = pal[2]; c.textAlign = 'center'; c.textBaseline = 'middle';
       c.fillText(text, x, by + h / 2 + 0.5);
     }
+  }
+  function externalBubble(x, y, text, type, prog) {
+    const { w, h } = bubbleMetrics(text, prog);
+    if (!S.staticBubbles) S.staticBubbles = [];
+    S.staticBubbles.push({ x0: x - w / 2, y0: y - h, x1: x + w / 2, y1: y });
+    return bubble(x, y, text, type, prog);
+  }
+  function boxesHit(a, b, mx, my) {
+    return a.x1 + (mx || 0) > b.x0 && a.x0 - (mx || 0) < b.x1 && a.y1 + (my || 0) > b.y0 && a.y0 - (my || 0) < b.y1;
+  }
+  function overlapArea(a, b, mx, my) {
+    const ix = Math.max(0, Math.min(a.x1 + (mx || 0), b.x1) - Math.max(a.x0 - (mx || 0), b.x0));
+    const iy = Math.max(0, Math.min(a.y1 + (my || 0), b.y1) - Math.max(a.y0 - (my || 0), b.y0));
+    return ix * iy;
   }
   function drawLabels(showSub) {
     if (!showSub) return;
     S.labels.sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy));
     const placed = [];
     const placedBubbles = [];
-    const s = Math.max(0.85, Math.min(1.15, S.cam.z));
+    const compact = isCompactViewport();
+    const s = compact ? Math.max(0.76, Math.min(0.90, S.cam.z)) : Math.max(0.85, Math.min(1.15, S.cam.z));
     const c = S.ctx;
+    const npH = compact ? 11.5 : 13.5 * s;
+    const roomSigns = S.roomSigns || [];
+    const staticBubbles = S.staticBubbles || [];
     for (const L of S.labels) {
       const sp = L.spec;
       const foot = P(L.gx, L.gy, L.z);
       const shortRole = sp.label || roleName(sp.role);
+      c.font = `700 ${compact ? 9 : Math.round(9.5 * s)}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+      const halfW = (c.measureText(shortRole).width + (compact ? 11 : 15 * s)) / 2;
       let y = foot.y + 4 * S.cam.z;
-      for (const q of placed) if (Math.abs(q.x - foot.x) < 46 && Math.abs(q.y - y) < 15) y = q.y + 15;
-      placed.push({ x: foot.x, y });
-      nameplate(foot.x, y, shortRole, '', sp.role, sp.sel);
-      if (sp.bubble && (sp.sel || sp.showBubble)) {
-        const h = P(L.gx, L.gy, L.headZ + 5);
-        c.font = `700 ${Math.round(8.5 * s)}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
-        const hasRing = typeof sp.taskProg === 'number' && sp.taskProg >= 0;
-        const bw = c.measureText(sp.bubble).width + 10 * s + (hasRing ? 14 * s : 0);
-        const bh = 15 * s;
-        let by = h.y + (sp.bubbleOffsetY || 0);
-        if (S.roomSigns) {
-          for (const rs of S.roomSigns) {
-            if (h.x + bw / 2 > rs.x0 - 4 && h.x - bw / 2 < rs.x1 + 4 && by > rs.y0 - 3 && by - bh < rs.y1 + 4) {
-              by = Math.max(by, rs.y1 + bh + 5);
-            }
-          }
-        }
-        for (const pb of placedBubbles) {
-          if (Math.abs(pb.x - h.x) < (pb.w + bw) * 0.45 && by > pb.y - pb.h - 2 && by - bh < pb.y + 3) {
-            by = pb.y + bh + 4;
-          }
-        }
-        placedBubbles.push({ x: h.x, y: by, w: bw, h: bh });
-        bubble(h.x, by, sp.bubble, sp.bubbleType, sp.taskProg);
+      for (let g = 0; g < 12; g++) {
+        const box = { x0: foot.x - halfW, y0: y, x1: foot.x + halfW, y1: y + npH };
+        const hit = placed.find(q => boxesHit(box, q, 3, 1.5))
+          || staticBubbles.find(sb => boxesHit(box, sb, 2, 2))
+          || roomSigns.find(rs => boxesHit(box, rs, 2, 2));
+        if (!hit) break;
+        y = hit.y1 + 2;
       }
+      placed.push({ x0: foot.x - halfW, y0: y, x1: foot.x + halfW, y1: y + npH });
+      nameplate(foot.x, y, shortRole, '', sp.role, sp.sel);
+    }
+    for (const L of S.labels) {
+      const sp = L.spec;
+      if (!sp.bubble || (!sp.sel && !sp.showBubble)) continue;
+      const h = P(L.gx, L.gy, L.headZ + 5);
+      const { w: bw, h: bh } = bubbleMetrics(sp.bubble, sp.taskProg);
+      let baseY = h.y + (sp.bubbleOffsetY || 0);
+      for (const rs of roomSigns) {
+        if (h.x + bw / 2 > rs.x0 - 4 && h.x - bw / 2 < rs.x1 + 4 && baseY > rs.y0 - 3 && baseY - bh < rs.y1 + 4) {
+          baseY = Math.max(baseY, rs.y1 + bh + 5);
+        }
+      }
+      const step = bh + 3;
+      const dxOpts = compact ? [0, -36, 36, -72, 72] : [0, -32, 32, -64, 64];
+      const dyOpts = [0, -step, step, -2 * step, 2 * step, -3 * step, 3 * step, -4 * step, 4 * step];
+      let bestX = h.x, bestY = baseY, bestCost = Infinity;
+      outer: for (const dx of dxOpts) {
+        for (const dy of dyOpts) {
+          const cx = h.x + dx, cy = baseY + dy;
+          const cand = { x0: cx - bw / 2, y0: cy - bh, x1: cx + bw / 2, y1: cy };
+          let pen = 0;
+          for (const rs of roomSigns) pen += overlapArea(cand, rs, 3, 2) * 5;
+          for (const sb of staticBubbles) pen += overlapArea(cand, sb, 2, 2) * 4;
+          for (const pb of placedBubbles) pen += overlapArea(cand, pb, 2, 2) * 4;
+          for (const np of placed) pen += overlapArea(cand, np, 2, 2) * 3;
+          const cost = pen + Math.abs(dy) * 0.25 + Math.abs(dx) * 0.4;
+          if (pen === 0) { bestX = cx; bestY = cy; bestCost = 0; break outer; }
+          if (cost < bestCost) { bestCost = cost; bestX = cx; bestY = cy; }
+        }
+      }
+      placedBubbles.push({ x0: bestX - bw / 2, y0: bestY - bh, x1: bestX + bw / 2, y1: bestY });
+      bubble(bestX, bestY, sp.bubble, sp.bubbleType, sp.taskProg);
     }
   }
 
@@ -1292,7 +1349,7 @@
     window.addEventListener('mousemove', e => {
       if (!drag) return;
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-      if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true;
+      if (Math.abs(dx) + Math.abs(dy) > 4) { drag.moved = true; S.userCamMoved = true; }
       S.cam.cx = drag.cx - dx / S.cam.z; S.cam.cy = drag.cy - dy / S.cam.z;
     });
     window.addEventListener('mouseup', e => {
@@ -1309,8 +1366,8 @@
       else if (e.touches.length === 2) { drag = null; pinch = { d: Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY), z: S.cam.z }; }
     }, { passive: true });
     cv.addEventListener('touchmove', e => {
-      if (drag && e.touches.length === 1) { const dx = e.touches[0].clientX - drag.x, dy = e.touches[0].clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true; S.cam.cx = drag.cx - dx / S.cam.z; S.cam.cy = drag.cy - dy / S.cam.z; e.preventDefault(); }
-      else if (pinch && e.touches.length === 2) { const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); S.cam.z = Math.max(zoomMin, Math.min(zoomMax, pinch.z * d / pinch.d)); e.preventDefault(); }
+      if (drag && e.touches.length === 1) { const dx = e.touches[0].clientX - drag.x, dy = e.touches[0].clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 4) { drag.moved = true; S.userCamMoved = true; } S.cam.cx = drag.cx - dx / S.cam.z; S.cam.cy = drag.cy - dy / S.cam.z; e.preventDefault(); }
+      else if (pinch && e.touches.length === 2) { const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); S.userCamMoved = true; S.cam.z = Math.max(zoomMin, Math.min(zoomMax, pinch.z * d / pinch.d)); e.preventDefault(); }
     }, { passive: false });
     cv.addEventListener('touchend', e => {
       if (drag && !drag.moved && onClick && e.changedTouches[0]) { const r = cv.getBoundingClientRect(); onClick(e.changedTouches[0].clientX - r.left, e.changedTouches[0].clientY - r.top); }
@@ -1319,6 +1376,7 @@
     cv.style.cursor = 'grab';
   }
   function zoomAt(f, sx, sy) {
+    S.userCamMoved = true;
     updateOrigin();
     const before = { x: (sx - S.ox) / S.cam.z, y: (sy - S.oy) / S.cam.z };
     S.cam.z = Math.max(zoomMin, Math.min(zoomMax, S.cam.z * f));
@@ -1342,13 +1400,24 @@
     S.vpW = vp.clientWidth; S.vpH = vp.clientHeight;
     S.canvas.width = Math.round(S.vpW * S.dpr); S.canvas.height = Math.round(S.vpH * S.dpr);
     S.canvas.style.width = S.vpW + 'px'; S.canvas.style.height = S.vpH + 'px';
+    if (S.map && !S.userCamMoved) applyFit(S.lastFocus);
   }
-  function fit(focus) {
+  function applyFit(focus) {
     const b = focus || S.map.view || S.map.bounds;
     const wb = worldBounds(b);
     const w = wb.maxX - wb.minX, h = wb.maxY - wb.minY + 80;
     S.cam.z = Math.max(zoomMin, Math.min(1.6, Math.min(S.vpW / w, S.vpH / h) * 0.98));
     S.cam.cx = (wb.minX + wb.maxX) / 2; S.cam.cy = (wb.minY + wb.maxY) / 2 - 24;
+    if (isCompactViewport()) {
+      S.cam.z = Math.max(zoomMin, S.cam.z * 0.85);
+      S.cam.cy -= 55 / S.cam.z;
+    }
+    updateOrigin();
+  }
+  function fit(focus) {
+    S.lastFocus = focus || null;
+    S.userCamMoved = false;
+    applyFit(S.lastFocus);
   }
   function panTo(gx, gy, z) {
     const pr = S.proj;
@@ -1371,7 +1440,7 @@
     const bk = S.bakes[S.cond], z = S.cam.z;
     c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
     c.drawImage(bk.cv, S.ox + bk.wb.minX * z, S.oy + bk.wb.minY * z, bk.cv.width / BAKE * z, bk.cv.height / BAKE * z);
-    S.items = []; S.labels = []; S.agentsNow = []; S.roomSigns = [];
+    S.items = []; S.labels = []; S.agentsNow = []; S.roomSigns = []; S.staticBubbles = [];
   }
   function item(key, fn) { S.items.push({ key, draw: fn }); }
   function furniture(x, y, W, D, rot, builder, bias) {
@@ -1391,11 +1460,11 @@
 
   global.PH = {
     TW, TH, TEX, WALL_FULL, WALL_LOW,
-    S, P, shade, mix, rgba, mulberry, hashStr,
+    S, P, shade, mix, rgba, mulberry, hashStr, isCompactViewport,
     init, resize, fit, panTo, zoomAt, setCondition, invalidate, screenToGrid,
     begin, end, overlay, item, furniture, person, look, mapPose,
     box, topQuad, vquad, cyl, disc, blob, line3, poly, gridSpace, planeText, pattern, texCanvas,
-    drawPerson, drawLying, nameplate, bubble, kit, runParts,
+    drawPerson, drawLying, nameplate, bubble: externalBubble, kit, runParts,
     roleSpeed, stepAgentPhysics, formatShiftClock,
     get zoom() { return S.cam.z; }, set wallsUp(v) { S.wallsUp = !!v; }, get wallsUp() { return S.wallsUp; },
     get t() { return S.t; }, get cond() { return S.cond; }

@@ -98,7 +98,66 @@
     .cmp-strip.fut-state {
       color: #6ee7b7;
     }
+    @media (max-width: 1199px) {
+      .simple-switcher {
+        top: 6px;
+        padding: 4px 10px 5px;
+        gap: 3px;
+        max-width: calc(100vw - 16px);
+      }
+      .simple-title {
+        font-size: 0.64rem;
+      }
+      .simple-row {
+        gap: 4px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .mode-btn {
+        padding: 3px 11px;
+        font-size: 0.68rem;
+      }
+      .cmp-strip {
+        font-size: 9px;
+        padding: 0 4px;
+        white-space: normal;
+        text-align: center;
+        line-height: 1.2;
+      }
+    }
+    html.is-embed .simple-switcher {
+      top: 6px;
+      padding: 4px 10px 5px;
+      gap: 3px;
+      max-width: calc(100vw - 16px);
+    }
+    html.is-embed .simple-title {
+      font-size: 0.64rem;
+    }
+    html.is-embed .simple-row {
+      gap: 4px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    html.is-embed .mode-btn {
+      padding: 3px 11px;
+      font-size: 0.68rem;
+    }
+    html.is-embed .cmp-strip {
+      font-size: 9px;
+      padding: 0 4px;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.2;
+    }
   </style>
+  <script>
+    try {
+      if (window.self !== window.top) document.documentElement.classList.add('is-embed');
+    } catch (_) {
+      document.documentElement.classList.add('is-embed');
+    }
+  </script>
 </head>
 <body>
   <div class="simple-switcher">

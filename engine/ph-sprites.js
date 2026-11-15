@@ -703,12 +703,13 @@
 
   function roomSign(gx, gy, text, accent = '#0ea5e9') {
     const p = PH.P(gx, gy, PH.wallsUp ? 80 : 30);
-    const z = Math.max(0.85, Math.min(1.2, PH.zoom));
+    const compact = PH.isCompactViewport && PH.isCompactViewport();
+    const z = compact ? Math.max(0.76, Math.min(0.92, PH.zoom)) : Math.max(0.85, Math.min(1.2, PH.zoom));
     const c = PH.S.ctx;
     c.save();
-    c.font = `700 ${Math.round(9.5 * z)}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
-    const w = c.measureText(text).width + 14 * z;
-    const h = 16 * z;
+    c.font = `700 ${compact ? 9 : Math.round(9.5 * z)}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+    const w = c.measureText(text).width + (compact ? 9 : 14 * z);
+    const h = compact ? 13 : 16 * z;
     if (PH.S.roomSigns) {
       PH.S.roomSigns.push({ x0: p.x - w / 2, y0: p.y - h / 2, x1: p.x + w / 2, y1: p.y + h / 2, text });
     }
