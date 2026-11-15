@@ -15,55 +15,57 @@
 // ============================================================================
 
 const IsoRenderer = (() => {
-  const GRID_W = 38;
+  const GRID_W = 41;
   const GRID_H = 21;
 
   const MAP = {
     proj: { ax: 40, ay: 2, bx: -10, by: 28 },
-    bounds: { x0: 0.5, y0: 0.5, x1: 37.5, y1: 20.6 },
-    view: { x0: 0.5, y0: 0.5, x1: 37.5, y1: 20.6 },
+    bounds: { x0: 0.5, y0: 0.3, x1: 40.5, y1: 20.6 },
+    view: { x0: 0.5, y0: 0.3, x1: 40.5, y1: 20.6 },
     ground: [
       // ---------------- BUILDING 1 (LEFT: PARTNER HOSPITAL, x: 1..15, y: 1..16)
       { x: 1, y: 1, w: 7, d: 5.5, mat: 'linoBlue' },             // Ward A (Acute Inpatient)
-      { x: 8, y: 1, w: 7, d: 5.5, mat: 'linoMint' },             // Ward B (Step-Down Prep)
+      { x: 8, y: 1, w: 7, d: 5.5, mat: 'linoMint' },             // Discharge Ward B
       { x: 1, y: 6.5, w: 14, d: 2.0, mat: 'terrazzo' },          // Hospital Central Corridor
       { x: 1, y: 8.5, w: 4.8, d: 7.5, mat: 'ceramic' },          // Discharge Pharmacy
       { x: 5.8, y: 8.5, w: 5.0, d: 7.5, mat: 'linoWhite' },      // Billing & Insurance Hall
       { x: 10.8, y: 8.5, w: 4.2, d: 7.5, mat: 'carpetTeal' },    // Departure & Main Entrance Lobby
 
-      // ---------------- BUILDING 2 (RIGHT: RETREAT CENTRE, x: 23..37, y: 1..16)
-      // Current State: empty undeveloped lot (no step-down retreat exists yet)
-      { x: 23, y: 1, w: 14, d: 15, mat: { cur: 'grass', fut: null } },
-      // Target State: retreat village is built
-      { x: 23, y: 1, w: 5.2, d: 5.5, mat: { cur: null, fut: 'ceramicBlue' } },       // VISITING MD CLINIC
-      { x: 28.2, y: 1, w: 4.3, d: 5.5, mat: { cur: null, fut: 'linoBlue' } },        // Nurse Triage
-      { x: 32.5, y: 1, w: 4.5, d: 7.5, mat: { cur: null, fut: 'ceramicCream' } },    // HYDROTHERAPY POOL Deck
-      { x: 33.0, y: 1.7, w: 3.5, d: 5.6, mat: { cur: null, fut: 'water' } },         // HYDROTHERAPY POOL Water
-      { x: 23, y: 6.5, w: 9.5, d: 2.0, mat: { cur: null, fut: 'marble' } },          // Retreat Promenade
-      { x: 23, y: 8.5, w: 4.8, d: 7.5, mat: { cur: null, fut: 'marble' } },          // Retreat Reception
-      { x: 27.8, y: 8.5, w: 4.7, d: 7.5, mat: { cur: null, fut: 'travertine' } },    // RECOVERY SUITE 301 & 302
-      { x: 31.3, y: 8.5, w: 1.2, d: 7.5, mat: { cur: null, fut: 'ceramic' } },       // En-Suite Bathroom Zone
-      { x: 32.5, y: 8.5, w: 4.5, d: 7.5, mat: { cur: null, fut: 'ceramicCream' } },  // THERAPEUTIC DINING
+      // ---------------- RIGHT SITE: UNDEVELOPED LOT (Current) -> RESORT GARDEN PARK + LUXURY PAVILION (Target)
+      { x: 18.6, y: 0.6, w: 21.7, d: 16.0, mat: 'grass' },       // Undeveloped Grass (Cur) / Landscaped Resort Lawn (Fut)
+
+      // RESORT GARDEN PARK Stone Footpaths & Central Fountain Courtyard (Target Only)
+      { x: 20.0, y: 1.1, w: 1.4, d: 14.9, mat: { cur: null, fut: 'paver' } },      // West Garden Promenade Path
+      { x: 19.2, y: 6.3, w: 3.8, d: 3.9, mat: { cur: null, fut: 'travertine' } },  // Central Fountain Courtyard Plaza
+      { x: 20.0, y: 1.1, w: 19.2, d: 1.2, mat: { cur: null, fut: 'paver' } },      // North Garden Walk
+      { x: 37.8, y: 1.1, w: 1.4, d: 14.9, mat: { cur: null, fut: 'paver' } },      // East Park Terrace Walk
+      { x: 37.0, y: 4.1, w: 0.9, d: 1.4, mat: { cur: null, fut: 'travertine' } },  // Movement Studio Garden Patio
+      { x: 37.0, y: 11.7, w: 0.9, d: 1.4, mat: { cur: null, fut: 'travertine' } }, // Fine-Dining Garden Terrace Patio
+
+      // BUILDING 2 (LUXURY WELLNESS RESORT PAVILION, x: 23..37, y: 2.6..16) — ZERO HOSPITAL WARD BEDS
+      { x: 23.0, y: 2.6, w: 4.0, d: 4.2, mat: { cur: null, fut: 'ceramicBlue' } },  // ONLY 1 Medical Room: MONTHLY VISITING MD ROOM
+      { x: 27.0, y: 2.6, w: 5.0, d: 4.2, mat: { cur: null, fut: 'travertine' } },   // THERMAL SPA & MASSAGE
+      { x: 32.0, y: 2.6, w: 5.0, d: 4.2, mat: { cur: null, fut: 'oak' } },          // WELLNESS & MOVEMENT CLASS
+      { x: 23.0, y: 6.8, w: 14.0, d: 2.0, mat: { cur: null, fut: 'marble' } },      // Resort Central Marble Promenade
+      { x: 23.0, y: 8.8, w: 6.8, d: 7.2, mat: { cur: null, fut: 'carpetBeige' } },  // EVENTS & SOCIAL LOUNGE
+      { x: 29.8, y: 8.8, w: 7.2, d: 7.2, mat: { cur: null, fut: 'ceramicCream' } }, // FINE-DINING RESTAURANT
 
       // ---------------- FRONT WALKWAY & CONCIERGE TRANSPORT ROAD (y: 16..20.4)
       { x: 1, y: 16.0, w: 14, d: 0.6, mat: 'paver' },            // Hospital Front Entrance Apron
-      { x: 23, y: 16.0, w: 14, d: 0.6, mat: { cur: 'grass', fut: 'paver' } }, // Retreat Front Entrance Apron
-      { x: 1, y: 16.6, w: 36, d: 3.8, mat: 'asphalt' }           // Horizontal Left<->Right Road
+      { x: 20.0, y: 16.0, w: 19.2, d: 0.6, mat: { cur: 'grass', fut: 'paver' } }, // Luxury Resort & Park Apron
+      { x: 1, y: 16.6, w: 39.3, d: 3.8, mat: 'asphalt' }           // Horizontal Left<->Right Road
     ],
     decals: [
       // Hospital corridor wayfinding line
       { type: 'line', x1: 1.5, y1: 7.5, x2: 14.5, y2: 7.5, w: 0.10, col: '#0ea5e9' },
-      // Retreat promenade wayfinding line
-      { type: 'line', x1: 23.5, y1: 7.5, x2: 32.2, y2: 7.5, w: 0.10, col: '#10b981', when: 'fut' },
+      // Resort marble promenade accent trim
+      { type: 'line', x1: 23.4, y1: 7.8, x2: 36.6, y2: 7.8, w: 0.10, col: '#10b981', when: 'fut' },
       // Road center divider (Left <-> Right)
-      { type: 'line', x1: 1.5, y1: 18.5, x2: 36.5, y2: 18.5, w: 0.09, col: 'rgba(250,204,21,0.75)', dash: [0.6, 0.4] },
+      { type: 'line', x1: 1.5, y1: 18.5, x2: 39.5, y2: 18.5, w: 0.09, col: 'rgba(250,204,21,0.75)', dash: [0.6, 0.4] },
       // Hospital Main Entrance Pick-Up Bay (Facing Down at x: 11.2..14.2, y: 16.7..18.2)
       { type: 'hatch', x: 11.2, y: 16.7, w: 3.0, d: 1.5, col: 'rgba(14,165,233,0.65)' },
-      // Retreat Main Entrance Drop-Off Bay (Facing Down at x: 23.8..26.8, y: 16.7..18.2)
-      { type: 'hatch', x: 23.8, y: 16.7, w: 3.0, d: 1.5, col: 'rgba(16,185,129,0.65)', when: 'fut' },
-      // Pool lane lines
-      { type: 'line', x1: 34.2, y1: 1.9, x2: 34.2, y2: 7.1, w: 0.06, col: 'rgba(224,242,254,0.65)', when: 'fut' },
-      { type: 'line', x1: 35.4, y1: 1.9, x2: 35.4, y2: 7.1, w: 0.06, col: 'rgba(224,242,254,0.65)', when: 'fut' }
+      // Luxury Resort VIP Drop-Off Bay (Facing Down at x: 23.8..26.8, y: 16.7..18.2)
+      { type: 'hatch', x: 23.8, y: 16.7, w: 3.0, d: 1.5, col: 'rgba(212,175,55,0.72)', when: 'fut' }
     ],
     walls: [
       // BUILDING 1 (LEFT — PARTNER HOSPITAL, x: 1..15, y: 1..16)
@@ -79,22 +81,19 @@ const IsoRenderer = (() => {
       { x1: 5.8, y1: 8.5, x2: 5.8, y2: 16, kind: 'int', col: '#cbd5e1', open: [{ at: 11.5, w: 1.4, type: 'door' }] },
       { x1: 10.8, y1: 8.5, x2: 10.8, y2: 16, kind: 'glass', col: '#cbd5e1', open: [{ at: 11.5, w: 1.5, type: 'slide' }] },
 
-      // BUILDING 2 (RIGHT — RETREAT CENTRE, x: 23..37, y: 1..16) — Crisp White Walls & Glass Dividers
-      { when: 'fut', x1: 23, y1: 1, x2: 37, y2: 1, kind: 'ext', col: '#f8fafc', windows: true },
-      { when: 'fut', x1: 23, y1: 1, x2: 23, y2: 16, kind: 'ext', col: '#f8fafc', windows: true },
-      { when: 'fut', x1: 37, y1: 1, x2: 37, y2: 16, kind: 'ext', col: '#f8fafc', windows: true },
-      // Building 2 Bottom Front Wall (y = 16) — MAIN ENTRANCE FACING DOWN at x = 24.2..26.6
-      { when: 'fut', x1: 23, y1: 16, x2: 37, y2: 16, kind: 'ext', col: '#f8fafc', windows: true, open: [{ at: 24.2, w: 2.4, type: 'slide', alwaysOpen: true }] },
-      // Building 2 Interior Crisp White & Glass Dividers
-      { when: 'fut', x1: 28.2, y1: 1, x2: 28.2, y2: 6.5, kind: 'glass', open: [{ at: 3.2, w: 1.3, type: 'door' }] },
-      { when: 'fut', x1: 32.5, y1: 1, x2: 32.5, y2: 16, kind: 'glass', open: [{ at: 4.5, w: 1.4, type: 'slide' }, { at: 11.5, w: 1.5, type: 'slide' }] },
-      { when: 'fut', x1: 23, y1: 6.5, x2: 32.5, y2: 6.5, kind: 'glass', open: [{ at: 25.0, w: 1.5, type: 'door' }, { at: 29.8, w: 1.5, type: 'door' }] },
-      { when: 'fut', x1: 23, y1: 8.5, x2: 37, y2: 8.5, kind: 'glass', col: '#f8fafc', open: [{ at: 25.3, w: 1.6, type: 'slide' }, { at: 29.8, w: 1.3, type: 'door' }, { at: 34.2, w: 1.5, type: 'slide' }] },
-      { when: 'fut', x1: 27.8, y1: 8.5, x2: 27.8, y2: 16, kind: 'glass', col: '#f8fafc', open: [{ at: 10.2, w: 1.3, type: 'door' }, { at: 13.8, w: 1.3, type: 'door' }] },
-      // Crisp White Suite Divider (Suite 301 vs Suite 302)
-      { when: 'fut', x1: 27.8, y1: 12.2, x2: 32.5, y2: 12.2, kind: 'int', col: '#f8fafc' },
-      // En-Suite Bathroom Partition & En-Suite Bathroom Doors inside Recovery Suites
-      { when: 'fut', x1: 31.3, y1: 8.5, x2: 31.3, y2: 16, kind: 'int', col: '#f8fafc', open: [{ at: 10.6, w: 0.95, type: 'door', col: '#e2e8f0' }, { at: 14.4, w: 0.95, type: 'door', col: '#e2e8f0' }] }
+      // BUILDING 2 (RIGHT — LUXURY WELLNESS RESORT PAVILION, x: 23..37, y: 2.6..16)
+      { when: 'fut', x1: 23, y1: 2.6, x2: 37, y2: 2.6, kind: 'ext', col: '#faf8f5', windows: true },
+      { when: 'fut', x1: 23, y1: 2.6, x2: 23, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 7.1, w: 1.5, type: 'slide', alwaysOpen: true }] },
+      { when: 'fut', x1: 37, y1: 2.6, x2: 37, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 4.1, w: 1.4, type: 'slide', alwaysOpen: true }, { at: 11.7, w: 1.5, type: 'slide', alwaysOpen: true }] },
+      { when: 'fut', x1: 23, y1: 16, x2: 37, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 24.4, w: 2.4, type: 'slide', alwaysOpen: true }] },
+      // Top Wing Dividers: Monthly Visiting MD Room | Thermal Spa & Massage | Wellness & Movement Class
+      { when: 'fut', x1: 27, y1: 2.6, x2: 27, y2: 6.8, kind: 'int', col: '#e2e8f0' },
+      { when: 'fut', x1: 32, y1: 2.6, x2: 32, y2: 6.8, kind: 'glass', col: '#cbd5e1' },
+      // Resort Central Promenade Walls (Corridor y: 6.8..8.8)
+      { when: 'fut', x1: 23, y1: 6.8, x2: 37, y2: 6.8, kind: 'glass', col: '#f8fafc', open: [{ at: 24.4, w: 1.5, type: 'door' }, { at: 28.8, w: 1.6, type: 'slide' }, { at: 33.8, w: 1.8, type: 'slide' }] },
+      { when: 'fut', x1: 23, y1: 8.8, x2: 37, y2: 8.8, kind: 'glass', col: '#f8fafc', open: [{ at: 24.8, w: 1.8, type: 'slide' }, { at: 32.6, w: 1.8, type: 'slide' }] },
+      // Bottom Wing Divider: Events & Social Lounge | Fine-Dining Restaurant
+      { when: 'fut', x1: 29.8, y1: 8.8, x2: 29.8, y2: 16, kind: 'glass', col: '#e2e8f0', open: [{ at: 11.8, w: 1.8, type: 'slide', alwaysOpen: true }] }
     ]
   };
 
@@ -121,30 +120,31 @@ const IsoRenderer = (() => {
 
   function triggerUpgradePulse() {}
 
-  // Isometric White-and-Emerald Luxury Medical Concierge Van (Windshield, Medical Cross, Wheels, Open Rear Ramp)
-  function drawLuxuryConciergeVan(gx, gy, opts = {}) {
-    const dirX = opts.dirX || 1; // +1 Left->Right toward Retreat, -1 returning to Hospital
+  // Current Mode: Detailed Isometric Emergency Ambulance (Box Body, Red/Orange Stripe, Flashing Red/Blue Lightbar, Rear Double Doors)
+  function drawEmergencyAmbulance(gx, gy, opts = {}) {
+    const dirX = opts.dirX || 1;
     const openDoor = !!opts.openDoor;
-    const label = opts.label || 'Luxury Medical Concierge Van';
-    const len = 2.55;
-    const wid = 1.14;
+    const label = opts.label || 'Ambulance → Hospital ED';
+    const len = 2.62;
+    const wid = 1.18;
 
     PH.item(gx + gy + 1.65, () => {
-      const bounce = openDoor ? 0 : Math.sin(PH.t * 0.35) * 0.35;
+      const bounce = openDoor ? 0 : Math.sin(PH.t * 0.42) * 0.3;
       const c = PH.S.ctx;
       const z = PH.zoom;
+      const flashA = Math.floor(PH.t / 5) % 2 === 0;
 
       // Ground drop shadow
       const sp = PH.P(gx + len / 2, gy + wid / 2, 0);
-      c.fillStyle = 'rgba(9,13,22,0.46)';
+      c.fillStyle = 'rgba(9,13,22,0.48)';
       c.beginPath();
-      c.ellipse(sp.x, sp.y, 31 * z, 15 * z, 0.38, 0, Math.PI * 2);
+      c.ellipse(sp.x, sp.y, 32 * z, 15.5 * z, 0.38, 0, Math.PI * 2);
       c.fill();
 
-      // Headlight beam ahead of cab
+      // Headlight beam ahead of ambulance cab
       const frontX = dirX > 0 ? gx + len : gx;
       const beamX = dirX > 0 ? gx + len + 1.7 : gx - 1.7;
-      const h0 = PH.P(frontX, gy + wid / 2, 3.2);
+      const h0 = PH.P(frontX, gy + wid / 2, 3.4);
       const bT = PH.P(beamX, gy + 0.08, 0.2);
       const bB = PH.P(beamX, gy + wid - 0.08, 0.2);
       c.save();
@@ -157,102 +157,409 @@ const IsoRenderer = (() => {
       c.fill();
       c.restore();
 
-      // Deployed rear hydraulic wheelchair ramp & twin open rear doors when loading/unloading
+      // Rear Double Doors (Framed shut when moving; swung open with ED gurney bay at entrance)
       const rearX = dirX > 0 ? gx : gx + len;
+      const boxLen = len - 0.72;
+      const boxX = dirX > 0 ? gx : gx + 0.72;
+      const cabX = dirX > 0 ? gx + boxLen : gx;
+
       if (openDoor) {
-        const rampX0 = dirX > 0 ? gx - 0.85 : gx + len + 0.05;
-        PH.topQuad(rampX0, gy + 0.16, 0.25, 0.85, 0.82, '#cbd5e1', { stroke: '#10b981' });
-        PH.box(rampX0, gy + 0.12, 0.35, 0.85, 0.08, 1.4, '#10b981');
-        PH.box(rampX0, gy + 0.94, 0.35, 0.85, 0.08, 1.4, '#10b981');
-        // Swung-open twin rear doors
-        PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy - 0.18, 2.8, 0.12, 0.44, 12.2, '#f8fafc');
-        PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy + wid - 0.26, 2.8, 0.12, 0.44, 12.2, '#10b981');
-        // Apron curb bridge up toward Main Entrance door
-        PH.box(gx + 0.65, gy - 0.48, 0.35, 0.90, 0.48, 1.1, '#10b981');
+        const rampX0 = dirX > 0 ? gx - 0.78 : gx + len + 0.04;
+        PH.topQuad(rampX0, gy + 0.18, 0.25, 0.74, 0.80, '#cbd5e1', { stroke: '#ef4444' });
+        PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy - 0.20, 4.0, 0.12, 0.50, 12.6, '#ffffff');
+        PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy + wid - 0.30, 4.0, 0.12, 0.50, 12.6, '#f8fafc');
+        PH.box(rearX - (dirX > 0 ? 0.14 : 0), gy - 0.18, 6.2, 0.10, 0.46, 2.2, '#dc2626');
+        PH.box(rearX - (dirX > 0 ? 0.14 : 0), gy + wid - 0.28, 6.2, 0.10, 0.46, 2.2, '#dc2626');
       }
 
-      // Main Luxury Van Lower Rocker Skirt
+      // Chassis skirt & bumpers
       PH.box(gx, gy, 2.0 + bounce, len, wid, 2.2, '#1e293b');
-      // Crisp White High-Roof Cabin & Nose
-      const cabinX = dirX > 0 ? gx : gx + 0.58;
-      const cabX = dirX > 0 ? gx + len - 0.58 : gx;
-      PH.box(cabinX, gy, 4.2 + bounce, len - 0.58, wid, 12.6, '#ffffff');
-      PH.box(cabX, gy + 0.03, 4.2 + bounce, 0.58, wid - 0.06, 6.2, '#f8fafc');
+      // Square White Box-Ambulance Patient Module + Raised HVAC Roof Pod
+      PH.box(boxX, gy, 4.2 + bounce, boxLen, wid, 13.6, '#ffffff');
+      PH.box(boxX + 0.35, gy + 0.18, 17.8 + bounce, boxLen - 0.7, wid - 0.36, 1.4, '#e2e8f0');
+      // Forward Step-Down Cab & Sloped Nose Hood
+      PH.box(cabX, gy + 0.04, 4.2 + bounce, 0.72, wid - 0.08, 7.6, '#f8fafc');
+      PH.box(cabX + (dirX > 0 ? 0.02 : 0.26), gy + 0.06, 9.6 + bounce, 0.44, wid - 0.12, 5.2, '#ffffff');
 
-      // Emerald Green Wraparound Livery Stripe & Roofline Trim
-      PH.box(gx + 0.02, gy - 0.01, 6.0 + bounce, len - 0.04, wid + 0.02, 2.4, '#10b981');
-      PH.box(cabinX + 0.04, gy - 0.01, 14.8 + bounce, len - 0.66, wid + 0.02, 1.8, '#059669');
-      // Emerald Clinical Beacon Lightbar on roof
-      PH.box(gx + 0.72, gy + 0.26, 16.8 + bounce, 1.05, 0.62, 2.0, '#10b981');
-      PH.box(gx + 0.92, gy + 0.34, 17.6 + bounce, 0.65, 0.46, 1.0, '#6ee7b7');
+      // High-Visibility Red & Safety-Orange Dual Wraparound Stripe
+      PH.box(boxX - 0.01, gy - 0.01, 6.0 + bounce, boxLen + 0.02, wid + 0.02, 2.2, '#dc2626');
+      PH.box(boxX - 0.01, gy - 0.01, 8.2 + bounce, boxLen + 0.02, wid + 0.02, 0.95, '#f97316');
+      PH.box(cabX, gy + 0.03, 6.0 + bounce, 0.72, wid - 0.06, 1.4, '#dc2626');
 
-      // Panoramic Smoked Side Cabin Windows
-      PH.box(cabinX + 0.24, gy - 0.01, 9.8 + bounce, len - 1.05, wid + 0.02, 4.2, '#0284c7', { alpha: 0.68 });
+      // Visible Vertical Rear Double-Door Frame & Chrome Handles when closed
+      const rdFaceX = dirX > 0 ? rearX - 0.02 : rearX + 0.01;
+      if (!openDoor) {
+        PH.line3(rdFaceX, gy + wid * 0.5, 4.4 + bounce, rdFaceX, gy + wid * 0.5, 16.8 + bounce, '#475569', 2.0);
+        PH.box(rdFaceX - 0.02, gy + 0.12, 4.4 + bounce, 0.05, 0.24, 12.0, '#f97316');
+        PH.box(rdFaceX - 0.02, gy + wid - 0.36, 4.4 + bounce, 0.05, 0.24, 12.0, '#f97316');
+      }
 
-      // Sloped 3D Front Windshield & Front Chrome Grille / Headlights
-      const wBotX = dirX > 0 ? cabX + 0.14 : cabX + 0.44;
-      const wTopX = dirX > 0 ? cabinX + len - 0.58 : cabinX;
+      // Flashing Red & Blue Emergency Roof Lightbar (Cab Brow + Box Rear Strobe)
+      const lbX = dirX > 0 ? cabX + 0.04 : cabX + 0.40;
+      PH.box(lbX, gy + 0.18, 15.0 + bounce, 0.26, wid - 0.36, 2.0, '#334155');
+      PH.box(lbX, gy + 0.20, 15.3 + bounce, 0.26, 0.34, 1.8, flashA ? '#ef4444' : '#7f1d1d');
+      PH.box(lbX, gy + wid - 0.54, 15.3 + bounce, 0.26, 0.34, 1.8, flashA ? '#1e3a8a' : '#3b82f6');
+      // Soft flashing glow halos
+      const glowA = PH.P(lbX + 0.13, gy + 0.36, 16.5 + bounce);
+      const glowB = PH.P(lbX + 0.13, gy + wid - 0.36, 16.5 + bounce);
+      c.save();
+      c.fillStyle = flashA ? 'rgba(239,68,68,0.42)' : 'rgba(59,130,246,0.42)';
+      const gp = flashA ? glowA : glowB;
+      c.beginPath(); c.arc(gp.x, gp.y, 9.5 * z, 0, Math.PI * 2); c.fill();
+      c.restore();
+
+      // Rear Roof Corner Strobe Pod
+      PH.box(boxX + (dirX > 0 ? 0.12 : boxLen - 0.34), gy + 0.22, 17.8 + bounce, 0.22, 0.22, 1.3, flashA ? '#3b82f6' : '#ef4444');
+
+      // Sloped Cab Windshield & Side Cab Window
+      const wBotX = dirX > 0 ? cabX + 0.54 : cabX + 0.18;
+      const wTopX = dirX > 0 ? cabX + 0.26 : cabX + 0.46;
       PH.poly([
-        PH.P(wBotX, gy + 0.08, 10.3 + bounce),
-        PH.P(wBotX, gy + wid - 0.08, 10.3 + bounce),
-        PH.P(wTopX, gy + wid - 0.08, 15.8 + bounce),
-        PH.P(wTopX, gy + 0.08, 15.8 + bounce)
+        PH.P(wBotX, gy + 0.10, 9.8 + bounce),
+        PH.P(wBotX, gy + wid - 0.10, 9.8 + bounce),
+        PH.P(wTopX, gy + wid - 0.10, 14.5 + bounce),
+        PH.P(wTopX, gy + 0.10, 14.5 + bounce)
       ], '#38bdf8', '#0284c7', 1.2);
-      // White windshield glare highlight
-      PH.poly([
-        PH.P(wBotX, gy + 0.18, 10.8 + bounce),
-        PH.P(wBotX, gy + 0.42, 10.8 + bounce),
-        PH.P(wTopX, gy + 0.42, 15.2 + bounce),
-        PH.P(wTopX, gy + 0.18, 15.2 + bounce)
-      ], 'rgba(255,255,255,0.45)');
+      // Cab side window
+      PH.box(cabX + (dirX > 0 ? 0.08 : 0.32), gy + 0.02, 10.2 + bounce, 0.32, wid - 0.04, 3.6, '#1e293b', { alpha: 0.78 });
 
-      // Headlights & Emerald Chrome Grille on front nose
+      // Front Bumper Grille + Headlights
       const noseX = dirX > 0 ? gx + len + 0.01 : gx - 0.01;
-      for (const hy of [gy + 0.18, gy + wid - 0.22]) {
+      for (const hy of [gy + 0.20, gy + wid - 0.24]) {
         const hp = PH.P(noseX, hy, 5.2 + bounce);
         c.fillStyle = '#fef08a';
         c.beginPath(); c.arc(hp.x, hp.y, 2.8 * z, 0, Math.PI * 2); c.fill();
       }
+      PH.line3(noseX, gy + 0.32, 5.2 + bounce, noseX, gy + wid - 0.32, 5.2 + bounce, '#94a3b8', 2.2);
 
-      // Medical Cross Emblem on near side panel (white circular/square medallion + crisp emerald/red cross)
-      const mx = cabinX + (len - 0.58) * 0.52;
+      // Bold Red Medical Cross on Near Side Box Panel
+      const mx = boxX + boxLen * 0.52;
       const my = gy + wid + 0.03;
-      const mz = 9.0 + bounce;
+      const mz = 12.6 + bounce;
       PH.poly([
-        PH.P(mx - 0.28, my, mz - 3.6),
-        PH.P(mx + 0.28, my, mz - 3.6),
-        PH.P(mx + 0.28, my, mz + 3.6),
-        PH.P(mx - 0.28, my, mz + 3.6)
-      ], '#ffffff', '#10b981', 1.2);
-      // Cross vertical bar
+        PH.P(mx - 0.30, my, mz - 3.8),
+        PH.P(mx + 0.30, my, mz - 3.8),
+        PH.P(mx + 0.30, my, mz + 3.8),
+        PH.P(mx - 0.30, my, mz + 3.8)
+      ], '#ffffff', '#dc2626', 1.2);
       PH.poly([
-        PH.P(mx - 0.07, my, mz - 2.6),
-        PH.P(mx + 0.07, my, mz - 2.6),
-        PH.P(mx + 0.07, my, mz + 2.6),
-        PH.P(mx - 0.07, my, mz + 2.6)
-      ], '#10b981');
-      // Cross horizontal bar
+        PH.P(mx - 0.08, my, mz - 2.8),
+        PH.P(mx + 0.08, my, mz - 2.8),
+        PH.P(mx + 0.08, my, mz + 2.8),
+        PH.P(mx - 0.08, my, mz + 2.8)
+      ], '#dc2626');
       PH.poly([
-        PH.P(mx - 0.21, my, mz - 0.9),
-        PH.P(mx + 0.21, my, mz - 0.9),
-        PH.P(mx + 0.21, my, mz + 0.9),
-        PH.P(mx - 0.21, my, mz + 0.9)
-      ], '#10b981');
+        PH.P(mx - 0.22, my, mz - 0.95),
+        PH.P(mx + 0.22, my, mz - 0.95),
+        PH.P(mx + 0.22, my, mz + 0.95),
+        PH.P(mx - 0.22, my, mz + 0.95)
+      ], '#dc2626');
 
-      // Detailed Wheels on near axle side (gy + wid)
-      for (const wx of [gx + 0.52, gx + len - 0.54]) {
+      // Detailed Steel Wheels with Red Center Hubcap
+      for (const wx of [gx + 0.54, gx + len - 0.46]) {
         const wp = PH.P(wx, gy + wid, 2.5);
         c.fillStyle = '#090d16';
-        c.beginPath(); c.arc(wp.x, wp.y, 5.5 * z, 0, Math.PI * 2); c.fill();
-        c.fillStyle = '#e2e8f0';
-        c.beginPath(); c.arc(wp.x, wp.y, 2.8 * z, 0, Math.PI * 2); c.fill();
-        c.fillStyle = '#10b981';
-        c.beginPath(); c.arc(wp.x, wp.y, 1.2 * z, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.arc(wp.x, wp.y, 5.6 * z, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#cbd5e1';
+        c.beginPath(); c.arc(wp.x, wp.y, 3.0 * z, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#dc2626';
+        c.beginPath(); c.arc(wp.x, wp.y, 1.3 * z, 0, Math.PI * 2); c.fill();
       }
 
-      // Floating concierge status badge above van roof
+      // Floating EMS dispatch badge
+      const tp = PH.P(gx + len / 2, gy + wid / 2, 27 + bounce);
+      PH.bubble(tp.x, tp.y, label, 'fail');
+    });
+  }
+
+  // Target Mode: Upgraded Pearl-White & Champagne-Gold Luxury Executive Concierge Van
+  // Panoramic tinted windows, chrome grille, warm LED headlights, discreet wellness crest & automated side/rear wheelchair ramp
+  function drawLuxuryConciergeVan(gx, gy, opts = {}) {
+    const dirX = opts.dirX || 1;
+    const openDoor = !!opts.openDoor;
+    const label = opts.label || 'Executive Concierge Shuttle';
+    const len = 2.70;
+    const wid = 1.18;
+
+    PH.item(gx + gy + 1.65, () => {
+      const bounce = openDoor ? 0 : Math.sin(PH.t * 0.35) * 0.32;
+      const c = PH.S.ctx;
+      const z = PH.zoom;
+
+      // Ground drop shadow
+      const sp = PH.P(gx + len / 2, gy + wid / 2, 0);
+      c.fillStyle = 'rgba(9,13,22,0.46)';
+      c.beginPath();
+      c.ellipse(sp.x, sp.y, 33 * z, 15.5 * z, 0.38, 0, Math.PI * 2);
+      c.fill();
+
+      // Warm Golden-White LED Headlight Beam
+      const frontX = dirX > 0 ? gx + len : gx;
+      const beamX = dirX > 0 ? gx + len + 1.9 : gx - 1.9;
+      const h0 = PH.P(frontX, gy + wid / 2, 3.4);
+      const bT = PH.P(beamX, gy + 0.06, 0.2);
+      const bB = PH.P(beamX, gy + wid - 0.06, 0.2);
+      c.save();
+      c.fillStyle = 'rgba(254, 240, 138, 0.26)';
+      c.beginPath();
+      c.moveTo(h0.x, h0.y);
+      c.lineTo(bT.x, bT.y);
+      c.lineTo(bB.x, bB.y);
+      c.closePath();
+      c.fill();
+      c.restore();
+
+      const rearX = dirX > 0 ? gx : gx + len;
+      const cabinX = dirX > 0 ? gx : gx + 0.60;
+      const cabX = dirX > 0 ? gx + len - 0.60 : gx;
+
+      // Automated Hydraulic Side & Rear Wheelchair Boarding Ramps when loading/unloading
+      if (openDoor) {
+        // Automated Rear Hydraulic Wheelchair Platform Lift
+        const rampX0 = dirX > 0 ? gx - 0.85 : gx + len + 0.05;
+        PH.topQuad(rampX0, gy + 0.16, 0.25, 0.84, 0.84, '#e2e8f0', { stroke: '#d4af37' });
+        PH.box(rampX0, gy + 0.12, 0.35, 0.84, 0.08, 1.5, '#d4af37');
+        PH.box(rampX0, gy + 0.96, 0.35, 0.84, 0.08, 1.5, '#d4af37');
+        PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy - 0.18, 3.2, 0.12, 0.45, 12.2, '#fdfcf8');
+        PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy + wid - 0.27, 3.2, 0.12, 0.45, 12.2, '#c9a227');
+        // Automated Curb-Side Motorized Assisted Ramp (extending toward entrance sidewalk y < gy)
+        PH.topQuad(gx + 0.72, gy - 0.62, 0.35, 0.92, 0.62, '#f8fafc', { stroke: '#d4af37' });
+        PH.box(gx + 0.70, gy - 0.62, 0.45, 0.08, 0.62, 1.4, '#d4af37');
+        PH.box(gx + 1.56, gy - 0.62, 0.45, 0.08, 0.62, 1.4, '#d4af37');
+      }
+
+      // Gloss Charcoal-Graphite Rocker Skirt
+      PH.box(gx, gy, 2.0 + bounce, len, wid, 2.1, '#1f2937');
+      // Champagne-Gold Lower Two-Tone Executive Cladding
+      PH.box(cabinX, gy, 4.1 + bounce, len - 0.60, wid, 4.2, '#c9a227');
+      PH.box(cabX, gy + 0.02, 4.1 + bounce, 0.60, wid - 0.04, 3.4, '#c9a227');
+      // Pearl-White Upper Coachwork & Aerodynamic Roofline
+      PH.box(cabinX, gy, 8.3 + bounce, len - 0.60, wid, 8.6, '#fdfcf8');
+      PH.box(cabX, gy + 0.04, 7.5 + bounce, 0.60, wid - 0.08, 2.8, '#faf8f2');
+      // Sleek Champagne-Gold Pin-Stripe & Flush Panoramic Skylight Roof
+      PH.box(gx + 0.02, gy - 0.01, 7.6 + bounce, len - 0.04, wid + 0.02, 0.85, '#e5c158');
+      PH.box(cabinX + 0.22, gy + 0.16, 16.9 + bounce, len - 1.05, wid - 0.32, 0.8, '#0f172a');
+      PH.box(cabinX + 0.16, gy + 0.12, 16.8 + bounce, len - 0.92, wid - 0.24, 0.4, '#d4af37');
+
+      // Continuous Flush Panoramic Tinted Privacy Cabin Windows
+      PH.box(cabinX + 0.22, gy - 0.01, 9.6 + bounce, len - 1.02, wid + 0.02, 4.8, '#0f172a', { alpha: 0.86 });
+      // Subtle specular window reflection ribbon
+      PH.box(cabinX + 0.32, gy - 0.015, 13.4 + bounce, len - 1.24, wid + 0.03, 0.65, '#38bdf8', { alpha: 0.35 });
+
+      // Sloped Panoramic Executive Windshield
+      const wBotX = dirX > 0 ? cabX + 0.14 : cabX + 0.46;
+      const wTopX = dirX > 0 ? cabinX + len - 0.60 : cabinX;
+      PH.poly([
+        PH.P(wBotX, gy + 0.08, 9.9 + bounce),
+        PH.P(wBotX, gy + wid - 0.08, 9.9 + bounce),
+        PH.P(wTopX, gy + wid - 0.08, 16.2 + bounce),
+        PH.P(wTopX, gy + 0.08, 16.2 + bounce)
+      ], '#1e293b', '#94a3b8', 1.2);
+      PH.poly([
+        PH.P(wBotX, gy + 0.18, 10.6 + bounce),
+        PH.P(wBotX, gy + 0.44, 10.6 + bounce),
+        PH.P(wTopX, gy + 0.44, 15.5 + bounce),
+        PH.P(wTopX, gy + 0.18, 15.5 + bounce)
+      ], 'rgba(255,255,255,0.38)');
+
+      // Signature Horizontal Chrome Front Grille & Warm LED Headlights
+      const noseX = dirX > 0 ? gx + len + 0.01 : gx - 0.01;
+      for (const gz of [4.8, 5.8, 6.8]) {
+        PH.line3(noseX, gy + 0.30, gz + bounce, noseX, gy + wid - 0.30, gz + bounce, '#e2e8f0', 1.8);
+      }
+      for (const hy of [gy + 0.18, gy + wid - 0.22]) {
+        const hp = PH.P(noseX, hy, 5.4 + bounce);
+        c.fillStyle = '#fef9c3';
+        c.beginPath(); c.arc(hp.x, hp.y, 3.0 * z, 0, Math.PI * 2); c.fill();
+        c.strokeStyle = '#fde047'; c.lineWidth = 1.1; c.stroke();
+      }
+
+      // Discreet Champagne-Gold & Pearl Wellness Crest on Sliding VIP Door
+      const mx = cabinX + (len - 0.60) * 0.50;
+      const my = gy + wid + 0.03;
+      const mz = 7.4 + bounce;
+      const cp = PH.P(mx, my, mz);
+      c.fillStyle = '#fdfcf8';
+      c.strokeStyle = '#d4af37';
+      c.lineWidth = 1.5;
+      c.beginPath(); c.ellipse(cp.x, cp.y, 5.2 * z, 4.0 * z, 0, 0, Math.PI * 2); c.fill(); c.stroke();
+      c.fillStyle = '#10b981';
+      c.beginPath(); c.arc(cp.x - 1.2 * z, cp.y, 1.4 * z, 0, Math.PI * 2); c.fill();
+      c.fillStyle = '#c9a227';
+      c.beginPath(); c.arc(cp.x + 1.4 * z, cp.y, 1.4 * z, 0, Math.PI * 2); c.fill();
+
+      // Luxury Multi-Spoke Turbine Alloy Wheels with Gold Center Caps
+      for (const wx of [gx + 0.56, gx + len - 0.56]) {
+        const wp = PH.P(wx, gy + wid, 2.5);
+        c.fillStyle = '#090d16';
+        c.beginPath(); c.arc(wp.x, wp.y, 5.6 * z, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#f1f5f9';
+        c.beginPath(); c.arc(wp.x, wp.y, 3.2 * z, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#d4af37';
+        c.beginPath(); c.arc(wp.x, wp.y, 1.3 * z, 0, Math.PI * 2); c.fill();
+      }
+
+      // Floating VIP concierge status badge
       const tp = PH.P(gx + len / 2, gy + wid / 2, 26 + bounce);
       PH.bubble(tp.x, tp.y, label, 'ok');
+    });
+  }
+
+  // ---------------- LUXURY WELLNESS RESORT & PARK PROP HELPERS ----------------
+  function drawTowelStation(gx, gy) {
+    PH.furniture(gx, gy, 1.1, 0.55, 0, k => {
+      // Warm walnut towel cabinet & brass candle warmers
+      k.box(0.05, 0.05, 0, 1.0, 0.45, 11.5, '#b48a5a', { tex: 'deskwood', texAlpha: 0.45 });
+      k.box(0.02, 0.02, 11.5, 1.06, 0.50, 1.2, '#f8fafc');
+      // Stacks of rolled plush white & aqua spa towels
+      for (const tx of [0.22, 0.45, 0.68]) {
+        k.cyl(tx, 0.25, 12.7, 0.08, 2.0, '#ffffff');
+      }
+      // Aromatherapy stone bowl
+      k.cyl(0.88, 0.25, 12.7, 0.09, 1.5, '#14b8a6');
+    });
+  }
+
+  function drawThermalLounger(gx, gy, cushionCol = '#f8fafc') {
+    PH.furniture(gx, gy, 1.65, 0.72, 0, k => {
+      k.box(0.08, 0.08, 0, 1.48, 0.56, 3.8, '#c89b6e', { tex: 'deskwood', texAlpha: 0.45 });
+      k.box(0.06, 0.06, 3.8, 1.52, 0.60, 2.4, cushionCol, { tex: 'fabric', texAlpha: 0.3 });
+      // Angled spa backrest + head bolster
+      k.box(0.06, 0.06, 6.2, 0.45, 0.60, 2.8, cushionCol);
+      k.cyl(0.24, 0.36, 9.0, 0.08, 0.42, '#5eead4');
+    });
+  }
+
+  function drawYogaMat(gx, gy, col = '#14b8a6') {
+    PH.furniture(gx, gy, 1.35, 0.62, 0, k => {
+      k.top(0.04, 0.04, 0.15, 1.26, 0.54, col, { stroke: '#0f766e' });
+      k.cyl(0.18, 0.31, 0.2, 0.07, 0.44, '#f8fafc');
+    });
+  }
+
+  function drawRoundBistroTable(cx, cy) {
+    PH.item(cx + cy + 0.5, () => {
+      const c = PH.S.ctx;
+      const z = PH.zoom;
+      // 4 Curved Oak Bistro Chairs around Round Table (Zero beds)
+      const offsets = [[-0.68, 0], [0.68, 0], [0, -0.68], [0, 0.68]];
+      offsets.forEach(([ox, oy]) => {
+        const chx = cx + ox - 0.17;
+        const chy = cy + oy - 0.17;
+        PH.box(chx, chy, 0, 0.34, 0.34, 5.2, '#b88655', { tex: 'deskwood', texAlpha: 0.4 });
+        PH.box(chx + 0.03, chy + 0.03, 5.2, 0.28, 0.28, 1.2, '#0d9488');
+        // Wooden chair backrest
+        const bx = ox < 0 ? chx : ox > 0 ? chx + 0.26 : chx + 0.02;
+        const by = oy < 0 ? chy : oy > 0 ? chy + 0.26 : chy + 0.02;
+        const bw = Math.abs(ox) > 0 ? 0.08 : 0.30;
+        const bd = Math.abs(oy) > 0 ? 0.08 : 0.30;
+        PH.box(bx, by, 6.4, bw, bd, 4.8, '#b88655');
+      });
+      // Brass & Cast-Iron Pedestal
+      PH.cyl(cx, cy, 0, 0.24, 1.2, '#d4af37');
+      PH.cyl(cx, cy, 1.2, 0.08, 8.6, '#475569');
+      // Round White-Clothed Table Drape & Tabletop
+      PH.cyl(cx, cy, 8.4, 0.52, 2.2, '#ffffff');
+      PH.disc(cx, cy, 10.65, 0.54, '#ffffff', '#e2e8f0');
+      // Plated Gourmet Meals + Wine Goblets + Golden Candle Centerpiece
+      for (const [px, py, mealCol] of [[-0.24, 0, '#fb923c'], [0.24, 0, '#4ade80'], [0, -0.24, '#f87171'], [0, 0.24, '#facc15']]) {
+        PH.disc(cx + px, cy + py, 10.8, 0.11, '#f8fafc', '#cbd5e1');
+        PH.disc(cx + px, cy + py, 10.95, 0.06, mealCol);
+      }
+      PH.cyl(cx, cy, 10.8, 0.05, 2.4, '#d4af37');
+      const fl = PH.P(cx, cy, 13.6);
+      c.fillStyle = 'rgba(253, 224, 71, 0.65)';
+      c.beginPath(); c.arc(fl.x, fl.y, 2.4 * z, 0, Math.PI * 2); c.fill();
+    });
+  }
+
+  function drawCoffeeTableAndSet(cx, cy) {
+    PH.furniture(cx - 0.55, cy - 0.38, 1.1, 0.76, 0, k => {
+      k.box(0.08, 0.08, 0, 0.94, 0.60, 4.8, '#85583a', { tex: 'deskwood', texAlpha: 0.45 });
+      k.box(0.04, 0.04, 4.8, 1.02, 0.68, 1.0, '#d4a373');
+      // Ceramic tea service + floral centerpiece
+      k.cyl(0.50, 0.38, 5.8, 0.08, 2.2, '#f8fafc');
+      k.cyl(0.28, 0.38, 5.8, 0.06, 2.8, '#10b981');
+      k.cyl(0.75, 0.38, 5.8, 0.12, 0.5, '#fef08a');
+    });
+  }
+
+  function drawEspressoBar(gx, gy) {
+    PH.furniture(gx, gy, 1.1, 2.2, 0, k => {
+      // Walnut counter with cream marble bar top
+      k.box(0.08, 0.05, 0, 0.62, 2.1, 11.2, '#784e32', { tex: 'deskwood', texAlpha: 0.45 });
+      k.box(0.04, 0.02, 11.2, 0.70, 2.16, 1.4, '#f8fafc');
+      // Brushed steel espresso machine & glass pastry display
+      k.box(0.14, 0.25, 12.6, 0.38, 0.52, 4.6, '#cbd5e1');
+      k.box(0.14, 1.15, 12.6, 0.38, 0.58, 4.2, '#bae6fd', { alpha: 0.65 });
+      // Two oak barstools in front of bar
+      k.cyl(0.92, 0.62, 0, 0.16, 8.2, '#d4a373');
+      k.cyl(0.92, 1.52, 0, 0.16, 8.2, '#d4a373');
+    });
+  }
+
+  function drawGardenFountain(cx, cy) {
+    PH.item(cx + cy + 0.8, () => {
+      const c = PH.S.ctx;
+      const z = PH.zoom;
+      const wave = Math.sin(PH.t * 0.16);
+      // Outer Carved Stone Basin Rim + Turquoise Water Pool
+      PH.cyl(cx, cy, 0, 1.25, 4.2, '#cbd5e1');
+      PH.disc(cx, cy, 4.25, 1.05, '#0ea5e9', '#bae6fd');
+      // Expanding animated water ripple rings
+      const rp = (PH.t % 40) / 40;
+      const rc = PH.P(cx, cy, 4.35);
+      c.save();
+      c.strokeStyle = `rgba(224,242,254,${0.7 * (1 - rp)})`;
+      c.lineWidth = 1.4;
+      c.beginPath();
+      c.ellipse(rc.x, rc.y, (8 + rp * 22) * z, (4 + rp * 11) * z, 0, 0, Math.PI * 2);
+      c.stroke();
+      c.restore();
+      // Upper Sculpted Tiered Stone Pedestal + Aqua Basin
+      PH.cyl(cx, cy, 4.0, 0.36, 7.2, '#e2e8f0');
+      PH.cyl(cx, cy, 11.2, 0.56, 2.0, '#f1f5f9');
+      PH.disc(cx, cy, 13.25, 0.44, '#38bdf8', '#e0f2fe');
+      // Animated Vertical Water Jet Crown
+      const jetBase = PH.P(cx, cy, 13.4);
+      const jetTop = PH.P(cx, cy, 24.5 + wave * 2.2);
+      c.save();
+      c.strokeStyle = 'rgba(224,242,254,0.88)';
+      c.lineWidth = 2.6 * z;
+      c.beginPath(); c.moveTo(jetBase.x, jetBase.y); c.lineTo(jetTop.x, jetTop.y); c.stroke();
+      c.strokeStyle = 'rgba(186,230,253,0.65)';
+      c.lineWidth = 1.4 * z;
+      for (const sx of [-11, 11]) {
+        c.beginPath();
+        c.moveTo(jetTop.x, jetTop.y);
+        c.quadraticCurveTo(jetTop.x + sx * 0.55 * z, jetTop.y - 4 * z, jetBase.x + sx * z, jetBase.y + 7 * z);
+        c.stroke();
+      }
+      c.restore();
+    });
+  }
+
+  function drawParkBench(gx, gy, alongY = false) {
+    PH.furniture(gx, gy, alongY ? 0.55 : 1.45, alongY ? 1.45 : 0.55, alongY ? 1 : 0, k => {
+      // Cast-iron legs + slatted warm teak park bench
+      k.box(0.08, 0.08, 0, 0.10, 0.40, 4.4, '#334155');
+      k.box(1.26, 0.08, 0, 0.10, 0.40, 4.4, '#334155');
+      k.box(0.05, 0.08, 4.4, 1.34, 0.38, 1.2, '#b47842', { tex: 'deskwood', texAlpha: 0.45 });
+      k.box(0.05, 0.06, 5.6, 1.34, 0.08, 4.8, '#9a6332');
+    });
+  }
+
+  function drawHedge(gx, gy, w = 1.6, d = 0.48, flowering = true) {
+    PH.furniture(gx, gy, w, d, 0, k => {
+      k.box(0.04, 0.04, 0, w - 0.08, d - 0.08, 5.5, '#15803d');
+      k.box(0.06, 0.06, 5.5, w - 0.12, d - 0.12, 1.8, '#22c55e');
+      if (flowering) {
+        const steps = Math.max(2, Math.floor(w * 2));
+        for (let i = 0; i < steps; i++) {
+          const fx = 0.22 + (i / Math.max(1, steps - 1)) * (w - 0.44);
+          k.cyl(fx, d * 0.5, 7.3, 0.08, 0.45, i % 2 === 0 ? '#f472b6' : '#fef08a');
+        }
+      }
     });
   }
 
@@ -271,7 +578,7 @@ const IsoRenderer = (() => {
     PHSprites.hospitalBed(4.4, 3.4, 0, { blanket: bedBlanket, alert: !isFut, ready: isFut, seed: 4 });
     PHSprites.waitingBench(2.2, 5.3, 0, 4, '#3b82f6');
 
-    // 2. Ward B (x: 8..15, y: 1..6.5) — 3 Step-Down Beds + Nurse Desk
+    // 2. Discharge Ward B (x: 8..15, y: 1..6.5) — 3 Discharge-Ready Beds + Nurse Desk
     PHSprites.hospitalBed(8.4, 1.4, 0, { blanket: '#38bdf8', alert: !isFut, ready: isFut, seed: 5 });
     PHSprites.hospitalBed(8.4, 3.4, 0, { blanket: '#38bdf8', ready: true, seed: 6 });
     PHSprites.hospitalBed(11.2, 1.4, 0, { blanket: '#38bdf8', ready: true, seed: 7 });
@@ -298,44 +605,78 @@ const IsoRenderer = (() => {
     PHSprites.vendingAndWater(13.6, 12.5, 0);
 
     if (isFut) {
-      // ---------------- BUILDING 2 (RIGHT, x: 23..37, y: 1..16): RETREAT CENTRE
-      // 1. VISITING MD CLINIC (x: 23..28.2, y: 1..6.5)
-      PHSprites.officeDesk(23.5, 1.4, 0, { clutter: false, screenStyle: 'ok', seed: 11 });
-      PHSprites.examTable(23.5, 3.6, 0, { col: '#10b981' });
-      PHSprites.privacyCurtain(23.5, 5.0, 0, 1.8, '#a7f3d0');
-      PHSprites.examTable(26.2, 3.6, 0, { col: '#0ea5e9' });
+      // ---------------- BUILDING 2 (x: 23..37, y: 2.6..16): LUXURY WELLNESS RESORT PAVILION (ZERO HOSPITAL BEDS)
+      // 1. ONLY 1 Compact Medical Room: MONTHLY VISITING MD ROOM (x: 23..27, y: 2.6..6.8)
+      PHSprites.officeDesk(23.4, 3.0, 0, { clutter: false, screenStyle: 'ok', seed: 11 });
+      PHSprites.examTable(23.5, 4.9, 0, { col: '#0ea5e9' });
+      PHSprites.privacyCurtain(25.6, 3.1, 1, 1.5, '#bae6fd');
 
-      // 2. 24/7 Nurse Triage & Vitals Station (x: 28.2..32.5, y: 1..6.5)
-      PHSprites.receptionDesk(28.6, 1.5, 0, 2.6, { col: '#0ea5e9', clutter: false });
-      PHSprites.officeDesk(28.8, 3.8, 0, { clutter: false, screenStyle: 'ecg', seed: 12, visitorChair: false });
-      PHSprites.kiosk(31.2, 3.8, 1, { col: '#10b981' });
+      // 2. THERMAL SPA & MASSAGE (x: 27..32, y: 2.6..6.8)
+      PHSprites.spaTable(27.3, 3.0, 0, { col: '#5eead4' });
+      PHSprites.spaTable(27.3, 4.8, 0, { col: '#2dd4bf' });
+      drawTowelStation(30.4, 2.9);
+      drawThermalLounger(29.8, 4.3, '#f8fafc');
+      drawThermalLounger(29.8, 5.5, '#f0fdfa');
 
-      // 3. Retreat Reception & Main Entrance Lobby (x: 23..27.8, y: 8.5..16)
-      PHSprites.receptionDesk(23.3, 9.0, 0, 2.0, { col: '#10b981', wood: '#d4a373', clutter: false });
-      PHSprites.sofa(23.4, 11.6, 0, 2.0, '#0d9488');
-      PHSprites.kiosk(26.5, 9.2, 1, { col: '#10b981' });
+      // 3. WELLNESS & MOVEMENT CLASS (x: 32..37, y: 2.6..6.8)
+      PHSprites.kiosk(32.3, 3.1, 0, { col: '#10b981' }); // Audio & Wellness Telemetry Screen
+      drawYogaMat(33.5, 3.1, '#14b8a6');
+      drawYogaMat(35.1, 3.1, '#0ea5e9');
+      drawYogaMat(33.5, 4.8, '#2dd4bf');
+      drawYogaMat(35.1, 4.8, '#10b981');
 
-      // 4. RECOVERY SUITE 301 & 302 (x: 27.8..32.5, y: 8.5..16)
-      // Bright cream/travertine tiles, white king recovery bed with teal duvet & pillow,
-      // bedside vital-sign monitor, wooden wardrobe, armchair, and en-suite bathroom door
-      PHSprites.luxuryBed(28.1, 8.9, 0, { duvet: '#0d9488', smartHub: true, seed: 101 });
-      PHSprites.wardrobe(28.1, 11.3, 0);
-      PHSprites.armchair(30.3, 10.8, 0, { col: '#0d9488' });
+      // 4. EVENTS & SOCIAL LOUNGE (x: 23..29.8, y: 8.8..16)
+      PHSprites.receptionDesk(23.3, 9.3, 0, 2.1, { col: '#10b981', wood: '#d4a373', clutter: false });
+      drawEspressoBar(23.3, 13.0);
+      PHSprites.sofa(26.1, 10.3, 0, 2.0, '#0d9488');
+      drawCoffeeTableAndSet(27.1, 12.2);
+      PHSprites.sofa(26.1, 13.3, 0, 2.0, '#d97706');
+      PHSprites.armchair(28.3, 11.4, 0, { col: '#0d9488' });
+      PHSprites.planter(28.7, 9.2, 0.7, 0.7);
 
-      PHSprites.luxuryBed(28.1, 12.7, 0, { duvet: '#0d9488', smartHub: true, seed: 102 });
-      PHSprites.wardrobe(28.1, 15.1, 0);
-      PHSprites.armchair(30.3, 14.6, 0, { col: '#0d9488' });
+      // 5. FINE-DINING RESTAURANT (x: 29.8..37, y: 8.8..16) — Round White-Clothed Bistro Tables (ZERO BEDS)
+      drawRoundBistroTable(31.4, 10.8);
+      drawRoundBistroTable(34.3, 10.8);
+      drawRoundBistroTable(31.4, 13.8);
+      drawRoundBistroTable(34.3, 13.8);
+      PHSprites.receptionDesk(35.3, 9.1, 1, 2.0, { col: '#d4a373', wood: '#784e32', clutter: false }); // Culinary Plating Counter
 
-      // 5. THERAPEUTIC DINING & Spa (x: 32.5..37, y: 8.5..16)
-      PHSprites.spaTable(33.0, 9.0, 0, { col: '#5eead4' });
-      PHSprites.spaTable(35.0, 9.0, 0, { col: '#5eead4' });
-      PHSprites.diningTable(33.0, 12.0, 0, { cloth: '#ffffff' });
-      PHSprites.diningTable(35.0, 12.0, 0, { cloth: '#ffffff' });
-      PHSprites.diningTable(33.0, 14.2, 0, { cloth: '#ffffff' });
-      PHSprites.diningTable(35.0, 14.2, 0, { cloth: '#ffffff' });
+      // ---------------- SURROUNDING RESORT GARDEN PARK (x: 18.6..40.2, y: 0.6..16.6)
+      drawGardenFountain(20.9, 8.2);
+      drawHedge(19.0, 6.2, 0.5, 4.0, true);
+      drawHedge(22.2, 2.8, 0.5, 3.0, true);
+      drawHedge(22.2, 10.6, 0.5, 4.6, true);
+      drawHedge(23.6, 2.3, 13.0, 0.35, true);
+
+      // Flowering Trees & Lush Park Canopy
+      PHSprites.tree(19.3, 1.5, 1.05, 1);
+      PHSprites.tree(22.3, 1.4, 0.9, 0);
+      PHSprites.tree(27.2, 1.1, 0.95, 1);
+      PHSprites.tree(32.4, 1.1, 0.95, 0);
+      PHSprites.tree(38.9, 1.4, 1.05, 1);
+      PHSprites.tree(39.1, 8.2, 1.0, 0);
+      PHSprites.tree(39.1, 14.8, 1.0, 1);
+      PHSprites.tree(19.2, 14.4, 0.95, 1);
+
+      // Wooden Park Benches & Garden Lanterns
+      drawParkBench(24.0, 1.45, false);
+      drawParkBench(29.4, 1.45, false);
+      drawParkBench(34.6, 1.45, false);
+      drawParkBench(19.3, 11.4, true);
+      drawParkBench(38.1, 6.4, true);
+      drawParkBench(38.1, 10.6, true);
+
+      PHSprites.streetLamp(20.0, 5.7);
+      PHSprites.streetLamp(20.0, 15.6);
+      PHSprites.streetLamp(37.6, 2.2);
+      PHSprites.streetLamp(37.6, 15.6);
+    } else {
+      // Current mode: spare trees around undeveloped grassy plot edge
+      PHSprites.tree(37.5, 3.0, 0.9, 0);
+      PHSprites.tree(38.2, 11.5, 0.95, 0);
     }
 
-    // ---------------- CONCIERGE TRANSPORT VEHICLE ON FRONT ROAD (y: 16.8..19.2)
+    // ---------------- VEHICLE SPRITES ON FRONT ROAD (y: 16.8..19.2)
     if (simState.transports) {
       simState.transports.forEach(tr => {
         if (!tr.active) return;
@@ -346,8 +687,7 @@ const IsoRenderer = (() => {
             label: tr.label
           });
         } else {
-          PHSprites.conciergeTransportX(tr.gx, tr.gy, {
-            type: 'ambulance',
+          drawEmergencyAmbulance(tr.gx, tr.gy, {
             dirX: tr.dirX,
             openDoor: tr.openDoor,
             label: tr.label
@@ -356,24 +696,25 @@ const IsoRenderer = (() => {
       });
     }
 
-    // ---------------- PATIENTS, DOCTORS, NURSES, CONCIERGE & STAFF
+    // ---------------- PATIENTS, DOCTORS, NURSES, CHEFS, THERAPISTS & CONCIERGE
     simState.agents.forEach(ag => {
       if (ag.inVehicle) return;
       const isSel = ag.id === simState.selectedAgentId;
       let role = ag.role;
       if (role === 'cleaner') role = 'janitor';
+      const lieOnSpa = ag.pose === 'LYING_ON_BED' && ag.gx > 18;
       PH.person({
         id: ag.id,
         gx: ag.gx,
         gy: ag.gy,
-        z: ag.pose === 'LYING_ON_BED' ? 9.5 : (ag.z || 0),
+        z: ag.pose === 'LYING_ON_BED' ? (lieOnSpa ? 10.2 : 9.5) : (ag.z || 0),
         pose: ag.pose,
         dir: ag.dir,
         role,
         seed: ag.idNum || 1,
         axis: 'x',
         head: -1,
-        blanket: ag.pose === 'LYING_ON_BED' ? (ag.gx < 18 ? bedBlanket : '#0d9488') : null,
+        blanket: ag.pose === 'LYING_ON_BED' ? (ag.gx < 18 ? bedBlanket : '#ffffff') : null,
         label: ag.roleLabel,
         sub: '',
         forceLabel: true,
@@ -389,21 +730,21 @@ const IsoRenderer = (() => {
 
     PH.end();
 
-    // Clear Overhead Room Labels (pinned along upper room boundaries)
+    // Clear Overhead Room Labels (pinned cleanly along upper room boundaries)
     PHSprites.roomSign(4.5, 0.85, isFut ? 'ACUTE WARD A (74% OCC.)' : 'ACUTE WARD A (98% BED-BLOCK)', isFut ? '#0ea5e9' : '#ef4444');
-    PHSprites.roomSign(11.5, 0.85, isFut ? 'STEP-DOWN WARD B ✓' : 'WARD B BLOCKED (275m)', isFut ? '#10b981' : '#ef4444');
+    PHSprites.roomSign(11.5, 0.85, isFut ? 'DISCHARGE WARD B ✓' : 'WARD B BLOCKED (275m)', isFut ? '#10b981' : '#ef4444');
     PHSprites.roomSign(3.4, 8.35, 'DISCHARGE PHARMACY', '#10b981');
     PHSprites.roomSign(8.3, 8.35, isFut ? 'PARALLEL e-BILLING ✓' : 'MANUAL BILLING (55m)', isFut ? '#10b981' : '#ef4444');
     PHSprites.roomSign(12.8, 15.8, 'HOSPITAL MAIN ENTRANCE ↓', '#0ea5e9');
 
     if (isFut) {
-      PHSprites.roomSign(25.6, 0.85, 'VISITING MD CLINIC', '#38bdf8');
-      PHSprites.roomSign(30.3, 0.85, 'NURSE TRIAGE', '#0ea5e9');
-      PHSprites.roomSign(34.8, 0.85, 'HYDROTHERAPY POOL', '#06b6d4');
-      PHSprites.roomSign(25.4, 8.35, 'RETREAT RECEPTION', '#10b981');
-      PHSprites.roomSign(30.1, 8.35, 'RECOVERY SUITE 301', '#0d9488');
-      PHSprites.roomSign(34.8, 8.35, 'THERAPEUTIC DINING', '#10b981');
-      PHSprites.roomSign(25.4, 15.8, 'RETREAT MAIN ENTRANCE ↓', '#10b981');
+      PHSprites.roomSign(20.9, 6.05, 'RESORT GARDEN PARK', '#22c55e');
+      PHSprites.roomSign(25.0, 2.45, 'MONTHLY VISITING MD ROOM', '#38bdf8');
+      PHSprites.roomSign(29.5, 2.45, 'THERMAL SPA & MASSAGE', '#14b8a6');
+      PHSprites.roomSign(34.6, 2.45, 'WELLNESS & MOVEMENT CLASS', '#10b981');
+      PHSprites.roomSign(26.4, 8.65, 'EVENTS & SOCIAL LOUNGE', '#f59e0b');
+      PHSprites.roomSign(33.4, 8.65, 'FINE-DINING RESTAURANT', '#10b981');
+      PHSprites.roomSign(25.4, 15.85, 'LUXURY RESORT ENTRANCE ↓', '#10b981');
     } else {
       PHSprites.roomSign(30.0, 8.35, 'UNDEVELOPED RETREAT PLOT · NO VAN', '#64748b');
     }
