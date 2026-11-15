@@ -1210,7 +1210,8 @@
   function stepAgentPhysics(ag, tx, ty, dtSec, opts) {
     opts = opts || {};
     const destPose = ag.pose;
-    if (opts.snap || Math.hypot(tx - ag.gx, ty - ag.gy) > 15.0) {
+    const crossBuilding = opts.splitX != null && ((ag.gx < opts.splitX) !== (tx < opts.splitX));
+    if (opts.snap || crossBuilding || Math.hypot(tx - ag.gx, ty - ag.gy) > 15.0) {
       ag.gx = tx; ag.gy = ty; ag.vel = 0;
       if (ag.pose === 'WALKING') ag.pose = 'IDLE';
       return;
@@ -1222,16 +1223,17 @@
       return;
     }
 
-    // Orthogonal corridor waypoint routing (A*-like room-to-corridor-to-room path)
+    // Orthogonal corridor waypoint routing (room -> corridor doorway -> target room doorway -> room)
     let wx = tx, wy = ty;
     const cy = opts.corridorY;
-    if (cy != null && Math.abs(ag.gx - tx) > 2.2) {
-      const agInCorr = Math.abs(ag.gy - cy) <= 0.45;
-      const dstInCorr = Math.abs(ty - cy) <= 0.45;
-      if (!agInCorr && !dstInCorr) {
-        wx = ag.gx; wy = cy;
-      } else if (agInCorr && Math.abs(ag.gx - tx) > 0.35) {
+    if (cy != null) {
+      const agInCorr = Math.abs(ag.gy - cy) <= 0.28;
+      const dstInCorr = Math.abs(ty - cy) <= 0.28;
+      const crossCorridor = (ag.gy - cy) * (ty - cy) < -0.15;
+      if (agInCorr && Math.abs(ag.gx - tx) > 0.12) {
         wx = tx; wy = cy;
+      } else if (!agInCorr && (crossCorridor || Math.abs(ag.gx - tx) > 1.4) && (!dstInCorr || Math.abs(ag.gx - tx) > 0.12)) {
+        wx = ag.gx; wy = cy;
       }
     }
 

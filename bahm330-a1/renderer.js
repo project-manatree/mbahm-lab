@@ -75,7 +75,7 @@ const IsoRenderer = (() => {
       // Building 1 Interior Walls
       { x1: 8, y1: 1, x2: 8, y2: 6.5, kind: 'int', col: '#cbd5e1', open: [{ at: 3.2, w: 1.3, type: 'door' }] },
       { x1: 1, y1: 6.5, x2: 15, y2: 6.5, kind: 'int', col: '#cbd5e1', open: [{ at: 4.0, w: 1.5, type: 'double' }, { at: 11.0, w: 1.5, type: 'double' }] },
-      { x1: 1, y1: 8.5, x2: 15, y2: 8.5, kind: 'int', col: '#cbd5e1', open: [{ at: 2.8, w: 1.4, type: 'door' }, { at: 7.6, w: 1.5, type: 'slide' }, { at: 12.0, w: 1.6, type: 'slide' }] },
+      { x1: 1, y1: 8.5, x2: 15, y2: 8.5, kind: 'int', col: '#cbd5e1', open: [{ at: 2.8, w: 1.4, type: 'door' }, { at: 8.5, w: 1.4, type: 'slide' }, { at: 12.3, w: 1.5, type: 'slide' }] },
       { x1: 5.8, y1: 8.5, x2: 5.8, y2: 16, kind: 'int', col: '#cbd5e1', open: [{ at: 11.5, w: 1.4, type: 'door' }] },
       { x1: 10.8, y1: 8.5, x2: 10.8, y2: 16, kind: 'glass', col: '#cbd5e1', open: [{ at: 11.5, w: 1.5, type: 'slide' }] },
 
@@ -89,7 +89,7 @@ const IsoRenderer = (() => {
       { when: 'fut', x1: 28.2, y1: 1, x2: 28.2, y2: 6.5, kind: 'glass', open: [{ at: 3.2, w: 1.3, type: 'door' }] },
       { when: 'fut', x1: 32.5, y1: 1, x2: 32.5, y2: 16, kind: 'glass', open: [{ at: 4.5, w: 1.4, type: 'slide' }, { at: 11.5, w: 1.5, type: 'slide' }] },
       { when: 'fut', x1: 23, y1: 6.5, x2: 32.5, y2: 6.5, kind: 'glass', open: [{ at: 25.0, w: 1.5, type: 'door' }, { at: 29.8, w: 1.5, type: 'door' }] },
-      { when: 'fut', x1: 23, y1: 8.5, x2: 37, y2: 8.5, kind: 'glass', col: '#f8fafc', open: [{ at: 24.8, w: 1.6, type: 'slide' }, { at: 29.2, w: 1.4, type: 'door' }, { at: 34.2, w: 1.5, type: 'slide' }] },
+      { when: 'fut', x1: 23, y1: 8.5, x2: 37, y2: 8.5, kind: 'glass', col: '#f8fafc', open: [{ at: 25.3, w: 1.6, type: 'slide' }, { at: 29.8, w: 1.3, type: 'door' }, { at: 34.2, w: 1.5, type: 'slide' }] },
       { when: 'fut', x1: 27.8, y1: 8.5, x2: 27.8, y2: 16, kind: 'glass', col: '#f8fafc', open: [{ at: 10.2, w: 1.3, type: 'door' }, { at: 13.8, w: 1.3, type: 'door' }] },
       // Crisp White Suite Divider (Suite 301 vs Suite 302)
       { when: 'fut', x1: 27.8, y1: 12.2, x2: 32.5, y2: 12.2, kind: 'int', col: '#f8fafc' },
@@ -150,14 +150,14 @@ const IsoRenderer = (() => {
     PHSprites.waitingBench(1.5, 14.6, 0, 4, '#475569');
 
     // 4. Billing & Insurance Hall (x: 5.8..10.8, y: 8.5..16)
-    PHSprites.receptionDesk(6.2, 9.0, 0, 3.2, { col: '#0284c7', clutter: false });
+    PHSprites.receptionDesk(6.0, 9.0, 0, 2.4, { col: '#0284c7', clutter: false });
     PHSprites.waitingBench(6.3, 11.8, 0, 4, '#475569');
     PHSprites.waitingBench(6.3, 13.2, 0, 4, '#475569');
     PHSprites.waitingBench(6.3, 14.6, 0, 4, '#475569');
 
     // 5. Departure Lobby & Main Entrance (x: 10.8..15, y: 8.5..16)
-    PHSprites.sofa(11.3, 9.2, 0, 2.0, '#0d9488');
-    PHSprites.sofa(11.3, 11.2, 0, 2.0, '#0284c7');
+    PHSprites.sofa(11.0, 9.2, 0, 1.45, '#0d9488');
+    PHSprites.sofa(11.0, 11.2, 0, 1.45, '#0284c7');
     PHSprites.kiosk(13.8, 9.2, 1, { col: '#10b981' });
     PHSprites.kiosk(13.8, 10.6, 1, { col: '#0ea5e9' });
     PHSprites.vendingAndWater(13.6, 12.5, 0);
@@ -168,7 +168,7 @@ const IsoRenderer = (() => {
       PHSprites.officeDesk(23.5, 1.4, 0, { clutter: false, screenStyle: 'ok', seed: 11 });
       PHSprites.examTable(23.5, 3.6, 0, { col: '#10b981' });
       PHSprites.privacyCurtain(23.5, 5.0, 0, 1.8, '#a7f3d0');
-      PHSprites.examTable(25.8, 3.6, 0, { col: '#0ea5e9' });
+      PHSprites.examTable(26.2, 3.6, 0, { col: '#0ea5e9' });
 
       // 2. 24/7 Nurse Triage & Vitals Station (x: 28.2..32.5, y: 1..6.5)
       PHSprites.receptionDesk(28.6, 1.5, 0, 2.6, { col: '#0ea5e9', clutter: false });
@@ -176,8 +176,8 @@ const IsoRenderer = (() => {
       PHSprites.kiosk(31.2, 3.8, 1, { col: '#10b981' });
 
       // 3. Retreat Reception & Main Entrance Lobby (x: 23..27.8, y: 8.5..16)
-      PHSprites.receptionDesk(23.5, 9.0, 0, 2.8, { col: '#10b981', wood: '#d4a373', clutter: false });
-      PHSprites.sofa(23.6, 11.6, 0, 2.2, '#0d9488');
+      PHSprites.receptionDesk(23.3, 9.0, 0, 2.0, { col: '#10b981', wood: '#d4a373', clutter: false });
+      PHSprites.sofa(23.4, 11.6, 0, 2.0, '#0d9488');
       PHSprites.kiosk(26.5, 9.2, 1, { col: '#10b981' });
 
       // 4. RECOVERY SUITE 301 & 302 (x: 27.8..32.5, y: 8.5..16)

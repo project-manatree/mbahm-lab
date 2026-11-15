@@ -14,6 +14,7 @@ const SimApp = (() => {
     showActionLabels: true,
     selectedAgentId: 'res-1',
     elapsedSec: 0,
+    snapNext: true,
     lastTime: performance.now(),
     transports: [
       { id: 'tr-1', gx: 11.6, gy: 16.85, dirX: 1, openDoor: true, active: true, label: 'Concierge Transport' }
@@ -24,17 +25,17 @@ const SimApp = (() => {
   // 11 Clinical/Operational Staff (Stationed at desks/counters/beds; only walk for specific tasks)
   const STAFF_DEFS = [
     { id: 'st-1', roleLabel: 'Doctor', role: 'doctor', gx: 3.1, gy: 2.3, pose: 'EXAMINING', taskCur: 'Ward Note (70m)', taskFut: 'Pre-Discharge (15m)', dur: 2.4, show: true },
-    { id: 'st-2', roleLabel: 'Nurse', role: 'nurse', gx: 6.2, gy: 2.2, pose: 'EXAMINING', taskStations: [{ gx: 6.2, gy: 2.0, pose: 'EXAMINING' }, { gx: 6.2, gy: 4.8, pose: 'HANDOVER_INTERACTION' }], dwell: 4.0 },
-    { id: 'st-3', roleLabel: 'Doctor', role: 'doctor', gx: 10.2, gy: 2.3, pose: 'EXAMINING', taskCur: 'Chart Review', taskFut: 'e-Clearance', dur: 2.2, show: false },
+    { id: 'st-2', roleLabel: 'Nurse', role: 'nurse', gx: 6.8, gy: 2.2, pose: 'EXAMINING', taskStations: [{ gx: 6.8, gy: 2.0, pose: 'EXAMINING' }, { gx: 6.8, gy: 4.8, pose: 'HANDOVER_INTERACTION' }], dwell: 4.0 },
+    { id: 'st-3', roleLabel: 'Doctor', role: 'doctor', gx: 10.7, gy: 2.8, pose: 'EXAMINING', taskCur: 'Chart Review', taskFut: 'e-Clearance', dur: 2.2, show: false },
     { id: 'st-4', roleLabel: 'Nurse', role: 'nurse', gx: 13.4, gy: 2.8, pose: 'TYPING_TERMINAL', taskCur: 'Paper Summary', taskFut: 'EHR Sync', dur: 2.0, show: false },
     { id: 'st-5', roleLabel: 'Pharmacist', role: 'pharmacist', gx: 2.6, gy: 9.7, pose: 'TYPING_TERMINAL', taskCur: 'Manual Rx', taskFut: 'Pre-Packed Rx', dur: 2.2, show: false },
-    { id: 'st-6', roleLabel: 'Staff', role: 'reception', gx: 7.4, gy: 9.7, pose: 'TYPING_TERMINAL', taskCur: 'Billing (55m)', taskFut: 'e-Billing (5m) ✓', dur: 2.0, show: true },
+    { id: 'st-6', roleLabel: 'Staff', role: 'reception', gx: 7.2, gy: 9.4, pose: 'TYPING_TERMINAL', taskCur: 'Billing (55m)', taskFut: 'e-Billing (5m) ✓', dur: 2.0, show: true },
     // Single Concierge operating the Left <-> Right transport between the two downward-facing Main Entrances
-    { id: 'st-7', roleLabel: 'Concierge', role: 'concierge', gx: 12.6, gy: 16.2, pose: 'HANDOVER_INTERACTION', taskCur: 'Ramp Lift', taskFut: 'VIP Ramp (2m)', dur: 2.2, show: true },
-    { id: 'st-8', retreat: true, roleLabel: 'Staff', role: 'reception', gx: 24.6, gy: 9.7, pose: 'TYPING_TERMINAL', taskCur: 'Paper Intake (30m)', taskFut: 'Biometric (5m) ✓', dur: 2.0, show: true },
+    { id: 'st-7', roleLabel: 'Concierge', role: 'concierge', gx: 12.7, gy: 16.2, pose: 'HANDOVER_INTERACTION', taskCur: 'Ramp Lift', taskFut: 'VIP Ramp (2m)', dur: 2.2, show: true },
+    { id: 'st-8', retreat: true, roleLabel: 'Staff', role: 'reception', gx: 24.3, gy: 9.4, pose: 'TYPING_TERMINAL', taskCur: 'Paper Intake (30m)', taskFut: 'Biometric (5m) ✓', dur: 2.0, show: true },
     { id: 'st-9', retreat: true, roleLabel: 'Doctor', role: 'doctor', gx: 24.4, gy: 2.3, pose: 'EXAMINING', taskCur: 'Delayed MD (30m)', taskFut: 'MD Baseline (25m)', dur: 2.4, show: true },
     { id: 'st-10', retreat: true, roleLabel: 'Nurse', role: 'nurse', gx: 29.6, gy: 2.3, pose: 'TYPING_TERMINAL', taskCur: 'Vitals Log', taskFut: 'Smart Telemetry', dur: 2.2, show: false },
-    { id: 'st-11', retreat: true, roleLabel: 'Nurse', role: 'nurse', gx: 33.4, gy: 4.5, pose: 'EXAMINING', taskCur: 'Pool Standby', taskFut: 'Hydro Care (33m)', dur: 2.5, show: false }
+    { id: 'st-11', retreat: true, roleLabel: 'Nurse', role: 'nurse', gx: 32.75, gy: 4.5, pose: 'EXAMINING', taskCur: 'Pool Standby', taskFut: 'Hydro Care (33m)', dur: 2.5, show: false }
   ];
 
   // Fixed Stationary Slots for 30 Non-Pathway Patients (Zero Slot-Shifting or Endless Loops)
@@ -76,20 +77,20 @@ const SimApp = (() => {
 
   const TARGET_SMOOTH_SPOTS = [
     // Departure lounge relaxed seating (3)
-    { gx: 11.6, gy: 9.5, pose: 'SITTING', b: 'Pre-Cleared ✓' },
-    { gx: 12.6, gy: 9.5, pose: 'SITTING' },
-    { gx: 11.6, gy: 11.5, pose: 'SITTING' },
+    { gx: 11.4, gy: 9.5, pose: 'SITTING', b: 'Pre-Cleared ✓' },
+    { gx: 12.1, gy: 9.5, pose: 'SITTING' },
+    { gx: 11.5, gy: 11.5, pose: 'SITTING' },
     // Billing fast-track counter (2)
-    { gx: 7.2, gy: 10.6, pose: 'HANDOVER_INTERACTION' },
-    { gx: 2.6, gy: 10.6, pose: 'HANDOVER_INTERACTION' },
+    { gx: 8.6, gy: 10.5, pose: 'HANDOVER_INTERACTION' },
+    { gx: 2.8, gy: 10.5, pose: 'HANDOVER_INTERACTION' },
     // Visiting MD Clinic Exam Tables & Nurse Triage (4)
     { gx: 24.3, gy: 3.9, pose: 'LYING_ON_BED', b: 'MD Exam (25m) ✓' },
-    { gx: 26.6, gy: 3.9, pose: 'LYING_ON_BED' },
+    { gx: 27.0, gy: 3.9, pose: 'LYING_ON_BED' },
     { gx: 29.5, gy: 4.8, pose: 'SITTING' },
     { gx: 30.6, gy: 4.8, pose: 'SITTING' },
     // Retreat Reception Lounge (2)
-    { gx: 24.0, gy: 11.8, pose: 'SITTING', b: 'Instant Check-In ✓' },
-    { gx: 25.1, gy: 11.8, pose: 'SITTING' },
+    { gx: 23.9, gy: 11.8, pose: 'SITTING', b: 'Instant Check-In ✓' },
+    { gx: 24.9, gy: 11.8, pose: 'SITTING' },
     // Recovery Suites 301 & 302 Beds + Armchairs (4)
     { gx: 28.9, gy: 9.3, pose: 'LYING_ON_BED', b: 'Suite 301 Rest ✓' },
     { gx: 30.6, gy: 11.1, pose: 'SITTING' },
@@ -179,75 +180,61 @@ const SimApp = (() => {
     return c * c * (3 - 2 * c);
   }
 
-  // Fast 15-second vehicle cycle:
+  // Synced 18-second vehicle cycle:
   // - Current mode: Emergency Ambulance brings incoming patients TO the Hospital ED only (never sends patients home)
   // - Target mode: Concierge Van transfers step-down patients from Hospital -> Retreat Village
   function updateTransport(tr, elapsedSec, isFut) {
-    const cycle = 15.0;
-    const into = elapsedSec % cycle;
-    const transitLbl = isFut ? '25m' : '35m';
+    const into = elapsedSec % CYCLE_SEC;
     tr.active = true;
     if (!isFut) {
       // Current: Ambulance only brings incoming acute patients INTO Hospital ED, then leaves empty
-      if (into < 4.5) {
-        const sT = smoothStep(into / 4.5);
+      if (into < 5.0) {
+        const sT = smoothStep(into / 5.0);
         tr.gx = 1.5 + sT * 10.1; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = false;
-        tr.phase = 'ed_inbound'; tr.label = 'Ambulance → Hospital ED';
-      } else if (into < 7.5) {
+        tr.phase = 'ed_inbound'; tr.phaseProg = into / 5.0; tr.label = 'Ambulance → Hospital ED';
+      } else if (into < 8.0) {
         tr.gx = 11.6; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = true;
-        tr.phase = 'ed_dropoff'; tr.phaseProg = (into - 4.5) / 3.0;
+        tr.phase = 'ed_dropoff'; tr.phaseProg = (into - 5.0) / 3.0;
         tr.label = 'Hospital ED Admission Drop-Off';
-      } else if (into < 11.5) {
-        const sT = smoothStep((into - 7.5) / 4.0);
+      } else if (into < 12.0) {
+        const sT = smoothStep((into - 8.0) / 4.0);
         tr.gx = 11.6 - sT * 10.1; tr.gy = 18.6; tr.dirX = -1; tr.openDoor = false;
-        tr.phase = 'ed_depart'; tr.label = '← Ambulance Departing Empty';
+        tr.phase = 'ed_depart'; tr.phaseProg = (into - 8.0) / 4.0; tr.label = '← Ambulance Departing Empty';
       } else {
-        tr.active = false; tr.phase = 'away'; tr.openDoor = false;
+        tr.active = false; tr.phase = 'away'; tr.openDoor = false; tr.phaseProg = 0;
         tr.gx = 1.5; tr.gy = 16.85;
       }
       return;
     }
 
-    if (into < 2.2) {
-      // Phase 1: 2.2s hydraulic wheelchair lift boarding at Hospital Main Entrance
-      tr.gx = 11.6;
-      tr.gy = 16.85;
-      tr.dirX = 1;
-      tr.openDoor = true;
-      tr.phase = 'board';
-      tr.phaseProg = into / 2.2;
-      tr.label = `Lift Boarding (2.0m)`;
-    } else if (into < 6.8) {
-      // Phase 2: 4.6s smooth S-curve transit Left -> Right
-      const rawT = (into - 2.2) / 4.6;
+    if (into < 6.5) {
+      // Phase 1a: Pre-staged open at Hospital Main Entrance awaiting outgoing pathway patient
+      tr.gx = 11.6; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = true;
+      tr.phase = 'ready'; tr.phaseProg = into / 6.5;
+      tr.label = 'Concierge Pre-Staged (0m Wait)';
+    } else if (into < 8.5) {
+      // Phase 1b: 2.0s hydraulic wheelchair lift boarding at Hospital Main Entrance
+      tr.gx = 11.6; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = true;
+      tr.phase = 'board'; tr.phaseProg = (into - 6.5) / 2.0;
+      tr.label = 'Lift Boarding (2.0m)';
+    } else if (into < 12.5) {
+      // Phase 2: 4.0s smooth S-curve transit Left -> Right carrying patient
+      const rawT = (into - 8.5) / 4.0;
       const sT = smoothStep(rawT);
-      tr.gx = 11.6 + sT * 12.6;
-      tr.gy = 16.85;
-      tr.dirX = 1;
-      tr.openDoor = false;
-      tr.phase = 'outbound';
-      tr.phaseProg = rawT;
-      tr.label = `Concierge Transit → (${transitLbl})`;
-    } else if (into < 9.0) {
-      // Phase 3: 2.2s hydraulic ramp unloading at Retreat Main Entrance
-      const dInto = into - 6.8;
-      tr.gx = 24.2;
-      tr.gy = 16.85;
-      tr.dirX = 1;
-      tr.openDoor = true;
-      tr.phase = 'dropoff';
-      tr.phaseProg = dInto / 2.2;
-      tr.label = `Suite Handover (2.0m)`;
+      tr.gx = 11.6 + sT * 12.6; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = false;
+      tr.phase = 'outbound'; tr.phaseProg = rawT;
+      tr.label = 'Concierge Transit → (25m)';
+    } else if (into < 14.5) {
+      // Phase 3: 2.0s hydraulic ramp unloading at Retreat Main Entrance
+      tr.gx = 24.2; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = true;
+      tr.phase = 'dropoff'; tr.phaseProg = (into - 12.5) / 2.0;
+      tr.label = 'Suite Handover (2.0m)';
     } else {
-      // Phase 4: Smooth return Right -> Left
-      const rawT = (into - 9.0) / 6.0;
+      // Phase 4: 3.5s smooth return Right -> Left
+      const rawT = (into - 14.5) / 3.5;
       const sT = smoothStep(rawT);
-      tr.gx = 24.2 - sT * 12.6;
-      tr.gy = 18.6;
-      tr.dirX = -1;
-      tr.openDoor = false;
-      tr.phase = 'return';
-      tr.phaseProg = rawT;
+      tr.gx = 24.2 - sT * 12.6; tr.gy = 18.6; tr.dirX = -1; tr.openDoor = false;
+      tr.phase = 'return'; tr.phaseProg = rawT;
       tr.label = '← Returning to Hospital';
     }
   }
@@ -260,6 +247,7 @@ const SimApp = (() => {
     simState.elapsedSec += dtSec;
     const tSec = simState.elapsedSec;
     const isFut = simState.mode === 'future';
+    const forceSnap = simState.snapNext;
 
     const tr = simState.transports[0];
     updateTransport(tr, tSec, isFut);
@@ -269,9 +257,18 @@ const SimApp = (() => {
     if (concierge) {
       concierge.roleLabel = isFut ? 'Concierge' : 'Nurse';
       concierge.role = isFut ? 'concierge' : 'nurse';
-      if (tr.phase === 'board' || tr.phase === 'ed_dropoff') {
+      if (isFut && tr.phase === 'ready') {
         concierge.inVehicle = false;
-        concierge.gx = 12.7;
+        concierge.gx = 12.2;
+        concierge.gy = 16.2;
+        concierge.pose = 'IDLE';
+        concierge.bubble = 'Pre-Staged Ready ✓';
+        concierge.bubbleType = 'ok';
+        concierge.taskProg = null;
+        concierge.showBubble = true;
+      } else if (tr.phase === 'board' || tr.phase === 'ed_dropoff') {
+        concierge.inVehicle = false;
+        concierge.gx = 12.2;
         concierge.gy = 16.2;
         concierge.pose = 'HANDOVER_INTERACTION';
         concierge.bubble = isFut ? 'Ramp Lift (2.0m)' : 'ED Admission In →';
@@ -280,7 +277,7 @@ const SimApp = (() => {
         concierge.showBubble = true;
       } else if (tr.phase === 'dropoff') {
         concierge.inVehicle = false;
-        concierge.gx = 25.3;
+        concierge.gx = 24.8;
         concierge.gy = 16.2;
         concierge.pose = 'HANDOVER_INTERACTION';
         concierge.bubble = 'Retreat Handover';
@@ -306,7 +303,7 @@ const SimApp = (() => {
           const stIdx = Math.floor(tSec / ag.dwell) % ag.taskStations.length;
           const st = ag.taskStations[stIdx];
           ag.pose = st.pose;
-          PH.stepAgentPhysics(ag, st.gx, st.gy, dtSec, { baseSpeed: 5.5 });
+          PH.stepAgentPhysics(ag, st.gx, st.gy, dtSec, { baseSpeed: 5.5, splitX: 18, snap: forceSnap });
           return;
         }
         const dur = ag.dur || 2.2;
@@ -334,14 +331,13 @@ const SimApp = (() => {
         return;
       }
 
-      // Group B (7..29): 23 Patients who sit/wait in Current queues OR transition to Target wellness/recovery rooms
+      // Group B (7..29): 23 Background Patients seated in Current queues or Target rooms (snap cleanly on mode toggle)
       if (sIdx < 30) {
         const qIdx = sIdx - 7;
         const spot = isFut ? TARGET_SMOOTH_SPOTS[qIdx] : CURRENT_QUEUE_SPOTS[qIdx];
         ag.pose = spot.pose;
-        const snap = (spot.pose === 'LYING_ON_BED' || spot.pose === 'SWIMMING_POOL') && Math.hypot(spot.gx - ag.gx, spot.gy - ag.gy) < 1.2;
-        const corrY = spot.gx < 18 ? 7.5 : 7.5;
-        PH.stepAgentPhysics(ag, spot.gx, spot.gy, dtSec, { baseSpeed: 7.5, corridorY: corrY, snap });
+        const snap = forceSnap || ((spot.pose === 'LYING_ON_BED' || spot.pose === 'SWIMMING_POOL') && Math.hypot(spot.gx - ag.gx, spot.gy - ag.gy) < 1.2);
+        PH.stepAgentPhysics(ag, spot.gx, spot.gy, dtSec, { baseSpeed: 7.5, corridorY: 7.5, splitX: 18, snap });
         if (spot.b && Math.hypot(spot.gx - ag.gx, spot.gy - ag.gy) < 0.2) {
           const ringDur = 2.4;
           ag.taskProg = ((tSec + qIdx * 0.5) % ringDur) / ringDur;
@@ -352,16 +348,15 @@ const SimApp = (() => {
         return;
       }
 
-      // Group C (30..35): 6 Active Pathway Patients stepping through the 6 transfer stages in 18 seconds (3.0s per stage)
+      // Group C (30..35): 6 Active Pathway Patients (Zero foot travel across building gap x=15..23)
       const pIdx = sIdx - 30;
-      const cyclePos = (tSec + pIdx * 3.0) % CYCLE_SEC;
-      const stage = Math.floor(cyclePos / 3.0); // 0..5
-      const stageProg = (cyclePos % 3.0) / 3.0; // 0..1 within the 3.0s stage window
+      const into18 = tSec % CYCLE_SEC;
+      let tx = ag.gx, ty = ag.gy, snap = forceSnap;
 
-      let tx = ag.gx, ty = ag.gy, corrY = 7.5;
-      if (!isFut && stage >= 3) {
+      if (!isFut) {
+        // CURRENT MODE: Retreat Village does not exist — all patients remain inside Hospital (Building A)
         if (pIdx === 5) {
-          // Incoming ED patient brought TO the Hospital ED by Ambulance (never sent home)
+          // Incoming ED patient brought TO Hospital ED inside Ambulance (never sent home)
           if (tr.phase === 'ed_inbound') {
             ag.gx = tr.gx + 0.9;
             ag.gy = tr.gy + 0.5;
@@ -370,94 +365,106 @@ const SimApp = (() => {
             ag.pose = 'SITTING';
             return;
           } else if (tr.phase === 'ed_dropoff') {
-            tx = 12.6; ty = 14.5; ag.pose = 'HANDOVER_INTERACTION';
+            tx = 12.8; ty = 14.5; ag.pose = 'HANDOVER_INTERACTION';
             ag.bubble = 'ED Admission → Hospital';
             ag.bubbleType = 'wait';
             ag.taskProg = tr.phaseProg;
             ag.showBubble = true;
-            PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 8.0, corridorY: corrY });
-            return;
+          } else {
+            tx = 12.8; ty = 13.4; ag.pose = 'FRUSTRATED_WAIT';
+            ag.bubble = 'ED Backlog';
+            ag.bubbleType = 'wait';
+            ag.taskProg = (into18 % 4.0) / 4.0;
+            ag.showBubble = true;
           }
+          PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 8.5, corridorY: 7.5, splitX: 18, snap });
+          return;
         }
-        // Discharged patients have no step-down retreat and remain backed up inside Hospital
-        tx = 11.6 + (pIdx % 3) * 0.85;
-        ty = 13.6 + Math.floor(pIdx / 3) * 1.1;
-        ag.pose = 'FRUSTRATED_WAIT';
-        if (pIdx === 3 || pIdx === 4) {
-          ag.bubble = stage === 3 ? 'Discharge Delay (275m)' : 'Bed Block · No Retreat';
-          ag.bubbleType = 'wait';
-          ag.taskProg = stageProg;
-          ag.showBubble = true;
+
+        // pIdx 0..4 circulate strictly inside Hospital Bottleneck (15s = 3 stages x 5s)
+        const cPos = (tSec + pIdx * 3.0) % 15.0;
+        const stg = Math.floor(cPos / 5.0);
+        const sProg = (cPos % 5.0) / 5.0;
+        if (stg === 0) {
+          tx = 11.4 + (pIdx % 3) * 0.45; ty = 3.8; ag.pose = 'FRUSTRATED_WAIT';
+          if (pIdx === 0) { ag.bubble = 'Ward Backlog (70m)'; ag.bubbleType = 'wait'; ag.taskProg = sProg; ag.showBubble = true; }
+        } else if (stg === 1) {
+          tx = 8.7 + (pIdx % 3) * 0.4; ty = 10.6; ag.pose = 'FRUSTRATED_WAIT';
+          if (pIdx === 0) { ag.bubble = 'Billing Wait (55m)'; ag.bubbleType = 'wait'; ag.taskProg = sProg; ag.showBubble = true; }
+        } else {
+          tx = 12.5 + (pIdx % 3) * 0.4; ty = 14.0; ag.pose = 'FRUSTRATED_WAIT';
+          if (pIdx === 0) { ag.bubble = 'Bed Block · No Retreat'; ag.bubbleType = 'wait'; ag.taskProg = sProg; ag.showBubble = true; }
         }
-        PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 8.0, corridorY: corrY });
+        PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 8.0, corridorY: 7.5, splitX: 18, snap });
         return;
       }
-      if (stage === 0) {
-        // Stage 1: Ward B Discharge Desk (2.5s pause)
-        tx = 12.2; ty = 3.2; ag.pose = 'HANDOVER_INTERACTION';
-        if (pIdx === 0) {
-          ag.bubble = isFut ? 'Pre-Discharge (15m) ✓' : 'Ward Backlog (70m)';
-          ag.bubbleType = isFut ? 'ok' : 'wait';
-          ag.taskProg = stageProg;
-          ag.showBubble = true;
-        }
-      } else if (stage === 1) {
-        // Stage 2: Billing & Clearance Counter
-        tx = 7.8; ty = 10.6; ag.pose = isFut ? 'HANDOVER_INTERACTION' : 'FRUSTRATED_WAIT';
-        if (pIdx === 0) {
-          ag.bubble = isFut ? 'e-Billing (5m) ✓' : 'Billing Wait (55m)';
-          ag.bubbleType = isFut ? 'ok' : 'wait';
-          ag.taskProg = stageProg;
-          ag.showBubble = true;
-        }
-      } else if (stage === 2) {
-        // Stage 3: Hospital Main Entrance Boarding
-        tx = 12.6; ty = 15.2; ag.pose = isFut ? 'HANDOVER_INTERACTION' : 'FRUSTRATED_WAIT';
-        if (pIdx === 0) {
-          ag.bubble = isFut ? 'Concierge Ready ✓' : 'Transport Delay (90m)';
-          ag.bubbleType = isFut ? 'ok' : 'wait';
-          ag.taskProg = stageProg;
-          ag.showBubble = true;
-        }
-      } else if (stage === 3) {
-        // Stage 4: Ride Concierge Van or Arrive at Retreat Reception
-        if (isFut && tr.phase === 'outbound' && pIdx === 0) {
+
+      // TARGET MODE (isFut === true):
+      // - pIdx = 0: Live Full-Journey Transfer Patient (Building A -> Rides INSIDE Concierge Van -> Building B)
+      // - pIdx = 1, 2: Hospital-side Discharge Pipeline inside Building A ONLY (x < 15)
+      // - pIdx = 3, 4, 5: Retreat-side Care Pipeline inside Building B ONLY (x > 23)
+      if (pIdx === 0) {
+        if (into18 < 2.2) {
+          tx = 11.8; ty = 3.8; ag.pose = 'HANDOVER_INTERACTION';
+          ag.bubble = 'Pre-Discharge (15m) ✓'; ag.bubbleType = 'ok'; ag.taskProg = into18 / 2.2; ag.showBubble = true;
+        } else if (into18 < 5.2) {
+          tx = 9.0; ty = 10.6; ag.pose = 'HANDOVER_INTERACTION';
+          ag.bubble = 'e-Billing (5m) ✓'; ag.bubbleType = 'ok'; ag.taskProg = (into18 - 2.2) / 3.0; ag.showBubble = true;
+        } else if (into18 < 8.5) {
+          tx = 12.8; ty = 15.6; ag.pose = 'HANDOVER_INTERACTION';
+          ag.bubble = into18 >= 6.5 ? 'Ramp Boarding (2m) ✓' : 'Departure Lounge ✓';
+          ag.bubbleType = 'ok'; ag.taskProg = (into18 - 5.2) / 3.3; ag.showBubble = true;
+        } else if (into18 < 12.5) {
+          // Riding INSIDE Concierge Van Left -> Right across road (never walking across gap)
           ag.gx = tr.gx + 0.9;
           ag.gy = tr.gy + 0.5;
           ag.z = 5;
           ag.dir = 'SE';
           ag.pose = 'SITTING';
           return;
+        } else if (into18 < 15.0) {
+          tx = 25.9; ty = 10.6; ag.pose = 'HANDOVER_INTERACTION';
+          ag.bubble = 'Biometric Check-In (5m) ✓'; ag.bubbleType = 'ok'; ag.taskProg = (into18 - 12.5) / 2.5; ag.showBubble = true;
+        } else {
+          tx = 30.4; ty = 10.4; ag.pose = 'SITTING';
+          ag.bubble = 'Suite 301 Settled ✓'; ag.bubbleType = 'ok'; ag.taskProg = (into18 - 15.0) / 3.0; ag.showBubble = true;
         }
-        tx = 25.0; ty = 10.6; ag.pose = 'HANDOVER_INTERACTION';
-        if (pIdx === 0) {
-          ag.bubble = isFut ? 'Suite Check-In (5m) ✓' : 'Manual Intake (30m)';
-          ag.bubbleType = isFut ? 'ok' : 'wait';
-          ag.taskProg = stageProg;
-          ag.showBubble = true;
-        }
-      } else if (stage === 4) {
-        // Stage 5: Recovery Suite 301 Armchair / Visiting MD Check
-        tx = 29.5; ty = 10.2; ag.pose = 'SITTING';
-        if (pIdx === 0) {
-          ag.bubble = isFut ? 'Suite 301 Settled ✓' : 'Handover Delay';
-          ag.bubbleType = isFut ? 'ok' : 'wait';
-          ag.taskProg = stageProg;
-          ag.showBubble = true;
+      } else if (pIdx === 1 || pIdx === 2) {
+        // Building A ONLY (12.0s cycle = 3 stages x 4.0s)
+        const cPos = (tSec + (pIdx - 1) * 4.0) % 12.0;
+        const stg = Math.floor(cPos / 4.0);
+        const sProg = (cPos % 4.0) / 4.0;
+        if (stg === 0) {
+          tx = 11.4 + (pIdx - 1) * 0.6; ty = 3.8; ag.pose = 'HANDOVER_INTERACTION';
+          if (pIdx === 1) { ag.bubble = 'Pre-Discharge ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true; }
+        } else if (stg === 1) {
+          tx = 8.7 + (pIdx - 1) * 0.5; ty = 10.6; ag.pose = 'HANDOVER_INTERACTION';
+          if (pIdx === 1) { ag.bubble = 'e-Billing ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true; }
+        } else {
+          tx = 12.6 + (pIdx - 1) * 0.4; ty = 14.4; ag.pose = 'SITTING';
+          if (pIdx === 1) { ag.bubble = 'Van Staging ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true; }
         }
       } else {
-        // Stage 6: Visiting MD Clinic & Wellness
-        tx = 25.4; ty = 2.4; ag.pose = 'SITTING';
-        if (pIdx === 0) {
-          ag.bubble = isFut ? 'Visiting MD (25m) ✓' : 'Late Assessment';
-          ag.bubbleType = isFut ? 'ok' : 'wait';
-          ag.taskProg = stageProg;
-          ag.showBubble = true;
+        // Building B ONLY (12.0s cycle = 3 stages x 4.0s)
+        const cPos = (tSec + (pIdx - 3) * 4.0) % 12.0;
+        const stg = Math.floor(cPos / 4.0);
+        const sProg = (cPos % 4.0) / 4.0;
+        if (stg === 0) {
+          tx = 25.6 + (pIdx - 3) * 0.45; ty = 10.6; ag.pose = 'HANDOVER_INTERACTION';
+          if (pIdx === 3) { ag.bubble = 'Biometric Check-In ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true; }
+        } else if (stg === 1) {
+          tx = 30.1 + (pIdx - 3) * 0.3; ty = 10.3; ag.pose = 'SITTING';
+          if (pIdx === 3) { ag.bubble = 'Suite 301 Rest ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true; }
+        } else {
+          tx = 25.4 + (pIdx - 3) * 0.35; ty = 2.6; ag.pose = 'SITTING';
+          if (pIdx === 3) { ag.bubble = 'Visiting MD (25m) ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true; }
         }
       }
 
-      PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 8.0, corridorY: corrY });
+      PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 10.8, corridorY: 7.5, splitX: 18, snap });
     });
+
+    simState.snapNext = false;
   }
 
   function handleWorldClick(mx, my) {
@@ -473,6 +480,7 @@ const SimApp = (() => {
 
   function setMode(mode) {
     simState.mode = mode;
+    simState.snapNext = true;
     const isCur = mode === 'current';
     const bCur = document.getElementById('btn-mode-current');
     const bFut = document.getElementById('btn-mode-future');
