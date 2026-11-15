@@ -4,19 +4,19 @@
 // - Left Building (x: 1..15, y: 1..16): Multi-Wing Partner Specialist Hospital
 //   (Inpatient Ward A, Step-Down Ward B, Central Corridor, Discharge Pharmacy,
 //   Billing & Clearance Hall, Departure Lobby, Main Entrance facing DOWN at y=16)
-// - Green Garden Gap (x: 15..19): 4-Unit Open Separation Between Buildings
-// - Right Building (x: 19..33, y: 2.6..16): Luxury Wellness Resort Pavilion
-// - Front Two-Lane Road (x: 1..34.8, y: 16..20.4): Concierge Transport Left <-> Right
+// - Walking Park & Back Pool Pocket (x: 15..19.6): Continuous Perimeter Path + Resort Pool
+// - Right Building (x: 19.6..33.6, y: 2.6..16): Luxury Wellness Resort Pavilion
+// - Front Two-Lane Road (x: 1..35.4, y: 16..20.4): Concierge Transport Left <-> Right
 // ============================================================================
 
 const IsoRenderer = (() => {
-  const GRID_W = 36;
+  const GRID_W = 37;
   const GRID_H = 21;
 
   const MAP = {
     proj: { ax: 40, ay: 2, bx: -10, by: 28 },
-    bounds: { x0: 0.5, y0: 0.3, x1: 35.0, y1: 20.6 },
-    view: { x0: 0.5, y0: 0.3, x1: 35.0, y1: 20.6 },
+    bounds: { x0: 0.5, y0: 0.3, x1: 35.6, y1: 20.6 },
+    view: { x0: 0.5, y0: 0.3, x1: 35.6, y1: 20.6 },
     ground: [
       // ---------------- BUILDING 1 (LEFT: PARTNER HOSPITAL, x: 1..15, y: 1..16)
       { x: 1, y: 1, w: 7, d: 5.5, mat: 'linoBlue' },             // Ward A (Acute Inpatient)
@@ -26,42 +26,43 @@ const IsoRenderer = (() => {
       { x: 5.8, y: 8.5, w: 5.0, d: 7.5, mat: 'linoWhite' },      // Billing & Insurance Hall
       { x: 10.8, y: 8.5, w: 4.2, d: 7.5, mat: 'carpetTeal' },    // Departure & Main Entrance Lobby
 
-      // ---------------- RIGHT SITE: UNDEVELOPED LOT (Current) -> 4-UNIT GREEN GAP + LUXURY PAVILION (Target)
-      { x: 15.0, y: 0.6, w: 19.8, d: 16.0, mat: 'grass' },       // Undeveloped Grass (Cur) / Landscaped Resort Lawn (Fut)
+      // ---------------- RIGHT SITE: UNDEVELOPED LOT (Current) -> WALKING PARK, POOL & RESORT (Target)
+      { x: 15.0, y: 0.6, w: 20.4, d: 16.0, mat: 'grass' },       // Undeveloped Grass (Cur) / Landscaped Resort Lawn (Fut)
 
-      // Open Garden Gap Pool Terrace, Walkway & Perimeter Paths (Target Only)
-      { x: 15.35, y: 1.4, w: 3.3, d: 5.4, mat: { cur: null, fut: 'travertine' } },  // Back Poolside Sun Terrace
-      { x: 15.75, y: 2.0, w: 1.65, d: 4.1, mat: { cur: null, fut: 'water' } },      // Outdoor Resort Swimming Pool
-      { x: 16.5, y: 6.8, w: 1.0, d: 9.2, mat: { cur: null, fut: 'paver' } },        // Centered Divider Walkway
-      { x: 18.65, y: 1.1, w: 15.85, d: 1.1, mat: { cur: null, fut: 'paver' } },     // North Garden Walk
-      { x: 33.5, y: 1.1, w: 1.0, d: 14.9, mat: { cur: null, fut: 'paver' } },      // East Park Terrace Walk
-      { x: 33.0, y: 4.1, w: 0.6, d: 1.4, mat: { cur: null, fut: 'travertine' } },  // Movement Studio Garden Patio
-      { x: 33.0, y: 11.7, w: 0.6, d: 1.4, mat: { cur: null, fut: 'travertine' } }, // Fine-Dining Garden Terrace Patio
+      // Continuous Perimeter Walking Park Loop + Back Pool Sun Terrace (Target Only)
+      { x: 15.3, y: 1.1, w: 0.9, d: 14.9, mat: { cur: null, fut: 'paver' } },       // West Walking Park Path (Full Loop)
+      { x: 15.3, y: 1.1, w: 19.7, d: 0.95, mat: { cur: null, fut: 'paver' } },      // North Walking Park Path (Full Loop)
+      { x: 34.1, y: 1.1, w: 0.9, d: 14.9, mat: { cur: null, fut: 'paver' } },       // East Park Terrace Walk (Full Loop)
+      { x: 16.2, y: 7.2, w: 3.4, d: 1.3, mat: { cur: null, fut: 'paver' } },        // Poolside & Resort Side-Door Link
+      { x: 16.4, y: 2.2, w: 3.0, d: 4.75, mat: { cur: null, fut: 'travertine' } },  // Back Poolside Sun Terrace
+      { x: 16.7, y: 2.6, w: 1.45, d: 3.7, mat: { cur: null, fut: 'water' } },       // Outdoor Resort Swimming Pool
+      { x: 33.6, y: 4.1, w: 0.6, d: 1.4, mat: { cur: null, fut: 'travertine' } },   // Movement Studio Garden Patio
+      { x: 33.6, y: 11.7, w: 0.6, d: 1.4, mat: { cur: null, fut: 'travertine' } },  // Fine-Dining Garden Terrace Patio
 
-      // BUILDING 2 (LUXURY WELLNESS RESORT PAVILION, x: 19..33, y: 2.6..16) — ZERO HOSPITAL WARD BEDS
-      { x: 19.0, y: 2.6, w: 4.0, d: 4.2, mat: { cur: null, fut: 'ceramicBlue' } },  // ONLY 1 Medical Room: MONTHLY VISITING MD ROOM
-      { x: 23.0, y: 2.6, w: 5.0, d: 4.2, mat: { cur: null, fut: 'travertine' } },   // THERMAL SPA & MASSAGE
-      { x: 28.0, y: 2.6, w: 5.0, d: 4.2, mat: { cur: null, fut: 'oak' } },          // WELLNESS & MOVEMENT CLASS
-      { x: 19.0, y: 6.8, w: 14.0, d: 2.0, mat: { cur: null, fut: 'marble' } },      // Resort Central Marble Promenade
-      { x: 19.0, y: 8.8, w: 6.8, d: 7.2, mat: { cur: null, fut: 'carpetBeige' } },  // EVENTS & SOCIAL LOUNGE
-      { x: 25.8, y: 8.8, w: 7.2, d: 7.2, mat: { cur: null, fut: 'ceramicCream' } }, // FINE-DINING RESTAURANT
+      // BUILDING 2 (LUXURY WELLNESS RESORT PAVILION, x: 19.6..33.6, y: 2.6..16) — ZERO HOSPITAL WARD BEDS
+      { x: 19.6, y: 2.6, w: 4.0, d: 4.2, mat: { cur: null, fut: 'ceramicBlue' } },  // ONLY 1 Medical Room: MONTHLY VISITING MD ROOM
+      { x: 23.6, y: 2.6, w: 5.0, d: 4.2, mat: { cur: null, fut: 'travertine' } },   // THERMAL SPA & MASSAGE
+      { x: 28.6, y: 2.6, w: 5.0, d: 4.2, mat: { cur: null, fut: 'oak' } },          // WELLNESS & MOVEMENT CLASS
+      { x: 19.6, y: 6.8, w: 14.0, d: 2.0, mat: { cur: null, fut: 'marble' } },      // Resort Central Marble Promenade
+      { x: 19.6, y: 8.8, w: 6.8, d: 7.2, mat: { cur: null, fut: 'carpetBeige' } },  // EVENTS & SOCIAL LOUNGE
+      { x: 26.4, y: 8.8, w: 7.2, d: 7.2, mat: { cur: null, fut: 'ceramicCream' } }, // FINE-DINING RESTAURANT
 
       // ---------------- FRONT WALKWAY & CONCIERGE TRANSPORT ROAD (y: 16..20.4)
       { x: 1, y: 16.0, w: 14, d: 0.6, mat: 'paver' },            // Hospital Front Entrance Apron
-      { x: 16.5, y: 16.0, w: 18.0, d: 0.6, mat: { cur: 'grass', fut: 'paver' } }, // Luxury Resort & Divider Apron
-      { x: 1, y: 16.6, w: 33.8, d: 3.8, mat: 'asphalt' }           // Horizontal Left<->Right Road
+      { x: 15.3, y: 16.0, w: 19.7, d: 0.6, mat: { cur: 'grass', fut: 'paver' } }, // Continuous South Promenade & Resort Apron
+      { x: 1, y: 16.6, w: 34.4, d: 3.8, mat: 'asphalt' }           // Horizontal Left<->Right Road
     ],
     decals: [
       // Hospital corridor wayfinding line
       { type: 'line', x1: 1.5, y1: 7.5, x2: 14.5, y2: 7.5, w: 0.10, col: '#0ea5e9' },
       // Resort marble promenade accent trim
-      { type: 'line', x1: 19.4, y1: 7.8, x2: 32.6, y2: 7.8, w: 0.10, col: '#10b981', when: 'fut' },
+      { type: 'line', x1: 20.0, y1: 7.8, x2: 33.2, y2: 7.8, w: 0.10, col: '#10b981', when: 'fut' },
       // Road center divider (Left <-> Right)
-      { type: 'line', x1: 1.5, y1: 18.5, x2: 34.2, y2: 18.5, w: 0.09, col: 'rgba(250,204,21,0.75)', dash: [0.6, 0.4] },
+      { type: 'line', x1: 1.5, y1: 18.5, x2: 34.8, y2: 18.5, w: 0.09, col: 'rgba(250,204,21,0.75)', dash: [0.6, 0.4] },
       // Hospital Main Entrance Pick-Up Bay (Facing Down at x: 11.2..14.2, y: 16.7..18.2)
       { type: 'hatch', x: 11.2, y: 16.7, w: 3.0, d: 1.5, col: 'rgba(14,165,233,0.65)' },
-      // Luxury Resort VIP Drop-Off Bay (Facing Down at x: 19.8..22.8, y: 16.7..18.2)
-      { type: 'hatch', x: 19.8, y: 16.7, w: 3.0, d: 1.5, col: 'rgba(212,175,55,0.72)', when: 'fut' }
+      // Luxury Resort VIP Drop-Off Bay (Facing Down at x: 20.4..23.4, y: 16.7..18.2)
+      { type: 'hatch', x: 20.4, y: 16.7, w: 3.0, d: 1.5, col: 'rgba(212,175,55,0.72)', when: 'fut' }
     ],
     walls: [
       // BUILDING 1 (LEFT — PARTNER HOSPITAL, x: 1..15, y: 1..16)
@@ -77,19 +78,19 @@ const IsoRenderer = (() => {
       { x1: 5.8, y1: 8.5, x2: 5.8, y2: 16, kind: 'int', col: '#cbd5e1', open: [{ at: 11.5, w: 1.4, type: 'door' }] },
       { x1: 10.8, y1: 8.5, x2: 10.8, y2: 16, kind: 'glass', col: '#cbd5e1', open: [{ at: 11.5, w: 1.5, type: 'slide' }] },
 
-      // BUILDING 2 (RIGHT — LUXURY WELLNESS RESORT PAVILION, x: 19..33, y: 2.6..16)
-      { when: 'fut', x1: 19, y1: 2.6, x2: 33, y2: 2.6, kind: 'ext', col: '#faf8f5', windows: true },
-      { when: 'fut', x1: 19, y1: 2.6, x2: 19, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 7.1, w: 1.5, type: 'slide', alwaysOpen: true }] },
-      { when: 'fut', x1: 33, y1: 2.6, x2: 33, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 4.1, w: 1.4, type: 'slide', alwaysOpen: true }, { at: 11.7, w: 1.5, type: 'slide', alwaysOpen: true }] },
-      { when: 'fut', x1: 19, y1: 16, x2: 33, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 20.4, w: 2.4, type: 'slide', alwaysOpen: true }] },
+      // BUILDING 2 (RIGHT — LUXURY WELLNESS RESORT PAVILION, x: 19.6..33.6, y: 2.6..16)
+      { when: 'fut', x1: 19.6, y1: 2.6, x2: 33.6, y2: 2.6, kind: 'ext', col: '#faf8f5', windows: true },
+      { when: 'fut', x1: 19.6, y1: 2.6, x2: 19.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 7.1, w: 1.5, type: 'slide', alwaysOpen: true }] },
+      { when: 'fut', x1: 33.6, y1: 2.6, x2: 33.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 4.1, w: 1.4, type: 'slide', alwaysOpen: true }, { at: 11.7, w: 1.5, type: 'slide', alwaysOpen: true }] },
+      { when: 'fut', x1: 19.6, y1: 16, x2: 33.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 21.0, w: 2.4, type: 'slide', alwaysOpen: true }] },
       // Top Wing Dividers: Monthly Visiting MD Room | Thermal Spa & Massage | Wellness & Movement Class
-      { when: 'fut', x1: 23, y1: 2.6, x2: 23, y2: 6.8, kind: 'int', col: '#e2e8f0' },
-      { when: 'fut', x1: 28, y1: 2.6, x2: 28, y2: 6.8, kind: 'glass', col: '#cbd5e1' },
+      { when: 'fut', x1: 23.6, y1: 2.6, x2: 23.6, y2: 6.8, kind: 'int', col: '#e2e8f0' },
+      { when: 'fut', x1: 28.6, y1: 2.6, x2: 28.6, y2: 6.8, kind: 'glass', col: '#cbd5e1' },
       // Resort Central Promenade Walls (Corridor y: 6.8..8.8)
-      { when: 'fut', x1: 19, y1: 6.8, x2: 33, y2: 6.8, kind: 'glass', col: '#f8fafc', open: [{ at: 20.4, w: 1.5, type: 'door' }, { at: 24.8, w: 1.6, type: 'slide' }, { at: 29.8, w: 1.8, type: 'slide' }] },
-      { when: 'fut', x1: 19, y1: 8.8, x2: 33, y2: 8.8, kind: 'glass', col: '#f8fafc', open: [{ at: 20.8, w: 1.8, type: 'slide' }, { at: 28.6, w: 1.8, type: 'slide' }] },
+      { when: 'fut', x1: 19.6, y1: 6.8, x2: 33.6, y2: 6.8, kind: 'glass', col: '#f8fafc', open: [{ at: 21.0, w: 1.5, type: 'door' }, { at: 25.4, w: 1.6, type: 'slide' }, { at: 30.4, w: 1.8, type: 'slide' }] },
+      { when: 'fut', x1: 19.6, y1: 8.8, x2: 33.6, y2: 8.8, kind: 'glass', col: '#f8fafc', open: [{ at: 21.4, w: 1.8, type: 'slide' }, { at: 29.2, w: 1.8, type: 'slide' }] },
       // Bottom Wing Divider: Events & Social Lounge | Fine-Dining Restaurant
-      { when: 'fut', x1: 25.8, y1: 8.8, x2: 25.8, y2: 16, kind: 'glass', col: '#e2e8f0', open: [{ at: 11.8, w: 1.8, type: 'slide', alwaysOpen: true }] }
+      { when: 'fut', x1: 26.4, y1: 8.8, x2: 26.4, y2: 16, kind: 'glass', col: '#e2e8f0', open: [{ at: 11.8, w: 1.8, type: 'slide', alwaysOpen: true }] }
     ]
   };
 
@@ -530,29 +531,42 @@ const IsoRenderer = (() => {
       const c = PH.S.ctx;
       const z = PH.zoom;
       const rim = 0.14;
-      // Crisp white stone coping border around water
+      // Crisp stone coping tiles framing the pool perimeter
       PH.topQuad(x - rim, y - rim, 0.25, w + rim * 2, rim, '#f8fafc', { stroke: '#cbd5e1' });
       PH.topQuad(x - rim, y + d, 0.25, w + rim * 2, rim, '#f8fafc', { stroke: '#cbd5e1' });
       PH.topQuad(x - rim, y, 0.25, rim, d, '#f1f5f9', { stroke: '#cbd5e1' });
       PH.topQuad(x + w, y, 0.25, rim, d, '#f1f5f9', { stroke: '#cbd5e1' });
-      // Inner recessed pool shadow & shallow south entry steps
-      PH.topQuad(x, y, 0.16, w, 0.16, '#0284c7');
+      // Mosaic turquoise-blue inner waterline & recessed wall depth shadows
+      PH.topQuad(x, y, 0.16, w, 0.16, '#0369a1');
       PH.topQuad(x, y, 0.16, 0.16, d, '#0369a1');
-      PH.topQuad(x + 0.18, y + d - 0.58, 0.18, w - 0.36, 0.22, 'rgba(224,242,254,0.45)');
-      PH.topQuad(x + 0.18, y + d - 0.32, 0.20, w - 0.36, 0.24, 'rgba(240,249,255,0.62)');
-      // Gentle animated pool shimmer ripples
+      PH.topQuad(x + 0.16, y + 0.16, 0.16, w - 0.16, 0.08, '#38bdf8');
+      PH.topQuad(x + 0.16, y + 0.16, 0.16, 0.08, d - 0.16, '#38bdf8');
+      // North shallow Baja tanning shelf
+      PH.topQuad(x + 0.18, y + 0.18, 0.19, w - 0.32, 0.52, 'rgba(186,230,253,0.45)', { stroke: 'rgba(255,255,255,0.4)' });
+      // South submerged entry steps
+      PH.topQuad(x + 0.18, y + d - 0.58, 0.18, w - 0.36, 0.22, 'rgba(224,242,254,0.48)');
+      PH.topQuad(x + 0.18, y + d - 0.32, 0.20, w - 0.36, 0.24, 'rgba(240,249,255,0.65)');
+      // Gentle animated pool shimmer ripples & floating swim ring
       c.save();
       for (let i = 0; i < 3; i++) {
         const rp = ((PH.t / 135) + i * 0.33) % 1;
         const rcx = x + w * (0.42 + (i % 2) * 0.16);
-        const rcy = y + d * (0.28 + i * 0.22);
+        const rcy = y + d * (0.30 + i * 0.21);
         const p = PH.P(rcx, rcy, 0.22);
         c.strokeStyle = `rgba(224,242,254,${(0.55 * (1 - rp)).toFixed(2)})`;
         c.lineWidth = 1.15;
         c.beginPath();
-        c.ellipse(p.x, p.y, (3 + rp * 12) * z, (1.6 + rp * 6.5) * z, 0, 0, Math.PI * 2);
+        c.ellipse(p.x, p.y, (3 + rp * 11) * z, (1.6 + rp * 6.0) * z, 0, 0, Math.PI * 2);
         c.stroke();
       }
+      const floatX = x + w * 0.45 + Math.sin(PH.t * 0.035) * 0.10;
+      const floatY = y + d * 0.48 + Math.cos(PH.t * 0.028) * 0.14;
+      const fp = PH.P(floatX, floatY, 0.35);
+      c.strokeStyle = '#fb7185';
+      c.lineWidth = 3.2 * z;
+      c.beginPath();
+      c.ellipse(fp.x, fp.y, 5.2 * z, 2.8 * z, 0.15, 0, Math.PI * 2);
+      c.stroke();
       c.restore();
     });
     // Stainless chrome pool ladder rails at south-east shallow corner
@@ -851,77 +865,81 @@ const IsoRenderer = (() => {
     }
 
     if (isFut) {
-      // ---------------- BUILDING 2 (x: 19..33, y: 2.6..16): LUXURY WELLNESS RESORT PAVILION (ZERO HOSPITAL BEDS)
-      // 1. ONLY 1 Compact Medical Room: MONTHLY VISITING MD ROOM (x: 19..23, y: 2.6..6.8)
-      PHSprites.officeDesk(19.5, 3.05, 0, { clutter: false, screenStyle: 'ok', seed: 11 });
-      PHSprites.examTable(19.4, 4.95, 0, { col: '#ffffff' }); // Crisp White Medical Examination Couch
-      PHSprites.privacyCurtain(21.6, 3.0, 1, 1.4, '#bae6fd');
+      // ---------------- BUILDING 2 (x: 19.6..33.6, y: 2.6..16): LUXURY WELLNESS RESORT PAVILION (ZERO HOSPITAL BEDS)
+      // 1. ONLY 1 Compact Medical Room: MONTHLY VISITING MD ROOM (x: 19.6..23.6, y: 2.6..6.8)
+      PHSprites.officeDesk(20.1, 3.05, 0, { clutter: false, screenStyle: 'ok', seed: 11 });
+      PHSprites.examTable(20.0, 4.95, 0, { col: '#ffffff' }); // Crisp White Medical Examination Couch
+      PHSprites.privacyCurtain(22.2, 3.0, 1, 1.4, '#bae6fd');
 
-      // 2. THERMAL SPA & MASSAGE (x: 23..28, y: 2.6..6.8)
-      PHSprites.spaTable(23.3, 3.0, 0, { col: '#5eead4' });
-      PHSprites.spaTable(23.3, 4.8, 0, { col: '#2dd4bf' });
-      drawTowelStation(26.4, 2.9);
-      drawThermalLounger(25.8, 4.3, '#f8fafc');
-      drawThermalLounger(25.8, 5.5, '#f0fdfa');
+      // 2. THERMAL SPA & MASSAGE (x: 23.6..28.6, y: 2.6..6.8)
+      PHSprites.spaTable(23.9, 3.0, 0, { col: '#5eead4' });
+      PHSprites.spaTable(23.9, 4.8, 0, { col: '#2dd4bf' });
+      drawTowelStation(27.0, 2.9);
+      drawThermalLounger(26.4, 4.3, '#f8fafc');
+      drawThermalLounger(26.4, 5.5, '#f0fdfa');
 
-      // 3. WELLNESS & MOVEMENT CLASS (x: 28..33, y: 2.6..6.8)
-      PHSprites.kiosk(28.3, 3.1, 0, { col: '#10b981' }); // Audio & Wellness Telemetry Screen
-      drawYogaMat(29.5, 3.1, '#14b8a6');
-      drawYogaMat(31.1, 3.1, '#0ea5e9');
-      drawYogaMat(29.5, 4.8, '#2dd4bf');
-      drawYogaMat(31.1, 4.8, '#10b981');
+      // 3. WELLNESS & MOVEMENT CLASS (x: 28.6..33.6, y: 2.6..6.8)
+      PHSprites.kiosk(28.9, 3.1, 0, { col: '#10b981' }); // Audio & Wellness Telemetry Screen
+      drawYogaMat(30.1, 3.1, '#14b8a6');
+      drawYogaMat(31.7, 3.1, '#0ea5e9');
+      drawYogaMat(30.1, 4.8, '#2dd4bf');
+      drawYogaMat(31.7, 4.8, '#10b981');
 
-      // 4. EVENTS & SOCIAL LOUNGE (x: 19..25.8, y: 8.8..16)
-      PHSprites.receptionDesk(19.3, 9.3, 0, 2.1, { col: '#10b981', wood: '#d4a373', clutter: false });
-      drawWallEventScreen(22.1, 8.92); // Wall-Mounted Social Event Screen
-      drawEspressoBar(19.3, 12.8);
-      PHSprites.sofa(21.9, 10.3, 0, 2.1, '#f5efe6'); // Plush Cream Lounge Sofa
-      drawCoffeeTableAndSet(23.0, 12.2);            // Wooden Coffee Table & Tea Service
-      PHSprites.sofa(21.9, 13.4, 0, 2.1, '#059669'); // Plush Emerald Lounge Sofa
-      PHSprites.armchair(24.3, 11.4, 0, { col: '#059669' });
-      drawIndoorPalm(24.9, 9.2);                     // Potted Indoor Palms
-      drawIndoorPalm(24.9, 14.9);
-      drawIndoorPalm(19.3, 15.1);
+      // 4. EVENTS & SOCIAL LOUNGE (x: 19.6..26.4, y: 8.8..16)
+      PHSprites.receptionDesk(19.9, 9.3, 0, 2.1, { col: '#10b981', wood: '#d4a373', clutter: false });
+      drawWallEventScreen(22.7, 8.92); // Wall-Mounted Social Event Screen
+      drawEspressoBar(19.9, 12.8);
+      PHSprites.sofa(22.5, 10.3, 0, 2.1, '#f5efe6'); // Plush Cream Lounge Sofa
+      drawCoffeeTableAndSet(23.6, 12.2);            // Wooden Coffee Table & Tea Service
+      PHSprites.sofa(22.5, 13.4, 0, 2.1, '#059669'); // Plush Emerald Lounge Sofa
+      PHSprites.armchair(24.9, 11.4, 0, { col: '#059669' });
+      drawIndoorPalm(25.5, 9.2);                     // Potted Indoor Palms
+      drawIndoorPalm(25.5, 14.9);
+      drawIndoorPalm(19.9, 15.1);
 
-      // 5. FINE-DINING RESTAURANT (x: 25.8..33, y: 8.8..16) — Round White-Clothed Bistro Tables (ZERO BEDS)
-      drawRoundBistroTable(27.4, 10.8);
-      drawRoundBistroTable(30.3, 10.8);
-      drawRoundBistroTable(27.4, 13.8);
-      drawRoundBistroTable(30.3, 13.8);
-      PHSprites.receptionDesk(31.3, 9.1, 1, 2.0, { col: '#d4a373', wood: '#784e32', clutter: false }); // Culinary Plating Counter
+      // 5. FINE-DINING RESTAURANT (x: 26.4..33.6, y: 8.8..16) — Round White-Clothed Bistro Tables (ZERO BEDS)
+      drawRoundBistroTable(28.0, 10.8);
+      drawRoundBistroTable(30.9, 10.8);
+      drawRoundBistroTable(28.0, 13.8);
+      drawRoundBistroTable(30.9, 13.8);
+      PHSprites.receptionDesk(31.9, 9.1, 1, 2.0, { col: '#d4a373', wood: '#784e32', clutter: false }); // Culinary Plating Counter
 
-      // ---------------- 4-UNIT GREEN GARDEN GAP (x: 15..19) WITH BACK SWIMMING POOL, LOUNGERS & UMBRELLA
-      drawSwimmingPool(15.75, 2.0, 1.65, 4.1);
-      drawPoolLounger(17.65, 2.05, '#f8fafc');
-      drawPoolUmbrella(18.02, 3.92, '#0d9488', '#fefce8');
-      drawPoolLounger(17.65, 4.38, '#f0fdfa');
+      // ---------------- WALKING PARK LOOP & BACK SWIMMING POOL POCKET
+      drawSwimmingPool(16.7, 2.6, 1.45, 3.7);
+      drawPoolLounger(18.38, 2.65, '#f8fafc');
+      drawPoolUmbrella(18.75, 4.48, '#0d9488', '#fefce8');
+      drawPoolLounger(18.38, 4.95, '#f0fdfa');
 
-      drawCobblestonePath(16.5, 6.9, 1.0, 9.1);
-      drawCobblestonePath(18.65, 1.1, 14.85, 1.1);
-      drawCobblestonePath(33.5, 1.2, 1.0, 14.8);
+      // Continuous Full Perimeter Walking Park Loop around Building B
+      drawCobblestonePath(15.3, 1.15, 0.9, 14.85);
+      drawCobblestonePath(16.2, 1.1, 17.9, 0.95);
+      drawCobblestonePath(34.1, 1.15, 0.9, 14.85);
+      drawCobblestonePath(16.2, 7.25, 3.3, 1.2);
 
-      drawHedge(19.6, 2.25, 13.0, 0.35, true);
+      drawHedge(20.2, 2.25, 13.0, 0.35, true);
 
-      // Flowering Trees with Colourful Ring Flowerbeds
-      drawTreeWithFlowerbed(23.2, 1.2, 0.88, 1);
-      drawTreeWithFlowerbed(28.4, 1.2, 0.88, 0);
-      drawTreeWithFlowerbed(34.1, 1.5, 0.88, 1);
-      drawTreeWithFlowerbed(34.2, 8.2, 0.85, 0);
-      drawTreeWithFlowerbed(34.2, 14.8, 0.85, 1);
+      // Flowering Trees & Park Seating along Walking Loop Border + South Lawn Garden
+      drawTreeWithFlowerbed(17.8, 13.6, 0.85, 1);
+      drawTreeWithFlowerbed(23.8, 1.1, 0.72, 1);
+      drawTreeWithFlowerbed(29.0, 1.1, 0.72, 0);
+      drawTreeWithFlowerbed(34.6, 1.35, 0.78, 1);
+      drawTreeWithFlowerbed(34.7, 8.2, 0.78, 0);
+      drawTreeWithFlowerbed(34.6, 14.8, 0.78, 1);
 
-      // Wooden Park Benches along North Walk & East Terrace
-      drawParkBench(20.2, 1.35, false);
-      drawParkBench(30.6, 1.35, false);
-      drawParkBench(33.9, 6.4, true);
-      drawParkBench(33.9, 10.6, true);
+      // Wooden Park Benches bordering Walking Loop & South Pocket Garden
+      drawParkBench(18.1, 10.2, true);
+      drawParkBench(20.8, 1.12, false);
+      drawParkBench(31.2, 1.12, false);
+      drawParkBench(34.4, 6.4, true);
+      drawParkBench(34.4, 10.6, true);
 
-      PHSprites.streetLamp(16.2, 15.6);
-      PHSprites.streetLamp(33.5, 2.2);
-      PHSprites.streetLamp(33.5, 15.6);
+      PHSprites.streetLamp(15.3, 15.6);
+      PHSprites.streetLamp(34.1, 2.2);
+      PHSprites.streetLamp(34.1, 15.6);
     } else {
       // Current mode: spare trees around undeveloped grassy plot edge
-      PHSprites.tree(33.4, 3.0, 0.9, 0);
-      PHSprites.tree(34.0, 11.5, 0.95, 0);
+      PHSprites.tree(33.9, 3.0, 0.9, 0);
+      PHSprites.tree(34.4, 11.5, 0.95, 0);
     }
 
     // ---------------- VEHICLE SPRITES ON FRONT ROAD (y: 16.8..19.2)

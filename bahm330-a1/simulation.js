@@ -32,11 +32,11 @@ const SimApp = (() => {
     { id: 'st-6', roleLabel: '', role: 'reception', gx: 7.5, gy: 10.4, pose: 'TYPING_TERMINAL', taskCur: 'Billing (55m)', taskFut: 'e-Billing (5m) ✓', dur: 2.0, show: true },
     // Single Concierge operating the Left <-> Right transport between the two downward-facing Main Entrances
     { id: 'st-7', roleLabel: 'Concierge', role: 'concierge', gx: 12.7, gy: 16.2, pose: 'HANDOVER_INTERACTION', taskCur: 'Ramp Lift', taskFut: 'VIP Ramp (2m)', dur: 2.2, show: true },
-    { id: 'st-8', retreat: true, roleLabel: 'Concierge', role: 'concierge', gx: 20.4, gy: 10.7, pose: 'TYPING_TERMINAL', taskCur: 'Paper Intake (30m)', taskFut: 'Biometric Lounge ✓', dur: 2.0, show: true },
-    { id: 'st-9', retreat: true, roleLabel: 'Doctor', role: 'doctor', gx: 20.9, gy: 4.3, pose: 'EXAMINING', taskCur: 'Delayed MD (30m)', taskFut: 'Monthly MD Visit ✓', dur: 2.4, show: true },
-    { id: 'st-10', retreat: true, roleLabel: 'Instructor', role: 'therapist', gx: 28.8, gy: 4.3, pose: 'YOGA_STRETCH', taskCur: 'No Class', taskFut: 'Wellness Class ✓', dur: 2.2, show: true },
-    { id: 'st-11', retreat: true, roleLabel: 'Therapist', role: 'therapist', gx: 24.9, gy: 3.6, pose: 'HANDOVER_INTERACTION', taskCur: 'No Spa', taskFut: 'Thermal Massage ✓', dur: 2.5, show: true },
-    { id: 'st-12', retreat: true, roleLabel: 'Chef', role: 'chef', gx: 31.8, gy: 10.3, pose: 'HANDOVER_INTERACTION', taskCur: 'No Kitchen', taskFut: 'Bistro Service ✓', dur: 2.3, show: false }
+    { id: 'st-8', retreat: true, roleLabel: 'Concierge', role: 'concierge', gx: 21.0, gy: 10.7, pose: 'TYPING_TERMINAL', taskCur: 'Paper Intake (30m)', taskFut: 'Biometric Lounge ✓', dur: 2.0, show: true },
+    { id: 'st-9', retreat: true, roleLabel: 'Doctor', role: 'doctor', gx: 21.5, gy: 4.3, pose: 'EXAMINING', taskCur: 'Delayed MD (30m)', taskFut: 'Monthly MD Visit ✓', dur: 2.4, show: true },
+    { id: 'st-10', retreat: true, roleLabel: 'Instructor', role: 'therapist', gx: 29.4, gy: 4.3, pose: 'YOGA_STRETCH', taskCur: 'No Class', taskFut: 'Wellness Class ✓', dur: 2.2, show: true },
+    { id: 'st-11', retreat: true, roleLabel: 'Therapist', role: 'therapist', gx: 25.5, gy: 3.6, pose: 'HANDOVER_INTERACTION', taskCur: 'No Spa', taskFut: 'Thermal Massage ✓', dur: 2.5, show: true },
+    { id: 'st-12', retreat: true, roleLabel: 'Chef', role: 'chef', gx: 32.4, gy: 10.3, pose: 'HANDOVER_INTERACTION', taskCur: 'No Kitchen', taskFut: 'Bistro Service ✓', dur: 2.3, show: false }
   ];
 
   // Fixed Stationary Slots for 30 Non-Pathway Patients (Zero Slot-Shifting or Endless Loops)
@@ -85,29 +85,29 @@ const SimApp = (() => {
     { gx: 8.6, gy: 10.5, pose: 'HANDOVER_INTERACTION' },
     { gx: 2.8, gy: 10.5, pose: 'HANDOVER_INTERACTION' },
     // MONTHLY VISITING MD ROOM (1 compact medical check-up suite ONLY) (2)
-    { gx: 20.7, gy: 5.5, pose: 'SITTING' },
-    { gx: 21.8, gy: 3.7, pose: 'SITTING' },
+    { gx: 21.3, gy: 5.5, pose: 'SITTING' },
+    { gx: 22.4, gy: 3.7, pose: 'SITTING' },
     // THERMAL SPA & MASSAGE (2) — Heated Massage Table + Relaxation Lounger
-    { gx: 24.2, gy: 5.2, pose: 'LYING_ON_BED' },
-    { gx: 26.6, gy: 5.9, pose: 'SITTING' },
+    { gx: 24.8, gy: 5.2, pose: 'LYING_ON_BED' },
+    { gx: 27.2, gy: 5.9, pose: 'SITTING' },
     // WELLNESS & MOVEMENT CLASS (4) — Yoga / Tai Chi Studio Mats
-    { gx: 30.1, gy: 3.4, pose: 'YOGA_STRETCH' },
-    { gx: 31.7, gy: 3.4, pose: 'YOGA_STRETCH' },
-    { gx: 30.1, gy: 5.1, pose: 'YOGA_STRETCH' },
-    { gx: 31.7, gy: 5.1, pose: 'YOGA_STRETCH' },
+    { gx: 30.7, gy: 3.4, pose: 'YOGA_STRETCH' },
+    { gx: 32.3, gy: 3.4, pose: 'YOGA_STRETCH' },
+    { gx: 30.7, gy: 5.1, pose: 'YOGA_STRETCH' },
+    { gx: 32.3, gy: 5.1, pose: 'YOGA_STRETCH' },
     // EVENTS & SOCIAL LOUNGE (4) — Plush Cream/Emerald Sofas, Coffee Table & Espresso Bar (Zero Beds)
-    { gx: 22.8, gy: 10.7, pose: 'SITTING' },
-    { gx: 23.6, gy: 10.7, pose: 'SITTING' },
-    { gx: 22.8, gy: 13.7, pose: 'SITTING' },
-    { gx: 24.8, gy: 11.8, pose: 'SITTING' },
+    { gx: 23.4, gy: 10.7, pose: 'SITTING' },
+    { gx: 24.2, gy: 10.7, pose: 'SITTING' },
+    { gx: 23.4, gy: 13.7, pose: 'SITTING' },
+    { gx: 25.4, gy: 11.8, pose: 'SITTING' },
     // FINE-DINING RESTAURANT (4) — Round White-Clothed Bistro Tables (Zero Beds)
-    { gx: 26.7, gy: 10.8, pose: 'SITTING' },
-    { gx: 29.6, gy: 10.8, pose: 'SITTING' },
-    { gx: 26.7, gy: 13.8, pose: 'SITTING' },
-    { gx: 30.9, gy: 13.8, pose: 'SITTING' },
-    // RESORT GARDEN PARK (2) — Strictly Outdoors on Wooden Park Benches along North & East Terrace Walks
-    { gx: 20.85, gy: 1.55, pose: 'SITTING' },
-    { gx: 34.15, gy: 6.9, pose: 'SITTING' }
+    { gx: 27.3, gy: 10.8, pose: 'SITTING' },
+    { gx: 30.2, gy: 10.8, pose: 'SITTING' },
+    { gx: 27.3, gy: 13.8, pose: 'SITTING' },
+    { gx: 31.5, gy: 13.8, pose: 'SITTING' },
+    // RESORT GARDEN PARK (2) — Strictly Outdoors on Wooden Park Benches along North & South Pocket Walks
+    { gx: 21.45, gy: 1.45, pose: 'SITTING' },
+    { gx: 18.4, gy: 10.9, pose: 'SITTING' }
   ];
 
   function setStepBubble(ag, key, text, type, tSec, active, maxSec = 1.8) {
@@ -240,19 +240,19 @@ const SimApp = (() => {
       // Phase 2: 4.0s smooth S-curve transit Left -> Right carrying patient
       const rawT = (into - 8.5) / 4.0;
       const sT = smoothStep(rawT);
-      tr.gx = 11.6 + sT * 8.6; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = false;
+      tr.gx = 11.6 + sT * 9.2; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = false;
       tr.phase = 'outbound'; tr.phaseProg = rawT;
       tr.label = 'Executive Shuttle → Resort (25m)';
     } else if (into < 14.5) {
       // Phase 3: 2.0s automated wheelchair ramp unloading at Luxury Resort Entrance
-      tr.gx = 20.2; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = true;
+      tr.gx = 20.8; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = true;
       tr.phase = 'dropoff'; tr.phaseProg = (into - 12.5) / 2.0;
       tr.label = 'Resort VIP Handover (2.0m)';
     } else {
       // Phase 4: 3.5s smooth return Right -> Left
       const rawT = (into - 14.5) / 3.5;
       const sT = smoothStep(rawT);
-      tr.gx = 20.2 - sT * 8.6; tr.gy = 18.6; tr.dirX = -1; tr.openDoor = false;
+      tr.gx = 20.8 - sT * 9.2; tr.gy = 18.6; tr.dirX = -1; tr.openDoor = false;
       tr.phase = 'return'; tr.phaseProg = rawT;
       tr.label = '← Returning to Hospital';
     }
@@ -296,7 +296,7 @@ const SimApp = (() => {
         setStepBubble(concierge, null, null, 'ok', tSec, false);
       } else if (tr.phase === 'dropoff') {
         concierge.inVehicle = false;
-        concierge.gx = 20.8;
+        concierge.gx = 21.4;
         concierge.gy = 16.2;
         concierge.pose = 'HANDOVER_INTERACTION';
         concierge.taskProg = tr.phaseProg;
@@ -350,7 +350,7 @@ const SimApp = (() => {
       // Group A (0..6): 7 Inpatient Ward Beds in Current (98% occ) -> 2 Freed into Resort Spa/Lounge in Target (74% occ)
       if (sIdx < 7) {
         if (isFut && sIdx >= 5) {
-          const rSpot = sIdx === 5 ? { gx: 24.2, gy: 3.4, pose: 'LYING_ON_BED' } : { gx: 26.6, gy: 4.7, pose: 'SITTING' };
+          const rSpot = sIdx === 5 ? { gx: 24.8, gy: 3.4, pose: 'LYING_ON_BED' } : { gx: 27.2, gy: 4.7, pose: 'SITTING' };
           ag.pose = rSpot.pose;
           PH.stepAgentPhysics(ag, rSpot.gx, rSpot.gy, dtSec, { splitX: 18, snap: true });
           return;
@@ -366,13 +366,13 @@ const SimApp = (() => {
         const qIdx = sIdx - 7;
         const spot = isFut ? TARGET_SMOOTH_SPOTS[qIdx] : CURRENT_QUEUE_SPOTS[qIdx];
         ag.pose = spot.pose;
-        const isParkSpot = spot.gx > 18 && (spot.gy < 2.5 || spot.gx > 33.2);
+        const isParkSpot = spot.gx > 18 && (spot.gy < 2.5 || spot.gx > 33.8 || (spot.gx < 19.6 && spot.gy > 8.6));
         const snap = forceSnap || isParkSpot || ((spot.pose === 'LYING_ON_BED' || spot.pose === 'YOGA_STRETCH') && Math.hypot(spot.gx - ag.gx, spot.gy - ag.gy) < 1.2);
         PH.stepAgentPhysics(ag, spot.gx, spot.gy, dtSec, { baseSpeed: 7.4, corridorY: spot.gx > 18 ? 7.8 : 7.5, splitX: 18, snap });
         return;
       }
 
-      // Group C (30..35): 6 Active Pathway Agents (Zero foot travel across building gap x=15..19)
+      // Group C (30..35): 6 Active Pathway Agents (Zero indoor foot travel across building gap x=15..19.6)
       const pIdx = sIdx - 30;
       const into18 = tSec % CYCLE_SEC;
       let tx = ag.gx, ty = ag.gy, snap = forceSnap;
@@ -428,7 +428,7 @@ const SimApp = (() => {
       // - pIdx = 0: Live Full-Journey Transfer Agent (Building A -> Rides INSIDE Concierge Van -> Luxury Wellness Resort)
       // - pIdx = 1, 2: Hospital-side Discharge Pipeline inside Building A ONLY (x < 15)
       // - pIdx = 3, 4: Luxury Resort Wellness Pavilion Pipeline (Building B ONLY, aligned doors)
-      // - pIdx = 5: Green Garden Gap Outdoor Stroller (along cobblestone path x=17.0)
+      // - pIdx = 5: Continuous Walking Park Perimeter Stroller (West -> North -> East -> back around Building B)
       if (pIdx === 0) {
         if (into18 < 2.2) {
           if (ag.gx > 18) snap = true;
@@ -455,18 +455,18 @@ const SimApp = (() => {
           ag.pose = 'SITTING';
           return;
         } else if (into18 < 13.5) {
-          // Step down automated side/rear ramp into Luxury Resort Entrance (x = 20.4..22.8, y = 16.0)
+          // Step down automated side/rear ramp into Luxury Resort Entrance (x = 21.0..23.4, y = 16.0)
           ag.inVehicle = false;
-          if (ag.gy > 16.6 || ag.gx < 19) {
-            ag.gx = 21.5; ag.gy = 16.35; ag.z = 0;
+          if (ag.gy > 16.6 || ag.gx < 19.6) {
+            ag.gx = 22.1; ag.gy = 16.35; ag.z = 0;
           }
-          tx = 21.5; ty = 15.3; ag.pose = 'HANDOVER_INTERACTION';
+          tx = 22.1; ty = 15.3; ag.pose = 'HANDOVER_INTERACTION';
           stepKey = 'p0-exit'; stepText = 'Exiting VIP Ramp ✓'; ag.taskProg = (into18 - 12.5) / 1.0;
         } else if (into18 < 15.8) {
-          tx = 21.6; ty = 10.7; ag.pose = 'HANDOVER_INTERACTION';
+          tx = 22.2; ty = 10.7; ag.pose = 'HANDOVER_INTERACTION';
           stepKey = 'p0-concierge'; stepText = 'Lounge Concierge (5m) ✓'; ag.taskProg = (into18 - 13.5) / 2.3;
         } else {
-          tx = 29.4; ty = 12.2; ag.pose = 'SITTING';
+          tx = 30.0; ty = 12.2; ag.pose = 'SITTING';
           stepKey = 'p0-bistro'; stepText = 'Fine-Dining Bistro ✓'; ag.taskProg = (into18 - 15.8) / 2.2;
         }
       } else if (pIdx === 1 || pIdx === 2) {
@@ -488,50 +488,48 @@ const SimApp = (() => {
         const stg = Math.floor(cPos / 4.0);
         const sProg = (cPos % 4.0) / 4.0;
         if (stg === 0) {
-          tx = 21.1; ty = 4.6; ag.pose = 'SITTING';
+          tx = 21.7; ty = 4.6; ag.pose = 'SITTING';
           stepKey = 'p3-md'; stepText = 'Monthly MD Visit ✓';
         } else if (stg === 1) {
-          tx = 25.6; ty = 5.5; ag.pose = 'SITTING';
+          tx = 26.2; ty = 5.5; ag.pose = 'SITTING';
           stepKey = 'p3-spa'; stepText = 'Thermal Spa & Lounge ✓';
         } else {
-          tx = 29.4; ty = 12.4; ag.pose = 'SITTING';
+          tx = 30.0; ty = 12.4; ag.pose = 'SITTING';
           stepKey = 'p3-bistro'; stepText = 'Fine-Dining Bistro ✓';
         }
         ag.taskProg = sProg;
       } else if (pIdx === 4) {
-        // Anchored strictly INSIDE EVENTS & SOCIAL LOUNGE (x: 19..25.8, y: 8.8..16); zero static clutter labels
-        if (ag.gx < 19.0 || ag.gx > 25.8 || ag.gy < 8.8) {
+        // Anchored strictly INSIDE EVENTS & SOCIAL LOUNGE (x: 19.6..26.4, y: 8.8..16); zero static clutter labels
+        if (ag.gx < 19.6 || ag.gx > 26.4 || ag.gy < 8.8) {
           snap = true;
         }
         const cPos = (tSec + 2.0) % 12.0;
         const stg = Math.floor(cPos / 4.0);
         if (stg === 0) {
-          tx = 22.0; ty = 10.6; ag.pose = 'SITTING';
+          tx = 22.6; ty = 10.6; ag.pose = 'SITTING';
         } else if (stg === 1) {
-          tx = 20.5; ty = 13.3; ag.pose = 'IDLE';
+          tx = 21.1; ty = 13.3; ag.pose = 'IDLE';
         } else {
-          tx = 22.9; ty = 13.7; ag.pose = 'SITTING';
+          tx = 23.5; ty = 13.7; ag.pose = 'SITTING';
         }
         PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.4, corridorY: null, splitX: 18, snap });
         ag.roleLabel = '';
         return;
       } else {
-        // pIdx === 5: Strictly OUTDOORS along Green Gap Cobblestone Walkway (x = 17.0, y = 8.4..15.2)
-        if (ag.gx < 16.0 || ag.gx > 18.0) {
+        // pIdx === 5: Continuous Scenic Perimeter Walking Loop around Building B & Poolside
+        const loopPts = [
+          [15.75, 14.8], [15.75, 8.0], [15.75, 1.85], [25.0, 1.85], [34.55, 1.85],
+          [34.55, 8.2], [34.55, 14.8], [34.55, 8.2], [34.55, 1.85], [25.0, 1.85],
+          [15.75, 1.85], [15.75, 8.0]
+        ];
+        if (ag.gx < 15.0) {
           snap = true;
         }
-        const cPos = tSec % 12.0;
-        const stg = Math.floor(cPos / 3.0);
-        if (stg === 0) {
-          tx = 17.0; ty = 15.2; ag.pose = 'IDLE';
-        } else if (stg === 1) {
-          tx = 17.0; ty = 12.0; ag.pose = 'IDLE';
-        } else if (stg === 2) {
-          tx = 17.0; ty = 8.6; ag.pose = 'IDLE';
-        } else {
-          tx = 17.0; ty = 12.0; ag.pose = 'IDLE';
-        }
-        PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.4, corridorY: null, splitX: 18, snap });
+        const stg = Math.floor((tSec / 2.2) % loopPts.length);
+        tx = loopPts[stg][0];
+        ty = loopPts[stg][1];
+        ag.pose = 'IDLE';
+        PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 6.2, corridorY: null, splitX: null, snap });
         ag.roleLabel = '';
         return;
       }
