@@ -30,13 +30,13 @@ const IsoRenderer = (() => {
       // ---------------- RIGHT SITE: UNDEVELOPED LOT (Current) -> GARDEN PARK, RESORT & EAST POOL (Target)
       { x: 15.0, y: 0.6, w: 23.8, d: 16.0, mat: 'grass' },       // Undeveloped Grass (Cur) / Landscaped Resort Lawn (Fut)
 
-      // Continuous Perimeter Walking Park Loop & Middle Fountain Garden (Target Only)
+      // Continuous Perimeter Walking Park Loop & Front BBQ Park Patio (Target Only)
       { x: 15.3, y: 1.1, w: 0.9, d: 14.9, mat: { cur: null, fut: 'paver' } },       // West Walking Park Path (Full Loop)
       { x: 15.3, y: 1.1, w: 19.4, d: 0.95, mat: { cur: null, fut: 'paver' } },      // North Walking Park Path (Full Loop)
       { x: 33.8, y: 1.1, w: 0.9, d: 14.9, mat: { cur: null, fut: 'paver' } },       // East Park Terrace Walk (Full Loop)
       { x: 16.2, y: 7.2, w: 3.4, d: 1.3, mat: { cur: null, fut: 'paver' } },        // Park & Resort Side-Door Link
-      { x: 16.6, y: 3.3, w: 2.6, d: 2.6, mat: { cur: null, fut: 'travertine' } },   // Middle Park Fountain Garden Plaza
-      { x: 16.2, y: 4.2, w: 0.45, d: 0.8, mat: { cur: null, fut: 'paver' } },       // Fountain Plaza Connector
+      { x: 16.55, y: 9.2, w: 2.65, d: 3.9, mat: { cur: null, fut: 'travertine' } }, // Front Park BBQ & Picnic Rest Patio
+      { x: 16.2, y: 10.6, w: 0.4, d: 1.2, mat: { cur: null, fut: 'paver' } },       // BBQ Patio Walkway Link
       // East Swimming Pool Deck directly outside Wellness & Movement Class (x: 34.8..38.4, y: 2.2..7.6)
       { x: 33.6, y: 4.0, w: 1.25, d: 1.6, mat: { cur: null, fut: 'travertine' } },  // Wellness Class -> Pool Deck Bridge
       { x: 34.8, y: 2.2, w: 3.6, d: 5.4, mat: { cur: null, fut: 'travertine' } },   // East Resort Pool Sun Terrace
@@ -655,58 +655,55 @@ const IsoRenderer = (() => {
     });
   }
 
-  function drawGardenFountain(cx, cy) {
-    PH.item(cx + cy + 0.8, () => {
+  function drawBbqStove(gx, gy) {
+    PH.furniture(gx, gy, 1.15, 0.70, 0, k => {
+      // Brick/stone BBQ base hearth & prep shelf
+      k.box(0.05, 0.05, 0, 1.05, 0.60, 7.2, '#b45309', { tex: 'paver', texAlpha: 0.35 });
+      k.box(0.02, 0.02, 7.2, 1.11, 0.66, 1.1, '#475569');
+      // Grill firebox, glowing charcoal embers & stainless grill grate
+      k.box(0.08, 0.08, 8.3, 0.56, 0.50, 1.8, '#1e293b');
+      k.box(0.12, 0.12, 9.5, 0.48, 0.42, 0.7, '#f97316');
+      k.box(0.10, 0.10, 10.2, 0.52, 0.46, 0.35, '#cbd5e1');
+      // Open stainless hood + chimney stack
+      k.box(0.08, 0.06, 10.3, 0.56, 0.08, 5.2, '#94a3b8');
+      k.cyl(0.20, 0.14, 15.5, 0.05, 2.2, '#475569');
+      // Side timber prep board & serving platter
+      k.box(0.70, 0.10, 8.3, 0.36, 0.44, 0.7, '#d4a373');
+      k.part(0.88, 0.32, 1, () => k.now.disc(0.88, 0.32, 9.1, 0.12, '#f8fafc', '#cbd5e1'));
+    });
+    // Soft rising BBQ smoke wisps
+    PH.item(gx + gy + 0.85, () => {
       const c = PH.S.ctx;
       const z = PH.zoom;
-      const wave = Math.sin(PH.t * 0.09);
-      // Outer Carved Stone Basin Rim + Turquoise Water Pool
-      PH.cyl(cx, cy, 0, 1.25, 4.2, '#cbd5e1');
-      PH.disc(cx, cy, 4.25, 1.06, '#0ea5e9', '#bae6fd');
-      // Animated Multi-Ring Concentric Water Ripples Inside the Fountain Basin
-      const rc = PH.P(cx, cy, 4.35);
       c.save();
-      for (const offset of [0, 0.25, 0.5, 0.75]) {
-        const rp = ((PH.t / 120) + offset) % 1;
-        c.strokeStyle = `rgba(224,242,254,${(0.68 * (1 - rp)).toFixed(2)})`;
-        c.lineWidth = 1.3;
+      for (let i = 0; i < 3; i++) {
+        const sp = ((PH.t / 110) + i * 0.33) % 1;
+        const px = gx + 0.32 + Math.sin(sp * 5 + i) * 0.07;
+        const py = gy + 0.25 - sp * 0.12;
+        const p = PH.P(px, py, 14.5 + sp * 14);
+        c.fillStyle = `rgba(226, 232, 240, ${(0.45 * (1 - sp)).toFixed(2)})`;
         c.beginPath();
-        c.ellipse(rc.x, rc.y, (4 + rp * 28) * z, (2.1 + rp * 14) * z, 0, 0, Math.PI * 2);
-        c.stroke();
+        c.arc(p.x, p.y, (2.2 + sp * 3.8) * z, 0, Math.PI * 2);
+        c.fill();
       }
       c.restore();
-      // Upper Sculpted Tiered Stone Pedestal + Aqua Basin
-      PH.cyl(cx, cy, 4.0, 0.36, 7.2, '#e2e8f0');
-      PH.cyl(cx, cy, 11.2, 0.56, 2.0, '#f1f5f9');
-      PH.disc(cx, cy, 13.25, 0.44, '#38bdf8', '#e0f2fe');
-      // Concentric ripple shimmer on upper basin
-      const urc = PH.P(cx, cy, 13.32);
-      c.save();
-      for (const off of [0, 0.5]) {
-        const urp = ((PH.t / 84) + off) % 1;
-        c.strokeStyle = `rgba(255,255,255,${(0.62 * (1 - urp)).toFixed(2)})`;
-        c.lineWidth = 1.1;
-        c.beginPath();
-        c.ellipse(urc.x, urc.y, (2 + urp * 9.5) * z, (1 + urp * 4.8) * z, 0, 0, Math.PI * 2);
-        c.stroke();
-      }
-      c.restore();
-      // Animated Vertical Water Jet Crown
-      const jetBase = PH.P(cx, cy, 13.4);
-      const jetTop = PH.P(cx, cy, 24.5 + wave * 2.0);
-      c.save();
-      c.strokeStyle = 'rgba(224,242,254,0.88)';
-      c.lineWidth = 2.6 * z;
-      c.beginPath(); c.moveTo(jetBase.x, jetBase.y); c.lineTo(jetTop.x, jetTop.y); c.stroke();
-      c.strokeStyle = 'rgba(186,230,253,0.65)';
-      c.lineWidth = 1.4 * z;
-      for (const sx of [-11, 11]) {
-        c.beginPath();
-        c.moveTo(jetTop.x, jetTop.y);
-        c.quadraticCurveTo(jetTop.x + sx * 0.55 * z, jetTop.y - 4 * z, jetBase.x + sx * z, jetBase.y + 7 * z);
-        c.stroke();
-      }
-      c.restore();
+    });
+  }
+
+  function drawParkPicnicTable(gx, gy) {
+    PH.furniture(gx, gy, 1.50, 1.32, 0, k => {
+      // Dark steel legs + North & South attached timber benches
+      k.box(0.24, 0.14, 0, 0.10, 1.04, 4.8, '#334155');
+      k.box(1.16, 0.14, 0, 0.10, 1.04, 4.8, '#334155');
+      k.box(0.06, 0.06, 4.8, 1.38, 0.28, 1.1, '#b47842', { tex: 'deskwood', texAlpha: 0.45 });
+      k.box(0.06, 0.98, 4.8, 1.38, 0.28, 1.1, '#b47842', { tex: 'deskwood', texAlpha: 0.45 });
+      // Cedar picnic tabletop + plates & pitcher
+      k.box(0.26, 0.44, 4.8, 0.08, 0.44, 4.2, '#334155');
+      k.box(1.16, 0.44, 4.8, 0.08, 0.44, 4.2, '#334155');
+      k.box(0.04, 0.40, 9.0, 1.42, 0.52, 1.1, '#c89b6e', { tex: 'deskwood', texAlpha: 0.45 });
+      k.part(0.45, 0.66, 1, () => k.now.disc(0.45, 0.66, 10.2, 0.11, '#f8fafc', '#cbd5e1'));
+      k.part(0.98, 0.66, 1, () => k.now.disc(0.98, 0.66, 10.2, 0.11, '#f8fafc', '#cbd5e1'));
+      k.cyl(0.72, 0.66, 10.1, 0.06, 1.8, '#f59e0b', { layer: 1 });
     });
   }
 
@@ -908,12 +905,17 @@ const IsoRenderer = (() => {
       drawRoundBistroTable(30.9, 13.8);
       PHSprites.receptionDesk(31.9, 9.1, 1, 2.0, { col: '#d4a373', wood: '#784e32', clutter: false }); // Culinary Plating Counter
 
-      // ---------------- MIDDLE GARDEN PARK (x: 15..19.6) & EAST SWIMMING POOL BESIDE WELLNESS CLASS (x: 34.8..38.4)
-      // 1. Middle Fountain Garden Park Pocket + Walking Loop
-      drawGardenFountain(17.9, 4.6);
-      drawParkBench(17.15, 2.45, false);
-      drawParkBench(16.55, 6.25, false);
-      drawTreeWithFlowerbed(18.75, 6.30, 0.62, 0);
+      // ---------------- MIDDLE REST & BBQ PARK (x: 15..19.6, Back + Front) & EAST POOL BESIDE WELLNESS CLASS
+      // 1. Back Shade Park Rest Lawn (y: 2.2..7.0) — Big Shade Tree & Rest Benches (No Fountain)
+      drawTreeWithFlowerbed(17.9, 4.2, 1.25, 1);
+      drawParkBench(17.15, 2.35, false);
+      drawParkBench(17.15, 5.95, false);
+
+      // 2. Front Big BBQ & Picnic Rest Area (y: 8.6..15.8) — BBQ Stove, Picnic Table, Seat & Big Front Tree
+      drawBbqStove(18.0, 9.45);
+      drawParkBench(16.62, 9.55, true);
+      drawParkPicnicTable(17.25, 11.20);
+      drawTreeWithFlowerbed(17.9, 14.45, 1.25, 0);
 
       // Continuous Full Perimeter Walking Park Loop around Building B
       drawCobblestonePath(15.3, 1.15, 0.9, 14.85);
@@ -921,7 +923,7 @@ const IsoRenderer = (() => {
       drawCobblestonePath(33.8, 1.15, 0.9, 14.85);
       drawCobblestonePath(16.2, 7.25, 3.3, 1.2);
 
-      // 2. East Swimming Pool Terrace directly beside Wellness & Movement Class
+      // 3. East Swimming Pool Terrace directly beside Wellness & Movement Class
       drawSwimmingPool(35.15, 2.7, 1.75, 4.15);
       drawPoolLounger(37.15, 2.80, '#f8fafc');
       drawPoolUmbrella(37.55, 4.72, '#0d9488', '#fefce8');
@@ -930,23 +932,22 @@ const IsoRenderer = (() => {
 
       drawHedge(20.2, 2.25, 13.0, 0.35, true);
 
-      // Flowering Trees & Park Seating along North Walk, South Park Pocket & East Lawn
-      drawTreeWithFlowerbed(17.8, 13.6, 0.85, 1);
+      // Flowering Trees & Park Seating along North Walk & East Lawn
       drawTreeWithFlowerbed(23.8, 1.1, 0.72, 1);
       drawTreeWithFlowerbed(29.0, 1.1, 0.72, 0);
       drawTreeWithFlowerbed(37.8, 1.45, 0.80, 1);
       drawTreeWithFlowerbed(37.4, 9.6, 0.82, 0);
       drawTreeWithFlowerbed(37.4, 14.6, 0.85, 1);
 
-      // Wooden Park Benches along Walking Loop, Middle Park & East Bistro Garden
-      drawParkBench(18.1, 10.2, true);
+      // Wooden Park Benches along North Walk & East Bistro Garden
       drawParkBench(20.8, 1.12, false);
       drawParkBench(31.2, 1.12, false);
       drawParkBench(35.5, 10.6, true);
       drawParkBench(35.5, 13.2, true);
 
       PHSprites.streetLamp(15.3, 15.6);
-      PHSprites.streetLamp(16.4, 5.4);
+      PHSprites.streetLamp(16.4, 5.6);
+      PHSprites.streetLamp(16.4, 13.4);
       PHSprites.streetLamp(34.0, 2.2);
       PHSprites.streetLamp(34.0, 15.6);
     } else {

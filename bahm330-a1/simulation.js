@@ -105,9 +105,9 @@ const SimApp = (() => {
     { gx: 30.2, gy: 10.8, pose: 'SITTING' },
     { gx: 27.3, gy: 13.8, pose: 'SITTING' },
     { gx: 31.5, gy: 13.8, pose: 'SITTING' },
-    // RESORT GARDEN PARK (2) — Strictly Outdoors on Wooden Park Benches in Middle Fountain Park & South Lawn
-    { gx: 17.85, gy: 2.7, pose: 'SITTING' },
-    { gx: 18.4, gy: 10.9, pose: 'SITTING' }
+    // RESORT GARDEN PARK (2) — Strictly Outdoors on Shade Rest Bench & Front BBQ Picnic Bench
+    { gx: 17.85, gy: 2.6, pose: 'SITTING' },
+    { gx: 17.95, gy: 12.25, pose: 'SITTING' }
   ];
 
   function setStepBubble(ag, key, text, type, tSec, active, maxSec = 1.8) {
