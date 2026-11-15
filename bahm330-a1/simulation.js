@@ -33,7 +33,7 @@ const SimApp = (() => {
     // Single Concierge operating the Left <-> Right transport between the two downward-facing Main Entrances
     { id: 'st-7', roleLabel: 'Concierge', role: 'concierge', gx: 12.7, gy: 16.2, pose: 'HANDOVER_INTERACTION', taskCur: 'Ramp Lift', taskFut: 'VIP Ramp (2m)', dur: 2.2, show: true },
     { id: 'st-8', retreat: true, roleLabel: 'Concierge', role: 'concierge', gx: 24.4, gy: 10.7, pose: 'TYPING_TERMINAL', taskCur: 'Paper Intake (30m)', taskFut: 'Biometric Lounge ✓', dur: 2.0, show: true },
-    { id: 'st-9', retreat: true, roleLabel: 'Doctor', role: 'doctor', gx: 24.4, gy: 4.3, pose: 'EXAMINING', taskCur: 'Delayed MD (30m)', taskFut: 'Monthly MD Visit ✓', dur: 2.4, show: true },
+    { id: 'st-9', retreat: true, roleLabel: 'Doctor', role: 'doctor', gx: 24.9, gy: 4.3, pose: 'EXAMINING', taskCur: 'Delayed MD (30m)', taskFut: 'Monthly MD Visit ✓', dur: 2.4, show: true },
     { id: 'st-10', retreat: true, roleLabel: 'Instructor', role: 'therapist', gx: 32.8, gy: 4.3, pose: 'YOGA_STRETCH', taskCur: 'No Class', taskFut: 'Wellness Class ✓', dur: 2.2, show: true },
     { id: 'st-11', retreat: true, roleLabel: 'Therapist', role: 'therapist', gx: 28.9, gy: 3.6, pose: 'HANDOVER_INTERACTION', taskCur: 'No Spa', taskFut: 'Thermal Massage ✓', dur: 2.5, show: true },
     { id: 'st-12', retreat: true, roleLabel: 'Chef', role: 'chef', gx: 35.8, gy: 10.3, pose: 'HANDOVER_INTERACTION', taskCur: 'No Kitchen', taskFut: 'Bistro Service ✓', dur: 2.3, show: false }
@@ -85,8 +85,8 @@ const SimApp = (() => {
     { gx: 8.6, gy: 10.5, pose: 'HANDOVER_INTERACTION' },
     { gx: 2.8, gy: 10.5, pose: 'HANDOVER_INTERACTION' },
     // MONTHLY VISITING MD ROOM (1 compact medical check-up suite ONLY) (2)
-    { gx: 24.4, gy: 5.5, pose: 'SITTING', b: 'Monthly MD Check ✓' },
-    { gx: 25.4, gy: 4.1, pose: 'SITTING' },
+    { gx: 24.7, gy: 5.5, pose: 'SITTING', b: 'Monthly Check-Up ✓' },
+    { gx: 25.8, gy: 3.7, pose: 'SITTING' },
     // THERMAL SPA & MASSAGE (2) — Heated Massage Table + Relaxation Lounger
     { gx: 28.2, gy: 5.2, pose: 'LYING_ON_BED', b: 'Thermal Massage ✓' },
     { gx: 30.6, gy: 5.9, pose: 'SITTING' },
@@ -95,7 +95,7 @@ const SimApp = (() => {
     { gx: 35.7, gy: 3.4, pose: 'YOGA_STRETCH' },
     { gx: 34.1, gy: 5.1, pose: 'YOGA_STRETCH' },
     { gx: 35.7, gy: 5.1, pose: 'YOGA_STRETCH' },
-    // EVENTS & SOCIAL LOUNGE (4) — Sofas, Coffee Social & Espresso Bar (Zero Beds)
+    // EVENTS & SOCIAL LOUNGE (4) — Plush Cream/Emerald Sofas, Coffee Table & Espresso Bar (Zero Beds)
     { gx: 26.8, gy: 10.7, pose: 'SITTING', b: 'Events & Social ✓' },
     { gx: 27.6, gy: 10.7, pose: 'SITTING' },
     { gx: 26.8, gy: 13.7, pose: 'SITTING' },
@@ -105,9 +105,9 @@ const SimApp = (() => {
     { gx: 33.6, gy: 10.8, pose: 'SITTING' },
     { gx: 30.7, gy: 13.8, pose: 'SITTING' },
     { gx: 34.9, gy: 13.8, pose: 'SITTING' },
-    // RESORT GARDEN PARK (2) — Outdoor Wooden Park Benches
-    { gx: 24.7, gy: 1.7, pose: 'SITTING', b: 'Garden Park Walk ✓' },
-    { gx: 19.6, gy: 12.1, pose: 'SITTING' }
+    // RESORT GARDEN PARK (2) — Strictly Outdoors on Wooden Park Benches beside Cobblestone Paths & Fountain
+    { gx: 19.65, gy: 4.9, pose: 'SITTING', b: 'Park Bench Relaxation ✓' },
+    { gx: 19.65, gy: 11.9, pose: 'SITTING' }
   ];
 
   function buildAgents() {
@@ -473,54 +473,74 @@ const SimApp = (() => {
         const cPos = tSec % 12.0;
         const stg = Math.floor(cPos / 4.0);
         const sProg = (cPos % 4.0) / 4.0;
+        let roomBubble;
         if (stg === 0) {
           tx = 25.1; ty = 4.6; ag.pose = 'SITTING';
-          ag.bubble = 'Monthly MD Visit ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true;
+          roomBubble = 'Monthly MD Visit ✓';
         } else if (stg === 1) {
           tx = 29.6; ty = 5.5; ag.pose = 'SITTING';
-          ag.bubble = 'Thermal Spa & Lounge ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true;
+          roomBubble = 'Thermal Spa & Lounge ✓';
         } else {
           tx = 33.4; ty = 12.4; ag.pose = 'SITTING';
-          ag.bubble = 'Fine-Dining Restaurant ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true;
+          roomBubble = 'Fine-Dining Bistro ✓';
         }
+        const arrived = Math.hypot(tx - ag.gx, ty - ag.gy) < 0.85;
+        ag.bubble = arrived ? roomBubble : 'Resort Promenade →';
+        ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true;
       } else if (pIdx === 4) {
-        // Building B Movement & Social Loop (Events Lounge <-> Movement Class)
-        const cPos = (tSec + 3.0) % 12.0;
-        const stg = Math.floor(cPos / 6.0);
-        const sProg = (cPos % 6.0) / 6.0;
-        if (stg === 0) {
-          tx = 25.7; ty = 12.2; ag.pose = 'SITTING';
-          ag.bubble = 'Events & Social Hour ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true;
-        } else {
-          tx = 34.7; ty = 5.0; ag.pose = 'YOGA_STRETCH';
-          ag.bubble = 'Movement Class ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true;
+        // Anchored strictly INSIDE EVENTS & SOCIAL LOUNGE (x: 23..29.8, y: 8.8..16)
+        if (ag.gx < 23.0 || ag.gx > 29.8 || ag.gy < 8.8) {
+          snap = true;
         }
+        const cPos = (tSec + 2.0) % 12.0;
+        const stg = Math.floor(cPos / 4.0);
+        const sProg = (cPos % 4.0) / 4.0;
+        if (stg === 0) {
+          tx = 26.0; ty = 10.6; ag.pose = 'SITTING';
+        } else if (stg === 1) {
+          tx = 24.5; ty = 13.3; ag.pose = 'IDLE';
+        } else {
+          tx = 26.9; ty = 13.7; ag.pose = 'SITTING';
+        }
+        ag.bubble = 'Events & Social Hour ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true;
+        PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.5, corridorY: null, splitX: 18, snap });
+        ag.roleLabel = isFut && ag.gx >= 18 ? 'Resident' : 'Patient';
+        return;
       } else {
-        // pIdx === 5: Outdoor RESORT GARDEN PARK Stroll & Park Bench Relaxation (4-stage L-path, zero snaps or wall hits)
-        if (ag.gx < 18 || (ag.gx >= 22.8 && ag.gy >= 2.65)) {
+        // pIdx === 5: Strictly OUTDOORS along Cobblestone Park Footpath connecting South Entrance (20.7,15.2) to Central Fountain (20.7,9.9)
+        if (ag.gx < 18 || ag.gx > 22.0) {
           snap = true;
         }
         const cPos = tSec % 12.0;
         const stg = Math.floor(cPos / 3.0);
         const sProg = (cPos % 3.0) / 3.0;
         if (stg === 0) {
-          tx = 20.7; ty = 10.6; ag.pose = 'IDLE';
-          ag.bubble = 'Fountain Plaza ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true;
+          tx = 20.7; ty = 15.2; ag.pose = 'IDLE';
+          ag.bubble = 'Cobblestone Path ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true;
         } else if (stg === 1) {
-          tx = 20.7; ty = 1.75; ag.pose = 'IDLE';
-          ag.bubble = 'Garden Park Stroll ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true;
+          tx = 20.7; ty = 12.4; ag.pose = 'IDLE';
+          ag.bubble = 'Flowerbed Stroll ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true;
         } else if (stg === 2) {
-          tx = 30.1; ty = 1.75; ag.pose = 'SITTING';
-          ag.bubble = 'Park Bench Relaxation ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true;
+          tx = 20.7; ty = 9.9; ag.pose = 'IDLE';
+          ag.bubble = 'Fountain Plaza ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true;
         } else {
-          tx = 20.7; ty = 1.75; ag.pose = 'IDLE';
-          ag.bubble = 'North Garden Walk ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true;
+          tx = 20.7; ty = 12.6; ag.pose = 'IDLE';
+          ag.bubble = 'Garden Park Walk ✓'; ag.bubbleType = 'ok'; ag.taskProg = sProg; ag.showBubble = true;
         }
-        PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 9.0, corridorY: null, splitX: 18, snap });
+        PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 8.0, corridorY: null, splitX: 18, snap });
+        ag.roleLabel = isFut && ag.gx >= 18 ? 'Resident' : 'Patient';
         return;
       }
 
       PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 10.8, corridorY: ag.gx > 18 ? 7.8 : 7.5, splitX: 18, snap });
+    });
+
+    // Ensure every individual at/entering the Luxury Retreat Resort is labeled 'Resident' (keeping 'Patient' inside Hospital)
+    simState.agents.forEach(ag => {
+      if (ag.role === 'resident') {
+        const atRetreat = isFut && (ag.gx >= 18 || (ag.slotIdx === 30 && tr && tr.phase === 'dropoff'));
+        ag.roleLabel = atRetreat ? 'Resident' : 'Patient';
+      }
     });
 
     simState.snapNext = false;

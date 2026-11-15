@@ -505,24 +505,36 @@ const IsoRenderer = (() => {
       const wave = Math.sin(PH.t * 0.16);
       // Outer Carved Stone Basin Rim + Turquoise Water Pool
       PH.cyl(cx, cy, 0, 1.25, 4.2, '#cbd5e1');
-      PH.disc(cx, cy, 4.25, 1.05, '#0ea5e9', '#bae6fd');
-      // Expanding animated water ripple rings
-      const rp = (PH.t % 40) / 40;
+      PH.disc(cx, cy, 4.25, 1.06, '#0ea5e9', '#bae6fd');
+      // Subtle Multi-Ring Animated Ripples Inside the Fountain Basin
       const rc = PH.P(cx, cy, 4.35);
       c.save();
-      c.strokeStyle = `rgba(224,242,254,${0.7 * (1 - rp)})`;
-      c.lineWidth = 1.4;
-      c.beginPath();
-      c.ellipse(rc.x, rc.y, (8 + rp * 22) * z, (4 + rp * 11) * z, 0, 0, Math.PI * 2);
-      c.stroke();
+      for (const offset of [0, 0.33, 0.66]) {
+        const rp = ((PH.t / 54) + offset) % 1;
+        c.strokeStyle = `rgba(224,242,254,${(0.52 * (1 - rp)).toFixed(2)})`;
+        c.lineWidth = 1.2;
+        c.beginPath();
+        c.ellipse(rc.x, rc.y, (5 + rp * 25) * z, (2.6 + rp * 12.5) * z, 0, 0, Math.PI * 2);
+        c.stroke();
+      }
       c.restore();
       // Upper Sculpted Tiered Stone Pedestal + Aqua Basin
       PH.cyl(cx, cy, 4.0, 0.36, 7.2, '#e2e8f0');
       PH.cyl(cx, cy, 11.2, 0.56, 2.0, '#f1f5f9');
       PH.disc(cx, cy, 13.25, 0.44, '#38bdf8', '#e0f2fe');
+      // Subtle ripple shimmer on upper basin too
+      const urc = PH.P(cx, cy, 13.32);
+      const urp = (PH.t % 36) / 36;
+      c.save();
+      c.strokeStyle = `rgba(255,255,255,${(0.55 * (1 - urp)).toFixed(2)})`;
+      c.lineWidth = 1.0;
+      c.beginPath();
+      c.ellipse(urc.x, urc.y, (2 + urp * 8) * z, (1 + urp * 4) * z, 0, 0, Math.PI * 2);
+      c.stroke();
+      c.restore();
       // Animated Vertical Water Jet Crown
       const jetBase = PH.P(cx, cy, 13.4);
-      const jetTop = PH.P(cx, cy, 24.5 + wave * 2.2);
+      const jetTop = PH.P(cx, cy, 24.5 + wave * 2.0);
       c.save();
       c.strokeStyle = 'rgba(224,242,254,0.88)';
       c.lineWidth = 2.6 * z;
@@ -561,6 +573,96 @@ const IsoRenderer = (() => {
         }
       }
     });
+  }
+
+  function drawCobblestonePath(x, y, w, d) {
+    // Renders individual rounded natural cobblestones along garden footpaths
+    PH.item(0.25, () => {
+      const c = PH.S.ctx;
+      const z = PH.zoom;
+      const cols = Math.max(2, Math.floor(w / 0.46));
+      const rows = Math.max(2, Math.floor(d / 0.46));
+      const palette = ['#cbd5e1', '#e2d9c8', '#94a3b8', '#d6cfc2'];
+      for (let r = 0; r < rows; r++) {
+        for (let colI = 0; colI < cols; colI++) {
+          const stagger = (r % 2) * 0.11;
+          const sx = x + 0.18 + (colI / cols) * (w - 0.24) + stagger * 0.5;
+          const sy = y + 0.18 + (r / rows) * (d - 0.24);
+          if (sx > x + w - 0.14 || sy > y + d - 0.14) continue;
+          const sp = PH.P(sx, sy, 0.12);
+          c.fillStyle = palette[(r * 7 + colI * 3) % palette.length];
+          c.strokeStyle = 'rgba(71,85,105,0.45)';
+          c.lineWidth = 0.8;
+          c.beginPath();
+          c.ellipse(sp.x, sp.y, 4.6 * z, 2.6 * z, 0.18, 0, Math.PI * 2);
+          c.fill();
+          c.stroke();
+        }
+      }
+    });
+  }
+
+  function drawTreeWithFlowerbed(x, y, scale = 1.0, variant = 0) {
+    // Rich stone-bordered circular flowerbed with vibrant blooms beneath each park tree
+    PH.item(x + y + 0.18, () => {
+      PH.cyl(x, y, 0, 0.82 * scale, 1.4, '#d6cfc2');
+      PH.disc(x, y, 1.45, 0.72 * scale, '#5a3d29', '#15803d');
+      const bloomCols = ['#f472b6', '#facc15', '#fb7185', '#c084fc', '#f97316', '#f472b6'];
+      for (let i = 0; i < 6; i++) {
+        const ang = (i / 6) * Math.PI * 2 + (variant * 0.4);
+        const bx = x + Math.cos(ang) * 0.48 * scale;
+        const by = y + Math.sin(ang) * 0.48 * scale;
+        PH.disc(bx, by, 1.65, 0.16 * scale, '#16a34a');
+        PH.disc(bx, by, 1.85, 0.11 * scale, bloomCols[i]);
+      }
+    });
+    PHSprites.tree(x, y, scale, variant);
+  }
+
+  function drawIndoorPalm(gx, gy) {
+    PH.furniture(gx, gy, 0.7, 0.7, 0, k => {
+      // Ceramic ivory pot + soil
+      k.cyl(0.35, 0.35, 0, 0.24, 5.2, '#f8fafc');
+      k.cyl(0.35, 0.35, 5.0, 0.26, 1.2, '#d4a373');
+      // Layered tropical palm foliage cluster
+      k.cyl(0.35, 0.35, 5.8, 0.04, 12.0, '#15803d');
+      k.blob(0.18, 0.22, 16.5, 0.26, '#16a34a', 2);
+      k.blob(0.52, 0.24, 17.5, 0.25, '#22c55e', 3);
+      k.blob(0.35, 0.52, 16.8, 0.24, '#15803d', 2);
+      k.blob(0.35, 0.34, 21.0, 0.28, '#4ade80', 4);
+    });
+  }
+
+  function drawWallEventScreen(gx, gy) {
+    PH.furniture(gx, gy, 1.9, 0.22, 0, k => {
+      // Sleek matte black flat-screen mount on upper lounge partition
+      k.box(0.05, 0.04, 11.0, 1.80, 0.10, 9.5, '#0f172a');
+      k.box(0.11, 0.13, 11.6, 1.68, 0.03, 8.2, '#042f2e');
+      // Crisp bright schedule banner bars on screen
+      k.box(0.18, 0.14, 17.2, 1.54, 0.03, 1.5, '#10b981');
+      k.box(0.18, 0.14, 14.8, 1.15, 0.03, 1.2, '#38bdf8');
+      k.box(0.18, 0.14, 12.6, 1.38, 0.03, 1.2, '#f59e0b');
+    });
+  }
+
+  function drawRoomSigns(isFut) {
+    PHSprites.roomSign(4.5, 0.85, isFut ? 'ACUTE WARD A (74% OCC.)' : 'ACUTE WARD A (98% BED-BLOCK)', isFut ? '#0ea5e9' : '#ef4444');
+    PHSprites.roomSign(11.5, 0.85, isFut ? 'DISCHARGE WARD B ✓' : 'WARD B BLOCKED (275m)', isFut ? '#10b981' : '#ef4444');
+    PHSprites.roomSign(3.4, 8.35, 'DISCHARGE PHARMACY', '#10b981');
+    PHSprites.roomSign(8.3, 8.35, isFut ? 'PARALLEL e-BILLING ✓' : 'MANUAL BILLING (55m)', isFut ? '#10b981' : '#ef4444');
+    PHSprites.roomSign(12.8, 15.8, 'HOSPITAL MAIN ENTRANCE ↓', '#0ea5e9');
+
+    if (isFut) {
+      PHSprites.roomSign(20.9, 6.05, 'RESORT GARDEN PARK', '#22c55e');
+      PHSprites.roomSign(25.0, 2.45, 'MONTHLY VISITING MD ROOM', '#38bdf8');
+      PHSprites.roomSign(29.5, 2.45, 'THERMAL SPA & MASSAGE', '#14b8a6');
+      PHSprites.roomSign(34.6, 2.45, 'WELLNESS & MOVEMENT CLASS', '#10b981');
+      PHSprites.roomSign(26.4, 8.65, 'EVENTS & SOCIAL LOUNGE', '#f59e0b');
+      PHSprites.roomSign(33.4, 8.65, 'FINE-DINING RESTAURANT', '#10b981');
+      PHSprites.roomSign(25.4, 15.85, 'LUXURY RESORT ENTRANCE ↓', '#10b981');
+    } else {
+      PHSprites.roomSign(30.0, 8.35, 'UNDEVELOPED RETREAT PLOT · NO VAN', '#64748b');
+    }
   }
 
   function render(simState) {
@@ -607,9 +709,9 @@ const IsoRenderer = (() => {
     if (isFut) {
       // ---------------- BUILDING 2 (x: 23..37, y: 2.6..16): LUXURY WELLNESS RESORT PAVILION (ZERO HOSPITAL BEDS)
       // 1. ONLY 1 Compact Medical Room: MONTHLY VISITING MD ROOM (x: 23..27, y: 2.6..6.8)
-      PHSprites.officeDesk(23.4, 3.0, 0, { clutter: false, screenStyle: 'ok', seed: 11 });
-      PHSprites.examTable(23.5, 4.9, 0, { col: '#0ea5e9' });
-      PHSprites.privacyCurtain(25.6, 3.1, 1, 1.5, '#bae6fd');
+      PHSprites.officeDesk(23.5, 3.05, 0, { clutter: false, screenStyle: 'ok', seed: 11 });
+      PHSprites.examTable(23.4, 4.95, 0, { col: '#ffffff' }); // Crisp White Medical Examination Couch
+      PHSprites.privacyCurtain(25.6, 3.0, 1, 1.4, '#bae6fd');
 
       // 2. THERMAL SPA & MASSAGE (x: 27..32, y: 2.6..6.8)
       PHSprites.spaTable(27.3, 3.0, 0, { col: '#5eead4' });
@@ -627,12 +729,15 @@ const IsoRenderer = (() => {
 
       // 4. EVENTS & SOCIAL LOUNGE (x: 23..29.8, y: 8.8..16)
       PHSprites.receptionDesk(23.3, 9.3, 0, 2.1, { col: '#10b981', wood: '#d4a373', clutter: false });
-      drawEspressoBar(23.3, 13.0);
-      PHSprites.sofa(26.1, 10.3, 0, 2.0, '#0d9488');
-      drawCoffeeTableAndSet(27.1, 12.2);
-      PHSprites.sofa(26.1, 13.3, 0, 2.0, '#d97706');
-      PHSprites.armchair(28.3, 11.4, 0, { col: '#0d9488' });
-      PHSprites.planter(28.7, 9.2, 0.7, 0.7);
+      drawWallEventScreen(26.1, 8.92); // Wall-Mounted Social Event Screen
+      drawEspressoBar(23.3, 12.8);
+      PHSprites.sofa(25.9, 10.3, 0, 2.1, '#f5efe6'); // Plush Cream Lounge Sofa
+      drawCoffeeTableAndSet(27.0, 12.2);            // Wooden Coffee Table & Tea Service
+      PHSprites.sofa(25.9, 13.4, 0, 2.1, '#059669'); // Plush Emerald Lounge Sofa
+      PHSprites.armchair(28.3, 11.4, 0, { col: '#059669' });
+      drawIndoorPalm(28.9, 9.2);                     // Potted Indoor Palms
+      drawIndoorPalm(28.9, 14.9);
+      drawIndoorPalm(23.3, 15.1);
 
       // 5. FINE-DINING RESTAURANT (x: 29.8..37, y: 8.8..16) — Round White-Clothed Bistro Tables (ZERO BEDS)
       drawRoundBistroTable(31.4, 10.8);
@@ -642,27 +747,33 @@ const IsoRenderer = (() => {
       PHSprites.receptionDesk(35.3, 9.1, 1, 2.0, { col: '#d4a373', wood: '#784e32', clutter: false }); // Culinary Plating Counter
 
       // ---------------- SURROUNDING RESORT GARDEN PARK (x: 18.6..40.2, y: 0.6..16.6)
+      // Cobblestone Garden Footpaths connecting Park Entrance (y:16.0) to Central Fountain (20.9, 8.2) & West Walk
+      drawCobblestonePath(20.0, 10.0, 1.4, 6.0);
+      drawCobblestonePath(20.0, 1.2, 1.4, 5.2);
+      drawCobblestonePath(21.4, 1.2, 16.4, 1.1);
+      drawCobblestonePath(37.8, 1.2, 1.4, 14.8);
+
       drawGardenFountain(20.9, 8.2);
       drawHedge(19.0, 6.2, 0.5, 4.0, true);
       drawHedge(22.2, 2.8, 0.5, 3.0, true);
       drawHedge(22.2, 10.6, 0.5, 4.6, true);
       drawHedge(23.6, 2.3, 13.0, 0.35, true);
 
-      // Flowering Trees & Lush Park Canopy
-      PHSprites.tree(19.3, 1.5, 1.05, 1);
-      PHSprites.tree(22.3, 1.4, 0.9, 0);
-      PHSprites.tree(27.2, 1.1, 0.95, 1);
-      PHSprites.tree(32.4, 1.1, 0.95, 0);
-      PHSprites.tree(38.9, 1.4, 1.05, 1);
-      PHSprites.tree(39.1, 8.2, 1.0, 0);
-      PHSprites.tree(39.1, 14.8, 1.0, 1);
-      PHSprites.tree(19.2, 14.4, 0.95, 1);
+      // Flowering Trees with Colourful Ring Flowerbeds
+      drawTreeWithFlowerbed(19.2, 1.6, 1.0, 1);
+      drawTreeWithFlowerbed(22.3, 1.5, 0.9, 0);
+      drawTreeWithFlowerbed(27.2, 1.2, 0.92, 1);
+      drawTreeWithFlowerbed(32.4, 1.2, 0.92, 0);
+      drawTreeWithFlowerbed(38.9, 1.5, 1.0, 1);
+      drawTreeWithFlowerbed(39.0, 8.2, 0.98, 0);
+      drawTreeWithFlowerbed(39.0, 14.8, 0.98, 1);
+      drawTreeWithFlowerbed(19.2, 14.4, 0.95, 1);
 
-      // Wooden Park Benches & Garden Lanterns
-      drawParkBench(24.0, 1.45, false);
-      drawParkBench(29.4, 1.45, false);
-      drawParkBench(34.6, 1.45, false);
+      // Wooden Park Benches along West Fountain Courtyard & East Terrace (visible outdoors!)
+      drawParkBench(19.3, 4.4, true);
       drawParkBench(19.3, 11.4, true);
+      drawParkBench(24.2, 1.45, false);
+      drawParkBench(34.6, 1.45, false);
       drawParkBench(38.1, 6.4, true);
       drawParkBench(38.1, 10.6, true);
 
@@ -696,7 +807,7 @@ const IsoRenderer = (() => {
       });
     }
 
-    // ---------------- PATIENTS, DOCTORS, NURSES, CHEFS, THERAPISTS & CONCIERGE
+    // ---------------- PATIENTS, RESIDENTS, DOCTORS, NURSES, CHEFS, THERAPISTS & CONCIERGE
     simState.agents.forEach(ag => {
       if (ag.inVehicle) return;
       const isSel = ag.id === simState.selectedAgentId;
@@ -730,26 +841,15 @@ const IsoRenderer = (() => {
 
     PH.end();
 
-    // Clear Overhead Room Labels (pinned cleanly along upper room boundaries)
-    PHSprites.roomSign(4.5, 0.85, isFut ? 'ACUTE WARD A (74% OCC.)' : 'ACUTE WARD A (98% BED-BLOCK)', isFut ? '#0ea5e9' : '#ef4444');
-    PHSprites.roomSign(11.5, 0.85, isFut ? 'DISCHARGE WARD B ✓' : 'WARD B BLOCKED (275m)', isFut ? '#10b981' : '#ef4444');
-    PHSprites.roomSign(3.4, 8.35, 'DISCHARGE PHARMACY', '#10b981');
-    PHSprites.roomSign(8.3, 8.35, isFut ? 'PARALLEL e-BILLING ✓' : 'MANUAL BILLING (55m)', isFut ? '#10b981' : '#ef4444');
-    PHSprites.roomSign(12.8, 15.8, 'HOSPITAL MAIN ENTRANCE ↓', '#0ea5e9');
-
-    if (isFut) {
-      PHSprites.roomSign(20.9, 6.05, 'RESORT GARDEN PARK', '#22c55e');
-      PHSprites.roomSign(25.0, 2.45, 'MONTHLY VISITING MD ROOM', '#38bdf8');
-      PHSprites.roomSign(29.5, 2.45, 'THERMAL SPA & MASSAGE', '#14b8a6');
-      PHSprites.roomSign(34.6, 2.45, 'WELLNESS & MOVEMENT CLASS', '#10b981');
-      PHSprites.roomSign(26.4, 8.65, 'EVENTS & SOCIAL LOUNGE', '#f59e0b');
-      PHSprites.roomSign(33.4, 8.65, 'FINE-DINING RESTAURANT', '#10b981');
-      PHSprites.roomSign(25.4, 15.85, 'LUXURY RESORT ENTRANCE ↓', '#10b981');
-    } else {
-      PHSprites.roomSign(30.0, 8.35, 'UNDEVELOPED RETREAT PLOT · NO VAN', '#64748b');
-    }
-
+    // 1. Register roomSign bounding rects BEFORE overlay so overhead bubbles automatically dodge room signs
+    drawRoomSigns(isFut);
+    // 2. Render character name tags & bubbles
     PH.overlay(simState.showActionLabels);
+    // 3. Re-render black room signs ON TOP of character name tags (highest Z-index so labels never cover signs)
+    const savedRoomSigns = PH.S.roomSigns;
+    PH.S.roomSigns = null;
+    drawRoomSigns(isFut);
+    PH.S.roomSigns = savedRoomSigns;
   }
 
   return {
