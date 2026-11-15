@@ -1430,20 +1430,22 @@
   function applyFit(focus) {
     const b = focus || S.map.view || S.map.bounds;
     const wb = worldBounds(b);
-    const w = wb.maxX - wb.minX;
+    const sceneTop = wb.minY - 78;
+    const sceneBot = wb.maxY + 8;
+    const sceneWidth = wb.maxX - wb.minX;
+    const sceneHeight = sceneBot - sceneTop;
     const cssW = (S.canvas && S.canvas.width > 0 && S.dpr) ? (S.canvas.width / S.dpr) : S.vpW;
-    const availW = Math.max(240, cssW - 24);
-    const widthZoom = Math.max(0.45, Math.min(zoomMax, availW / w));
-    S.baseFitZoom = widthZoom;
-    S.cam.z = widthZoom;
+    const cssH = (S.canvas && S.canvas.height > 0 && S.dpr) ? (S.canvas.height / S.dpr) : S.vpH;
+    const availWidth = Math.max(240, cssW - 24);
+    const availHeight = Math.max(160, cssH - 95);
+    const scale = Math.max(0.28, Math.min(zoomMax, Math.min(availWidth / sceneWidth, availHeight / sceneHeight)));
+    S.baseFitZoom = scale;
+    S.cam.z = scale;
     S.cam.cx = (wb.minX + wb.maxX) / 2;
-    S.cam.cy = (wb.minY + wb.maxY) / 2 - 20;
+    const sceneMidY = (sceneTop + sceneBot) / 2;
+    const slotMidY = 76 + availHeight / 2;
+    S.cam.cy = sceneMidY - (slotMidY - cssH / 2) / scale;
     updateOrigin();
-    const topWallY = S.oy + (wb.minY - 70) * S.cam.z;
-    if (topWallY < 56) {
-      S.cam.cy -= (56 - topWallY) / S.cam.z;
-      updateOrigin();
-    }
   }
   function fit(focus) {
     S.lastFocus = focus || null;
