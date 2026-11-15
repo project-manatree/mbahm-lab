@@ -29,9 +29,11 @@ const IsoRenderer = (() => {
       // ---------------- RIGHT SITE: UNDEVELOPED LOT (Current) -> 4-UNIT GREEN GAP + LUXURY PAVILION (Target)
       { x: 15.0, y: 0.6, w: 19.8, d: 16.0, mat: 'grass' },       // Undeveloped Grass (Cur) / Landscaped Resort Lawn (Fut)
 
-      // Open Garden Gap Walkway & Perimeter Paths (Target Only)
-      { x: 16.5, y: 1.1, w: 1.0, d: 14.9, mat: { cur: null, fut: 'paver' } },      // Centered Divider Walkway
-      { x: 16.5, y: 1.1, w: 18.0, d: 1.1, mat: { cur: null, fut: 'paver' } },      // North Garden Walk
+      // Open Garden Gap Pool Terrace, Walkway & Perimeter Paths (Target Only)
+      { x: 15.35, y: 1.4, w: 3.3, d: 5.4, mat: { cur: null, fut: 'travertine' } },  // Back Poolside Sun Terrace
+      { x: 15.75, y: 2.0, w: 1.65, d: 4.1, mat: { cur: null, fut: 'water' } },      // Outdoor Resort Swimming Pool
+      { x: 16.5, y: 6.8, w: 1.0, d: 9.2, mat: { cur: null, fut: 'paver' } },        // Centered Divider Walkway
+      { x: 18.65, y: 1.1, w: 15.85, d: 1.1, mat: { cur: null, fut: 'paver' } },     // North Garden Walk
       { x: 33.5, y: 1.1, w: 1.0, d: 14.9, mat: { cur: null, fut: 'paver' } },      // East Park Terrace Walk
       { x: 33.0, y: 4.1, w: 0.6, d: 1.4, mat: { cur: null, fut: 'travertine' } },  // Movement Studio Garden Patio
       { x: 33.0, y: 11.7, w: 0.6, d: 1.4, mat: { cur: null, fut: 'travertine' } }, // Fine-Dining Garden Terrace Patio
@@ -476,6 +478,97 @@ const IsoRenderer = (() => {
     });
   }
 
+  function drawPoolLounger(gx, gy, cushionCol = '#f8fafc') {
+    PH.furniture(gx, gy, 0.72, 1.48, 0, k => {
+      // Warm teak sun-lounger frame
+      k.box(0.06, 0.06, 0, 0.60, 1.36, 3.0, '#b47842', { tex: 'deskwood', texAlpha: 0.45 });
+      // Plush waterproof cushion + reclined backrest + aqua head pillow
+      k.box(0.04, 0.04, 3.0, 0.64, 1.40, 1.9, cushionCol, { tex: 'fabric', texAlpha: 0.3 });
+      k.box(0.04, 0.04, 4.9, 0.64, 0.44, 2.5, cushionCol);
+      k.cyl(0.36, 0.24, 7.4, 0.08, 0.44, '#14b8a6');
+    });
+  }
+
+  function drawPoolUmbrella(cx, cy, colA = '#0d9488', colB = '#fefce8') {
+    PH.item(cx + cy, () => {
+      const c = PH.S.ctx;
+      const z = PH.zoom;
+      // Round teak poolside drink table + glass
+      PH.cyl(cx, cy, 0, 0.06, 4.2, '#784e32');
+      PH.disc(cx, cy, 4.3, 0.28, '#b47842', '#784e32');
+      PH.cyl(cx + 0.08, cy - 0.06, 4.4, 0.045, 1.4, '#38bdf8');
+      // Soft ground shadow beneath parasol
+      const sp = PH.P(cx - 0.12, cy + 0.12, 0.25);
+      c.save();
+      c.fillStyle = 'rgba(15, 23, 42, 0.22)';
+      c.beginPath();
+      c.ellipse(sp.x, sp.y, 20 * z, 11 * z, 0, 0, Math.PI * 2);
+      c.fill();
+      c.restore();
+      // Umbrella center pole
+      PH.cyl(cx, cy, 4.4, 0.04, 15.6, '#e2e8f0');
+    });
+    // Elevated umbrella canopy drawn cleanly above both loungers
+    PH.item(cx + cy + 2.2, () => {
+      const apex = PH.P(cx, cy, 24.0);
+      const r = 0.72;
+      const rimZ = 18.8;
+      const segs = 8;
+      for (let i = 0; i < segs; i++) {
+        const a0 = (i / segs) * Math.PI * 2;
+        const a1 = ((i + 1) / segs) * Math.PI * 2;
+        const p0 = PH.P(cx + Math.cos(a0) * r, cy + Math.sin(a0) * r, rimZ);
+        const p1 = PH.P(cx + Math.cos(a1) * r, cy + Math.sin(a1) * r, rimZ);
+        PH.poly([apex, p0, p1], i % 2 === 0 ? colA : colB, 'rgba(15,23,42,0.22)', 0.9);
+      }
+      PH.disc(cx, cy, 24.2, 0.08, '#d4af37');
+    });
+  }
+
+  function drawSwimmingPool(x, y, w, d) {
+    PH.item(0.32, () => {
+      const c = PH.S.ctx;
+      const z = PH.zoom;
+      const rim = 0.14;
+      // Crisp white stone coping border around water
+      PH.topQuad(x - rim, y - rim, 0.25, w + rim * 2, rim, '#f8fafc', { stroke: '#cbd5e1' });
+      PH.topQuad(x - rim, y + d, 0.25, w + rim * 2, rim, '#f8fafc', { stroke: '#cbd5e1' });
+      PH.topQuad(x - rim, y, 0.25, rim, d, '#f1f5f9', { stroke: '#cbd5e1' });
+      PH.topQuad(x + w, y, 0.25, rim, d, '#f1f5f9', { stroke: '#cbd5e1' });
+      // Inner recessed pool shadow & shallow south entry steps
+      PH.topQuad(x, y, 0.16, w, 0.16, '#0284c7');
+      PH.topQuad(x, y, 0.16, 0.16, d, '#0369a1');
+      PH.topQuad(x + 0.18, y + d - 0.58, 0.18, w - 0.36, 0.22, 'rgba(224,242,254,0.45)');
+      PH.topQuad(x + 0.18, y + d - 0.32, 0.20, w - 0.36, 0.24, 'rgba(240,249,255,0.62)');
+      // Gentle animated pool shimmer ripples
+      c.save();
+      for (let i = 0; i < 3; i++) {
+        const rp = ((PH.t / 135) + i * 0.33) % 1;
+        const rcx = x + w * (0.42 + (i % 2) * 0.16);
+        const rcy = y + d * (0.28 + i * 0.22);
+        const p = PH.P(rcx, rcy, 0.22);
+        c.strokeStyle = `rgba(224,242,254,${(0.55 * (1 - rp)).toFixed(2)})`;
+        c.lineWidth = 1.15;
+        c.beginPath();
+        c.ellipse(p.x, p.y, (3 + rp * 12) * z, (1.6 + rp * 6.5) * z, 0, 0, Math.PI * 2);
+        c.stroke();
+      }
+      c.restore();
+    });
+    // Stainless chrome pool ladder rails at south-east shallow corner
+    PH.item(x + w + y + d - 0.6, () => {
+      const lx = x + w - 0.04;
+      const ly1 = y + d - 0.78;
+      const ly2 = y + d - 0.46;
+      PH.line3(lx, ly1, 0.2, lx, ly1, 5.2, '#e2e8f0', 1.8);
+      PH.line3(lx + 0.22, ly1, 0.2, lx + 0.22, ly1, 3.6, '#cbd5e1', 1.8);
+      PH.line3(lx, ly1, 5.2, lx + 0.22, ly1, 3.6, '#f8fafc', 1.8);
+      PH.line3(lx, ly2, 0.2, lx, ly2, 5.2, '#e2e8f0', 1.8);
+      PH.line3(lx + 0.22, ly2, 0.2, lx + 0.22, ly2, 3.6, '#cbd5e1', 1.8);
+      PH.line3(lx, ly2, 5.2, lx + 0.22, ly2, 3.6, '#f8fafc', 1.8);
+    });
+  }
+
   function drawYogaMat(gx, gy, col = '#14b8a6') {
     PH.furniture(gx, gy, 1.35, 0.62, 0, k => {
       k.top(0.04, 0.04, 0.15, 1.26, 0.54, col, { stroke: '#0f766e' });
@@ -797,15 +890,19 @@ const IsoRenderer = (() => {
       drawRoundBistroTable(30.3, 13.8);
       PHSprites.receptionDesk(31.3, 9.1, 1, 2.0, { col: '#d4a373', wood: '#784e32', clutter: false }); // Culinary Plating Counter
 
-      // ---------------- 4-UNIT GREEN GARDEN GAP (x: 15..19) & PERIMETER WALK (x: 16.5..34.6)
-      drawCobblestonePath(16.5, 1.2, 1.0, 14.8);
-      drawCobblestonePath(17.5, 1.1, 16.0, 1.1);
+      // ---------------- 4-UNIT GREEN GARDEN GAP (x: 15..19) WITH BACK SWIMMING POOL, LOUNGERS & UMBRELLA
+      drawSwimmingPool(15.75, 2.0, 1.65, 4.1);
+      drawPoolLounger(17.65, 2.05, '#f8fafc');
+      drawPoolUmbrella(18.02, 3.92, '#0d9488', '#fefce8');
+      drawPoolLounger(17.65, 4.38, '#f0fdfa');
+
+      drawCobblestonePath(16.5, 6.9, 1.0, 9.1);
+      drawCobblestonePath(18.65, 1.1, 14.85, 1.1);
       drawCobblestonePath(33.5, 1.2, 1.0, 14.8);
 
       drawHedge(19.6, 2.25, 13.0, 0.35, true);
 
       // Flowering Trees with Colourful Ring Flowerbeds
-      drawTreeWithFlowerbed(17.0, 1.55, 0.85, 1);
       drawTreeWithFlowerbed(23.2, 1.2, 0.88, 1);
       drawTreeWithFlowerbed(28.4, 1.2, 0.88, 0);
       drawTreeWithFlowerbed(34.1, 1.5, 0.88, 1);
