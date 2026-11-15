@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MBAHM-LAB | Project Hospital 2.5D Healthcare Operations & Governance Suite</title>
+  <title>MBAHM-LAB | Healthcare Operations &amp; Digital Governance 2.5D Simulation Suite</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -310,6 +310,72 @@
       color: var(--muted);
       background: #0b1120;
     }
+
+    .alignment-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 24px;
+    }
+
+    .alignment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .alignment-header h3 {
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .alignment-sub {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--optimal);
+    }
+
+    .alignment-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 10px;
+    }
+
+    .align-item {
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 10px 12px;
+      font-size: 0.78rem;
+    }
+
+    .align-item .align-code {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 3px;
+    }
+
+    .align-item.non-sim .align-code {
+      color: var(--warning);
+    }
+
+    .align-item strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .align-item span {
+      color: var(--muted);
+      font-size: 0.74rem;
+    }
   </style>
 </head>
 <body>
@@ -321,11 +387,11 @@
     <header>
       <div class="title-group">
         <h1>
-          MBAHM-LAB 2.5D Project Hospital Suite
-          <span class="badge-pill">28x22 Isometric Engine · A* Pathfinding</span>
+          MBAHM-LAB 2.5D Healthcare Simulation Suite
+          <span class="badge-pill">Multi-Wing 2.5D Isometric · Current vs Target</span>
         </h1>
         <p>
-          Multi-file, zero-dependency 2.5D Isometric Healthcare Operations, Lean Supply Chain &amp; Clinical Governance Management Simulations for GitHub Pages and Notion <code>/embed</code> blocks.
+          Three illustrative-data 2.5D isometric simulation twins supporting <strong>BAHM 330 A1 (Option A)</strong>, <strong>BAHM 330 A2 (Group Case — Meridian Specialist Hospital)</strong>, and <strong>BAHM 331 Individual (Option A)</strong>, aligned with zero overlap across all 6 course assessments.
         </p>
       </div>
       <div>
@@ -337,24 +403,24 @@
 
     <section class="kpi-strip">
       <div class="kpi-card">
-        <div class="kpi-label">Module 1 · Step-Down Transfer PCE</div>
-        <div class="kpi-val">34.5% → 90.9%</div>
-        <div class="kpi-sub">275m → 110m (-60% Faster) · 180m → 10m Wait</div>
+        <div class="kpi-label">Module 1 · BAHM 330 A1 (Option A)</div>
+        <div class="kpi-val">275m → 110m (-60%)</div>
+        <div class="kpi-sub">180m → 10m Wait · 98% → 74% Ward Occ.</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Module 2 · MSH Smart Wing Upgrade</div>
-        <div class="kpi-val">68m → 12m (-82%)</div>
-        <div class="kpi-sub">4-Room Pod · Dual 3T MRI+CT · 18m Robotic Rx</div>
+        <div class="kpi-label">Module 2 · BAHM 330 A2 (Group Case)</div>
+        <div class="kpi-val">C1 12m · C2 99% CT</div>
+        <div class="kpi-sub">C3 92m → 18m e-Kanban · C5 99.9% SSOT</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Module 3 · Accredited Retreat Campus</div>
+        <div class="kpi-label">Module 3 · BAHM 331 Ind (Option A)</div>
         <div class="kpi-val">98.5% SLA · 0 PHI</div>
-        <div class="kpi-sub">68% → 6% Fatigue · &lt;3m Rapid Medical Cart</div>
+        <div class="kpi-sub">64% → 6% Fatigue · 52% → 98.5% (&lt;3m MD)</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Facility Transformation Engine</div>
-        <div class="kpi-val">28×22 Iso Grid</div>
-        <div class="kpi-sub">Real-Time Before/After Architectural Redraw</div>
+        <div class="kpi-label">Zero-Overlap Course Alignment</div>
+        <div class="kpi-val">6 Assessments</div>
+        <div class="kpi-sub">3 Simulated · A3 Real Audit · 331 Grp Non-Sim</div>
       </div>
     </section>
 
@@ -363,26 +429,26 @@
       <article class="sim-card">
         <div>
           <div class="sim-meta">
-            <span class="course-tag">BAHM330 · Assignment 1</span>
+            <span class="course-tag">BAHM 330 · A1 (Option A)</span>
             <span class="due-tag">Due: 28 Nov 2026</span>
           </div>
-          <h2>1. Concierge Hospital-to-Retreat Step-Down Transfer Twin</h2>
+          <h2>BAHM 330 A1 (Option A) — Hospital-to-Retreat Concierge Transfer Pathway</h2>
           <svg viewBox="0 0 320 90" style="width:100%;height:auto;background:#090d16;border:1px solid var(--border);border-radius:6px;margin-bottom:10px;">
             <polygon points="65,18 120,44 65,70 10,44" fill="#e2e8f0" opacity="0.88"/>
             <polygon points="160,22 200,44 160,66 120,44" fill="#1e293b" stroke="#0ea5e9" stroke-width="1.2"/>
             <rect x="146" y="36" width="28" height="13" rx="3" fill="#0ea5e9"/>
             <polygon points="255,18 310,44 255,70 200,44" fill="#b47b48" opacity="0.9"/>
-            <circle cx="65" cy="38" r="5" fill="#f59e0b"/>
+            <circle cx="65" cy="38" r="5" fill="#ef4444"/>
             <circle cx="255" cy="38" r="5" fill="#10b981"/>
-            <text x="12" y="83" fill="#94a3b8" font-size="8.5" font-family="monospace">28x22 ISOMETRIC: WARD → CONCIERGE VAN → RETREAT CAMPUS</text>
+            <text x="8" y="83" fill="#94a3b8" font-size="8.0" font-family="monospace">38×21 SPLIT-CAMPUS: WARD (98%→74%) → E-BILLING → VAN → RETREAT</text>
           </svg>
           <p>
-            Split-campus 28×22 isometric simulation tracking 8 concurrent geriatric step-down transfers across Partner Hospital Ward, Billing, Concierge Van Transit, Luxury Suites, Visiting MD Clinic &amp; Hydrotherapy Pool.
+            Contrasts current partner hospital acute ward bed-blocking (undeveloped retreat plot, no concierge van) against unlocked step-down care in Recovery Suite 301, Visiting MD Clinic, Hydrotherapy Pool &amp; Therapeutic Dining via concierge medical van and parallel e-billing.
           </p>
           <div class="metrics-preview">
-            <div><span>Before (Broken Facility):</span><span class="val" style="color:var(--bottleneck)">275 mins (PCE 34.5%)</span></div>
-            <div><span>After (Smart Facility):</span><span class="val">110 mins (PCE 90.9% · -60%)</span></div>
-            <div><span>Active / Waiting Breakdown:</span><span class="val">95m/180m → 100m/10m</span></div>
+            <div><span>Current (Ward Bed-Blocking):</span><span class="val" style="color:var(--bottleneck)">275m Cycle · 180m Wait · 98% Occ.</span></div>
+            <div><span>Target (Retreat Unlocked):</span><span class="val">110m Cycle · 10m Wait · 74% Occ.</span></div>
+            <div><span>Parallel Clearance &amp; PCE:</span><span class="val">Concierge Van + e-Billing · 90.9% PCE</span></div>
           </div>
         </div>
         <div>
@@ -401,10 +467,10 @@
       <article class="sim-card">
         <div>
           <div class="sim-meta">
-            <span class="course-tag">BAHM330 · Assignment 2</span>
+            <span class="course-tag">BAHM 330 · A2 (Group Case)</span>
             <span class="due-tag">Due: 13 Dec 2026</span>
           </div>
-          <h2>2. Meridian Specialist Hospital (MSH) Operations &amp; Supply Chain Twin</h2>
+          <h2>BAHM 330 A2 (Group Case) — Meridian Specialist Hospital (C1, C2, C3, C5)</h2>
           <svg viewBox="0 0 320 90" style="width:100%;height:auto;background:#090d16;border:1px solid var(--border);border-radius:6px;margin-bottom:10px;">
             <polygon points="70,18 130,44 70,70 10,44" fill="#bae6fd" opacity="0.88"/>
             <polygon points="170,18 230,44 170,70 110,44" fill="#334155" stroke="#ef4444" stroke-width="1.2"/>
@@ -412,15 +478,15 @@
             <circle cx="70" cy="40" r="5" fill="#ef4444"/>
             <circle cx="170" cy="40" r="5" fill="#f59e0b"/>
             <circle cx="255" cy="40" r="5" fill="#10b981"/>
-            <text x="12" y="83" fill="#94a3b8" font-size="8.5" font-family="monospace">28x22 ISOMETRIC: C1 CLINIC · C2 CT SUITE · C3 RX · C5 HIS</text>
+            <text x="8" y="83" fill="#94a3b8" font-size="8.0" font-family="monospace">34×21 MSH TWIN: C1 QUEUE · C2 CPOE CT · C3 E-KANBAN RX · C5 HIS</text>
           </svg>
           <p>
-            250-bed hospital wing with 28+ A* pathfinding agents resolving C1 outpatient queues, C2 radiology 40% incomplete referrals, C3 90-min pharmacy stockouts, and C5 SMS/phone sync conflicts.
+            Meridian Specialist Hospital 4-zone operations &amp; lean supply-chain simulation resolving Outpatient Queue (C1), Radiology Referral Rework (C2), Inpatient Discharge Pharmacy Stockouts (C3), and Reception HIS Scheduling Sync (C5).
           </p>
           <div class="metrics-preview">
-            <div><span>C1 Outpatient Wait / C2 Pass:</span><span class="val" style="color:var(--bottleneck)">68m / 60% → 12m / 99.2%</span></div>
-            <div><span>C3 Discharge Rx Turnaround:</span><span class="val">92 mins → 18 mins (-80%)</span></div>
-            <div><span>C5 Schedule Sync Accuracy:</span><span class="val">68.0% → 99.9% (SSOT)</span></div>
+            <div><span>C1 Outpatient Queue:</span><span class="val">68m No-ETA → 12m Wave-Scheduled ETA</span></div>
+            <div><span>C2 Radiology / C3 Pharmacy:</span><span class="val">40% Rework → 99% CT · 92m → 18m e-Kanban</span></div>
+            <div><span>C5 Reception HIS Sync:</span><span class="val">SMS≠Phone Conflict → 99.9% SSOT Sync</span></div>
           </div>
         </div>
         <div>
@@ -439,10 +505,10 @@
       <article class="sim-card">
         <div>
           <div class="sim-meta">
-            <span class="course-tag">BAHM331 · Individual</span>
+            <span class="course-tag">BAHM 331 · Individual (Option A)</span>
             <span class="due-tag">Due: 13 Dec 2026</span>
           </div>
-          <h2>3. Luxury Geriatric Retreat — Clinical Governance &amp; IoT Risk Console</h2>
+          <h2>BAHM 331 Individual (Option A) — Digital Governance of IoT Wearable Monitoring &amp; Visiting Physicians</h2>
           <svg viewBox="0 0 320 90" style="width:100%;height:auto;background:#090d16;border:1px solid var(--border);border-radius:6px;margin-bottom:10px;">
             <polygon points="65,20 120,44 65,68 10,44" fill="#0891b2" opacity="0.88"/>
             <polygon points="165,20 220,44 165,68 110,44" fill="#b47b48" opacity="0.88"/>
@@ -450,15 +516,15 @@
             <line x1="65" y1="40" x2="260" y2="40" stroke="#10b981" stroke-width="2" stroke-dasharray="4,3"/>
             <circle cx="65" cy="40" r="5" fill="#f59e0b"/>
             <circle cx="260" cy="40" r="5" fill="#0ea5e9"/>
-            <text x="12" y="83" fill="#94a3b8" font-size="8.5" font-family="monospace">28x22 ISOMETRIC: HYDRO POOL · SPA · NURSE TRIAGE · 5M SLA</text>
+            <text x="8" y="83" fill="#94a3b8" font-size="8.0" font-family="monospace">34×21 RETREAT: RBAC (0 PHI) · NURSE TRIAGE (6% FATIGUE) · &lt;3M SLA</text>
           </svg>
           <p>
-            Full luxury geriatric retreat campus with 24+ elderly residents wearing biometric wristbands, governing wellness staff, nurse triage gates, and visiting physicians under MSQH &amp; PDPA standards.
+            Contrasts unfiltered wearable alerts leaking resident PHI onto non-clinical spa/concierge tablets against tiered Duty Nurse Triage, RBAC privacy masking (&ldquo;Welfare Check Only&rdquo;), and &lt;3 min priority escalation to Visiting Physicians.
           </p>
           <div class="metrics-preview">
-            <div><span>Before (Unfiltered Risk):</span><span class="val" style="color:var(--bottleneck)">14 PHI Leaks · 68% Fatigue</span></div>
-            <div><span>After (Smart Accredited):</span><span class="val">0 PHI Leaks · 98.5% SLA (&lt;3m)</span></div>
-            <div><span>Alert Fatigue / Audit Trail:</span><span class="val">68%→6% (-91%) · 100% Audit</span></div>
+            <div><span>Current (Unfiltered Risk):</span><span class="val" style="color:var(--bottleneck)">14 PDPA Breaches · 64% Fatigue · 52% SLA</span></div>
+            <div><span>Target (Tiered Governance):</span><span class="val">0 PHI Breaches (RBAC) · 6% Fatigue</span></div>
+            <div><span>Escalation SLA (&lt;3m Visiting MD):</span><span class="val">52% → 98.5% SLA Met · Duty Nurse Triage</span></div>
           </div>
         </div>
         <div>
@@ -474,15 +540,54 @@
       </article>
     </section>
 
+    <section class="alignment-section">
+      <div class="alignment-header">
+        <h3>Zero-Overlap Course Alignment Across All 6 Assessments</h3>
+        <span class="alignment-sub">3 Simulated Illustrative Twins · A3 Empirical Audit · BAHM 331 Group Non-Simulated</span>
+      </div>
+      <div class="alignment-grid">
+        <div class="align-item">
+          <div class="align-code">1. BAHM 330 · A1 (Option A · Sim Module 1)</div>
+          <strong>Hospital-to-Retreat Concierge Transfer Pathway</strong>
+          <span>Acute ward bed-blocking (98% → 74%) &amp; 275m → 110m concierge van + e-billing step-down flow.</span>
+        </div>
+        <div class="align-item">
+          <div class="align-code">2. BAHM 330 · A2 Group Case (Sim Module 2)</div>
+          <strong>Meridian Specialist Hospital (C1, C2, C3, C5)</strong>
+          <span>C1 Queue (68m→12m), C2 CPOE CT (40% rework→99%), C3 e-Kanban Rx (92m→18m), C5 SSOT Sync.</span>
+        </div>
+        <div class="align-item non-sim">
+          <div class="align-code">3. BAHM 330 · A3 Report (Real Audit Data)</div>
+          <strong>Retreat Operations Empirical Audit</strong>
+          <span>Uses real retreat audit data only — zero simulated scenario overlap with Modules 1–3.</span>
+        </div>
+        <div class="align-item non-sim">
+          <div class="align-code">4. BAHM 331 · A1 Group Presentation (Non-Sim)</div>
+          <strong>Hospital Quality &amp; Disaster Continuity</strong>
+          <span>Covers acute hospital quality &amp; disaster continuity framework without simulated data.</span>
+        </div>
+        <div class="align-item non-sim">
+          <div class="align-code">5. BAHM 331 · A2 Group Report (Non-Sim)</div>
+          <strong>Hospital Quality &amp; Disaster Continuity Report</strong>
+          <span>Covers hospital quality governance, standards &amp; disaster continuity without simulated data.</span>
+        </div>
+        <div class="align-item">
+          <div class="align-code">6. BAHM 331 · A3 Individual (Option A · Sim Module 3)</div>
+          <strong>IoT Wearable &amp; Visiting Physician Governance</strong>
+          <span>Duty Nurse Triage (64%→6% fatigue), RBAC masking (0 PHI breaches) &amp; &lt;3m MD SLA (98.5%).</span>
+        </div>
+      </div>
+    </section>
+
     <section class="preview-section">
       <div class="preview-header">
         <div style="font-weight:700;font-size:0.95rem;">
-          Live Notion <code>/embed</code> Viewport Tester (28×22 Isometric Engine)
+          Live Notion <code>/embed</code> Viewport Tester (Current | Target Toggle)
         </div>
         <div class="tab-group" id="preview-tabs">
-          <button class="tab-btn active" onclick="loadPreview('./bahm330-a1/index.html', 0)">Module 1: BAHM330-A1</button>
-          <button class="tab-btn" onclick="loadPreview('./bahm330-a2/index.html', 1)">Module 2: BAHM330-A2</button>
-          <button class="tab-btn" onclick="loadPreview('./bahm331-ind/index.html', 2)">Module 3: BAHM331-IND</button>
+          <button class="tab-btn active" onclick="loadPreview('./bahm330-a1/index.html', 0)">Module 1: BAHM 330 A1</button>
+          <button class="tab-btn" onclick="loadPreview('./bahm330-a2/index.html', 1)">Module 2: BAHM 330 A2</button>
+          <button class="tab-btn" onclick="loadPreview('./bahm331-ind/index.html', 2)">Module 3: BAHM 331 Ind</button>
         </div>
       </div>
       <iframe id="sim-iframe" class="sim-frame" src="./bahm330-a1/index.html" title="Simulator Live Embed Preview"></iframe>
@@ -513,19 +618,17 @@
 
     function exportSuiteSummaryCSV() {
       const rows = [
-        ['Module_Code', 'Simulator_Title', 'Metric_Name', 'Before_Current_Baseline', 'After_Future_Smart_Facility', 'Unit', 'Data_Notice'],
-        ['BAHM330-A1', 'Concierge Step-Down Transfer Twin', 'Active Value-Added Time', '95', '100', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM330-A1', 'Concierge Step-Down Transfer Twin', 'Non-Value-Added Waiting Time', '180', '10', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM330-A1', 'Concierge Step-Down Transfer Twin', 'Total Elapsed Cycle Time', '275', '110 (-60% Faster)', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM330-A1', 'Concierge Step-Down Transfer Twin', 'Process Cycle Efficiency (PCE)', '34.5', '90.9', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM330-A2', 'Meridian Specialist Hospital Twin', 'C1 Mean Outpatient Wait Time', '68', '12 (-82%)', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM330-A2', 'Meridian Specialist Hospital Twin', 'C2 First-Pass Diagnostic Completion', '60.0', '99.2 (Dual 3T MRI + CT)', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM330-A2', 'Meridian Specialist Hospital Twin', 'C3 Discharge Medication Turnaround', '92', '18 (-80% Robotic Rx)', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM330-A2', 'Meridian Specialist Hospital Twin', 'C5 Appointment Schedule Sync Accuracy', '68.0', '99.9 (SSOT)', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM331-IND', 'Luxury Retreat IoT Governance Console', 'Clinical Escalation SLA Compliance', '50.0', '98.5 (<3m Rapid Cart)', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM331-IND', 'Luxury Retreat IoT Governance Console', 'Alert Fatigue False-Positive Rate', '68.0', '6.0 (95% Noise Filtered)', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM331-IND', 'Luxury Retreat IoT Governance Console', 'PHI Privacy Exposure Incidents', '14', '0 (Encrypted RBAC Shield)', 'incidents/shift', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM331-IND', 'Luxury Retreat IoT Governance Console', 'Audit Trail Completeness', '45.0', '100.0', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA']
+        ['Module_Code', 'Simulator_Title', 'Metric_Name', 'Current_Baseline', 'Target_State', 'Unit', 'Data_Notice'],
+        ['BAHM330-A1', 'Option A: Hospital-to-Retreat Concierge Transfer Pathway', 'Total Cycle Time', '275', '110 (-60%)', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM330-A1', 'Option A: Hospital-to-Retreat Concierge Transfer Pathway', 'Waiting Time Delay', '180', '10', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM330-A1', 'Option A: Hospital-to-Retreat Concierge Transfer Pathway', 'Acute Ward Occupancy', '98', '74', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM330-A2', 'Group Case: Meridian Specialist Hospital (C1, C2, C3, C5)', 'C1 Outpatient Clinic Queue', '68 (No ETA)', '12 (Wave-Scheduled ETA)', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM330-A2', 'Group Case: Meridian Specialist Hospital (C1, C2, C3, C5)', 'C2 Diagnostic Imaging First-Pass CT', '60% (40% Walk-Back Rework)', '99% (CPOE Hard-Stop CT)', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM330-A2', 'Group Case: Meridian Specialist Hospital (C1, C2, C3, C5)', 'C3 Inpatient Discharge Pharmacy', '92 (Stockout Delay)', '18 (e-Kanban Auto-Reorder)', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM330-A2', 'Group Case: Meridian Specialist Hospital (C1, C2, C3, C5)', 'C5 Reception Appointment Sync', 'SMS != Phone Conflict', '99.9% SSOT HIS Sync', 'sync', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM331-IND', 'Option A: Digital Governance of IoT Wearable Monitoring & Visiting Physicians', 'PDPA PHI Privacy Breaches', '14 (Spa/Concierge Tablets)', '0 (RBAC Welfare Check Only)', 'incidents', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM331-IND', 'Option A: Digital Governance of IoT Wearable Monitoring & Visiting Physicians', 'Visiting Physician Alert Fatigue', '64', '6 (Duty Nurse Triage)', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM331-IND', 'Option A: Digital Governance of IoT Wearable Monitoring & Visiting Physicians', 'Acute Escalation SLA Met (<3 min)', '52', '98.5', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA']
       ];
       const csvContent = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

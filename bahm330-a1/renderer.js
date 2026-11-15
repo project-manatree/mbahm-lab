@@ -128,29 +128,29 @@ const IsoRenderer = (() => {
 
     // ---------------- BUILDING 1 (LEFT, x: 1..15, y: 1..16): PARTNER HOSPITAL
     // 1. Ward A (x: 1..8, y: 1..6.5) — 4 Inpatient Beds + Curtains + Nurse Station
-    const bedBlanket = '#0ea5e9';
-    PHSprites.hospitalBed(1.4, 1.4, 0, { blanket: bedBlanket, ready: true, seed: 1 });
+    const bedBlanket = isFut ? '#0ea5e9' : '#f59e0b';
+    PHSprites.hospitalBed(1.4, 1.4, 0, { blanket: bedBlanket, alert: !isFut, ready: isFut, seed: 1 });
     PHSprites.privacyCurtain(1.4, 2.9, 0, 1.8, '#bae6fd');
-    PHSprites.hospitalBed(1.4, 3.4, 0, { blanket: bedBlanket, ready: true, seed: 2 });
-    PHSprites.hospitalBed(4.4, 1.4, 0, { blanket: bedBlanket, ready: true, seed: 3 });
-    PHSprites.hospitalBed(4.4, 3.4, 0, { blanket: bedBlanket, ready: true, seed: 4 });
+    PHSprites.hospitalBed(1.4, 3.4, 0, { blanket: bedBlanket, alert: !isFut, ready: isFut, seed: 2 });
+    PHSprites.hospitalBed(4.4, 1.4, 0, { blanket: bedBlanket, alert: !isFut, ready: isFut, seed: 3 });
+    PHSprites.hospitalBed(4.4, 3.4, 0, { blanket: bedBlanket, alert: !isFut, ready: isFut, seed: 4 });
     PHSprites.waitingBench(2.2, 5.3, 0, 4, '#3b82f6');
 
-    // 2. Ward B (x: 8..15, y: 1..6.5) — 4 Step-Down Beds + Nurse Desk
-    PHSprites.hospitalBed(8.4, 1.4, 0, { blanket: '#38bdf8', ready: true, seed: 5 });
+    // 2. Ward B (x: 8..15, y: 1..6.5) — 3 Step-Down Beds + Nurse Desk
+    PHSprites.hospitalBed(8.4, 1.4, 0, { blanket: '#38bdf8', alert: !isFut, ready: isFut, seed: 5 });
     PHSprites.hospitalBed(8.4, 3.4, 0, { blanket: '#38bdf8', ready: true, seed: 6 });
     PHSprites.hospitalBed(11.2, 1.4, 0, { blanket: '#38bdf8', ready: true, seed: 7 });
-    PHSprites.receptionDesk(13.2, 1.6, 1, 2.4, { col: '#0284c7', clutter: false });
+    PHSprites.receptionDesk(13.2, 1.6, 1, 2.4, { col: '#0284c7', clutter: !isFut });
     PHSprites.waitingBench(9.2, 5.3, 0, 4, '#0284c7');
 
     // 3. Discharge Pharmacy (x: 1..5.8, y: 8.5..16)
-    PHSprites.receptionDesk(1.4, 9.0, 0, 2.8, { col: '#10b981', clutter: false });
-    PHSprites.pharmacyShelf(1.4, 11.4, 0, { stockout: false, rfid: true });
-    PHSprites.pharmacyShelf(1.4, 13.0, 0, { stockout: false, rfid: true });
+    PHSprites.receptionDesk(1.4, 9.0, 0, 2.8, { col: '#10b981', clutter: !isFut });
+    PHSprites.pharmacyShelf(1.4, 11.4, 0, { stockout: false, rfid: isFut });
+    PHSprites.pharmacyShelf(1.4, 13.0, 0, { stockout: false, rfid: isFut });
     PHSprites.waitingBench(1.5, 14.6, 0, 4, '#475569');
 
     // 4. Billing & Insurance Hall (x: 5.8..10.8, y: 8.5..16)
-    PHSprites.receptionDesk(6.0, 9.0, 0, 2.4, { col: '#0284c7', clutter: false });
+    PHSprites.receptionDesk(6.0, 9.0, 0, 2.4, { col: '#0284c7', clutter: !isFut });
     PHSprites.waitingBench(6.3, 11.8, 0, 4, '#475569');
     PHSprites.waitingBench(6.3, 13.2, 0, 4, '#475569');
     PHSprites.waitingBench(6.3, 14.6, 0, 4, '#475569');
@@ -246,10 +246,10 @@ const IsoRenderer = (() => {
     PH.end();
 
     // Clear Overhead Room Labels
-    PHSprites.roomSign(4.5, 1.1, 'HOSPITAL WARD A', '#0ea5e9');
-    PHSprites.roomSign(11.5, 1.1, 'STEP-DOWN WARD B', '#10b981');
+    PHSprites.roomSign(4.5, 1.1, isFut ? 'ACUTE WARD A (74% OCC.)' : 'ACUTE WARD A (98% BED-BLOCK)', isFut ? '#0ea5e9' : '#ef4444');
+    PHSprites.roomSign(11.5, 1.1, isFut ? 'STEP-DOWN WARD B ✓' : 'WARD B BLOCKED (275m)', isFut ? '#10b981' : '#ef4444');
     PHSprites.roomSign(3.4, 8.7, 'DISCHARGE PHARMACY', '#10b981');
-    PHSprites.roomSign(8.3, 8.7, 'BILLING & CLEARANCE', '#0ea5e9');
+    PHSprites.roomSign(8.3, 8.7, isFut ? 'PARALLEL e-BILLING ✓' : 'MANUAL BILLING (55m)', isFut ? '#10b981' : '#ef4444');
     PHSprites.roomSign(12.8, 15.8, 'HOSPITAL MAIN ENTRANCE ↓', '#0ea5e9');
 
     if (isFut) {
@@ -261,7 +261,7 @@ const IsoRenderer = (() => {
       PHSprites.roomSign(34.8, 8.7, 'THERAPEUTIC DINING', '#10b981');
       PHSprites.roomSign(25.4, 15.8, 'RETREAT MAIN ENTRANCE ↓', '#10b981');
     } else {
-      PHSprites.roomSign(30.0, 8.5, 'NO STEP-DOWN RETREAT', '#64748b');
+      PHSprites.roomSign(30.0, 8.5, 'UNDEVELOPED RETREAT PLOT · NO VAN', '#64748b');
     }
 
     PH.overlay(simState.showActionLabels);

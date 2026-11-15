@@ -125,7 +125,8 @@ const IsoRenderer = (() => {
   }
 
   function render(simState) {
-    PH.setCondition('fut');
+    const isWaitMode = simState.mode === 'unfiltered';
+    PH.setCondition(isWaitMode ? 'cur' : 'fut');
     PH.begin();
 
     // ---------------- 1. HYDROTHERAPY POOL (x: 1..9, y: 1..8.5)
@@ -150,17 +151,17 @@ const IsoRenderer = (() => {
     PHSprites.kiosk(15.6, 1.8, 1, { col: '#0ea5e9' });
 
     // ---------------- 3. 24/7 CENTRAL NURSE & TRIAGE STATION (x: 17..24.5, y: 1..8.5)
-    PHSprites.receptionDesk(17.6, 1.6, 0, 3.0, { col: '#0ea5e9', clutter: false });
-    PHSprites.officeDesk(17.8, 4.4, 0, { clutter: false, screenStyle: 'ecg', seed: 61, visitorChair: false });
-    PHSprites.officeDesk(20.6, 4.4, 0, { clutter: false, screenStyle: 'ok', seed: 62, visitorChair: false });
-    PHSprites.pharmacyShelf(22.2, 1.6, 0, { stockout: false, rfid: true });
+    PHSprites.receptionDesk(17.6, 1.6, 0, 3.0, { col: '#0ea5e9', clutter: isWaitMode });
+    PHSprites.officeDesk(17.8, 4.4, 0, { clutter: isWaitMode, screenStyle: isWaitMode ? 'ecgAlarm' : 'ecg', seed: 61, visitorChair: false });
+    PHSprites.officeDesk(20.6, 4.4, 0, { clutter: isWaitMode, screenStyle: isWaitMode ? 'alert' : 'ok', seed: 62, visitorChair: false });
+    PHSprites.pharmacyShelf(22.2, 1.6, 0, { stockout: false, rfid: !isWaitMode });
 
     // ---------------- 4. DOCTOR CHECK-UP & ACUTE OBSERVATION CLINIC (x: 24.5..33, y: 1..8.5)
-    PHSprites.officeDesk(25.2, 1.5, 0, { clutter: false, screenStyle: 'ok', seed: 63 });
-    PHSprites.officeDesk(28.4, 1.5, 0, { clutter: false, screenStyle: 'ecg', seed: 64 });
+    PHSprites.officeDesk(25.2, 1.5, 0, { clutter: isWaitMode, screenStyle: isWaitMode ? 'alert' : 'ok', seed: 63 });
+    PHSprites.officeDesk(28.4, 1.5, 0, { clutter: isWaitMode, screenStyle: isWaitMode ? 'ecgAlarm' : 'ecg', seed: 64 });
     PHSprites.hospitalBed(25.2, 4.2, 0, { blanket: '#0ea5e9', ready: true, seed: 65 });
-    PHSprites.hospitalBed(28.0, 4.2, 0, { blanket: '#10b981', ready: true, seed: 66 });
-    PHSprites.hospitalBed(30.6, 4.2, 0, { blanket: '#38bdf8', ready: true, seed: 67 });
+    PHSprites.hospitalBed(28.0, 4.2, 0, { blanket: '#10b981', ready: !isWaitMode, seed: 66 });
+    PHSprites.hospitalBed(30.6, 4.2, 0, { blanket: '#38bdf8', ready: !isWaitMode, seed: 67 });
 
     // ---------------- 5. THERMAL SPA & PHYSIOTHERAPY WING (x: 1..10, y: 11..19)
     PHSprites.spaTable(1.6, 11.8, 0, { col: '#6ee7b7' });
@@ -178,7 +179,7 @@ const IsoRenderer = (() => {
     PHSprites.diningTable(10.8, 14.6, 0, { cloth: '#fde68a' });
     PHSprites.diningTable(13.6, 14.6, 0, { cloth: '#fde68a' });
     PHSprites.diningTable(16.4, 14.6, 0, { cloth: '#fde68a' });
-    PHSprites.receptionDesk(10.8, 17.0, 0, 3.2, { col: '#10b981', wood: '#78350f', clutter: false });
+    PHSprites.receptionDesk(10.8, 17.0, 0, 3.2, { col: isWaitMode ? '#ef4444' : '#10b981', wood: '#78350f', clutter: isWaitMode });
 
     // ---------------- 7. 6 PRIVATE RESIDENTIAL KING SUITES 301-306 (x: 19.5..33, y: 11..19)
     const suiteBeds = [
@@ -220,13 +221,44 @@ const IsoRenderer = (() => {
 
     PH.end();
 
+    // IoT Telemetry & RBAC Governance Signal Beams
+    if (isWaitMode) {
+      PHSprites.signalBeam(7.4, 6.2, 4.8, 13.4, '#ef4444', 'PHI Leak → Spa Tablet');
+      PHSprites.signalBeam(7.4, 6.2, 12.2, 17.0, '#ef4444', '14 PDPA PHI Breaches');
+      PHSprites.signalBeam(13.0, 4.0, 26.0, 2.2, '#ef4444', '64% False-Alarm Fatigue');
+    } else {
+      PHSprites.signalBeam(7.4, 6.2, 18.8, 2.3, '#0ea5e9', 'IoT → Duty Nurse Triage');
+      PHSprites.signalBeam(20.6, 3.2, 26.0, 2.2, '#10b981', 'Verified MD <3m (98.5% SLA)');
+      PHSprites.signalBeam(18.8, 4.8, 12.2, 16.8, '#10b981', 'RBAC: Welfare Check Only (0 PHI)');
+    }
+
     // Plain Room Signs
-    PHSprites.roomSign(5.0, 1.1, 'Hydro Pool', '#06b6d4');
+    PHSprites.roomSign(5.0, 1.1, 'Hydro Pool · IoT Wearables', '#06b6d4');
     PHSprites.roomSign(13.0, 1.1, 'Yoga & Mobility Studio', '#ec4899');
-    PHSprites.roomSign(20.8, 1.1, '24/7 Nurse Station', '#0ea5e9');
-    PHSprites.roomSign(28.8, 1.1, 'Doctor & Acute Clinic', '#38bdf8');
-    PHSprites.roomSign(5.5, 11.2, 'Thermal Spa & Physio', '#10b981');
-    PHSprites.roomSign(14.8, 11.2, 'Dining Bistro', '#10b981');
+    PHSprites.roomSign(
+      20.8,
+      1.1,
+      isWaitMode ? 'Nurse Triage (Unfiltered · 64% Fatigue)' : 'Duty Nurse Triage (6% Fatigue ✓)',
+      isWaitMode ? '#ef4444' : '#0ea5e9'
+    );
+    PHSprites.roomSign(
+      28.8,
+      1.1,
+      isWaitMode ? 'Visiting MD (64% Fatigue · 52% SLA)' : 'Visiting MD (<3m · 98.5% SLA ✓)',
+      isWaitMode ? '#ef4444' : '#10b981'
+    );
+    PHSprites.roomSign(
+      5.5,
+      11.2,
+      isWaitMode ? 'Spa Tablets (PHI Leaked · 14)' : 'Thermal Spa (Welfare Check Only ✓)',
+      isWaitMode ? '#ef4444' : '#10b981'
+    );
+    PHSprites.roomSign(
+      14.8,
+      11.2,
+      isWaitMode ? 'Concierge Tablet (Unmasked PHI)' : 'Concierge (Welfare Check Only · 0 PHI ✓)',
+      isWaitMode ? '#ef4444' : '#10b981'
+    );
     PHSprites.roomSign(26.2, 11.2, 'Retreat Suites 301–306', '#f59e0b');
     PHSprites.roomSign(14.8, 18.8, 'Main Retreat Entrance ↓', '#10b981');
 

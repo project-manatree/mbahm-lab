@@ -14,6 +14,7 @@ const SimApp = (() => {
     showActionLabels: true,
     selectedAgentId: 'pat-1',
     elapsedSec: 0,
+    snapNext: true,
     lastTime: performance.now(),
     agents: []
   };
@@ -27,26 +28,26 @@ const SimApp = (() => {
 
   // 14 Clinical Staff stationed at desks/counters/scanners (only walk for specific tasks)
   const STAFF_DEFS = [
-    // Reception & Triage
-    { id: 'st-1', roleLabel: 'Staff', role: 'reception', gx: 2.2, gy: 2.4, pose: 'TYPING_TERMINAL', taskCur: 'Manual Reg (4m)', taskFut: 'Kiosk Sync (1.5m) ✓', dur: 2.0, show: false },
-    { id: 'st-2', roleLabel: 'Nurse', role: 'nurse', gx: 2.2, gy: 4.0, pose: 'TYPING_TERMINAL', taskCur: 'Triage Queue', taskFut: 'Fast Triage ✓', dur: 2.0, show: false },
+    // C1 Reception & Triage
+    { id: 'st-1', roleLabel: 'Staff', role: 'reception', gx: 2.2, gy: 2.4, pose: 'TYPING_TERMINAL', taskCur: 'C1 Manual Reg (4m)', taskFut: 'C1 ETA Kiosk (1.5m) ✓', dur: 2.0, show: false },
+    { id: 'st-2', roleLabel: 'Nurse', role: 'nurse', gx: 2.2, gy: 4.0, pose: 'TYPING_TERMINAL', taskCur: 'C1 Queue Backlog', taskFut: 'C1 Wave Triage ✓', dur: 2.0, show: false },
     // 5 Specialist Consultation Room Doctors
     { id: 'st-3', roleLabel: 'Doctor', role: 'doctor', gx: 10.1, gy: 4.8, pose: 'EXAMINING', taskCur: 'Examining (18m)', taskFut: 'Examining (18m)', dur: 2.4, show: true },
     { id: 'st-4', roleLabel: 'Doctor', role: 'doctor', gx: 12.6, gy: 4.8, pose: 'EXAMINING', taskCur: 'Examining (18m)', taskFut: 'Examining (18m)', dur: 2.4, show: false },
     { id: 'st-5', roleLabel: 'Doctor', role: 'doctor', gx: 15.1, gy: 4.8, pose: 'EXAMINING', taskCur: 'Room Idle', taskFut: 'Examining (18m)', dur: 2.4, show: false },
     { id: 'st-6', roleLabel: 'Doctor', role: 'doctor', gx: 17.6, gy: 4.8, pose: 'EXAMINING', taskCur: 'Room Idle', taskFut: 'Examining (18m)', dur: 2.4, show: false },
     { id: 'st-7', roleLabel: 'Doctor', role: 'doctor', gx: 20.1, gy: 4.8, pose: 'EXAMINING', taskCur: 'Room Idle', taskFut: 'Examining (18m)', dur: 2.4, show: false },
-    // Diagnostic Imaging Radiographers
-    { id: 'st-8', roleLabel: 'Nurse', role: 'radiographer', gx: 23.0, gy: 6.8, pose: 'TYPING_TERMINAL', taskCur: 'Paper Check (3m)', taskFut: 'CPOE Scan (0.5m) ✓', dur: 2.0, show: false },
-    { id: 'st-9', roleLabel: 'Nurse', role: 'radiographer', gx: 29.0, gy: 6.8, pose: 'TYPING_TERMINAL', taskCur: 'Form Verify', taskFut: '3T MRI Ready ✓', dur: 2.2, show: false },
+    // C2 Diagnostic Imaging Radiographers
+    { id: 'st-8', roleLabel: 'Nurse', role: 'radiographer', gx: 23.0, gy: 6.8, pose: 'TYPING_TERMINAL', taskCur: 'C2 40% Walk-Backs', taskFut: 'C2 99% CPOE CT ✓', dur: 2.0, show: false },
+    { id: 'st-9', roleLabel: 'Nurse', role: 'radiographer', gx: 29.0, gy: 6.8, pose: 'TYPING_TERMINAL', taskCur: 'C2 Form Rework', taskFut: 'C2 3T MRI Ready ✓', dur: 2.2, show: false },
     // Inpatient Ward Nurses (st-10 alternates cleanly between Bed 2 check and Ward Desk)
     { id: 'st-10', roleLabel: 'Nurse', role: 'nurse', gx: 5.0, gy: 13.0, pose: 'EXAMINING', taskStations: [{ gx: 5.0, gy: 13.0, pose: 'EXAMINING' }, { gx: 8.5, gy: 15.5, pose: 'TYPING_TERMINAL' }], dwell: 4.2 },
-    { id: 'st-11', roleLabel: 'Nurse', role: 'nurse', gx: 9.2, gy: 16.0, pose: 'TYPING_TERMINAL', taskCur: 'Ward Call (92m)', taskFut: 'e-Discharge (18m)', dur: 2.2, show: false },
-    // Central Pharmacy Pharmacists (st-13 alternates cleanly between Robotic Dispenser and Counter)
-    { id: 'st-12', roleLabel: 'Pharmacist', role: 'pharmacist', gx: 17.8, gy: 12.4, pose: 'TYPING_TERMINAL', taskCur: 'Stockout Call (92m)', taskFut: 'Robotic Rx (18m) ✓', dur: 2.3, show: true },
+    { id: 'st-11', roleLabel: 'Nurse', role: 'nurse', gx: 9.2, gy: 16.0, pose: 'TYPING_TERMINAL', taskCur: 'C3 Ward Call (92m)', taskFut: 'C3 e-Discharge (18m)', dur: 2.2, show: false },
+    // C3 Central Pharmacy Pharmacists (st-13 alternates cleanly between Robotic Dispenser and Counter)
+    { id: 'st-12', roleLabel: 'Pharmacist', role: 'pharmacist', gx: 17.8, gy: 12.4, pose: 'TYPING_TERMINAL', taskCur: 'C3 Stockout (92m)', taskFut: 'C3 e-Kanban (18m) ✓', dur: 2.3, show: true },
     { id: 'st-13', roleLabel: 'Pharmacist', role: 'pharmacist', gx: 21.2, gy: 13.6, pose: 'HANDOVER_INTERACTION', taskStations: [{ gx: 21.2, gy: 13.6, pose: 'HANDOVER_INTERACTION' }, { gx: 18.8, gy: 12.5, pose: 'HANDOVER_INTERACTION' }], dwell: 3.8 },
-    // IT & Booking Command Staff
-    { id: 'st-14', roleLabel: 'Staff', role: 'admin', gx: 27.0, gy: 12.6, pose: 'TYPING_TERMINAL', taskCur: 'SMS≠CALL (12m)', taskFut: 'SSOT Sync (1m) ✓', dur: 2.0, show: true }
+    // C5 Reception & HIS Appointment Sync Command Staff
+    { id: 'st-14', roleLabel: 'Staff', role: 'admin', gx: 27.0, gy: 12.6, pose: 'TYPING_TERMINAL', taskCur: 'C5 SMS≠Phone Conflict', taskFut: 'C5 99.9% SSOT Sync ✓', dur: 2.0, show: true }
   ];
 
   function buildAgents() {
@@ -114,6 +115,7 @@ const SimApp = (() => {
     simState.elapsedSec += dtSec;
     const tSec = simState.elapsedSec;
     const isCur = simState.mode === 'current';
+    const forceSnap = simState.snapNext;
 
     simState.agents.forEach((ag, idx) => {
       // Staff logic: stationary at desk/counter or clean task station step
@@ -140,7 +142,7 @@ const SimApp = (() => {
       ag.showBubble = false;
       ag.bubble = null;
       ag.taskProg = null;
-      let tx = ag.gx, ty = ag.gy, snap = false;
+      let tx = ag.gx, ty = ag.gy, snap = forceSnap;
       const k = ag.idxInGroup;
       const ringProg = ((tSec + k * 0.5) % 2.4) / 2.4;
 
@@ -156,7 +158,7 @@ const SimApp = (() => {
             ty = 2.2 + row * 1.4;
             ag.pose = row < 2 ? 'SITTING_WAIT' : 'FRUSTRATED_WAIT';
             if (w === 0) {
-              ag.bubble = 'Wait Queue (68m)';
+              ag.bubble = 'C1 No-ETA Wait (68m)';
               ag.bubbleType = 'fail';
               ag.taskProg = ringProg;
               ag.showBubble = true;
@@ -165,12 +167,12 @@ const SimApp = (() => {
         } else {
           if (k < 5) {
             tx = ROOM_XS[k] + 0.9; ty = 2.0; ag.pose = 'LYING_ON_BED';
-            snap = Math.hypot(tx - ag.gx, ty - ag.gy) < 1.0;
+            snap = snap || Math.hypot(tx - ag.gx, ty - ag.gy) < 1.0;
           } else if (k < 10) {
             const rm = k - 5;
             tx = ROOM_XS[rm] + 1.0; ty = 5.6; ag.pose = 'SITTING';
             if (rm === 2 && Math.hypot(tx - ag.gx, ty - ag.gy) < 0.2) {
-              ag.bubble = 'Wait (12m) ✓';
+              ag.bubble = 'C1 Wave ETA (12m) ✓';
               ag.bubbleType = 'ok';
               ag.taskProg = ringProg;
               ag.showBubble = true;
@@ -196,7 +198,7 @@ const SimApp = (() => {
             ty = 7.6;
             ag.pose = 'FRUSTRATED_WAIT';
             if (k === 1 && Math.hypot(tx - ag.gx, ty - ag.gy) < 0.2) {
-              ag.bubble = 'Paper Reject (3m)';
+              ag.bubble = 'C2 40% Walk-Back';
               ag.bubbleType = 'fail';
               ag.taskProg = ringProg;
               ag.showBubble = true;
@@ -205,23 +207,23 @@ const SimApp = (() => {
         } else {
           if (k === 0) {
             tx = 22.9; ty = 2.6; ag.pose = 'IN_SCANNER'; snap = true;
-            ag.bubble = 'CT Scan (14m) ✓';
+            ag.bubble = 'C2 99% CPOE CT ✓';
             ag.bubbleType = 'ok';
             ag.taskProg = ringProg;
             ag.showBubble = true;
           } else if (k === 1) {
             tx = 28.5; ty = 2.6; ag.pose = 'IN_SCANNER';
-            snap = Math.hypot(tx - ag.gx, ty - ag.gy) < 1.0;
-            ag.bubble = '3T MRI (14m) ✓';
+            snap = snap || Math.hypot(tx - ag.gx, ty - ag.gy) < 1.0;
+            ag.bubble = '3T MRI Ready ✓';
             ag.bubbleType = 'ok';
             ag.taskProg = ringProg;
             ag.showBubble = true;
           } else if (k === 2) {
             tx = 26.0; ty = 2.2; ag.pose = 'LYING_ON_BED';
-            snap = Math.hypot(tx - ag.gx, ty - ag.gy) < 1.0;
+            snap = snap || Math.hypot(tx - ag.gx, ty - ag.gy) < 1.0;
           } else if (k === 3) {
             tx = 31.6; ty = 2.2; ag.pose = 'LYING_ON_BED';
-            snap = Math.hypot(tx - ag.gx, ty - ag.gy) < 1.0;
+            snap = snap || Math.hypot(tx - ag.gx, ty - ag.gy) < 1.0;
           } else {
             tx = 24.5; ty = 7.4; ag.pose = 'SITTING';
           }
@@ -231,7 +233,7 @@ const SimApp = (() => {
         if (isCur) {
           tx = BED_COORDS[k][0]; ty = BED_COORDS[k][1]; ag.pose = 'SITTING_WAIT';
           if (k === 0) {
-            ag.bubble = 'Rx Bed Block (92m)';
+            ag.bubble = 'C3 Rx Block (92m)';
             ag.bubbleType = 'fail';
             ag.taskProg = ringProg;
             ag.showBubble = true;
@@ -249,7 +251,7 @@ const SimApp = (() => {
             ty = loungeSpots[d].gy;
             ag.pose = 'SITTING';
             if (d === 0 && Math.hypot(tx - ag.gx, ty - ag.gy) < 0.2) {
-              ag.bubble = 'Lounge Rx (18m) ✓';
+              ag.bubble = 'C3 e-Kanban (18m) ✓';
               ag.bubbleType = 'ok';
               ag.taskProg = ringProg;
               ag.showBubble = true;
@@ -263,7 +265,7 @@ const SimApp = (() => {
           ty = 16.2 + Math.floor(k / 3) * 1.3;
           ag.pose = 'FRUSTRATED_WAIT';
           if (k === 0 && Math.hypot(tx - ag.gx, ty - ag.gy) < 0.2) {
-            ag.bubble = 'Stockout Wait (92m)';
+            ag.bubble = 'C3 Stockout (92m)';
             ag.bubbleType = 'fail';
             ag.taskProg = ringProg;
             ag.showBubble = true;
@@ -287,19 +289,19 @@ const SimApp = (() => {
         const stageProg = (cyclePos % 3.0) / 3.0;
 
         if (stage === 0) {
-          // Stage 1: Reception / Kiosk Check-In
+          // Stage 1: C5 Reception HIS Sync Check-In
           tx = 2.4; ty = 5.8; ag.pose = 'HANDOVER_INTERACTION';
           if (k === 0) {
-            ag.bubble = isCur ? 'Manual Reg (4m)' : 'Kiosk Check-In (1.5m) ✓';
+            ag.bubble = isCur ? 'C5 SMS≠Phone Conflict' : 'C5 99.9% SSOT Sync ✓';
             ag.bubbleType = isCur ? 'fail' : 'ok';
             ag.taskProg = stageProg;
             ag.showBubble = true;
           }
         } else if (stage === 1) {
-          // Stage 2: Waiting Hall Bench
+          // Stage 2: C1 Outpatient Waiting Hall Bench
           tx = 7.2; ty = 6.4; ag.pose = isCur ? 'FRUSTRATED_WAIT' : 'SITTING';
           if (k === 0) {
-            ag.bubble = isCur ? 'Consult Wait (68m)' : 'Fast Call (12m) ✓';
+            ag.bubble = isCur ? 'C1 No-ETA Wait (68m)' : 'C1 Wave ETA (12m) ✓';
             ag.bubbleType = isCur ? 'fail' : 'ok';
             ag.taskProg = stageProg;
             ag.showBubble = true;
@@ -314,19 +316,19 @@ const SimApp = (() => {
             ag.showBubble = true;
           }
         } else if (stage === 3) {
-          // Stage 4: Radiology Control Check
+          // Stage 4: C2 Radiology Referral / CPOE Check
           tx = 23.6; ty = 7.4; ag.pose = isCur ? 'FRUSTRATED_WAIT' : 'HANDOVER_INTERACTION';
           if (k === 0) {
-            ag.bubble = isCur ? 'Referral Reject (3m)' : 'CPOE Verified (0.5m) ✓';
+            ag.bubble = isCur ? 'C2 40% Walk-Back' : 'C2 99% CPOE CT ✓';
             ag.bubbleType = isCur ? 'fail' : 'ok';
             ag.taskProg = stageProg;
             ag.showBubble = true;
           }
         } else if (stage === 4) {
-          // Stage 5: Central Pharmacy Counter
+          // Stage 5: C3 Central Discharge Pharmacy
           tx = 20.2; ty = 13.0; ag.pose = isCur ? 'FRUSTRATED_WAIT' : 'HANDOVER_INTERACTION';
           if (k === 0) {
-            ag.bubble = isCur ? 'Rx Delay (92m)' : 'Robotic Pick (18m) ✓';
+            ag.bubble = isCur ? 'C3 Stockout (92m)' : 'C3 e-Kanban (18m) ✓';
             ag.bubbleType = isCur ? 'fail' : 'ok';
             ag.taskProg = stageProg;
             ag.showBubble = true;
@@ -335,7 +337,7 @@ const SimApp = (() => {
           // Stage 6: Discharge Lounge Exit
           tx = 13.6; ty = 16.8; ag.pose = 'SITTING';
           if (k === 0) {
-            ag.bubble = isCur ? 'Late Departure' : 'Smooth Discharge ✓';
+            ag.bubble = isCur ? 'Late Discharge' : 'Smooth Discharge ✓';
             ag.bubbleType = isCur ? 'fail' : 'ok';
             ag.taskProg = stageProg;
             ag.showBubble = true;
@@ -345,6 +347,8 @@ const SimApp = (() => {
 
       PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.8, corridorY: 9.7, snap });
     });
+
+    simState.snapNext = false;
   }
 
   function handleWorldClick(mx, my) {
@@ -359,6 +363,7 @@ const SimApp = (() => {
 
   function setMode(mode) {
     simState.mode = mode;
+    simState.snapNext = true;
     const isCur = mode === 'current';
     const bCur = document.getElementById('btn-mode-current');
     const bFut = document.getElementById('btn-mode-future');
@@ -368,8 +373,8 @@ const SimApp = (() => {
     if (strip) {
       strip.className = 'cmp-strip ' + (isCur ? 'cur-state' : 'fut-state');
       strip.textContent = isCur
-        ? 'Current State: 68m Consult Wait · 92m Pharmacy Delay'
-        : 'Future State: 12m Consult · 18m Robotic Pharmacy';
+        ? 'Current: C1 68m No-ETA · C2 40% Walk-Backs · C3 92m Stockout · C5 SMS≠Phone'
+        : 'Target: C1 12m Wave ETA · C2 99% CPOE CT · C3 18m e-Kanban · C5 99.9% SSOT';
     }
   }
 

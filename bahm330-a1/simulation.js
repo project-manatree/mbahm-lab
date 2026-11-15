@@ -46,7 +46,7 @@ const SimApp = (() => {
 
   const CURRENT_QUEUE_SPOTS = [
     // Ward waiting benches (4)
-    { gx: 2.4, gy: 5.4, pose: 'FRUSTRATED_WAIT', b: 'Ward Wait (45m)' },
+    { gx: 2.4, gy: 5.4, pose: 'FRUSTRATED_WAIT', b: '98% Ward Occ. (Wait)' },
     { gx: 3.3, gy: 5.4, pose: 'SITTING_WAIT' },
     { gx: 9.4, gy: 5.4, pose: 'FRUSTRATED_WAIT' },
     { gx: 10.3, gy: 5.4, pose: 'SITTING_WAIT' },
@@ -63,13 +63,13 @@ const SimApp = (() => {
     { gx: 8.3, gy: 13.2, pose: 'SITTING_WAIT' },
     { gx: 6.5, gy: 14.6, pose: 'FRUSTRATED_WAIT' },
     { gx: 7.4, gy: 14.6, pose: 'SITTING_WAIT' },
-    // Departure Lobby transport wait (4)
-    { gx: 11.4, gy: 14.6, pose: 'FRUSTRATED_WAIT', b: 'Van Wait (55m)' },
+    // Departure Lobby delay (no step-down retreat / no concierge van) (4)
+    { gx: 11.4, gy: 14.6, pose: 'FRUSTRATED_WAIT', b: 'No Concierge Van (180m)' },
     { gx: 12.3, gy: 14.6, pose: 'FRUSTRATED_WAIT' },
     { gx: 11.4, gy: 13.2, pose: 'SITTING_WAIT' },
     { gx: 12.3, gy: 13.2, pose: 'SITTING_WAIT' },
     // No retreat exists: bed-blocked patients stuck in hospital corridor (4)
-    { gx: 11.8, gy: 7.4, pose: 'FRUSTRATED_WAIT', b: 'Bed Block (40m)' },
+    { gx: 11.8, gy: 7.4, pose: 'FRUSTRATED_WAIT', b: 'Ward Bed-Block (275m)' },
     { gx: 12.7, gy: 7.4, pose: 'FRUSTRATED_WAIT' },
     { gx: 13.6, gy: 7.4, pose: 'FRUSTRATED_WAIT' },
     { gx: 4.4, gy: 14.6, pose: 'SITTING_WAIT' }
@@ -323,11 +323,17 @@ const SimApp = (() => {
 
       const sIdx = ag.slotIdx;
 
-      // Group A (0..6): 7 Inpatient Ward Beds (Stationary)
+      // Group A (0..6): 7 Inpatient Ward Beds in Current (98% occ) -> 2 Freed into Retreat in Target (74% occ)
       if (sIdx < 7) {
+        if (isFut && sIdx >= 5) {
+          const rSpot = sIdx === 5 ? { gx: 35.8, gy: 9.4, pose: 'LYING_ON_BED' } : { gx: 35.5, gy: 2.8, pose: 'SWIMMING_POOL' };
+          ag.pose = rSpot.pose;
+          PH.stepAgentPhysics(ag, rSpot.gx, rSpot.gy, dtSec, { splitX: 18, snap: true });
+          return;
+        }
         const b = HOSPITAL_BEDS[sIdx];
         ag.pose = 'LYING_ON_BED';
-        PH.stepAgentPhysics(ag, b.gx, b.gy, dtSec, { snap: true });
+        PH.stepAgentPhysics(ag, b.gx, b.gy, dtSec, { splitX: 18, snap: true });
         return;
       }
 
@@ -387,13 +393,13 @@ const SimApp = (() => {
         const sProg = (cPos % 5.0) / 5.0;
         if (stg === 0) {
           tx = 11.4 + (pIdx % 3) * 0.45; ty = 3.8; ag.pose = 'FRUSTRATED_WAIT';
-          if (pIdx === 0) { ag.bubble = 'Ward Backlog (70m)'; ag.bubbleType = 'wait'; ag.taskProg = sProg; ag.showBubble = true; }
+          if (pIdx === 0) { ag.bubble = 'Ward Bed-Block (98%)'; ag.bubbleType = 'wait'; ag.taskProg = sProg; ag.showBubble = true; }
         } else if (stg === 1) {
           tx = 8.7 + (pIdx % 3) * 0.4; ty = 10.6; ag.pose = 'FRUSTRATED_WAIT';
           if (pIdx === 0) { ag.bubble = 'Billing Wait (55m)'; ag.bubbleType = 'wait'; ag.taskProg = sProg; ag.showBubble = true; }
         } else {
           tx = 12.5 + (pIdx % 3) * 0.4; ty = 14.0; ag.pose = 'FRUSTRATED_WAIT';
-          if (pIdx === 0) { ag.bubble = 'Bed Block · No Retreat'; ag.bubbleType = 'wait'; ag.taskProg = sProg; ag.showBubble = true; }
+          if (pIdx === 0) { ag.bubble = '275m Cycle · No Van'; ag.bubbleType = 'wait'; ag.taskProg = sProg; ag.showBubble = true; }
         }
         PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 8.0, corridorY: 7.5, splitX: 18, snap });
         return;
@@ -490,8 +496,8 @@ const SimApp = (() => {
     if (strip) {
       strip.className = 'cmp-strip ' + (isCur ? 'cur-state' : 'fut-state');
       strip.textContent = isCur
-        ? 'Current State: 275m Total (180m Waiting Delay)'
-        : 'Future State: 110m Total (0m Wait · Smooth Flow)';
+        ? 'Current: 275m Cycle · 180m Wait · 98% Ward Occ. · No Retreat / No Van'
+        : 'Target: 110m Cycle · 10m Wait · 74% Ward Occ. · Concierge Van + e-Billing';
     }
   }
 
