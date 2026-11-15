@@ -179,29 +179,31 @@ const SimApp = (() => {
     return c * c * (3 - 2 * c);
   }
 
-  // Fast 15-second Concierge Van round-trip with 2.0s boarding/unloading pauses
+  // Fast 15-second vehicle cycle:
+  // - Current mode: Emergency Ambulance brings incoming patients TO the Hospital ED only (never sends patients home)
+  // - Target mode: Concierge Van transfers step-down patients from Hospital -> Retreat Village
   function updateTransport(tr, elapsedSec, isFut) {
     const cycle = 15.0;
     const into = elapsedSec % cycle;
     const transitLbl = isFut ? '25m' : '35m';
     tr.active = true;
     if (!isFut) {
-      // Current: no retreat. Standard ambulance is absent most of the cycle (55m delay),
-      // arrives, boards, then drives off-map to the patient's home.
-      if (into < 6.0) {
-        tr.active = false; tr.phase = 'away'; tr.openDoor = false;
-        tr.gx = 36; tr.gy = 16.85;
-      } else if (into < 9.0) {
-        const sT = smoothStep((into - 6.0) / 3.0);
-        tr.gx = 35.0 - sT * 23.4; tr.gy = 16.85; tr.dirX = -1; tr.openDoor = false;
-        tr.phase = 'arrive'; tr.label = 'Ambulance Arriving (55m late)';
-      } else if (into < 11.2) {
+      // Current: Ambulance only brings incoming acute patients INTO Hospital ED, then leaves empty
+      if (into < 4.5) {
+        const sT = smoothStep(into / 4.5);
+        tr.gx = 1.5 + sT * 10.1; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = false;
+        tr.phase = 'ed_inbound'; tr.label = 'Ambulance → Hospital ED';
+      } else if (into < 7.5) {
         tr.gx = 11.6; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = true;
-        tr.phase = 'board'; tr.phaseProg = (into - 9.0) / 2.2; tr.label = 'Ambulance Boarding';
+        tr.phase = 'ed_dropoff'; tr.phaseProg = (into - 4.5) / 3.0;
+        tr.label = 'Hospital ED Admission Drop-Off';
+      } else if (into < 11.5) {
+        const sT = smoothStep((into - 7.5) / 4.0);
+        tr.gx = 11.6 - sT * 10.1; tr.gy = 18.6; tr.dirX = -1; tr.openDoor = false;
+        tr.phase = 'ed_depart'; tr.label = '← Ambulance Departing Empty';
       } else {
-        const sT = smoothStep((into - 11.2) / 3.8);
-        tr.gx = 11.6 + sT * 23.4; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = false;
-        tr.phase = 'depart'; tr.label = 'To Home (35m) →';
+        tr.active = false; tr.phase = 'away'; tr.openDoor = false;
+        tr.gx = 1.5; tr.gy = 16.85;
       }
       return;
     }
@@ -262,18 +264,18 @@ const SimApp = (() => {
     const tr = simState.transports[0];
     updateTransport(tr, tSec, isFut);
 
-    // Single Concierge (`st-7`) steps out during 2.2s hydraulic boarding & unloading
+    // Single Concierge (`st-7`) in Target, or ED Paramedic in Current unloading patients INTO Hospital ED
     const concierge = simState.agents.find(a => a.id === 'st-7');
     if (concierge) {
-      concierge.roleLabel = isFut ? 'Concierge' : 'Driver';
-      concierge.role = isFut ? 'concierge' : 'porter';
-      if (tr.phase === 'board') {
+      concierge.roleLabel = isFut ? 'Concierge' : 'Nurse';
+      concierge.role = isFut ? 'concierge' : 'nurse';
+      if (tr.phase === 'board' || tr.phase === 'ed_dropoff') {
         concierge.inVehicle = false;
         concierge.gx = 12.7;
         concierge.gy = 16.2;
         concierge.pose = 'HANDOVER_INTERACTION';
-        concierge.bubble = isFut ? 'Ramp Lift (2.0m)' : 'Stretcher Load';
-        concierge.bubbleType = 'ok';
+        concierge.bubble = isFut ? 'Ramp Lift (2.0m)' : 'ED Admission In →';
+        concierge.bubbleType = isFut ? 'ok' : 'wait';
         concierge.taskProg = tr.phaseProg;
         concierge.showBubble = true;
       } else if (tr.phase === 'dropoff') {
@@ -358,15 +360,31 @@ const SimApp = (() => {
 
       let tx = ag.gx, ty = ag.gy, corrY = 7.5;
       if (!isFut && stage >= 3) {
-        if (stage === 5) {
-          // Gone home by standard ambulance (no retreat step-down)
-          ag.inVehicle = true;
-          ag.gx = 12.2; ag.gy = 3.2;
-          return;
+        if (pIdx === 5) {
+          // Incoming ED patient brought TO the Hospital ED by Ambulance (never sent home)
+          if (tr.phase === 'ed_inbound') {
+            ag.gx = tr.gx + 0.9;
+            ag.gy = tr.gy + 0.5;
+            ag.z = 5;
+            ag.dir = 'SE';
+            ag.pose = 'SITTING';
+            return;
+          } else if (tr.phase === 'ed_dropoff') {
+            tx = 12.6; ty = 14.5; ag.pose = 'HANDOVER_INTERACTION';
+            ag.bubble = 'ED Admission → Hospital';
+            ag.bubbleType = 'wait';
+            ag.taskProg = tr.phaseProg;
+            ag.showBubble = true;
+            PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 8.0, corridorY: corrY });
+            return;
+          }
         }
-        tx = 11.8 + (pIdx % 3) * 0.8; ty = 16.35; ag.pose = 'FRUSTRATED_WAIT';
-        {
-          ag.bubble = stage === 3 ? 'Ambulance Wait (55m)' : 'No Step-Down Bed';
+        // Discharged patients have no step-down retreat and remain backed up inside Hospital
+        tx = 11.6 + (pIdx % 3) * 0.85;
+        ty = 13.6 + Math.floor(pIdx / 3) * 1.1;
+        ag.pose = 'FRUSTRATED_WAIT';
+        if (pIdx === 3 || pIdx === 4) {
+          ag.bubble = stage === 3 ? 'Discharge Delay (275m)' : 'Bed Block · No Retreat';
           ag.bubbleType = 'wait';
           ag.taskProg = stageProg;
           ag.showBubble = true;
@@ -455,10 +473,18 @@ const SimApp = (() => {
 
   function setMode(mode) {
     simState.mode = mode;
+    const isCur = mode === 'current';
     const bCur = document.getElementById('btn-mode-current');
     const bFut = document.getElementById('btn-mode-future');
-    if (bCur) bCur.className = 'mode-btn ' + (mode === 'current' ? 'active-current' : '');
-    if (bFut) bFut.className = 'mode-btn ' + (mode === 'future' ? 'active-future' : '');
+    const strip = document.getElementById('state-time-strip');
+    if (bCur) bCur.className = 'mode-btn ' + (isCur ? 'active-current' : '');
+    if (bFut) bFut.className = 'mode-btn ' + (!isCur ? 'active-future' : '');
+    if (strip) {
+      strip.className = 'cmp-strip ' + (isCur ? 'cur-state' : 'fut-state');
+      strip.textContent = isCur
+        ? 'Current State: 275m Total (180m Waiting Delay)'
+        : 'Future State: 110m Total (0m Wait · Smooth Flow)';
+    }
   }
 
   function loop(now) {

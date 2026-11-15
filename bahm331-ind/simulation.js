@@ -281,10 +281,18 @@ const SimApp = (() => {
 
   function setMode(mode) {
     state.mode = mode;
+    const isCur = mode === 'unfiltered';
     const bCur = document.getElementById('btn-mode-unfiltered');
     const bFut = document.getElementById('btn-mode-tiered');
-    if (bCur) bCur.className = 'mode-btn ' + (mode === 'unfiltered' ? 'active-current' : '');
-    if (bFut) bFut.className = 'mode-btn ' + (mode === 'tiered' ? 'active-future' : '');
+    const strip = document.getElementById('state-time-strip');
+    if (bCur) bCur.className = 'mode-btn ' + (isCur ? 'active-current' : '');
+    if (bFut) bFut.className = 'mode-btn ' + (!isCur ? 'active-future' : '');
+    if (strip) {
+      strip.className = 'cmp-strip ' + (isCur ? 'cur-state' : 'fut-state');
+      strip.textContent = isCur
+        ? 'Current State: 11m 30s Response Delay (SLA Breach)'
+        : 'Future State: 2m 40s Fast Response (< 5m SLA Met)';
+    }
   }
 
   function loop(now) {

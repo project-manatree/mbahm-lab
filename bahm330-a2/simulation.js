@@ -359,10 +359,18 @@ const SimApp = (() => {
 
   function setMode(mode) {
     simState.mode = mode;
+    const isCur = mode === 'current';
     const bCur = document.getElementById('btn-mode-current');
     const bFut = document.getElementById('btn-mode-future');
-    if (bCur) bCur.className = 'mode-btn ' + (mode === 'current' ? 'active-current' : '');
-    if (bFut) bFut.className = 'mode-btn ' + (mode === 'future' ? 'active-future' : '');
+    const strip = document.getElementById('state-time-strip');
+    if (bCur) bCur.className = 'mode-btn ' + (isCur ? 'active-current' : '');
+    if (bFut) bFut.className = 'mode-btn ' + (!isCur ? 'active-future' : '');
+    if (strip) {
+      strip.className = 'cmp-strip ' + (isCur ? 'cur-state' : 'fut-state');
+      strip.textContent = isCur
+        ? 'Current State: 68m Consult Wait · 92m Pharmacy Delay'
+        : 'Future State: 12m Consult · 18m Robotic Pharmacy';
+    }
   }
 
   function loop(now) {
