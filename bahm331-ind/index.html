@@ -45,8 +45,27 @@
       border-radius: 999px;
       font-size: 0.80rem;
       font-weight: 700;
-      border: none;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(30, 41, 59, 0.85);
+      color: #94a3b8;
+      box-shadow: none;
       cursor: pointer;
+      transition: all 0.18s;
+    }
+    .simple-switcher .mode-btn:hover {
+      color: #e2e8f0;
+    }
+    .simple-switcher .mode-btn.active-current {
+      background: #ef4444;
+      border-color: #fca5a5;
+      color: #ffffff;
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.35), 0 0 14px rgba(239, 68, 68, 0.55);
+    }
+    .simple-switcher .mode-btn.active-future {
+      background: #10b981;
+      border-color: #6ee7b7;
+      color: #ffffff;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.35), 0 0 14px rgba(16, 185, 129, 0.55);
     }
     .cmp-strip {
       font-size: 0.75rem;

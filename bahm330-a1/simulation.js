@@ -31,10 +31,10 @@ const SimApp = (() => {
     { id: 'st-6', roleLabel: 'Staff', role: 'reception', gx: 7.4, gy: 9.7, pose: 'TYPING_TERMINAL', taskCur: 'Billing (55m)', taskFut: 'e-Billing (5m) ✓', dur: 2.0, show: true },
     // Single Concierge operating the Left <-> Right transport between the two downward-facing Main Entrances
     { id: 'st-7', roleLabel: 'Concierge', role: 'concierge', gx: 12.6, gy: 16.2, pose: 'HANDOVER_INTERACTION', taskCur: 'Ramp Lift', taskFut: 'VIP Ramp (2m)', dur: 2.2, show: true },
-    { id: 'st-8', roleLabel: 'Staff', role: 'reception', gx: 24.6, gy: 9.7, pose: 'TYPING_TERMINAL', taskCur: 'Paper Intake (30m)', taskFut: 'Biometric (5m) ✓', dur: 2.0, show: true },
-    { id: 'st-9', roleLabel: 'Doctor', role: 'doctor', gx: 24.4, gy: 2.3, pose: 'EXAMINING', taskCur: 'Delayed MD (30m)', taskFut: 'MD Baseline (25m)', dur: 2.4, show: true },
-    { id: 'st-10', roleLabel: 'Nurse', role: 'nurse', gx: 29.6, gy: 2.3, pose: 'TYPING_TERMINAL', taskCur: 'Vitals Log', taskFut: 'Smart Telemetry', dur: 2.2, show: false },
-    { id: 'st-11', roleLabel: 'Nurse', role: 'nurse', gx: 33.4, gy: 4.5, pose: 'EXAMINING', taskCur: 'Pool Standby', taskFut: 'Hydro Care (33m)', dur: 2.5, show: false }
+    { id: 'st-8', retreat: true, roleLabel: 'Staff', role: 'reception', gx: 24.6, gy: 9.7, pose: 'TYPING_TERMINAL', taskCur: 'Paper Intake (30m)', taskFut: 'Biometric (5m) ✓', dur: 2.0, show: true },
+    { id: 'st-9', retreat: true, roleLabel: 'Doctor', role: 'doctor', gx: 24.4, gy: 2.3, pose: 'EXAMINING', taskCur: 'Delayed MD (30m)', taskFut: 'MD Baseline (25m)', dur: 2.4, show: true },
+    { id: 'st-10', retreat: true, roleLabel: 'Nurse', role: 'nurse', gx: 29.6, gy: 2.3, pose: 'TYPING_TERMINAL', taskCur: 'Vitals Log', taskFut: 'Smart Telemetry', dur: 2.2, show: false },
+    { id: 'st-11', retreat: true, roleLabel: 'Nurse', role: 'nurse', gx: 33.4, gy: 4.5, pose: 'EXAMINING', taskCur: 'Pool Standby', taskFut: 'Hydro Care (33m)', dur: 2.5, show: false }
   ];
 
   // Fixed Stationary Slots for 30 Non-Pathway Patients (Zero Slot-Shifting or Endless Loops)
@@ -67,11 +67,11 @@ const SimApp = (() => {
     { gx: 12.3, gy: 14.6, pose: 'FRUSTRATED_WAIT' },
     { gx: 11.4, gy: 13.2, pose: 'SITTING_WAIT' },
     { gx: 12.3, gy: 13.2, pose: 'SITTING_WAIT' },
-    // Retreat Reception & MD Wait (4)
-    { gx: 23.8, gy: 13.8, pose: 'FRUSTRATED_WAIT', b: 'Intake Wait (40m)' },
-    { gx: 24.8, gy: 13.8, pose: 'FRUSTRATED_WAIT' },
-    { gx: 24.2, gy: 5.6, pose: 'FRUSTRATED_WAIT', b: 'MD Wait (20m)' },
-    { gx: 25.4, gy: 5.6, pose: 'SITTING_WAIT' }
+    // No retreat exists: bed-blocked patients stuck in hospital corridor (4)
+    { gx: 11.8, gy: 7.4, pose: 'FRUSTRATED_WAIT', b: 'Bed Block (40m)' },
+    { gx: 12.7, gy: 7.4, pose: 'FRUSTRATED_WAIT' },
+    { gx: 13.6, gy: 7.4, pose: 'FRUSTRATED_WAIT' },
+    { gx: 4.4, gy: 14.6, pose: 'SITTING_WAIT' }
   ];
 
   const TARGET_SMOOTH_SPOTS = [
@@ -164,6 +164,7 @@ const SimApp = (() => {
         show: !!sd.show,
         taskStations: sd.taskStations || null,
         dwell: sd.dwell || 4.0,
+        retreat: !!sd.retreat,
         bubble: null,
         bubbleType: 'ok',
         taskProg: null,
@@ -183,6 +184,27 @@ const SimApp = (() => {
     const cycle = 15.0;
     const into = elapsedSec % cycle;
     const transitLbl = isFut ? '25m' : '35m';
+    tr.active = true;
+    if (!isFut) {
+      // Current: no retreat. Standard ambulance is absent most of the cycle (55m delay),
+      // arrives, boards, then drives off-map to the patient's home.
+      if (into < 6.0) {
+        tr.active = false; tr.phase = 'away'; tr.openDoor = false;
+        tr.gx = 36; tr.gy = 16.85;
+      } else if (into < 9.0) {
+        const sT = smoothStep((into - 6.0) / 3.0);
+        tr.gx = 35.0 - sT * 23.4; tr.gy = 16.85; tr.dirX = -1; tr.openDoor = false;
+        tr.phase = 'arrive'; tr.label = 'Ambulance Arriving (55m late)';
+      } else if (into < 11.2) {
+        tr.gx = 11.6; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = true;
+        tr.phase = 'board'; tr.phaseProg = (into - 9.0) / 2.2; tr.label = 'Ambulance Boarding';
+      } else {
+        const sT = smoothStep((into - 11.2) / 3.8);
+        tr.gx = 11.6 + sT * 23.4; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = false;
+        tr.phase = 'depart'; tr.label = 'To Home (35m) →';
+      }
+      return;
+    }
 
     if (into < 2.2) {
       // Phase 1: 2.2s hydraulic wheelchair lift boarding at Hospital Main Entrance
@@ -243,12 +265,14 @@ const SimApp = (() => {
     // Single Concierge (`st-7`) steps out during 2.2s hydraulic boarding & unloading
     const concierge = simState.agents.find(a => a.id === 'st-7');
     if (concierge) {
+      concierge.roleLabel = isFut ? 'Concierge' : 'Driver';
+      concierge.role = isFut ? 'concierge' : 'porter';
       if (tr.phase === 'board') {
         concierge.inVehicle = false;
         concierge.gx = 12.7;
         concierge.gy = 16.2;
         concierge.pose = 'HANDOVER_INTERACTION';
-        concierge.bubble = 'Ramp Lift (2.0m)';
+        concierge.bubble = isFut ? 'Ramp Lift (2.0m)' : 'Stretcher Load';
         concierge.bubbleType = 'ok';
         concierge.taskProg = tr.phaseProg;
         concierge.showBubble = true;
@@ -274,6 +298,8 @@ const SimApp = (() => {
 
       // Staff members: stay stationed at desk/counter/bed (or move between 2 task stations with 4s dwell)
       if (ag.role !== 'resident') {
+        ag.inVehicle = ag.retreat && !isFut; // retreat staff do not exist in Current
+        if (ag.inVehicle) return;
         if (ag.taskStations) {
           const stIdx = Math.floor(tSec / ag.dwell) % ag.taskStations.length;
           const st = ag.taskStations[stIdx];
@@ -331,6 +357,23 @@ const SimApp = (() => {
       const stageProg = (cyclePos % 3.0) / 3.0; // 0..1 within the 3.0s stage window
 
       let tx = ag.gx, ty = ag.gy, corrY = 7.5;
+      if (!isFut && stage >= 3) {
+        if (stage === 5) {
+          // Gone home by standard ambulance (no retreat step-down)
+          ag.inVehicle = true;
+          ag.gx = 12.2; ag.gy = 3.2;
+          return;
+        }
+        tx = 11.8 + (pIdx % 3) * 0.8; ty = 16.35; ag.pose = 'FRUSTRATED_WAIT';
+        {
+          ag.bubble = stage === 3 ? 'Ambulance Wait (55m)' : 'No Step-Down Bed';
+          ag.bubbleType = 'wait';
+          ag.taskProg = stageProg;
+          ag.showBubble = true;
+        }
+        PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 8.0, corridorY: corrY });
+        return;
+      }
       if (stage === 0) {
         // Stage 1: Ward B Discharge Desk (2.5s pause)
         tx = 12.2; ty = 3.2; ag.pose = 'HANDOVER_INTERACTION';
@@ -360,7 +403,7 @@ const SimApp = (() => {
         }
       } else if (stage === 3) {
         // Stage 4: Ride Concierge Van or Arrive at Retreat Reception
-        if (tr.phase === 'outbound' && pIdx === 0) {
+        if (isFut && tr.phase === 'outbound' && pIdx === 0) {
           ag.gx = tr.gx + 0.9;
           ag.gy = tr.gy + 0.5;
           ag.z = 5;
