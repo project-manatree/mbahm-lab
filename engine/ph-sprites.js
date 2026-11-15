@@ -493,7 +493,7 @@
     const dir = opts.dir || 1; // +1 moving along +gy, -1 moving along -gy
 
     PH.item(gx + gy + 1.4, () => {
-      const bounce = Math.sin(PH.t * 0.35) * 0.45;
+      const bounce = Math.sin(PH.t * 0.18) * 0.22;
       // Ground shadow
       const sp = PH.P(gx + 0.55, gy + 1.15, 0);
       const c = PH.S.ctx, z = PH.zoom;
@@ -539,8 +539,9 @@
         // Red emergency stripe & chevrons
         PH.box(gx - 0.01, gy + 0.08, 6.8 + bounce, 1.14, 1.5, 3.0, '#ef4444');
         // Roof emergency lightbar (flashing red/blue)
-        const f1 = (PH.t % 12) < 6 ? '#ef4444' : '#3b82f6';
-        const f2 = (PH.t % 12) < 6 ? '#3b82f6' : '#ef4444';
+        const flashStep = Math.floor(PH.t / 9) % 2 === 0;
+        const f1 = flashStep ? '#ef4444' : '#3b82f6';
+        const f2 = flashStep ? '#3b82f6' : '#ef4444';
         PH.box(gx + 0.18, gy + 0.25, 18 + bounce, 0.34, 0.28, 2.4, f1);
         PH.box(gx + 0.58, gy + 0.25, 18 + bounce, 0.34, 0.28, 2.4, f2);
         PH.box(gx + 0.18, gy + 1.25, 18 + bounce, 0.74, 0.24, 2.2, f1);
@@ -575,7 +576,7 @@
     const dirX = opts.dirX || 1; // +1 driving Left->Right (+gx), -1 returning Right->Left (-gx)
 
     PH.item(gx + gy + 1.6, () => {
-      const bounce = openDoor ? 0 : Math.sin(PH.t * 0.35) * 0.4;
+      const bounce = openDoor ? 0 : Math.sin(PH.t * 0.18) * 0.2;
       const sp = PH.P(gx + 1.1, gy + 0.55, 0);
       const c = PH.S.ctx, z = PH.zoom;
       c.fillStyle = 'rgba(10,14,22,0.42)';
@@ -634,7 +635,7 @@
   function floorHalo(gx, gy, rx, ry, col, label) {
     const p = PH.P(gx, gy, 0.5);
     const z = PH.zoom;
-    const pulse = 1 + Math.sin(PH.t * 0.12) * 0.1;
+    const pulse = 1 + Math.sin(PH.t * 0.08) * 0.08;
     const c = PH.S.ctx;
     c.save();
     c.fillStyle = col;
@@ -661,33 +662,47 @@
     c.restore();
   }
 
-  function signalBeam(fromGx, fromGy, toGx, toGy, col, label) {
+  function signalBeam(fromGx, fromGy, toGx, toGy, col, label, opts = {}) {
     const p0 = PH.P(fromGx, fromGy, 16);
     const p1 = PH.P(toGx, toGy, 16);
     const z = PH.zoom;
     const c = PH.S.ctx;
     c.save();
     c.strokeStyle = col;
-    c.lineWidth = 2.4 * z;
+    c.globalAlpha = 0.72;
+    c.lineWidth = 2.2 * z;
     c.setLineDash([7 * z, 5 * z]);
-    c.lineDashOffset = -(PH.t * 1.8);
+    c.lineDashOffset = -(PH.t * 0.55);
     c.beginPath();
     c.moveTo(p0.x, p0.y);
     c.lineTo(p1.x, p1.y);
     c.stroke();
     c.restore();
 
-    const frac = (PH.t % 45) / 45;
+    const period = opts.period || 168;
+    const phase = opts.phase || 0;
+    const frac = ((PH.t / period) + phase) % 1;
+    const edgeAlpha = Math.min(1, frac / 0.12, (1 - frac) / 0.12);
     const px = p0.x + (p1.x - p0.x) * frac;
     const py = p0.y + (p1.y - p0.y) * frac;
+    c.save();
+    c.globalAlpha = 0.28 * edgeAlpha;
     c.fillStyle = col;
     c.beginPath();
-    c.arc(px, py, 4.5 * z, 0, Math.PI * 2);
+    c.arc(px, py, 9.0 * z, 0, Math.PI * 2);
+    c.fill();
+    c.globalAlpha = edgeAlpha;
+    c.beginPath();
+    c.arc(px, py, 4.4 * z, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = '#f8fafc';
+    c.beginPath();
+    c.arc(px, py, 1.7 * z, 0, Math.PI * 2);
     c.fill();
     if (label) {
       c.font = `800 ${Math.max(9, Math.round(8.2 * z))}px ui-monospace, Menlo, monospace`;
       const tw = c.measureText(label).width + 10 * z;
-      c.fillStyle = 'rgba(9,13,22,0.9)';
+      c.fillStyle = 'rgba(9,13,22,0.92)';
       c.strokeStyle = col;
       c.lineWidth = 1.1;
       c.beginPath();
@@ -699,6 +714,7 @@
       c.textBaseline = 'middle';
       c.fillText(label, px, py - 13.5 * z);
     }
+    c.restore();
   }
 
   function roomSign(gx, gy, text, accent = '#0ea5e9') {

@@ -149,7 +149,7 @@ const SimApp = (() => {
           const stIdx = Math.floor(tSec / ag.dwell) % ag.taskStations.length;
           const st = ag.taskStations[stIdx];
           ag.pose = st.pose;
-          PH.stepAgentPhysics(ag, st.gx, st.gy, dtSec, { baseSpeed: 5.8 });
+          PH.stepAgentPhysics(ag, st.gx, st.gy, dtSec, { baseSpeed: 4.8 });
           return;
         }
         if (ag.id === 'st-5' || ag.id === 'st-6' || ag.id === 'st-7') {
@@ -278,8 +278,8 @@ const SimApp = (() => {
             ag.taskProg = stageProg;
           }
         } else if (stage === 1) {
-          // Stage 2: C1 Outpatient Waiting Hall Bench
-          tx = 7.2; ty = 6.4; ag.pose = isCur ? 'FRUSTRATED_WAIT' : 'SITTING';
+          // Stage 2: C1 Outpatient Waiting Hall Bench (aligned with C1 sliding door x=4.5..6.5)
+          tx = 5.6; ty = 6.4; ag.pose = isCur ? 'FRUSTRATED_WAIT' : 'SITTING';
           if (k === 0) {
             stepKey = (isCur ? 'c-' : 't-') + 's1';
             stepText = isCur ? 'C1 No-ETA Wait (68m)' : 'C1 Wave ETA (12m) ✓';
@@ -325,7 +325,7 @@ const SimApp = (() => {
         }
       }
 
-      PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.8, corridorY: 9.7, snap });
+      PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.4, corridorY: 9.7, snap });
       if (ag.group === 'pathway' && k === 0 && stepText) {
         const arrived = Math.hypot(tx - ag.gx, ty - ag.gy) < 0.95;
         setStepBubble(ag, stepKey, stepText, stepType, tSec, arrived);

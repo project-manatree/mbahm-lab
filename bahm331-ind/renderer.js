@@ -127,20 +127,28 @@ const IsoRenderer = (() => {
   function render(simState) {
     const isWaitMode = simState.mode === 'unfiltered';
     PH.setCondition(isWaitMode ? 'cur' : 'fut');
-    PH.begin();
+    PH.begin(simState.elapsedSec);
 
     // ---------------- 1. HYDROTHERAPY POOL (x: 1..9, y: 1..8.5)
     PH.item(4.5 + 4.0, () => {
       const p1 = PH.P(3.8, 3.8, 0.4);
       const p2 = PH.P(5.8, 4.8, 0.4);
-      const rad = (8 + (PH.t % 36) * 0.65) * PH.zoom;
       const c = PH.S.ctx;
-      c.strokeStyle = 'rgba(224,242,254,0.65)';
-      c.lineWidth = 1.4;
-      c.beginPath();
-      c.ellipse(p1.x, p1.y, rad * 1.4, rad * 0.7, 0, 0, Math.PI * 2);
-      c.ellipse(p2.x, p2.y, rad * 1.1, rad * 0.55, 0, 0, Math.PI * 2);
-      c.stroke();
+      const z = PH.zoom;
+      c.save();
+      for (const off of [0, 0.5]) {
+        const rp = ((PH.t / 144) + off) % 1;
+        const rad = (7 + rp * 24) * z;
+        c.strokeStyle = `rgba(224,242,254,${(0.58 * (1 - rp)).toFixed(2)})`;
+        c.lineWidth = 1.3;
+        c.beginPath();
+        c.ellipse(p1.x, p1.y, rad * 1.4, rad * 0.7, 0, 0, Math.PI * 2);
+        c.stroke();
+        c.beginPath();
+        c.ellipse(p2.x, p2.y, rad * 1.1, rad * 0.55, 0, 0, Math.PI * 2);
+        c.stroke();
+      }
+      c.restore();
     });
 
     // ---------------- 2. YOGA & MOBILITY STUDIO (x: 9..17, y: 1..8.5)
@@ -225,15 +233,15 @@ const IsoRenderer = (() => {
 
     PH.end();
 
-    // IoT Telemetry & RBAC Governance Signal Beams
+    // IoT Telemetry & RBAC Governance Signal Beams (calm 2.8s staggered glide)
     if (isWaitMode) {
-      PHSprites.signalBeam(7.4, 6.2, 4.8, 13.4, '#ef4444', 'PHI Leak → Spa Tablet');
-      PHSprites.signalBeam(7.4, 6.2, 12.2, 17.0, '#ef4444', '14 PDPA PHI Breaches');
-      PHSprites.signalBeam(13.0, 4.0, 26.0, 2.2, '#ef4444', '64% False-Alarm Fatigue');
+      PHSprites.signalBeam(7.4, 6.2, 4.8, 13.4, '#ef4444', 'PHI Leak → Spa Tablet', { phase: 0 });
+      PHSprites.signalBeam(7.4, 6.2, 12.2, 17.0, '#ef4444', '14 PDPA PHI Breaches', { phase: 0.33 });
+      PHSprites.signalBeam(13.0, 4.0, 26.0, 2.2, '#ef4444', '64% False-Alarm Fatigue', { phase: 0.66 });
     } else {
-      PHSprites.signalBeam(7.4, 6.2, 18.8, 2.3, '#0ea5e9', 'IoT → Duty Nurse Triage');
-      PHSprites.signalBeam(20.6, 3.2, 26.0, 2.2, '#10b981', 'Verified MD <3m (98.5% SLA)');
-      PHSprites.signalBeam(18.8, 4.8, 12.2, 16.8, '#10b981', 'RBAC: Welfare Check Only (0 PHI)');
+      PHSprites.signalBeam(7.4, 6.2, 18.8, 2.3, '#0ea5e9', 'IoT → Duty Nurse Triage', { phase: 0 });
+      PHSprites.signalBeam(20.6, 3.2, 26.0, 2.2, '#10b981', 'Verified MD <3m (98.5% SLA)', { phase: 0.33 });
+      PHSprites.signalBeam(18.8, 4.8, 12.2, 16.8, '#10b981', 'RBAC: Welfare Check Only (0 PHI)', { phase: 0.66 });
     }
 
     // Plain Room Signs (pinned along upper room boundaries)

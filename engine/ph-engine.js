@@ -48,7 +48,7 @@
   // ------------------------------------------------------------------ state
   const S = {
     canvas: null, ctx: null, dpr: 1, vpW: 800, vpH: 600,
-    cam: { cx: 0, cy: 0, z: 1 }, ox: 0, oy: 0, t: 0,
+    cam: { cx: 0, cy: 0, z: 1 }, ox: 0, oy: 0, t: 0, _lastMs: 0,
     proj: { ax: TW / 2, ay: TH / 2, bx: -TW / 2, by: TH / 2 },
     map: null, cond: 'cur', bakes: {}, items: [], labels: [], wallsUp: false,
     agentsPrev: new Map(), doorOpen: new Map(), agentsNow: [],
@@ -835,10 +835,10 @@
     c.scale(flip * s, s);
     const skin = Lk.skin, topC = Lk.gown || Lk.top, botC = Lk.bottom;
     const walk = (pose === 'walk' || pose === 'push' || pose === 'carry') && spec.moving;
-    const ph = Math.sin(t * 0.22);
-    const idleBreath = walk ? 0 : Math.sin(t * 0.075) * 0.48;
-    const idleSway = walk ? 0 : Math.cos(t * 0.05) * 0.35;
-    const bob = walk ? -Math.abs(Math.cos(t * 0.22)) * 1.0 : idleBreath;
+    const ph = Math.sin(t * 0.145);
+    const idleBreath = walk ? 0 : Math.sin(t * 0.055) * 0.42;
+    const idleSway = walk ? 0 : Math.cos(t * 0.04) * 0.28;
+    const bob = walk ? -Math.abs(Math.cos(t * 0.145)) * 0.85 : idleBreath;
     let hipY = -21, torsoTop = -37, headY = -44.5;
     let sit = pose === 'sit' || pose === 'wheelchair' || (pose === 'type' && spec.seated) || (pose === 'phone' && spec.seated);
     if (sit) { hipY = -12.5; torsoTop = -28.5; headY = -36; }
@@ -872,7 +872,7 @@
       let lf = 0, rf = 0, ll = 0, rl = 0;
       if (walk) { lf = ph * 3.0; rf = -ph * 3.0; ll = Math.max(0, ph) * 1.6; rl = Math.max(0, -ph) * 1.6; }
       let tap = 0;
-      if (pose === 'frustrated') tap = (Math.floor(t / 7) % 2) * 1.6;
+      if (pose === 'frustrated') tap = Math.max(0, Math.sin(t * 0.18)) * 1.8;
       const yoga = pose === 'yoga';
       const legCol = Lk.gown ? skin : botC;
       const drawLeg = (cx, fx, lift, col) => {
@@ -954,10 +954,10 @@
           const sy = Math.sin(t * 0.08) * 2;
           arm(-1, -8.5, torsoTop - 12 + sy, -7.5, torsoTop - 5, true); arm(1, 8.5, torsoTop - 12 + sy, 7.5, torsoTop - 5, true);
         } else if (pose === 'handsup') {
-          const wv = Math.sin(t * 0.3) * 2.5;
+          const wv = Math.sin(t * 0.16) * 2.4;
           arm(-1, -9 + wv, torsoTop - 11, -8.5, torsoTop - 4, true); arm(1, 9 - wv, torsoTop - 11, 8.5, torsoTop - 4, true);
         } else if (pose === 'type') {
-          const o = (Math.floor(t / 3) % 2) ? 0.9 : -0.9;
+          const o = Math.sin(t * 0.24) * 1.05;
           arm(-1, 4.5, hipY - 5 + o, -5.6, hipY - 6, true); arm(1, 8.8, hipY - 5.5 - o, 7.4, hipY - 7, true);
         } else if (pose === 'phone') {
           arm(-1, -6.4, hipY - 1, -7, hipY - 7, true);
@@ -1297,11 +1297,11 @@
 
   // Calibrated Role-Based Speed & Ease-In/Ease-Out Physics (with Corridor Waypoint Routing)
   function roleSpeed(role, pose, urgent) {
-    if (pose === 'WHEELCHAIR') return 0.55;
-    if (role === 'resident' || role === 'elderly') return 0.72;
+    if (pose === 'WHEELCHAIR') return 0.62;
+    if (role === 'resident' || role === 'elderly') return 0.85;
     if (role === 'patient' || role === 'gown') return 0.90;
-    if (urgent) return 1.45;
-    return 1.05;
+    if (urgent) return 1.25;
+    return 1.00;
   }
 
   function stepAgentPhysics(ag, tx, ty, dtSec, opts) {
@@ -1461,8 +1461,17 @@
   function invalidate() { S.bakes = {}; }
 
   // frame lifecycle: begin → push items → end
-  function begin() {
-    S.t++;
+  function begin(tSec) {
+    if (typeof tSec === 'number' && Number.isFinite(tSec)) {
+      S.t = tSec * 60;
+    } else if (typeof performance !== 'undefined') {
+      const now = performance.now();
+      const dt = S._lastMs ? Math.min(0.05, Math.max(0, (now - S._lastMs) / 1000)) : 1 / 60;
+      S._lastMs = now;
+      S.t += dt * 60;
+    } else {
+      S.t++;
+    }
     const c = S.ctx;
     c.setTransform(S.dpr, 0, 0, S.dpr, 0, 0);
     updateOrigin();

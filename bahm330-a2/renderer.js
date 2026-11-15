@@ -127,7 +127,7 @@ const IsoRenderer = (() => {
   function render(simState) {
     const isCur = simState.mode === 'current';
     PH.setCondition(isCur ? 'cur' : 'fut');
-    PH.begin();
+    PH.begin(simState.elapsedSec);
 
     // ---------------- 1. C1 OUTPATIENT RECEPTION, TRIAGE & WAITING HALL (x: 1..9, y: 1..8.5)
     PHSprites.receptionDesk(1.4, 1.6, 1, 3.2, { col: '#0284c7', clutter: isCur });

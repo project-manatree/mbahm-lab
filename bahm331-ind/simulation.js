@@ -152,7 +152,7 @@ const SimApp = (() => {
           const stIdx = Math.floor(tSec / ag.dwell) % ag.taskStations.length;
           const st = ag.taskStations[stIdx];
           ag.pose = st.pose;
-          PH.stepAgentPhysics(ag, st.gx, st.gy, dtSec, { baseSpeed: 6.2, urgent: !isWaitMode });
+          PH.stepAgentPhysics(ag, st.gx, st.gy, dtSec, { baseSpeed: 4.8 });
         }
         const dur = ag.dur || 2.2;
         const pulsePhase = (tSec + idx * 1.45) % 7.2;
@@ -228,47 +228,58 @@ const SimApp = (() => {
       } else if (ag.group === 'suites') {
         tx = SUITE_SPOTS[k][0]; ty = SUITE_SPOTS[k][1]; ag.pose = 'LYING_ON_BED'; snap = true;
       } else {
-        // 6 Active Escalation Pathway Residents stepping cleanly through 4 stages in 18 seconds (4.5s per stage)
-        const cyclePos = (tSec + k * 3.0) % CYCLE_SEC;
-        const stage = Math.floor(cyclePos / 4.5); // 0..3
-        const stageProg = (cyclePos % 4.5) / 4.5;
+        if (k < 4) {
+          // 4 Active Escalation Pathway Residents stepping cleanly through 4 stages in 18 seconds (4.5s per stage)
+          const cyclePos = (tSec + k * 4.5) % CYCLE_SEC;
+          const stage = Math.floor(cyclePos / 4.5); // 0..3
+          const stageProg = (cyclePos % 4.5) / 4.5;
 
-        if (stage === 0) {
-          // Stage 1: Wearable Telemetry Trigger -> RBAC check
-          tx = 7.4; ty = 6.2; ag.pose = isWaitMode ? 'FRUSTRATED_WAIT' : 'HANDOVER_INTERACTION';
-          if (k === 0) {
-            stepKey = (isWaitMode ? 'u-' : 't-') + 's0';
-            stepText = isWaitMode ? 'Unfiltered IoT Alert' : 'Wearable Telemetry ✓';
-            ag.taskProg = stageProg;
-          }
-        } else if (stage === 1) {
-          // Stage 2: Duty Nurse Triage Filtering (6% fatigue) vs Unfiltered Broadcast (PHI Leak)
-          tx = 19.6; ty = 3.4; ag.pose = isWaitMode ? 'FRUSTRATED_WAIT' : 'HANDOVER_INTERACTION';
-          if (k === 0) {
-            stepKey = (isWaitMode ? 'u-' : 't-') + 's1';
-            stepText = isWaitMode ? 'PHI → Spa/Concierge' : 'Nurse Filter (6% Fatigue) ✓';
-            ag.taskProg = stageProg;
-          }
-        } else if (stage === 2) {
-          // Stage 3: Visiting MD Priority Escalation (<3m, 98.5% SLA vs 64% fatigue, 52% SLA)
-          tx = 26.8; ty = 3.2; ag.pose = isWaitMode ? 'FRUSTRATED_WAIT' : 'SITTING';
-          if (k === 0) {
-            stepKey = (isWaitMode ? 'u-' : 't-') + 's2';
-            stepText = isWaitMode ? '52% SLA Missed (64% Fatigue)' : 'Priority MD <3m (98.5% SLA) ✓';
-            ag.taskProg = stageProg;
+          if (stage === 0) {
+            // Stage 1: Wearable Telemetry Trigger -> RBAC check
+            tx = 5.6; ty = 7.2; ag.pose = isWaitMode ? 'FRUSTRATED_WAIT' : 'HANDOVER_INTERACTION';
+            if (k === 0) {
+              stepKey = (isWaitMode ? 'u-' : 't-') + 's0';
+              stepText = isWaitMode ? 'Unfiltered IoT Alert' : 'Wearable Telemetry ✓';
+              ag.taskProg = stageProg;
+            }
+          } else if (stage === 1) {
+            // Stage 2: Duty Nurse Triage Filtering (6% fatigue) vs Unfiltered Broadcast (PHI Leak)
+            tx = 20.0; ty = 5.6; ag.pose = isWaitMode ? 'FRUSTRATED_WAIT' : 'HANDOVER_INTERACTION';
+            if (k === 0) {
+              stepKey = (isWaitMode ? 'u-' : 't-') + 's1';
+              stepText = isWaitMode ? 'PHI → Spa/Concierge' : 'Nurse Filter (6% Fatigue) ✓';
+              ag.taskProg = stageProg;
+            }
+          } else if (stage === 2) {
+            // Stage 3: Visiting MD Priority Escalation (<3m, 98.5% SLA vs 64% fatigue, 52% SLA)
+            tx = 28.0; ty = 3.4; ag.pose = isWaitMode ? 'FRUSTRATED_WAIT' : 'SITTING';
+            if (k === 0) {
+              stepKey = (isWaitMode ? 'u-' : 't-') + 's2';
+              stepText = isWaitMode ? '52% SLA Missed (64% Fatigue)' : 'Priority MD <3m (98.5% SLA) ✓';
+              ag.taskProg = stageProg;
+            }
+          } else {
+            // Stage 4: RBAC Masked Privacy State in Recovery Suite
+            tx = 22.0 + (k % 2) * 4.5; ty = 13.5; ag.pose = 'SITTING';
+            if (k === 0) {
+              stepKey = (isWaitMode ? 'u-' : 't-') + 's3';
+              stepText = isWaitMode ? '14 PDPA PHI Breaches' : '0 PHI (RBAC Masked) ✓';
+              ag.taskProg = stageProg;
+            }
           }
         } else {
-          // Stage 4: RBAC Masked Privacy State in Recovery Suite
-          tx = 22.4 + (k % 3) * 4.5; ty = 13.4; ag.pose = 'SITTING';
-          if (k === 0) {
-            stepKey = (isWaitMode ? 'u-' : 't-') + 's3';
-            stepText = isWaitMode ? '14 PDPA PHI Breaches' : '0 PHI (RBAC Masked) ✓';
-            ag.taskProg = stageProg;
+          // 2 Ambient Residents calmly moving between Nutritional Bistro & Private Suites (2 x 9.0s)
+          const cyclePos = (tSec + (k - 4) * 9.0) % CYCLE_SEC;
+          const stg = Math.floor(cyclePos / 9.0);
+          if (stg === 0) {
+            tx = 14.8; ty = 13.4; ag.pose = 'IDLE';
+          } else {
+            tx = k === 4 ? 22.0 : 26.5; ty = 13.5; ag.pose = 'SITTING';
           }
         }
       }
 
-      PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.8, corridorY: 9.7, snap: snap || forceSnap, urgent: !isWaitMode });
+      PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.4, corridorY: 9.7, snap: snap || forceSnap });
       if (ag.group === 'pathway' && k === 0 && stepText) {
         const arrived = Math.hypot(tx - ag.gx, ty - ag.gy) < 0.95;
         setStepBubble(ag, stepKey, stepText, stepType, tSec, arrived);

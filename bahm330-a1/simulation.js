@@ -324,7 +324,7 @@ const SimApp = (() => {
           const stIdx = Math.floor(tSec / ag.dwell) % ag.taskStations.length;
           const st = ag.taskStations[stIdx];
           ag.pose = st.pose;
-          PH.stepAgentPhysics(ag, st.gx, st.gy, dtSec, { baseSpeed: 5.5, splitX: 18, snap: forceSnap });
+          PH.stepAgentPhysics(ag, st.gx, st.gy, dtSec, { baseSpeed: 4.8, splitX: 18, snap: forceSnap });
           return;
         }
         const dur = ag.dur || 2.2;
@@ -368,7 +368,7 @@ const SimApp = (() => {
         ag.pose = spot.pose;
         const isParkSpot = spot.gx > 18 && (spot.gx < 22.8 || spot.gy < 2.5);
         const snap = forceSnap || isParkSpot || ((spot.pose === 'LYING_ON_BED' || spot.pose === 'YOGA_STRETCH') && Math.hypot(spot.gx - ag.gx, spot.gy - ag.gy) < 1.2);
-        PH.stepAgentPhysics(ag, spot.gx, spot.gy, dtSec, { baseSpeed: 7.5, corridorY: spot.gx > 18 ? 7.8 : 7.5, splitX: 18, snap });
+        PH.stepAgentPhysics(ag, spot.gx, spot.gy, dtSec, { baseSpeed: 7.4, corridorY: spot.gx > 18 ? 7.8 : 7.5, splitX: 18, snap });
         return;
       }
 
@@ -398,16 +398,16 @@ const SimApp = (() => {
           } else {
             tx = 12.8; ty = 13.4; ag.pose = 'FRUSTRATED_WAIT';
           }
-          PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 8.5, corridorY: 7.5, splitX: 18, snap });
+          PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.4, corridorY: 7.5, splitX: 18, snap });
           const arrived = Math.hypot(tx - ag.gx, ty - ag.gy) < 0.95;
           setStepBubble(ag, stepKey, stepText, stepType, tSec, arrived && !!stepText);
           return;
         }
 
-        // pIdx 0..4 circulate strictly inside Hospital Bottleneck (15s = 3 stages x 5s)
-        const cPos = (tSec + pIdx * 3.0) % 15.0;
-        const stg = Math.floor(cPos / 5.0);
-        const sProg = (cPos % 5.0) / 5.0;
+        // pIdx 0..4 circulate strictly inside Hospital Bottleneck (18s = 3 stages x 6s)
+        const cPos = (tSec + pIdx * 3.6) % CYCLE_SEC;
+        const stg = Math.floor(cPos / 6.0);
+        const sProg = (cPos % 6.0) / 6.0;
         if (stg === 0) {
           tx = 11.4 + (pIdx % 3) * 0.45; ty = 3.8; ag.pose = 'FRUSTRATED_WAIT';
           if (pIdx === 0) { stepKey = 'c0-0'; stepText = 'Ward Bed-Block (98%)'; ag.taskProg = sProg; }
@@ -418,7 +418,7 @@ const SimApp = (() => {
           tx = 12.5 + (pIdx % 3) * 0.4; ty = 14.0; ag.pose = 'FRUSTRATED_WAIT';
           if (pIdx === 0) { stepKey = 'c0-2'; stepText = '275m Cycle · No Van'; ag.taskProg = sProg; }
         }
-        PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 8.0, corridorY: 7.5, splitX: 18, snap });
+        PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.4, corridorY: 7.5, splitX: 18, snap });
         const arrived = Math.hypot(tx - ag.gx, ty - ag.gy) < 0.95;
         setStepBubble(ag, stepKey, stepText, 'wait', tSec, arrived && !!stepText);
         return;
@@ -512,7 +512,7 @@ const SimApp = (() => {
         } else {
           tx = 26.9; ty = 13.7; ag.pose = 'SITTING';
         }
-        PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.5, corridorY: null, splitX: 18, snap });
+        PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.4, corridorY: null, splitX: 18, snap });
         ag.roleLabel = '';
         return;
       } else {
@@ -531,12 +531,12 @@ const SimApp = (() => {
         } else {
           tx = 20.7; ty = 12.6; ag.pose = 'IDLE';
         }
-        PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 8.0, corridorY: null, splitX: 18, snap });
+        PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.4, corridorY: null, splitX: 18, snap });
         ag.roleLabel = '';
         return;
       }
 
-      PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 10.8, corridorY: ag.gx > 18 ? 7.8 : 7.5, splitX: 18, snap });
+      PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.4, corridorY: ag.gx > 18 ? 7.8 : 7.5, splitX: 18, snap });
       const arrived = Math.hypot(tx - ag.gx, ty - ag.gy) < 0.95;
       setStepBubble(ag, stepKey, stepText, 'ok', tSec, arrived && !!stepText);
     });

@@ -129,10 +129,10 @@ const IsoRenderer = (() => {
     const wid = 1.18;
 
     PH.item(gx + gy + 1.65, () => {
-      const bounce = openDoor ? 0 : Math.sin(PH.t * 0.42) * 0.3;
+      const bounce = openDoor ? 0 : Math.sin(PH.t * 0.18) * 0.18;
       const c = PH.S.ctx;
       const z = PH.zoom;
-      const flashA = Math.floor(PH.t / 5) % 2 === 0;
+      const flashA = Math.floor(PH.t / 10) % 2 === 0;
 
       // Ground drop shadow
       const sp = PH.P(gx + len / 2, gy + wid / 2, 0);
@@ -262,13 +262,23 @@ const IsoRenderer = (() => {
         PH.P(mx - 0.22, my, mz + 0.95)
       ], '#dc2626');
 
-      // Detailed Steel Wheels with Red Center Hubcap
+      // Detailed Steel Wheels with Rotating Spokes & Red Center Hubcap
+      const wheelRot = gx * 2.2;
       for (const wx of [gx + 0.54, gx + len - 0.46]) {
         const wp = PH.P(wx, gy + wid, 2.5);
         c.fillStyle = '#090d16';
         c.beginPath(); c.arc(wp.x, wp.y, 5.6 * z, 0, Math.PI * 2); c.fill();
         c.fillStyle = '#cbd5e1';
         c.beginPath(); c.arc(wp.x, wp.y, 3.0 * z, 0, Math.PI * 2); c.fill();
+        c.strokeStyle = '#64748b';
+        c.lineWidth = Math.max(0.8, 0.9 * z);
+        for (let k = 0; k < 2; k++) {
+          const ang = wheelRot + k * Math.PI * 0.5;
+          c.beginPath();
+          c.moveTo(wp.x + Math.cos(ang) * 2.5 * z, wp.y + Math.sin(ang) * 2.5 * z);
+          c.lineTo(wp.x - Math.cos(ang) * 2.5 * z, wp.y - Math.sin(ang) * 2.5 * z);
+          c.stroke();
+        }
         c.fillStyle = '#dc2626';
         c.beginPath(); c.arc(wp.x, wp.y, 1.3 * z, 0, Math.PI * 2); c.fill();
       }
@@ -289,7 +299,7 @@ const IsoRenderer = (() => {
     const wid = 1.18;
 
     PH.item(gx + gy + 1.65, () => {
-      const bounce = openDoor ? 0 : Math.sin(PH.t * 0.35) * 0.32;
+      const bounce = openDoor ? 0 : Math.sin(PH.t * 0.16) * 0.16;
       const c = PH.S.ctx;
       const z = PH.zoom;
 
@@ -327,7 +337,7 @@ const IsoRenderer = (() => {
 
       // Visible Fold-Out Hydraulic Boarding Ramps when parked at Hospital / Retreat Entrance Bays
       if (openDoor) {
-        const ledPulse = 0.55 + 0.45 * Math.sin(PH.t * 0.25);
+        const ledPulse = 0.60 + 0.40 * Math.sin(PH.t * 0.12);
         // Rear Fold-Out Non-Slip Aluminium Wheelchair Ramp
         const rampX0 = dirX > 0 ? gx - 1.05 : gx + len + 0.05;
         PH.topQuad(rampX0, gy + 0.14, 0.35, 1.02, 0.90, '#e2e8f0', { stroke: '#d4af37' });
@@ -420,13 +430,23 @@ const IsoRenderer = (() => {
       c.fillStyle = '#c9a227';
       c.beginPath(); c.arc(cp.x + 1.4 * z, cp.y, 1.4 * z, 0, Math.PI * 2); c.fill();
 
-      // Luxury Multi-Spoke Turbine Alloy Wheels with Gold Center Caps
+      // Luxury Multi-Spoke Turbine Alloy Wheels with Rolling Spokes & Gold Center Caps
+      const wheelRot = gx * 2.2;
       for (const wx of [gx + 0.56, gx + len - 0.56]) {
         const wp = PH.P(wx, gy + wid, 2.5);
         c.fillStyle = '#090d16';
         c.beginPath(); c.arc(wp.x, wp.y, 5.6 * z, 0, Math.PI * 2); c.fill();
         c.fillStyle = '#f1f5f9';
         c.beginPath(); c.arc(wp.x, wp.y, 3.2 * z, 0, Math.PI * 2); c.fill();
+        c.strokeStyle = '#94a3b8';
+        c.lineWidth = Math.max(0.8, 0.85 * z);
+        for (let k = 0; k < 3; k++) {
+          const ang = wheelRot + (k * Math.PI) / 3;
+          c.beginPath();
+          c.moveTo(wp.x + Math.cos(ang) * 2.7 * z, wp.y + Math.sin(ang) * 2.7 * z);
+          c.lineTo(wp.x - Math.cos(ang) * 2.7 * z, wp.y - Math.sin(ang) * 2.7 * z);
+          c.stroke();
+        }
         c.fillStyle = '#d4af37';
         c.beginPath(); c.arc(wp.x, wp.y, 1.3 * z, 0, Math.PI * 2); c.fill();
       }
@@ -534,7 +554,7 @@ const IsoRenderer = (() => {
     PH.item(cx + cy + 0.8, () => {
       const c = PH.S.ctx;
       const z = PH.zoom;
-      const wave = Math.sin(PH.t * 0.16);
+      const wave = Math.sin(PH.t * 0.09);
       // Outer Carved Stone Basin Rim + Turquoise Water Pool
       PH.cyl(cx, cy, 0, 1.25, 4.2, '#cbd5e1');
       PH.disc(cx, cy, 4.25, 1.06, '#0ea5e9', '#bae6fd');
@@ -542,7 +562,7 @@ const IsoRenderer = (() => {
       const rc = PH.P(cx, cy, 4.35);
       c.save();
       for (const offset of [0, 0.25, 0.5, 0.75]) {
-        const rp = ((PH.t / 64) + offset) % 1;
+        const rp = ((PH.t / 120) + offset) % 1;
         c.strokeStyle = `rgba(224,242,254,${(0.68 * (1 - rp)).toFixed(2)})`;
         c.lineWidth = 1.3;
         c.beginPath();
@@ -558,7 +578,7 @@ const IsoRenderer = (() => {
       const urc = PH.P(cx, cy, 13.32);
       c.save();
       for (const off of [0, 0.5]) {
-        const urp = ((PH.t / 40) + off) % 1;
+        const urp = ((PH.t / 84) + off) % 1;
         c.strokeStyle = `rgba(255,255,255,${(0.62 * (1 - urp)).toFixed(2)})`;
         c.lineWidth = 1.1;
         c.beginPath();
@@ -686,7 +706,7 @@ const IsoRenderer = (() => {
       const cp = PH.P(gx, gy, 0.3);
       c.save();
       for (const off of [0, 0.5]) {
-        const p = ((PH.t / 58) + off) % 1;
+        const p = ((PH.t / 108) + off) % 1;
         c.strokeStyle = `rgba(239, 68, 68, ${(0.58 * (1 - p)).toFixed(2)})`;
         c.lineWidth = 1.6;
         c.beginPath();
@@ -720,7 +740,7 @@ const IsoRenderer = (() => {
   function render(simState) {
     const isFut = simState.mode === 'future';
     PH.setCondition(isFut ? 'fut' : 'cur');
-    PH.begin();
+    PH.begin(simState.elapsedSec);
 
     // ---------------- BUILDING 1 (LEFT, x: 1..15, y: 1..16): PARTNER HOSPITAL
     // 1. Ward A (x: 1..8, y: 1..6.5) — 4 Inpatient Beds + Curtains + Nurse Station
