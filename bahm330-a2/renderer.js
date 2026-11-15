@@ -201,6 +201,7 @@ const IsoRenderer = (() => {
     simState.agents.forEach(ag => {
       const isSel = ag.id === simState.selectedAgentId;
       const inBed = ag.pose === 'LYING_ON_BED' || ag.pose === 'IN_SCANNER';
+      const isPatientRole = ag.role === 'resident' || ag.role === 'elderly' || ag.role === 'gown' || ag.role === 'patient';
       PH.person({
         id: ag.id,
         gx: ag.gx,
@@ -213,13 +214,13 @@ const IsoRenderer = (() => {
         axis: ag.pose === 'IN_SCANNER' ? 'y' : 'x',
         head: -1,
         blanket: ag.pose === 'LYING_ON_BED' ? '#38bdf8' : null,
-        label: ag.roleLabel || '',
-        sub: '',
-        forceLabel: true,
+        label: isPatientRole ? '' : (ag.roleLabel || ''),
+        forceLabel: false,
         sel: isSel,
         showBubble: !!ag.showBubble,
         bubble: ag.bubble,
         bubbleType: ag.bubbleType,
+        bubbleAlpha: ag.bubbleAlpha,
         bubbleOffsetY: inBed ? 12 : 24,
         taskProg: ag.taskProg
       });

@@ -52,9 +52,10 @@
     proj: { ax: TW / 2, ay: TH / 2, bx: -TW / 2, by: TH / 2 },
     map: null, cond: 'cur', bakes: {}, items: [], labels: [], wallsUp: false,
     agentsPrev: new Map(), doorOpen: new Map(), agentsNow: [],
-    lastFocus: null, userCamMoved: false
+    lastFocus: null, userCamMoved: false, baseFitZoom: 0.7
   };
-  const zoomMin = 0.24, zoomMax = 2.8;
+  const zoomMin = 0.7, zoomMax = 2.2;
+  function effectiveMinZoom() { return Math.min(zoomMin, S.baseFitZoom || zoomMin); }
 
   function isCompactViewport() {
     let inFrame = false;
@@ -1131,6 +1132,17 @@
   }
 
   // ----------------------------------------------------------------- labels
+  function actionAlpha(ageSec, maxSec = 1.8) {
+    if (ageSec == null || ageSec < 0 || ageSec >= maxSec) return 0;
+    const fadeAt = maxSec * 0.72;
+    return ageSec <= fadeAt ? 1 : Math.max(0, (maxSec - ageSec) / (maxSec - fadeAt));
+  }
+  function shouldShowRoleBadge(sp) {
+    if (!sp || !sp.label) return false;
+    const lo = String(sp.label).trim().toLowerCase();
+    if (!lo || lo === 'patient' || lo === 'resident' || lo === 'staff') return false;
+    return !['patient', 'resident', 'elderly', 'gown'].includes(sp.role);
+  }
   function roleName(role) {
     const map = {
       doctor: 'Doctor',
@@ -1142,15 +1154,15 @@
       admin: 'Staff',
       janitor: 'Staff',
       security: 'Staff',
-      therapist: 'Staff',
-      chef: 'Staff',
+      therapist: 'Therapist',
+      chef: 'Chef',
       lifeguard: 'Staff',
-      resident: 'Patient',
-      elderly: 'Patient',
-      gown: 'Patient',
-      patient: 'Patient'
+      resident: '',
+      elderly: '',
+      gown: '',
+      patient: ''
     };
-    return map[role] || 'Patient';
+    return map[role] != null ? map[role] : '';
   }
   function nameplate(x, y, name, sub, role, sel) {
     const c = S.ctx, compact = isCompactViewport();
@@ -1180,10 +1192,14 @@
     const h = compact ? 12 : 15 * s;
     return { compact, s, hasRing, w, h };
   }
-  function bubble(x, y, text, type, prog) {
+  function bubble(x, y, text, type, prog, alpha) {
+    const a = alpha == null ? 1 : Math.max(0, Math.min(1, alpha));
+    if (a <= 0.02) return;
     const c = S.ctx, { compact, s, hasRing, w, h } = bubbleMetrics(text, prog);
     const pal = { fail: ['#450a0a', '#ef4444', '#fecaca'], ok: ['#052e24', '#10b981', '#a7f3d0'], warn: ['#422006', '#f59e0b', '#fde68a'] }[type] || ['#0f172a', '#0ea5e9', '#e0f2fe'];
     const bx = x - w / 2, by = y - h;
+    c.save();
+    if (a < 0.999) c.globalAlpha *= a;
     c.fillStyle = pal[0]; c.strokeStyle = pal[1]; c.lineWidth = 1.2;
     c.beginPath(); c.roundRect(bx, by, w, h, compact ? 3.5 : 4 * s); c.fill(); c.stroke();
     if (hasRing) {
@@ -1198,12 +1214,13 @@
       c.fillStyle = pal[2]; c.textAlign = 'center'; c.textBaseline = 'middle';
       c.fillText(text, x, by + h / 2 + 0.5);
     }
+    c.restore();
   }
-  function externalBubble(x, y, text, type, prog) {
+  function externalBubble(x, y, text, type, prog, alpha) {
     const { w, h } = bubbleMetrics(text, prog);
     if (!S.staticBubbles) S.staticBubbles = [];
-    S.staticBubbles.push({ x0: x - w / 2, y0: y - h, x1: x + w / 2, y1: y });
-    return bubble(x, y, text, type, prog);
+    if (alpha == null || alpha > 0.02) S.staticBubbles.push({ x0: x - w / 2, y0: y - h, x1: x + w / 2, y1: y });
+    return bubble(x, y, text, type, prog, alpha);
   }
   function boxesHit(a, b, mx, my) {
     return a.x1 + (mx || 0) > b.x0 && a.x0 - (mx || 0) < b.x1 && a.y1 + (my || 0) > b.y0 && a.y0 - (my || 0) < b.y1;
@@ -1226,8 +1243,9 @@
     const staticBubbles = S.staticBubbles || [];
     for (const L of S.labels) {
       const sp = L.spec;
+      if (!shouldShowRoleBadge(sp)) continue;
       const foot = P(L.gx, L.gy, L.z);
-      const shortRole = sp.label || roleName(sp.role);
+      const shortRole = sp.label;
       c.font = `700 ${compact ? 9 : Math.round(9.5 * s)}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
       const halfW = (c.measureText(shortRole).width + (compact ? 11 : 15 * s)) / 2;
       let y = foot.y + 4 * S.cam.z;
@@ -1244,7 +1262,8 @@
     }
     for (const L of S.labels) {
       const sp = L.spec;
-      if (!sp.bubble || (!sp.sel && !sp.showBubble)) continue;
+      const alpha = sp.bubbleAlpha == null ? 1 : sp.bubbleAlpha;
+      if (!sp.bubble || (!sp.sel && !sp.showBubble) || alpha <= 0.02) continue;
       const h = P(L.gx, L.gy, L.headZ + 5);
       const { w: bw, h: bh } = bubbleMetrics(sp.bubble, sp.taskProg);
       let baseY = h.y + (sp.bubbleOffsetY || 0);
@@ -1272,7 +1291,7 @@
         }
       }
       placedBubbles.push({ x0: bestX - bw / 2, y0: bestY - bh, x1: bestX + bw / 2, y1: bestY });
-      bubble(bestX, bestY, sp.bubble, sp.bubbleType, sp.taskProg);
+      bubble(bestX, bestY, sp.bubble, sp.bubbleType, sp.taskProg, alpha);
     }
   }
 
@@ -1359,15 +1378,21 @@
     cv.addEventListener('wheel', e => {
       e.preventDefault();
       const r = cv.getBoundingClientRect();
-      zoomAt(e.deltaY < 0 ? 1.1 : 0.9, e.clientX - r.left, e.clientY - r.top);
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+      const factor = Math.max(0.82, Math.min(1.22, Math.exp(-dy * (e.ctrlKey ? 0.008 : 0.0018))));
+      zoomAt(factor, e.clientX - r.left, e.clientY - r.top);
     }, { passive: false });
+    cv.addEventListener('dblclick', e => {
+      e.preventDefault();
+      fit(S.lastFocus);
+    });
     cv.addEventListener('touchstart', e => {
       if (e.touches.length === 1) drag = { x: e.touches[0].clientX, y: e.touches[0].clientY, cx: S.cam.cx, cy: S.cam.cy, moved: false };
       else if (e.touches.length === 2) { drag = null; pinch = { d: Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY), z: S.cam.z }; }
     }, { passive: true });
     cv.addEventListener('touchmove', e => {
       if (drag && e.touches.length === 1) { const dx = e.touches[0].clientX - drag.x, dy = e.touches[0].clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 4) { drag.moved = true; S.userCamMoved = true; } S.cam.cx = drag.cx - dx / S.cam.z; S.cam.cy = drag.cy - dy / S.cam.z; e.preventDefault(); }
-      else if (pinch && e.touches.length === 2) { const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); S.userCamMoved = true; S.cam.z = Math.max(zoomMin, Math.min(zoomMax, pinch.z * d / pinch.d)); e.preventDefault(); }
+      else if (pinch && e.touches.length === 2) { const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); S.userCamMoved = true; S.cam.z = Math.max(effectiveMinZoom(), Math.min(zoomMax, pinch.z * d / pinch.d)); e.preventDefault(); }
     }, { passive: false });
     cv.addEventListener('touchend', e => {
       if (drag && !drag.moved && onClick && e.changedTouches[0]) { const r = cv.getBoundingClientRect(); onClick(e.changedTouches[0].clientX - r.left, e.changedTouches[0].clientY - r.top); }
@@ -1379,7 +1404,7 @@
     S.userCamMoved = true;
     updateOrigin();
     const before = { x: (sx - S.ox) / S.cam.z, y: (sy - S.oy) / S.cam.z };
-    S.cam.z = Math.max(zoomMin, Math.min(zoomMax, S.cam.z * f));
+    S.cam.z = Math.max(effectiveMinZoom(), Math.min(zoomMax, S.cam.z * f));
     S.cam.cx = before.x - (sx - S.vpW / 2) / S.cam.z;
     S.cam.cy = before.y - (sy - S.vpH / 2) / S.cam.z;
   }
@@ -1405,14 +1430,20 @@
   function applyFit(focus) {
     const b = focus || S.map.view || S.map.bounds;
     const wb = worldBounds(b);
-    const w = wb.maxX - wb.minX, h = wb.maxY - wb.minY + 80;
-    S.cam.z = Math.max(zoomMin, Math.min(1.6, Math.min(S.vpW / w, S.vpH / h) * 0.98));
-    S.cam.cx = (wb.minX + wb.maxX) / 2; S.cam.cy = (wb.minY + wb.maxY) / 2 - 24;
-    if (isCompactViewport()) {
-      S.cam.z = Math.max(zoomMin, S.cam.z * 0.85);
-      S.cam.cy -= 55 / S.cam.z;
-    }
+    const w = wb.maxX - wb.minX;
+    const cssW = (S.canvas && S.canvas.width > 0 && S.dpr) ? (S.canvas.width / S.dpr) : S.vpW;
+    const availW = Math.max(240, cssW - 24);
+    const widthZoom = Math.max(0.45, Math.min(zoomMax, availW / w));
+    S.baseFitZoom = widthZoom;
+    S.cam.z = widthZoom;
+    S.cam.cx = (wb.minX + wb.maxX) / 2;
+    S.cam.cy = (wb.minY + wb.maxY) / 2 - 20;
     updateOrigin();
+    const topWallY = S.oy + (wb.minY - 70) * S.cam.z;
+    if (topWallY < 56) {
+      S.cam.cy -= (56 - topWallY) / S.cam.z;
+      updateOrigin();
+    }
   }
   function fit(focus) {
     S.lastFocus = focus || null;
@@ -1421,7 +1452,7 @@
   }
   function panTo(gx, gy, z) {
     const pr = S.proj;
-    if (z) S.cam.z = Math.max(zoomMin, Math.min(zoomMax, z));
+    if (z) S.cam.z = Math.max(effectiveMinZoom(), Math.min(zoomMax, z));
     S.cam.cx = gx * pr.ax + gy * pr.bx; S.cam.cy = gx * pr.ay + gy * pr.by - 20;
   }
   function setCondition(cond) { S.cond = cond; }
@@ -1465,7 +1496,7 @@
     begin, end, overlay, item, furniture, person, look, mapPose,
     box, topQuad, vquad, cyl, disc, blob, line3, poly, gridSpace, planeText, pattern, texCanvas,
     drawPerson, drawLying, nameplate, bubble: externalBubble, kit, runParts,
-    roleSpeed, stepAgentPhysics, formatShiftClock,
+    roleSpeed, stepAgentPhysics, formatShiftClock, actionAlpha,
     get zoom() { return S.cam.z; }, set wallsUp(v) { S.wallsUp = !!v; }, get wallsUp() { return S.wallsUp; },
     get t() { return S.t; }, get cond() { return S.cond; }
   };

@@ -23,9 +23,9 @@ const SimApp = (() => {
   const STAFF_DEFS = [
     // Pool & Yoga Supervision (st-1 moves cleanly between Pool Desk and Poolside Resident Assist)
     { id: 'st-1', roleLabel: 'Nurse', role: 'nurse', gx: 8.0, gy: 4.4, pose: 'EXAMINING', taskCur: 'Unfiltered PHI Leak', taskFut: 'Wearable Stream ✓', dur: 2.0, show: true, taskStations: [{ gx: 8.0, gy: 2.2, pose: 'TYPING_TERMINAL' }, { gx: 8.0, gy: 4.4, pose: 'EXAMINING' }], dwell: 4.5 },
-    { id: 'st-2', roleLabel: 'Staff', role: 'therapist', gx: 15.2, gy: 3.8, pose: 'EXAMINING', taskCur: 'PHI Popup (Noise)', taskFut: 'Mobility Guide ✓', dur: 2.2, show: false },
+    { id: 'st-2', roleLabel: 'Instructor', role: 'therapist', gx: 15.2, gy: 3.8, pose: 'EXAMINING', taskCur: 'PHI Popup (Noise)', taskFut: 'Mobility Guide ✓', dur: 2.2, show: false },
     // 24/7 Duty Nurse Triage Station (6% Alert Fatigue in Target vs 64% Unfiltered Fatigue in Current)
-    { id: 'st-3', roleLabel: 'Triage Nurse', role: 'nurse', gx: 19.2, gy: 3.3, pose: 'TYPING_TERMINAL', taskCur: 'No Triage Filter (64%)', taskFut: 'Nurse Filter (6% Fatigue) ✓', dur: 1.8, show: true },
+    { id: 'st-3', roleLabel: 'Nurse', role: 'nurse', gx: 19.2, gy: 3.3, pose: 'TYPING_TERMINAL', taskCur: 'No Triage Filter (64%)', taskFut: 'Nurse Filter (6% Fatigue) ✓', dur: 1.8, show: true },
     { id: 'st-4', roleLabel: 'Nurse', role: 'nurse', gx: 18.6, gy: 5.0, pose: 'TYPING_TERMINAL', taskCur: 'False Alarm Flood', taskFut: 'False-Alarm Filter ✓', dur: 2.0, show: false },
     { id: 'st-5', roleLabel: 'Nurse', role: 'nurse', gx: 21.4, gy: 5.0, pose: 'TYPING_TERMINAL', taskCur: 'Unfiltered Feed', taskFut: 'RBAC Telemetry Hub ✓', dur: 2.2, show: false },
     // Visiting Physician Clinic (<3m Priority Escalation · 98.5% SLA in Target vs 64% Fatigue · 52% SLA in Current)
@@ -33,8 +33,8 @@ const SimApp = (() => {
     { id: 'st-7', roleLabel: 'Doctor', role: 'doctor', gx: 29.2, gy: 2.2, pose: 'EXAMINING', taskCur: '64% Alert Fatigue', taskFut: 'PriorityMD <3m ✓', dur: 2.4, show: false },
     { id: 'st-8', roleLabel: 'Nurse', role: 'nurse', gx: 28.8, gy: 3.6, pose: 'EXAMINING', taskCur: 'Missed SLA (52%)', taskFut: 'Bedside Vitals ✓', dur: 2.2, show: false },
     // Thermal Spa & Concierge Hospitality Tablets (Raw PHI Leak in Current vs RBAC Masked "Welfare Check Only" in Target)
-    { id: 'st-9', roleLabel: 'Spa Tablet', role: 'therapist', gx: 4.8, gy: 13.4, pose: 'TYPING_TERMINAL', taskCur: 'PHI Leaked on Tablet!', taskFut: 'Welfare Check Only ✓', dur: 2.4, show: true },
-    { id: 'st-10', roleLabel: 'Staff', role: 'therapist', gx: 6.2, gy: 13.4, pose: 'EXAMINING', taskCur: 'Unmasked PHI', taskFut: 'Spa Therapy ✓', dur: 2.4, show: false },
+    { id: 'st-9', roleLabel: 'Therapist', role: 'therapist', gx: 4.8, gy: 13.4, pose: 'TYPING_TERMINAL', taskCur: 'PHI Leaked on Tablet!', taskFut: 'Welfare Check Only ✓', dur: 2.4, show: true },
+    { id: 'st-10', roleLabel: '', role: 'therapist', gx: 6.2, gy: 13.4, pose: 'EXAMINING', taskCur: 'Unmasked PHI', taskFut: 'Spa Therapy ✓', dur: 2.4, show: false },
     // Concierge Bistro & Suites
     { id: 'st-11', roleLabel: 'Concierge', role: 'chef', gx: 12.2, gy: 17.6, pose: 'TYPING_TERMINAL', taskCur: '14 PDPA PHI Breaches', taskFut: 'Welfare Check Only (0 PHI) ✓', dur: 2.0, show: true },
     { id: 'st-12', roleLabel: 'Nurse', role: 'nurse', gx: 23.8, gy: 13.2, pose: 'EXAMINING', taskCur: 'Suite Check', taskFut: 'RBAC Smart Hub ✓', dur: 2.4, show: false }
@@ -60,6 +60,24 @@ const SimApp = (() => {
     [21.1, 16.35], [25.6, 16.35], [30.1, 16.35]
   ];
 
+  function setStepBubble(ag, key, text, type, tSec, active, maxSec = 1.8) {
+    if (!active || !text) {
+      ag.bubble = null;
+      ag.bubbleAlpha = 0;
+      ag.showBubble = false;
+      return;
+    }
+    if (ag._stepKey !== key || ag._stepStartSec == null || tSec < ag._stepStartSec) {
+      ag._stepKey = key;
+      ag._stepStartSec = tSec;
+    }
+    const alpha = PH.actionAlpha(tSec - ag._stepStartSec, maxSec);
+    ag.bubble = alpha > 0.02 ? text : null;
+    ag.bubbleType = type;
+    ag.bubbleAlpha = alpha;
+    ag.showBubble = alpha > 0.02;
+  }
+
   function buildAgents() {
     state.agents = [];
     STAFF_DEFS.forEach((sd, i) => {
@@ -80,12 +98,13 @@ const SimApp = (() => {
         dwell: sd.dwell || 4.5,
         bubble: null,
         bubbleType: 'ok',
+        bubbleAlpha: 0,
         taskProg: null,
         showBubble: false
       });
     });
 
-    // 36 Residents across 6 zones (6 per zone: pool_yoga, clinic, spa, bistro, suites, pathway)
+    // 36 Residents across 6 zones (name badges suppressed to declutter rooms; action pills fade after 1.8s)
     const groups = ['pool_yoga', 'clinic', 'spa', 'bistro', 'suites', 'pathway'];
     for (let i = 0; i < 36; i++) {
       const grp = groups[Math.floor(i / 6)];
@@ -93,7 +112,7 @@ const SimApp = (() => {
       state.agents.push({
         id: `pat-${i + 1}`,
         idNum: i + 1,
-        roleLabel: 'Patient',
+        roleLabel: '',
         role: 'resident',
         group: grp,
         idxInGroup: k,
@@ -103,6 +122,7 @@ const SimApp = (() => {
         pose: 'SITTING',
         bubble: null,
         bubbleType: 'ok',
+        bubbleAlpha: 0,
         taskProg: null,
         showBubble: false
       });
@@ -121,7 +141,12 @@ const SimApp = (() => {
     state.snapNext = false;
 
     state.agents.forEach((ag, idx) => {
-      // Clinical & Retreat Staff: stationary at station or clean 2-station task step
+      if (forceSnap) {
+        ag._stepKey = null;
+        ag._stepStartSec = null;
+      }
+
+      // Clinical & Retreat Staff: stationary at station or clean 2-station task step; 1.8s staggered pulses
       if (ag.id.startsWith('st-')) {
         if (ag.taskStations) {
           const stIdx = Math.floor(tSec / ag.dwell) % ag.taskStations.length;
@@ -130,20 +155,23 @@ const SimApp = (() => {
           PH.stepAgentPhysics(ag, st.gx, st.gy, dtSec, { baseSpeed: 6.2, urgent: !isWaitMode });
         }
         const dur = ag.dur || 2.2;
-        const into = (tSec + idx * 0.5) % dur;
-        ag.taskProg = into / dur;
-        ag.bubble = isWaitMode ? ag.taskCur : ag.taskFut;
+        const pulsePhase = (tSec + idx * 1.45) % 7.2;
+        const alpha = ag.show ? PH.actionAlpha(pulsePhase, 1.8) : 0;
+        ag.taskProg = (tSec % dur) / dur;
+        ag.bubble = alpha > 0.02 ? (isWaitMode ? ag.taskCur : ag.taskFut) : null;
         ag.bubbleType = isWaitMode ? 'fail' : 'ok';
-        ag.showBubble = ag.show;
+        ag.bubbleAlpha = alpha;
+        ag.showBubble = alpha > 0.02;
         return;
       }
 
       ag.showBubble = false;
       ag.bubble = null;
+      ag.bubbleAlpha = 0;
       ag.taskProg = null;
       let tx = ag.gx, ty = ag.gy, snap = false;
       const k = ag.idxInGroup;
-      const ringProg = ((tSec + k * 0.5) % 2.2) / 2.2;
+      let stepKey = null, stepText = null, stepType = isWaitMode ? 'fail' : 'ok';
 
       if (ag.group === 'pool_yoga') {
         if (isWaitMode) {
@@ -151,12 +179,6 @@ const SimApp = (() => {
             tx = 3.2 + k * 2.0; ty = 3.6 + k * 1.2; ag.pose = 'SWIMMING_POOL'; snap = true;
           } else {
             tx = 9.6 + (k - 2) * 1.1; ty = 7.4; ag.pose = 'FRUSTRATED_WAIT';
-            if (k === 2 && Math.hypot(tx - ag.gx, ty - ag.gy) < 0.2) {
-              ag.bubble = '14 PDPA PHI Breaches';
-              ag.bubbleType = 'fail';
-              ag.taskProg = ringProg;
-              ag.showBubble = true;
-            }
           }
         } else {
           if (k < 3) {
@@ -175,23 +197,11 @@ const SimApp = (() => {
             tx = 18.2 + (k - 1) * 2.0;
             ty = 7.2;
             ag.pose = 'FRUSTRATED_WAIT';
-            if (k === 1 && Math.hypot(tx - ag.gx, ty - ag.gy) < 0.2) {
-              ag.bubble = '52% SLA · 64% Fatigue';
-              ag.bubbleType = 'fail';
-              ag.taskProg = ringProg;
-              ag.showBubble = true;
-            }
           }
         } else {
           if (k < 3) {
             tx = CLINIC_BEDS[k][0]; ty = CLINIC_BEDS[k][1]; ag.pose = 'LYING_ON_BED';
             snap = Math.hypot(tx - ag.gx, ty - ag.gy) < 1.0;
-            if (k === 0) {
-              ag.bubble = '98.5% SLA (<3m MD) ✓';
-              ag.bubbleType = 'ok';
-              ag.taskProg = ringProg;
-              ag.showBubble = true;
-            }
           } else {
             tx = 19.2 + (k - 3) * 1.6;
             ty = 6.4;
@@ -204,12 +214,6 @@ const SimApp = (() => {
             tx = SPA_SPOTS[k][0]; ty = SPA_SPOTS[k][1]; ag.pose = 'LYING_ON_BED'; snap = true;
           } else {
             tx = 2.2 + (k - 2) * 1.6; ty = 17.8; ag.pose = 'FRUSTRATED_WAIT';
-            if (k === 2 && Math.hypot(tx - ag.gx, ty - ag.gy) < 0.2) {
-              ag.bubble = 'PHI Leaked to Spa!';
-              ag.bubbleType = 'fail';
-              ag.taskProg = ringProg;
-              ag.showBubble = true;
-            }
           }
         } else {
           tx = SPA_SPOTS[k][0]; ty = SPA_SPOTS[k][1]; ag.pose = 'LYING_ON_BED';
@@ -233,42 +237,42 @@ const SimApp = (() => {
           // Stage 1: Wearable Telemetry Trigger -> RBAC check
           tx = 7.4; ty = 6.2; ag.pose = isWaitMode ? 'FRUSTRATED_WAIT' : 'HANDOVER_INTERACTION';
           if (k === 0) {
-            ag.bubble = isWaitMode ? 'Unfiltered IoT Alert' : 'Wearable Telemetry ✓';
-            ag.bubbleType = isWaitMode ? 'fail' : 'ok';
+            stepKey = (isWaitMode ? 'u-' : 't-') + 's0';
+            stepText = isWaitMode ? 'Unfiltered IoT Alert' : 'Wearable Telemetry ✓';
             ag.taskProg = stageProg;
-            ag.showBubble = true;
           }
         } else if (stage === 1) {
           // Stage 2: Duty Nurse Triage Filtering (6% fatigue) vs Unfiltered Broadcast (PHI Leak)
           tx = 19.6; ty = 3.4; ag.pose = isWaitMode ? 'FRUSTRATED_WAIT' : 'HANDOVER_INTERACTION';
           if (k === 0) {
-            ag.bubble = isWaitMode ? 'PHI → Spa/Concierge' : 'Nurse Filter (6% Fatigue) ✓';
-            ag.bubbleType = isWaitMode ? 'fail' : 'ok';
+            stepKey = (isWaitMode ? 'u-' : 't-') + 's1';
+            stepText = isWaitMode ? 'PHI → Spa/Concierge' : 'Nurse Filter (6% Fatigue) ✓';
             ag.taskProg = stageProg;
-            ag.showBubble = true;
           }
         } else if (stage === 2) {
           // Stage 3: Visiting MD Priority Escalation (<3m, 98.5% SLA vs 64% fatigue, 52% SLA)
           tx = 26.8; ty = 3.2; ag.pose = isWaitMode ? 'FRUSTRATED_WAIT' : 'SITTING';
           if (k === 0) {
-            ag.bubble = isWaitMode ? '52% SLA Missed (64% Fatigue)' : 'Priority MD <3m (98.5% SLA) ✓';
-            ag.bubbleType = isWaitMode ? 'fail' : 'ok';
+            stepKey = (isWaitMode ? 'u-' : 't-') + 's2';
+            stepText = isWaitMode ? '52% SLA Missed (64% Fatigue)' : 'Priority MD <3m (98.5% SLA) ✓';
             ag.taskProg = stageProg;
-            ag.showBubble = true;
           }
         } else {
           // Stage 4: RBAC Masked Privacy State in Recovery Suite
           tx = 22.4 + (k % 3) * 4.5; ty = 13.4; ag.pose = 'SITTING';
           if (k === 0) {
-            ag.bubble = isWaitMode ? '14 PDPA PHI Breaches' : '0 PHI (RBAC Masked) ✓';
-            ag.bubbleType = isWaitMode ? 'fail' : 'ok';
+            stepKey = (isWaitMode ? 'u-' : 't-') + 's3';
+            stepText = isWaitMode ? '14 PDPA PHI Breaches' : '0 PHI (RBAC Masked) ✓';
             ag.taskProg = stageProg;
-            ag.showBubble = true;
           }
         }
       }
 
       PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.8, corridorY: 9.7, snap: snap || forceSnap, urgent: !isWaitMode });
+      if (ag.group === 'pathway' && k === 0 && stepText) {
+        const arrived = Math.hypot(tx - ag.gx, ty - ag.gy) < 0.95;
+        setStepBubble(ag, stepKey, stepText, stepType, tSec, arrived);
+      }
     });
   }
 

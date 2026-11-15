@@ -703,21 +703,20 @@
 
   function roomSign(gx, gy, text, accent = '#0ea5e9') {
     const p = PH.P(gx, gy, PH.wallsUp ? 80 : 30);
-    const compact = PH.isCompactViewport && PH.isCompactViewport();
-    const z = compact ? Math.max(0.76, Math.min(0.92, PH.zoom)) : Math.max(0.85, Math.min(1.2, PH.zoom));
+    const z = Math.max(0.76, Math.min(1.15, PH.zoom));
     const c = PH.S.ctx;
     c.save();
-    c.font = `700 ${compact ? 9 : Math.round(9.5 * z)}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
-    const w = c.measureText(text).width + (compact ? 9 : 14 * z);
-    const h = compact ? 13 : 16 * z;
+    c.font = '700 10px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    const w = c.measureText(text).width + 8;
+    const h = 18;
     if (PH.S.roomSigns) {
       PH.S.roomSigns.push({ x0: p.x - w / 2, y0: p.y - h / 2, x1: p.x + w / 2, y1: p.y + h / 2, text });
     }
     c.fillStyle = 'rgba(9, 13, 22, 0.90)';
     c.strokeStyle = accent;
-    c.lineWidth = 1.4;
+    c.lineWidth = 1.2;
     c.beginPath();
-    c.roundRect(p.x - w / 2, p.y - h / 2, w, h, 4 * z);
+    c.roundRect(p.x - w / 2, p.y - h / 2, w, h, Math.min(4, 3.5 * z));
     c.fill();
     c.stroke();
     c.fillStyle = '#f8fafc';

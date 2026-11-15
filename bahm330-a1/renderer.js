@@ -194,22 +194,29 @@ const IsoRenderer = (() => {
         PH.box(rdFaceX - 0.02, gy + wid - 0.36, 4.4 + bounce, 0.05, 0.24, 12.0, '#f97316');
       }
 
-      // Flashing Red & Blue Emergency Roof Lightbar (Cab Brow + Box Rear Strobe)
+      // Alternating Red & Blue Emergency Roof Lightbar Flashes (Cab Brow + Dual Rear Strobe Pods)
       const lbX = dirX > 0 ? cabX + 0.04 : cabX + 0.40;
       PH.box(lbX, gy + 0.18, 15.0 + bounce, 0.26, wid - 0.36, 2.0, '#334155');
-      PH.box(lbX, gy + 0.20, 15.3 + bounce, 0.26, 0.34, 1.8, flashA ? '#ef4444' : '#7f1d1d');
-      PH.box(lbX, gy + wid - 0.54, 15.3 + bounce, 0.26, 0.34, 1.8, flashA ? '#1e3a8a' : '#3b82f6');
-      // Soft flashing glow halos
+      PH.box(lbX, gy + 0.20, 15.3 + bounce, 0.26, 0.34, 1.9, flashA ? '#ef4444' : '#7f1d1d');
+      PH.box(lbX, gy + wid - 0.54, 15.3 + bounce, 0.26, 0.34, 1.9, flashA ? '#1e3a8a' : '#3b82f6');
+      // Crisp alternating LED flash core, wide halo & road cast
       const glowA = PH.P(lbX + 0.13, gy + 0.36, 16.5 + bounce);
       const glowB = PH.P(lbX + 0.13, gy + wid - 0.36, 16.5 + bounce);
-      c.save();
-      c.fillStyle = flashA ? 'rgba(239,68,68,0.42)' : 'rgba(59,130,246,0.42)';
       const gp = flashA ? glowA : glowB;
-      c.beginPath(); c.arc(gp.x, gp.y, 9.5 * z, 0, Math.PI * 2); c.fill();
+      const roadCast = PH.P(gx + len / 2, gy + wid / 2, 0.2);
+      c.save();
+      c.fillStyle = flashA ? 'rgba(239,68,68,0.16)' : 'rgba(59,130,246,0.16)';
+      c.beginPath(); c.ellipse(roadCast.x, roadCast.y, 44 * z, 21 * z, 0.38, 0, Math.PI * 2); c.fill();
+      c.fillStyle = flashA ? 'rgba(239,68,68,0.44)' : 'rgba(59,130,246,0.44)';
+      c.beginPath(); c.arc(gp.x, gp.y, 13 * z, 0, Math.PI * 2); c.fill();
+      c.fillStyle = flashA ? '#fca5a5' : '#93c5fd';
+      c.beginPath(); c.arc(gp.x, gp.y, 4.2 * z, 0, Math.PI * 2); c.fill();
       c.restore();
 
-      // Rear Roof Corner Strobe Pod
-      PH.box(boxX + (dirX > 0 ? 0.12 : boxLen - 0.34), gy + 0.22, 17.8 + bounce, 0.22, 0.22, 1.3, flashA ? '#3b82f6' : '#ef4444');
+      // Opposite-phase Rear Roof Corner Strobe Pods
+      const rearPodX = boxX + (dirX > 0 ? 0.12 : boxLen - 0.34);
+      PH.box(rearPodX, gy + 0.20, 17.8 + bounce, 0.22, 0.24, 1.4, flashA ? '#3b82f6' : '#7f1d1d');
+      PH.box(rearPodX, gy + wid - 0.44, 17.8 + bounce, 0.22, 0.24, 1.4, flashA ? '#1e3a8a' : '#ef4444');
 
       // Sloped Cab Windshield & Side Cab Window
       const wBotX = dirX > 0 ? cabX + 0.54 : cabX + 0.18;
@@ -293,14 +300,19 @@ const IsoRenderer = (() => {
       c.ellipse(sp.x, sp.y, 33 * z, 15.5 * z, 0.38, 0, Math.PI * 2);
       c.fill();
 
-      // Warm Golden-White LED Headlight Beam
+      // Warm Golden-White LED Headlight Twin-Beam Projection
       const frontX = dirX > 0 ? gx + len : gx;
-      const beamX = dirX > 0 ? gx + len + 1.9 : gx - 1.9;
-      const h0 = PH.P(frontX, gy + wid / 2, 3.4);
-      const bT = PH.P(beamX, gy + 0.06, 0.2);
-      const bB = PH.P(beamX, gy + wid - 0.06, 0.2);
+      const beamX = dirX > 0 ? gx + len + 2.3 : gx - 2.3;
+      const h0 = PH.P(frontX, gy + wid / 2, 3.6);
+      const bT = PH.P(beamX, gy - 0.05, 0.2);
+      const bB = PH.P(beamX, gy + wid + 0.05, 0.2);
+      const bMid = PH.P(beamX, gy + wid / 2, 0.2);
       c.save();
-      c.fillStyle = 'rgba(254, 240, 138, 0.26)';
+      const grad = c.createLinearGradient(h0.x, h0.y, bMid.x, bMid.y);
+      grad.addColorStop(0, 'rgba(254, 249, 195, 0.42)');
+      grad.addColorStop(0.55, 'rgba(253, 224, 71, 0.22)');
+      grad.addColorStop(1, 'rgba(253, 224, 71, 0)');
+      c.fillStyle = grad;
       c.beginPath();
       c.moveTo(h0.x, h0.y);
       c.lineTo(bT.x, bT.y);
@@ -313,19 +325,35 @@ const IsoRenderer = (() => {
       const cabinX = dirX > 0 ? gx : gx + 0.60;
       const cabX = dirX > 0 ? gx + len - 0.60 : gx;
 
-      // Automated Hydraulic Side & Rear Wheelchair Boarding Ramps when loading/unloading
+      // Visible Fold-Out Hydraulic Boarding Ramps when parked at Hospital / Retreat Entrance Bays
       if (openDoor) {
-        // Automated Rear Hydraulic Wheelchair Platform Lift
-        const rampX0 = dirX > 0 ? gx - 0.85 : gx + len + 0.05;
-        PH.topQuad(rampX0, gy + 0.16, 0.25, 0.84, 0.84, '#e2e8f0', { stroke: '#d4af37' });
-        PH.box(rampX0, gy + 0.12, 0.35, 0.84, 0.08, 1.5, '#d4af37');
-        PH.box(rampX0, gy + 0.96, 0.35, 0.84, 0.08, 1.5, '#d4af37');
+        const ledPulse = 0.55 + 0.45 * Math.sin(PH.t * 0.25);
+        // Rear Fold-Out Non-Slip Aluminium Wheelchair Ramp
+        const rampX0 = dirX > 0 ? gx - 1.05 : gx + len + 0.05;
+        PH.topQuad(rampX0, gy + 0.14, 0.35, 1.02, 0.90, '#e2e8f0', { stroke: '#d4af37' });
+        for (let r = 1; r <= 3; r++) {
+          const rx = rampX0 + r * 0.25;
+          PH.line3(rx, gy + 0.18, 0.40, rx, gy + 1.00, 0.40, '#94a3b8', 1.4);
+        }
+        PH.box(rampX0, gy + 0.10, 0.40, 1.02, 0.08, 1.8, '#d4af37');
+        PH.box(rampX0, gy + 1.00, 0.40, 1.02, 0.08, 1.8, '#d4af37');
         PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy - 0.18, 3.2, 0.12, 0.45, 12.2, '#fdfcf8');
         PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy + wid - 0.27, 3.2, 0.12, 0.45, 12.2, '#c9a227');
-        // Automated Curb-Side Motorized Assisted Ramp (extending toward entrance sidewalk y < gy)
-        PH.topQuad(gx + 0.72, gy - 0.62, 0.35, 0.92, 0.62, '#f8fafc', { stroke: '#d4af37' });
-        PH.box(gx + 0.70, gy - 0.62, 0.45, 0.08, 0.62, 1.4, '#d4af37');
-        PH.box(gx + 1.56, gy - 0.62, 0.45, 0.08, 0.62, 1.4, '#d4af37');
+        // Prominent Curb-Side Fold-Out Entrance Bridge toward Sidewalk Bay (y < gy)
+        PH.topQuad(gx + 0.58, gy - 0.85, 0.40, 1.20, 0.85, '#f8fafc', { stroke: '#10b981' });
+        for (let s = 1; s <= 3; s++) {
+          const sy = gy - s * 0.21;
+          PH.line3(gx + 0.64, sy, 0.45, gx + 1.72, sy, 0.45, '#cbd5e1', 1.5);
+        }
+        PH.box(gx + 0.56, gy - 0.85, 0.45, 0.09, 0.85, 1.8, '#d4af37');
+        PH.box(gx + 1.70, gy - 0.85, 0.09, 0.85, 1.8, '#d4af37');
+        const ledA = PH.P(rampX0 + 0.08, gy + 0.59, 0.7);
+        const ledB = PH.P(gx + 1.18, gy - 0.78, 0.7);
+        c.save();
+        c.fillStyle = `rgba(16, 185, 129, ${ledPulse.toFixed(2)})`;
+        c.beginPath(); c.arc(ledA.x, ledA.y, 3.6 * z, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.arc(ledB.x, ledB.y, 3.6 * z, 0, Math.PI * 2); c.fill();
+        c.restore();
       }
 
       // Gloss Charcoal-Graphite Rocker Skirt
@@ -369,9 +397,13 @@ const IsoRenderer = (() => {
       }
       for (const hy of [gy + 0.18, gy + wid - 0.22]) {
         const hp = PH.P(noseX, hy, 5.4 + bounce);
-        c.fillStyle = '#fef9c3';
-        c.beginPath(); c.arc(hp.x, hp.y, 3.0 * z, 0, Math.PI * 2); c.fill();
-        c.strokeStyle = '#fde047'; c.lineWidth = 1.1; c.stroke();
+        c.save();
+        c.fillStyle = 'rgba(253, 224, 71, 0.36)';
+        c.beginPath(); c.arc(hp.x, hp.y, 6.0 * z, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#fefce8';
+        c.beginPath(); c.arc(hp.x, hp.y, 3.1 * z, 0, Math.PI * 2); c.fill();
+        c.strokeStyle = '#fde047'; c.lineWidth = 1.2; c.stroke();
+        c.restore();
       }
 
       // Discreet Champagne-Gold & Pearl Wellness Crest on Sliding VIP Door
@@ -506,15 +538,15 @@ const IsoRenderer = (() => {
       // Outer Carved Stone Basin Rim + Turquoise Water Pool
       PH.cyl(cx, cy, 0, 1.25, 4.2, '#cbd5e1');
       PH.disc(cx, cy, 4.25, 1.06, '#0ea5e9', '#bae6fd');
-      // Subtle Multi-Ring Animated Ripples Inside the Fountain Basin
+      // Animated Multi-Ring Concentric Water Ripples Inside the Fountain Basin
       const rc = PH.P(cx, cy, 4.35);
       c.save();
-      for (const offset of [0, 0.33, 0.66]) {
-        const rp = ((PH.t / 54) + offset) % 1;
-        c.strokeStyle = `rgba(224,242,254,${(0.52 * (1 - rp)).toFixed(2)})`;
-        c.lineWidth = 1.2;
+      for (const offset of [0, 0.25, 0.5, 0.75]) {
+        const rp = ((PH.t / 64) + offset) % 1;
+        c.strokeStyle = `rgba(224,242,254,${(0.68 * (1 - rp)).toFixed(2)})`;
+        c.lineWidth = 1.3;
         c.beginPath();
-        c.ellipse(rc.x, rc.y, (5 + rp * 25) * z, (2.6 + rp * 12.5) * z, 0, 0, Math.PI * 2);
+        c.ellipse(rc.x, rc.y, (4 + rp * 28) * z, (2.1 + rp * 14) * z, 0, 0, Math.PI * 2);
         c.stroke();
       }
       c.restore();
@@ -522,15 +554,17 @@ const IsoRenderer = (() => {
       PH.cyl(cx, cy, 4.0, 0.36, 7.2, '#e2e8f0');
       PH.cyl(cx, cy, 11.2, 0.56, 2.0, '#f1f5f9');
       PH.disc(cx, cy, 13.25, 0.44, '#38bdf8', '#e0f2fe');
-      // Subtle ripple shimmer on upper basin too
+      // Concentric ripple shimmer on upper basin
       const urc = PH.P(cx, cy, 13.32);
-      const urp = (PH.t % 36) / 36;
       c.save();
-      c.strokeStyle = `rgba(255,255,255,${(0.55 * (1 - urp)).toFixed(2)})`;
-      c.lineWidth = 1.0;
-      c.beginPath();
-      c.ellipse(urc.x, urc.y, (2 + urp * 8) * z, (1 + urp * 4) * z, 0, 0, Math.PI * 2);
-      c.stroke();
+      for (const off of [0, 0.5]) {
+        const urp = ((PH.t / 40) + off) % 1;
+        c.strokeStyle = `rgba(255,255,255,${(0.62 * (1 - urp)).toFixed(2)})`;
+        c.lineWidth = 1.1;
+        c.beginPath();
+        c.ellipse(urc.x, urc.y, (2 + urp * 9.5) * z, (1 + urp * 4.8) * z, 0, 0, Math.PI * 2);
+        c.stroke();
+      }
       c.restore();
       // Animated Vertical Water Jet Crown
       const jetBase = PH.P(cx, cy, 13.4);
@@ -645,6 +679,24 @@ const IsoRenderer = (() => {
     });
   }
 
+  function drawBlockedQueueRings(gx, gy) {
+    PH.item(gx + gy - 0.5, () => {
+      const c = PH.S.ctx;
+      const z = PH.zoom;
+      const cp = PH.P(gx, gy, 0.3);
+      c.save();
+      for (const off of [0, 0.5]) {
+        const p = ((PH.t / 58) + off) % 1;
+        c.strokeStyle = `rgba(239, 68, 68, ${(0.58 * (1 - p)).toFixed(2)})`;
+        c.lineWidth = 1.6;
+        c.beginPath();
+        c.ellipse(cp.x, cp.y, (10 + p * 26) * z, (5 + p * 13) * z, 0, 0, Math.PI * 2);
+        c.stroke();
+      }
+      c.restore();
+    });
+  }
+
   function drawRoomSigns(isFut) {
     PHSprites.roomSign(4.5, 0.85, isFut ? 'ACUTE WARD A (74% OCC.)' : 'ACUTE WARD A (98% BED-BLOCK)', isFut ? '#0ea5e9' : '#ef4444');
     PHSprites.roomSign(11.5, 0.85, isFut ? 'DISCHARGE WARD B ✓' : 'WARD B BLOCKED (275m)', isFut ? '#10b981' : '#ef4444');
@@ -705,6 +757,11 @@ const IsoRenderer = (() => {
     PHSprites.kiosk(13.8, 9.2, 1, { col: '#10b981' });
     PHSprites.kiosk(13.8, 10.6, 1, { col: '#0ea5e9' });
     PHSprites.vendingAndWater(13.6, 12.5, 0);
+    if (!isFut) {
+      // Subtle red queue-pulse rings at the blocked discharge & billing desks in Current mode
+      drawBlockedQueueRings(13.4, 3.0);
+      drawBlockedQueueRings(7.4, 10.2);
+    }
 
     if (isFut) {
       // ---------------- BUILDING 2 (x: 23..37, y: 2.6..16): LUXURY WELLNESS RESORT PAVILION (ZERO HOSPITAL BEDS)
@@ -813,6 +870,7 @@ const IsoRenderer = (() => {
       const isSel = ag.id === simState.selectedAgentId;
       let role = ag.role;
       if (role === 'cleaner') role = 'janitor';
+      const isPatientRole = role === 'resident' || role === 'elderly' || role === 'gown' || role === 'patient';
       const lieOnSpa = ag.pose === 'LYING_ON_BED' && ag.gx > 18;
       PH.person({
         id: ag.id,
@@ -826,13 +884,13 @@ const IsoRenderer = (() => {
         axis: 'x',
         head: -1,
         blanket: ag.pose === 'LYING_ON_BED' ? (ag.gx < 18 ? bedBlanket : '#ffffff') : null,
-        label: ag.roleLabel,
-        sub: '',
-        forceLabel: true,
+        label: isPatientRole ? '' : (ag.roleLabel || ''),
+        forceLabel: false,
         sel: isSel,
         showBubble: !!ag.showBubble,
         bubble: ag.bubble,
         bubbleType: ag.bubbleType === 'wait' ? 'fail' : ag.bubbleType,
+        bubbleAlpha: ag.bubbleAlpha,
         bubbleOffsetY: ag.pose === 'LYING_ON_BED' ? 12 : 24,
         taskProg: ag.taskProg,
         prop: ag.pose === 'MOPPING' ? 'mop' : ag.pose === 'HANDOVER_INTERACTION' ? 'clipboard' : undefined
