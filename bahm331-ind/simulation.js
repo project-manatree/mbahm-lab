@@ -25,11 +25,11 @@ const SimApp = (() => {
     { id: 'st-1', roleLabel: 'Nurse', role: 'nurse', gx: 8.0, gy: 4.4, pose: 'EXAMINING', taskCur: 'Unfiltered PHI Leak', taskFut: 'Wearable Stream ✓', dur: 2.0, show: true, taskStations: [{ gx: 8.0, gy: 2.2, pose: 'TYPING_TERMINAL' }, { gx: 8.0, gy: 4.4, pose: 'EXAMINING' }], dwell: 4.5 },
     { id: 'st-2', roleLabel: 'Staff', role: 'therapist', gx: 15.2, gy: 3.8, pose: 'EXAMINING', taskCur: 'PHI Popup (Noise)', taskFut: 'Mobility Guide ✓', dur: 2.2, show: false },
     // 24/7 Duty Nurse Triage Station (6% Alert Fatigue in Target vs 64% Unfiltered Fatigue in Current)
-    { id: 'st-3', roleLabel: 'Triage Nurse', role: 'nurse', gx: 18.8, gy: 2.3, pose: 'TYPING_TERMINAL', taskCur: 'No Triage Filter (64%)', taskFut: 'Nurse Filter (6% Fatigue) ✓', dur: 1.8, show: true },
+    { id: 'st-3', roleLabel: 'Triage Nurse', role: 'nurse', gx: 19.2, gy: 3.3, pose: 'TYPING_TERMINAL', taskCur: 'No Triage Filter (64%)', taskFut: 'Nurse Filter (6% Fatigue) ✓', dur: 1.8, show: true },
     { id: 'st-4', roleLabel: 'Nurse', role: 'nurse', gx: 18.6, gy: 5.0, pose: 'TYPING_TERMINAL', taskCur: 'False Alarm Flood', taskFut: 'False-Alarm Filter ✓', dur: 2.0, show: false },
     { id: 'st-5', roleLabel: 'Nurse', role: 'nurse', gx: 21.4, gy: 5.0, pose: 'TYPING_TERMINAL', taskCur: 'Unfiltered Feed', taskFut: 'RBAC Telemetry Hub ✓', dur: 2.2, show: false },
     // Visiting Physician Clinic (<3m Priority Escalation · 98.5% SLA in Target vs 64% Fatigue · 52% SLA in Current)
-    { id: 'st-6', roleLabel: 'Visiting MD', role: 'doctor', gx: 26.0, gy: 2.2, pose: 'EXAMINING', taskCur: '64% Fatigue · 52% SLA', taskFut: 'Visiting MD <3m (98.5%) ✓', dur: 2.2, show: true, taskStations: [{ gx: 26.0, gy: 2.2, pose: 'TYPING_TERMINAL' }, { gx: 26.0, gy: 3.6, pose: 'EXAMINING' }], dwell: 4.5 },
+    { id: 'st-6', roleLabel: 'Visiting MD', role: 'doctor', gx: 26.2, gy: 3.2, pose: 'EXAMINING', taskCur: '64% Fatigue · 52% SLA', taskFut: 'Visiting MD <3m (98.5%) ✓', dur: 2.2, show: true, taskStations: [{ gx: 26.2, gy: 2.9, pose: 'TYPING_TERMINAL' }, { gx: 26.2, gy: 3.8, pose: 'EXAMINING' }], dwell: 4.5 },
     { id: 'st-7', roleLabel: 'Doctor', role: 'doctor', gx: 29.2, gy: 2.2, pose: 'EXAMINING', taskCur: '64% Alert Fatigue', taskFut: 'PriorityMD <3m ✓', dur: 2.4, show: false },
     { id: 'st-8', roleLabel: 'Nurse', role: 'nurse', gx: 28.8, gy: 3.6, pose: 'EXAMINING', taskCur: 'Missed SLA (52%)', taskFut: 'Bedside Vitals ✓', dur: 2.2, show: false },
     // Thermal Spa & Concierge Hospitality Tablets (Raw PHI Leak in Current vs RBAC Masked "Welfare Check Only" in Target)
@@ -56,8 +56,8 @@ const SimApp = (() => {
     [11.4, 15.0], [14.2, 15.0], [17.0, 15.0]
   ];
   const SUITE_SPOTS = [
-    [21.0, 12.0], [25.5, 12.0], [30.0, 12.0],
-    [21.0, 16.0], [25.5, 16.0], [30.0, 16.0]
+    [21.1, 12.35], [25.6, 12.35], [30.1, 12.35],
+    [21.1, 16.35], [25.6, 16.35], [30.1, 16.35]
   ];
 
   function buildAgents() {

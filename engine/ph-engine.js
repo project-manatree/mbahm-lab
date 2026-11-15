@@ -1183,6 +1183,9 @@
     if (!showSub) return;
     S.labels.sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy));
     const placed = [];
+    const placedBubbles = [];
+    const s = Math.max(0.85, Math.min(1.15, S.cam.z));
+    const c = S.ctx;
     for (const L of S.labels) {
       const sp = L.spec;
       const foot = P(L.gx, L.gy, L.z);
@@ -1193,7 +1196,25 @@
       nameplate(foot.x, y, shortRole, '', sp.role, sp.sel);
       if (sp.bubble && (sp.sel || sp.showBubble)) {
         const h = P(L.gx, L.gy, L.headZ + 5);
-        bubble(h.x, h.y, sp.bubble, sp.bubbleType, sp.taskProg);
+        c.font = `700 ${Math.round(8.5 * s)}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+        const hasRing = typeof sp.taskProg === 'number' && sp.taskProg >= 0;
+        const bw = c.measureText(sp.bubble).width + 10 * s + (hasRing ? 14 * s : 0);
+        const bh = 15 * s;
+        let by = h.y + (sp.bubbleOffsetY || 0);
+        if (S.roomSigns) {
+          for (const rs of S.roomSigns) {
+            if (h.x + bw / 2 > rs.x0 - 4 && h.x - bw / 2 < rs.x1 + 4 && by > rs.y0 - 3 && by - bh < rs.y1 + 4) {
+              by = Math.max(by, rs.y1 + bh + 5);
+            }
+          }
+        }
+        for (const pb of placedBubbles) {
+          if (Math.abs(pb.x - h.x) < (pb.w + bw) * 0.45 && by > pb.y - pb.h - 2 && by - bh < pb.y + 3) {
+            by = pb.y + bh + 4;
+          }
+        }
+        placedBubbles.push({ x: h.x, y: by, w: bw, h: bh });
+        bubble(h.x, by, sp.bubble, sp.bubbleType, sp.taskProg);
       }
     }
   }
@@ -1350,7 +1371,7 @@
     const bk = S.bakes[S.cond], z = S.cam.z;
     c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
     c.drawImage(bk.cv, S.ox + bk.wb.minX * z, S.oy + bk.wb.minY * z, bk.cv.width / BAKE * z, bk.cv.height / BAKE * z);
-    S.items = []; S.labels = []; S.agentsNow = [];
+    S.items = []; S.labels = []; S.agentsNow = []; S.roomSigns = [];
   }
   function item(key, fn) { S.items.push({ key, draw: fn }); }
   function furniture(x, y, W, D, rot, builder, bias) {

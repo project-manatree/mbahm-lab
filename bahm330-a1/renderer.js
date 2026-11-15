@@ -121,6 +121,141 @@ const IsoRenderer = (() => {
 
   function triggerUpgradePulse() {}
 
+  // Isometric White-and-Emerald Luxury Medical Concierge Van (Windshield, Medical Cross, Wheels, Open Rear Ramp)
+  function drawLuxuryConciergeVan(gx, gy, opts = {}) {
+    const dirX = opts.dirX || 1; // +1 Left->Right toward Retreat, -1 returning to Hospital
+    const openDoor = !!opts.openDoor;
+    const label = opts.label || 'Luxury Medical Concierge Van';
+    const len = 2.55;
+    const wid = 1.14;
+
+    PH.item(gx + gy + 1.65, () => {
+      const bounce = openDoor ? 0 : Math.sin(PH.t * 0.35) * 0.35;
+      const c = PH.S.ctx;
+      const z = PH.zoom;
+
+      // Ground drop shadow
+      const sp = PH.P(gx + len / 2, gy + wid / 2, 0);
+      c.fillStyle = 'rgba(9,13,22,0.46)';
+      c.beginPath();
+      c.ellipse(sp.x, sp.y, 31 * z, 15 * z, 0.38, 0, Math.PI * 2);
+      c.fill();
+
+      // Headlight beam ahead of cab
+      const frontX = dirX > 0 ? gx + len : gx;
+      const beamX = dirX > 0 ? gx + len + 1.7 : gx - 1.7;
+      const h0 = PH.P(frontX, gy + wid / 2, 3.2);
+      const bT = PH.P(beamX, gy + 0.08, 0.2);
+      const bB = PH.P(beamX, gy + wid - 0.08, 0.2);
+      c.save();
+      c.fillStyle = 'rgba(253, 224, 71, 0.22)';
+      c.beginPath();
+      c.moveTo(h0.x, h0.y);
+      c.lineTo(bT.x, bT.y);
+      c.lineTo(bB.x, bB.y);
+      c.closePath();
+      c.fill();
+      c.restore();
+
+      // Deployed rear hydraulic wheelchair ramp & twin open rear doors when loading/unloading
+      const rearX = dirX > 0 ? gx : gx + len;
+      if (openDoor) {
+        const rampX0 = dirX > 0 ? gx - 0.85 : gx + len + 0.05;
+        PH.topQuad(rampX0, gy + 0.16, 0.25, 0.85, 0.82, '#cbd5e1', { stroke: '#10b981' });
+        PH.box(rampX0, gy + 0.12, 0.35, 0.85, 0.08, 1.4, '#10b981');
+        PH.box(rampX0, gy + 0.94, 0.35, 0.85, 0.08, 1.4, '#10b981');
+        // Swung-open twin rear doors
+        PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy - 0.18, 2.8, 0.12, 0.44, 12.2, '#f8fafc');
+        PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy + wid - 0.26, 2.8, 0.12, 0.44, 12.2, '#10b981');
+        // Apron curb bridge up toward Main Entrance door
+        PH.box(gx + 0.65, gy - 0.48, 0.35, 0.90, 0.48, 1.1, '#10b981');
+      }
+
+      // Main Luxury Van Lower Rocker Skirt
+      PH.box(gx, gy, 2.0 + bounce, len, wid, 2.2, '#1e293b');
+      // Crisp White High-Roof Cabin & Nose
+      const cabinX = dirX > 0 ? gx : gx + 0.58;
+      const cabX = dirX > 0 ? gx + len - 0.58 : gx;
+      PH.box(cabinX, gy, 4.2 + bounce, len - 0.58, wid, 12.6, '#ffffff');
+      PH.box(cabX, gy + 0.03, 4.2 + bounce, 0.58, wid - 0.06, 6.2, '#f8fafc');
+
+      // Emerald Green Wraparound Livery Stripe & Roofline Trim
+      PH.box(gx + 0.02, gy - 0.01, 6.0 + bounce, len - 0.04, wid + 0.02, 2.4, '#10b981');
+      PH.box(cabinX + 0.04, gy - 0.01, 14.8 + bounce, len - 0.66, wid + 0.02, 1.8, '#059669');
+      // Emerald Clinical Beacon Lightbar on roof
+      PH.box(gx + 0.72, gy + 0.26, 16.8 + bounce, 1.05, 0.62, 2.0, '#10b981');
+      PH.box(gx + 0.92, gy + 0.34, 17.6 + bounce, 0.65, 0.46, 1.0, '#6ee7b7');
+
+      // Panoramic Smoked Side Cabin Windows
+      PH.box(cabinX + 0.24, gy - 0.01, 9.8 + bounce, len - 1.05, wid + 0.02, 4.2, '#0284c7', { alpha: 0.68 });
+
+      // Sloped 3D Front Windshield & Front Chrome Grille / Headlights
+      const wBotX = dirX > 0 ? cabX + 0.14 : cabX + 0.44;
+      const wTopX = dirX > 0 ? cabinX + len - 0.58 : cabinX;
+      PH.poly([
+        PH.P(wBotX, gy + 0.08, 10.3 + bounce),
+        PH.P(wBotX, gy + wid - 0.08, 10.3 + bounce),
+        PH.P(wTopX, gy + wid - 0.08, 15.8 + bounce),
+        PH.P(wTopX, gy + 0.08, 15.8 + bounce)
+      ], '#38bdf8', '#0284c7', 1.2);
+      // White windshield glare highlight
+      PH.poly([
+        PH.P(wBotX, gy + 0.18, 10.8 + bounce),
+        PH.P(wBotX, gy + 0.42, 10.8 + bounce),
+        PH.P(wTopX, gy + 0.42, 15.2 + bounce),
+        PH.P(wTopX, gy + 0.18, 15.2 + bounce)
+      ], 'rgba(255,255,255,0.45)');
+
+      // Headlights & Emerald Chrome Grille on front nose
+      const noseX = dirX > 0 ? gx + len + 0.01 : gx - 0.01;
+      for (const hy of [gy + 0.18, gy + wid - 0.22]) {
+        const hp = PH.P(noseX, hy, 5.2 + bounce);
+        c.fillStyle = '#fef08a';
+        c.beginPath(); c.arc(hp.x, hp.y, 2.8 * z, 0, Math.PI * 2); c.fill();
+      }
+
+      // Medical Cross Emblem on near side panel (white circular/square medallion + crisp emerald/red cross)
+      const mx = cabinX + (len - 0.58) * 0.52;
+      const my = gy + wid + 0.03;
+      const mz = 9.0 + bounce;
+      PH.poly([
+        PH.P(mx - 0.28, my, mz - 3.6),
+        PH.P(mx + 0.28, my, mz - 3.6),
+        PH.P(mx + 0.28, my, mz + 3.6),
+        PH.P(mx - 0.28, my, mz + 3.6)
+      ], '#ffffff', '#10b981', 1.2);
+      // Cross vertical bar
+      PH.poly([
+        PH.P(mx - 0.07, my, mz - 2.6),
+        PH.P(mx + 0.07, my, mz - 2.6),
+        PH.P(mx + 0.07, my, mz + 2.6),
+        PH.P(mx - 0.07, my, mz + 2.6)
+      ], '#10b981');
+      // Cross horizontal bar
+      PH.poly([
+        PH.P(mx - 0.21, my, mz - 0.9),
+        PH.P(mx + 0.21, my, mz - 0.9),
+        PH.P(mx + 0.21, my, mz + 0.9),
+        PH.P(mx - 0.21, my, mz + 0.9)
+      ], '#10b981');
+
+      // Detailed Wheels on near axle side (gy + wid)
+      for (const wx of [gx + 0.52, gx + len - 0.54]) {
+        const wp = PH.P(wx, gy + wid, 2.5);
+        c.fillStyle = '#090d16';
+        c.beginPath(); c.arc(wp.x, wp.y, 5.5 * z, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#e2e8f0';
+        c.beginPath(); c.arc(wp.x, wp.y, 2.8 * z, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#10b981';
+        c.beginPath(); c.arc(wp.x, wp.y, 1.2 * z, 0, Math.PI * 2); c.fill();
+      }
+
+      // Floating concierge status badge above van roof
+      const tp = PH.P(gx + len / 2, gy + wid / 2, 26 + bounce);
+      PH.bubble(tp.x, tp.y, label, 'ok');
+    });
+  }
+
   function render(simState) {
     const isFut = simState.mode === 'future';
     PH.setCondition(isFut ? 'fut' : 'cur');
@@ -204,12 +339,20 @@ const IsoRenderer = (() => {
     if (simState.transports) {
       simState.transports.forEach(tr => {
         if (!tr.active) return;
-        PHSprites.conciergeTransportX(tr.gx, tr.gy, {
-          type: isFut ? 'vip' : 'ambulance',
-          dirX: tr.dirX,
-          openDoor: tr.openDoor,
-          label: tr.label
-        });
+        if (isFut) {
+          drawLuxuryConciergeVan(tr.gx, tr.gy, {
+            dirX: tr.dirX,
+            openDoor: tr.openDoor,
+            label: tr.label
+          });
+        } else {
+          PHSprites.conciergeTransportX(tr.gx, tr.gy, {
+            type: 'ambulance',
+            dirX: tr.dirX,
+            openDoor: tr.openDoor,
+            label: tr.label
+          });
+        }
       });
     }
 
@@ -238,6 +381,7 @@ const IsoRenderer = (() => {
         showBubble: !!ag.showBubble,
         bubble: ag.bubble,
         bubbleType: ag.bubbleType === 'wait' ? 'fail' : ag.bubbleType,
+        bubbleOffsetY: ag.pose === 'LYING_ON_BED' ? 12 : 24,
         taskProg: ag.taskProg,
         prop: ag.pose === 'MOPPING' ? 'mop' : ag.pose === 'HANDOVER_INTERACTION' ? 'clipboard' : undefined
       });
@@ -245,23 +389,23 @@ const IsoRenderer = (() => {
 
     PH.end();
 
-    // Clear Overhead Room Labels
-    PHSprites.roomSign(4.5, 1.1, isFut ? 'ACUTE WARD A (74% OCC.)' : 'ACUTE WARD A (98% BED-BLOCK)', isFut ? '#0ea5e9' : '#ef4444');
-    PHSprites.roomSign(11.5, 1.1, isFut ? 'STEP-DOWN WARD B ✓' : 'WARD B BLOCKED (275m)', isFut ? '#10b981' : '#ef4444');
-    PHSprites.roomSign(3.4, 8.7, 'DISCHARGE PHARMACY', '#10b981');
-    PHSprites.roomSign(8.3, 8.7, isFut ? 'PARALLEL e-BILLING ✓' : 'MANUAL BILLING (55m)', isFut ? '#10b981' : '#ef4444');
+    // Clear Overhead Room Labels (pinned along upper room boundaries)
+    PHSprites.roomSign(4.5, 0.85, isFut ? 'ACUTE WARD A (74% OCC.)' : 'ACUTE WARD A (98% BED-BLOCK)', isFut ? '#0ea5e9' : '#ef4444');
+    PHSprites.roomSign(11.5, 0.85, isFut ? 'STEP-DOWN WARD B ✓' : 'WARD B BLOCKED (275m)', isFut ? '#10b981' : '#ef4444');
+    PHSprites.roomSign(3.4, 8.35, 'DISCHARGE PHARMACY', '#10b981');
+    PHSprites.roomSign(8.3, 8.35, isFut ? 'PARALLEL e-BILLING ✓' : 'MANUAL BILLING (55m)', isFut ? '#10b981' : '#ef4444');
     PHSprites.roomSign(12.8, 15.8, 'HOSPITAL MAIN ENTRANCE ↓', '#0ea5e9');
 
     if (isFut) {
-      PHSprites.roomSign(25.6, 1.1, 'VISITING MD CLINIC', '#38bdf8');
-      PHSprites.roomSign(30.3, 1.1, 'NURSE TRIAGE', '#0ea5e9');
-      PHSprites.roomSign(34.8, 1.1, 'HYDROTHERAPY POOL', '#06b6d4');
-      PHSprites.roomSign(25.4, 8.7, 'RETREAT RECEPTION', '#10b981');
-      PHSprites.roomSign(30.1, 8.7, 'RECOVERY SUITE 301', '#0d9488');
-      PHSprites.roomSign(34.8, 8.7, 'THERAPEUTIC DINING', '#10b981');
+      PHSprites.roomSign(25.6, 0.85, 'VISITING MD CLINIC', '#38bdf8');
+      PHSprites.roomSign(30.3, 0.85, 'NURSE TRIAGE', '#0ea5e9');
+      PHSprites.roomSign(34.8, 0.85, 'HYDROTHERAPY POOL', '#06b6d4');
+      PHSprites.roomSign(25.4, 8.35, 'RETREAT RECEPTION', '#10b981');
+      PHSprites.roomSign(30.1, 8.35, 'RECOVERY SUITE 301', '#0d9488');
+      PHSprites.roomSign(34.8, 8.35, 'THERAPEUTIC DINING', '#10b981');
       PHSprites.roomSign(25.4, 15.8, 'RETREAT MAIN ENTRANCE ↓', '#10b981');
     } else {
-      PHSprites.roomSign(30.0, 8.5, 'UNDEVELOPED RETREAT PLOT · NO VAN', '#64748b');
+      PHSprites.roomSign(30.0, 8.35, 'UNDEVELOPED RETREAT PLOT · NO VAN', '#64748b');
     }
 
     PH.overlay(simState.showActionLabels);

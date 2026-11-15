@@ -75,7 +75,7 @@ const IsoRenderer = (() => {
 
       // South Promenade Wall (y = 11) — All Doors Open & Identical in Both Modes
       {
-        x1: 1, y1: 11, x2: 33, y2: 11, kind: 'int', col: '#ede4d3',
+        x1: 1, y1: 11, x2: 33, y2: 11, kind: 'int', col: '#f8fafc',
         open: [
           { at: 4.5, w: 1.8, type: 'slide', alwaysOpen: true },
           { at: 13.8, w: 2.0, type: 'slide', alwaysOpen: true },
@@ -84,12 +84,12 @@ const IsoRenderer = (() => {
           { at: 30.0, w: 1.3, type: 'door' }
         ]
       },
-      { x1: 10, y1: 11, x2: 10, y2: 19, kind: 'int', col: '#ede4d3' },
-      { x1: 19.5, y1: 11, x2: 19.5, y2: 19, kind: 'int', col: '#ede4d3' },
+      { x1: 10, y1: 11, x2: 10, y2: 19, kind: 'int', col: '#f8fafc' },
+      { x1: 19.5, y1: 11, x2: 19.5, y2: 19, kind: 'int', col: '#f8fafc' },
       // Interior partitions for the 6 Private King Suites (3 columns x 2 rows)
-      { x1: 24.0, y1: 11, x2: 24.0, y2: 19, kind: 'int', col: '#ede4d3', open: [{ at: 13.0, w: 1.1, type: 'door' }, { at: 16.8, w: 1.1, type: 'door' }] },
-      { x1: 28.5, y1: 11, x2: 28.5, y2: 19, kind: 'int', col: '#ede4d3', open: [{ at: 13.0, w: 1.1, type: 'door' }, { at: 16.8, w: 1.1, type: 'door' }] },
-      { x1: 19.5, y1: 15.0, x2: 33, y2: 15.0, kind: 'int', col: '#ede4d3', open: [{ at: 21.2, w: 1.1, type: 'door' }, { at: 25.7, w: 1.1, type: 'door' }, { at: 30.2, w: 1.1, type: 'door' }] }
+      { x1: 24.0, y1: 11, x2: 24.0, y2: 19, kind: 'int', col: '#f8fafc', open: [{ at: 13.0, w: 1.1, type: 'door' }, { at: 16.8, w: 1.1, type: 'door' }] },
+      { x1: 28.5, y1: 11, x2: 28.5, y2: 19, kind: 'int', col: '#f8fafc', open: [{ at: 13.0, w: 1.1, type: 'door' }, { at: 16.8, w: 1.1, type: 'door' }] },
+      { x1: 19.5, y1: 15.0, x2: 33, y2: 15.0, kind: 'int', col: '#f8fafc', open: [{ at: 21.2, w: 1.1, type: 'door' }, { at: 25.7, w: 1.1, type: 'door' }, { at: 30.2, w: 1.1, type: 'door' }] }
     ]
   };
 
@@ -182,14 +182,14 @@ const IsoRenderer = (() => {
     PHSprites.receptionDesk(10.8, 17.0, 0, 3.2, { col: isWaitMode ? '#ef4444' : '#10b981', wood: '#78350f', clutter: isWaitMode });
 
     // ---------------- 7. 6 PRIVATE RESIDENTIAL KING SUITES 301-306 (x: 19.5..33, y: 11..19)
+    // Bright white/teal luxury recovery beds with pillows, bedside ECG vital-sign monitors, and teal armchairs
     const suiteBeds = [
       [20.2, 11.6, '#0d9488'], [24.7, 11.6, '#0d9488'], [29.2, 11.6, '#0d9488'],
       [20.2, 15.6, '#0d9488'], [24.7, 15.6, '#0d9488'], [29.2, 15.6, '#0d9488']
     ];
     suiteBeds.forEach(([bx, by, col], idx) => {
-      PHSprites.luxuryBed(bx, by, 0, { duvet: col, smartHub: true, seed: 300 + idx });
-      PHSprites.wardrobe(bx, by + 2.2, 0);
-      PHSprites.armchair(bx + 2.2, by + 1.8, 0, { col: '#0d9488' });
+      PHSprites.luxuryBed(bx, by, 0, { duvet: col, runner: '#115e59', smartHub: true, seed: 300 + idx });
+      PHSprites.armchair(bx + 2.4, by + 1.85, 0, { col: '#0d9488' });
     });
 
     // ---------------- 8. 48 ARTICULATED DOCTORS, NURSES, STAFF & PATIENTS
@@ -207,7 +207,7 @@ const IsoRenderer = (() => {
         seed: ag.idNum || 1,
         axis: 'x',
         head: -1,
-        blanket: inBed ? '#f59e0b' : null,
+        blanket: inBed ? (ag.gy >= 11 ? '#0d9488' : '#0ea5e9') : null,
         label: ag.roleLabel || '',
         sub: '',
         forceLabel: true,
@@ -215,6 +215,7 @@ const IsoRenderer = (() => {
         showBubble: !!ag.showBubble,
         bubble: ag.bubble,
         bubbleType: ag.bubbleType,
+        bubbleOffsetY: inBed ? 12 : 24,
         taskProg: ag.taskProg
       });
     });
@@ -232,34 +233,34 @@ const IsoRenderer = (() => {
       PHSprites.signalBeam(18.8, 4.8, 12.2, 16.8, '#10b981', 'RBAC: Welfare Check Only (0 PHI)');
     }
 
-    // Plain Room Signs
-    PHSprites.roomSign(5.0, 1.1, 'Hydro Pool · IoT Wearables', '#06b6d4');
-    PHSprites.roomSign(13.0, 1.1, 'Yoga & Mobility Studio', '#ec4899');
+    // Plain Room Signs (pinned along upper room boundaries)
+    PHSprites.roomSign(5.0, 0.85, 'Hydro Pool · IoT Wearables', '#06b6d4');
+    PHSprites.roomSign(13.0, 0.85, 'Yoga & Mobility Studio', '#ec4899');
     PHSprites.roomSign(
       20.8,
-      1.1,
+      0.85,
       isWaitMode ? 'Nurse Triage (Unfiltered · 64% Fatigue)' : 'Duty Nurse Triage (6% Fatigue ✓)',
       isWaitMode ? '#ef4444' : '#0ea5e9'
     );
     PHSprites.roomSign(
       28.8,
-      1.1,
+      0.85,
       isWaitMode ? 'Visiting MD (64% Fatigue · 52% SLA)' : 'Visiting MD (<3m · 98.5% SLA ✓)',
       isWaitMode ? '#ef4444' : '#10b981'
     );
     PHSprites.roomSign(
       5.5,
-      11.2,
+      10.95,
       isWaitMode ? 'Spa Tablets (PHI Leaked · 14)' : 'Thermal Spa (Welfare Check Only ✓)',
       isWaitMode ? '#ef4444' : '#10b981'
     );
     PHSprites.roomSign(
       14.8,
-      11.2,
+      10.95,
       isWaitMode ? 'Concierge Tablet (Unmasked PHI)' : 'Concierge (Welfare Check Only · 0 PHI ✓)',
       isWaitMode ? '#ef4444' : '#10b981'
     );
-    PHSprites.roomSign(26.2, 11.2, 'Retreat Suites 301–306', '#f59e0b');
+    PHSprites.roomSign(26.2, 10.95, 'Retreat Suites 301–306', '#0d9488');
     PHSprites.roomSign(14.8, 18.8, 'Main Retreat Entrance ↓', '#10b981');
 
     PH.overlay(simState.showActionLabels);

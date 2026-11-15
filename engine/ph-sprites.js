@@ -599,7 +599,7 @@
       c.fill();
       c.restore();
 
-      const bodyCol = isVIP ? '#0f172a' : '#f8fafc';
+      const bodyCol = '#f8fafc';
       const trimCol = isVIP ? '#10b981' : '#0ea5e9';
       // Main transport body along X-axis (length = 2.2, width = 1.08)
       PH.box(gx, gy, 2.5 + bounce, 2.2, 1.08, 14.0, bodyCol);
@@ -702,13 +702,16 @@
   }
 
   function roomSign(gx, gy, text, accent = '#0ea5e9') {
-    const p = PH.P(gx, gy, PH.wallsUp ? 78 : 26);
+    const p = PH.P(gx, gy, PH.wallsUp ? 80 : 30);
     const z = Math.max(0.85, Math.min(1.2, PH.zoom));
     const c = PH.S.ctx;
     c.save();
     c.font = `700 ${Math.round(9.5 * z)}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
     const w = c.measureText(text).width + 14 * z;
     const h = 16 * z;
+    if (PH.S.roomSigns) {
+      PH.S.roomSigns.push({ x0: p.x - w / 2, y0: p.y - h / 2, x1: p.x + w / 2, y1: p.y + h / 2, text });
+    }
     c.fillStyle = 'rgba(9, 13, 22, 0.90)';
     c.strokeStyle = accent;
     c.lineWidth = 1.4;

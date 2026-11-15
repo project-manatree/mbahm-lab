@@ -44,10 +44,10 @@ const SimApp = (() => {
     { id: 'st-10', roleLabel: 'Nurse', role: 'nurse', gx: 5.0, gy: 13.0, pose: 'EXAMINING', taskStations: [{ gx: 5.0, gy: 13.0, pose: 'EXAMINING' }, { gx: 8.5, gy: 15.5, pose: 'TYPING_TERMINAL' }], dwell: 4.2 },
     { id: 'st-11', roleLabel: 'Nurse', role: 'nurse', gx: 9.2, gy: 16.0, pose: 'TYPING_TERMINAL', taskCur: 'C3 Ward Call (92m)', taskFut: 'C3 e-Discharge (18m)', dur: 2.2, show: false },
     // C3 Central Pharmacy Pharmacists (st-13 alternates cleanly between Robotic Dispenser and Counter)
-    { id: 'st-12', roleLabel: 'Pharmacist', role: 'pharmacist', gx: 17.8, gy: 12.4, pose: 'TYPING_TERMINAL', taskCur: 'C3 Stockout (92m)', taskFut: 'C3 e-Kanban (18m) ✓', dur: 2.3, show: true },
+    { id: 'st-12', roleLabel: 'Pharmacist', role: 'pharmacist', gx: 18.6, gy: 13.8, pose: 'TYPING_TERMINAL', taskCur: 'C3 Stockout (92m)', taskFut: 'C3 e-Kanban (18m) ✓', dur: 2.3, show: true },
     { id: 'st-13', roleLabel: 'Pharmacist', role: 'pharmacist', gx: 21.2, gy: 13.6, pose: 'HANDOVER_INTERACTION', taskStations: [{ gx: 21.2, gy: 13.6, pose: 'HANDOVER_INTERACTION' }, { gx: 18.8, gy: 12.5, pose: 'HANDOVER_INTERACTION' }], dwell: 3.8 },
     // C5 Reception & HIS Appointment Sync Command Staff
-    { id: 'st-14', roleLabel: 'Staff', role: 'admin', gx: 27.0, gy: 12.6, pose: 'TYPING_TERMINAL', taskCur: 'C5 SMS≠Phone Conflict', taskFut: 'C5 99.9% SSOT Sync ✓', dur: 2.0, show: true }
+    { id: 'st-14', roleLabel: 'Staff', role: 'admin', gx: 28.0, gy: 14.0, pose: 'TYPING_TERMINAL', taskCur: 'C5 SMS≠Phone Conflict', taskFut: 'C5 99.9% SSOT Sync ✓', dur: 2.0, show: true }
   ];
 
   function buildAgents() {

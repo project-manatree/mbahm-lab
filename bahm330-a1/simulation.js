@@ -24,16 +24,16 @@ const SimApp = (() => {
 
   // 11 Clinical/Operational Staff (Stationed at desks/counters/beds; only walk for specific tasks)
   const STAFF_DEFS = [
-    { id: 'st-1', roleLabel: 'Doctor', role: 'doctor', gx: 3.1, gy: 2.3, pose: 'EXAMINING', taskCur: 'Ward Note (70m)', taskFut: 'Pre-Discharge (15m)', dur: 2.4, show: true },
+    { id: 'st-1', roleLabel: 'Doctor', role: 'doctor', gx: 3.6, gy: 2.9, pose: 'EXAMINING', taskCur: 'Ward Note (70m)', taskFut: 'Pre-Discharge (15m)', dur: 2.4, show: true },
     { id: 'st-2', roleLabel: 'Nurse', role: 'nurse', gx: 6.8, gy: 2.2, pose: 'EXAMINING', taskStations: [{ gx: 6.8, gy: 2.0, pose: 'EXAMINING' }, { gx: 6.8, gy: 4.8, pose: 'HANDOVER_INTERACTION' }], dwell: 4.0 },
     { id: 'st-3', roleLabel: 'Doctor', role: 'doctor', gx: 10.7, gy: 2.8, pose: 'EXAMINING', taskCur: 'Chart Review', taskFut: 'e-Clearance', dur: 2.2, show: false },
     { id: 'st-4', roleLabel: 'Nurse', role: 'nurse', gx: 13.4, gy: 2.8, pose: 'TYPING_TERMINAL', taskCur: 'Paper Summary', taskFut: 'EHR Sync', dur: 2.0, show: false },
     { id: 'st-5', roleLabel: 'Pharmacist', role: 'pharmacist', gx: 2.6, gy: 9.7, pose: 'TYPING_TERMINAL', taskCur: 'Manual Rx', taskFut: 'Pre-Packed Rx', dur: 2.2, show: false },
-    { id: 'st-6', roleLabel: 'Staff', role: 'reception', gx: 7.2, gy: 9.4, pose: 'TYPING_TERMINAL', taskCur: 'Billing (55m)', taskFut: 'e-Billing (5m) ✓', dur: 2.0, show: true },
+    { id: 'st-6', roleLabel: 'Staff', role: 'reception', gx: 7.5, gy: 10.4, pose: 'TYPING_TERMINAL', taskCur: 'Billing (55m)', taskFut: 'e-Billing (5m) ✓', dur: 2.0, show: true },
     // Single Concierge operating the Left <-> Right transport between the two downward-facing Main Entrances
     { id: 'st-7', roleLabel: 'Concierge', role: 'concierge', gx: 12.7, gy: 16.2, pose: 'HANDOVER_INTERACTION', taskCur: 'Ramp Lift', taskFut: 'VIP Ramp (2m)', dur: 2.2, show: true },
-    { id: 'st-8', retreat: true, roleLabel: 'Staff', role: 'reception', gx: 24.3, gy: 9.4, pose: 'TYPING_TERMINAL', taskCur: 'Paper Intake (30m)', taskFut: 'Biometric (5m) ✓', dur: 2.0, show: true },
-    { id: 'st-9', retreat: true, roleLabel: 'Doctor', role: 'doctor', gx: 24.4, gy: 2.3, pose: 'EXAMINING', taskCur: 'Delayed MD (30m)', taskFut: 'MD Baseline (25m)', dur: 2.4, show: true },
+    { id: 'st-8', retreat: true, roleLabel: 'Staff', role: 'reception', gx: 24.5, gy: 10.4, pose: 'TYPING_TERMINAL', taskCur: 'Paper Intake (30m)', taskFut: 'Biometric (5m) ✓', dur: 2.0, show: true },
+    { id: 'st-9', retreat: true, roleLabel: 'Doctor', role: 'doctor', gx: 25.3, gy: 2.9, pose: 'EXAMINING', taskCur: 'Delayed MD (30m)', taskFut: 'MD Baseline (25m)', dur: 2.4, show: true },
     { id: 'st-10', retreat: true, roleLabel: 'Nurse', role: 'nurse', gx: 29.6, gy: 2.3, pose: 'TYPING_TERMINAL', taskCur: 'Vitals Log', taskFut: 'Smart Telemetry', dur: 2.2, show: false },
     { id: 'st-11', retreat: true, roleLabel: 'Nurse', role: 'nurse', gx: 32.75, gy: 4.5, pose: 'EXAMINING', taskCur: 'Pool Standby', taskFut: 'Hydro Care (33m)', dur: 2.5, show: false }
   ];
@@ -364,13 +364,15 @@ const SimApp = (() => {
         if (pIdx === 5) {
           // Incoming ED patient brought TO Hospital ED inside Ambulance (never sent home)
           if (tr.phase === 'ed_inbound') {
-            ag.gx = tr.gx + 0.9;
-            ag.gy = tr.gy + 0.5;
+            ag.inVehicle = true;
+            ag.gx = tr.gx + 1.1;
+            ag.gy = tr.gy + 0.55;
             ag.z = 5;
             ag.dir = 'SE';
             ag.pose = 'SITTING';
             return;
           } else if (tr.phase === 'ed_dropoff') {
+            ag.inVehicle = false;
             tx = 12.8; ty = 14.5; ag.pose = 'HANDOVER_INTERACTION';
             ag.bubble = 'ED Admission → Hospital';
             ag.bubbleType = 'wait';
@@ -413,27 +415,39 @@ const SimApp = (() => {
         if (into18 < 2.2) {
           tx = 11.8; ty = 3.8; ag.pose = 'HANDOVER_INTERACTION';
           ag.bubble = 'Pre-Discharge (15m) ✓'; ag.bubbleType = 'ok'; ag.taskProg = into18 / 2.2; ag.showBubble = true;
-        } else if (into18 < 5.2) {
+        } else if (into18 < 5.0) {
           tx = 9.0; ty = 10.6; ag.pose = 'HANDOVER_INTERACTION';
-          ag.bubble = 'e-Billing (5m) ✓'; ag.bubbleType = 'ok'; ag.taskProg = (into18 - 2.2) / 3.0; ag.showBubble = true;
+          ag.bubble = 'e-Billing (5m) ✓'; ag.bubbleType = 'ok'; ag.taskProg = (into18 - 2.2) / 2.8; ag.showBubble = true;
         } else if (into18 < 8.5) {
-          tx = 12.8; ty = 15.6; ag.pose = 'HANDOVER_INTERACTION';
-          ag.bubble = into18 >= 6.5 ? 'Ramp Boarding (2m) ✓' : 'Departure Lounge ✓';
-          ag.bubbleType = 'ok'; ag.taskProg = (into18 - 5.2) / 3.3; ag.showBubble = true;
+          const boarding = into18 >= 6.5;
+          tx = boarding ? 12.6 : 12.8;
+          ty = boarding ? 16.35 : 15.4;
+          ag.pose = 'HANDOVER_INTERACTION';
+          ag.bubble = boarding ? 'Ramp Boarding (2m) ✓' : 'Departure Lounge ✓';
+          ag.bubbleType = 'ok'; ag.taskProg = (into18 - 5.0) / 3.5; ag.showBubble = true;
         } else if (into18 < 12.5) {
-          // Riding INSIDE Concierge Van Left -> Right across road (never walking across gap)
-          ag.gx = tr.gx + 0.9;
-          ag.gy = tr.gy + 0.5;
+          // Riding INSIDE Luxury Medical Concierge Van Left -> Right across road (hidden inside vehicle cabin)
+          ag.inVehicle = true;
+          ag.gx = tr.gx + 1.2;
+          ag.gy = tr.gy + 0.55;
           ag.z = 5;
           ag.dir = 'SE';
           ag.pose = 'SITTING';
           return;
-        } else if (into18 < 15.0) {
+        } else if (into18 < 13.5) {
+          // Step down van rear/side ramp directly into Retreat Main Entrance (x = 24.2..26.6, y = 16.0)
+          ag.inVehicle = false;
+          if (ag.gy > 16.6 || ag.gx < 23) {
+            ag.gx = 25.0; ag.gy = 16.35; ag.z = 0;
+          }
+          tx = 25.4; ty = 15.4; ag.pose = 'HANDOVER_INTERACTION';
+          ag.bubble = 'Exiting Van Ramp ✓'; ag.bubbleType = 'ok'; ag.taskProg = (into18 - 12.5) / 1.0; ag.showBubble = true;
+        } else if (into18 < 15.6) {
           tx = 25.9; ty = 10.6; ag.pose = 'HANDOVER_INTERACTION';
-          ag.bubble = 'Biometric Check-In (5m) ✓'; ag.bubbleType = 'ok'; ag.taskProg = (into18 - 12.5) / 2.5; ag.showBubble = true;
+          ag.bubble = 'Biometric Check-In (5m) ✓'; ag.bubbleType = 'ok'; ag.taskProg = (into18 - 13.5) / 2.1; ag.showBubble = true;
         } else {
           tx = 30.4; ty = 10.4; ag.pose = 'SITTING';
-          ag.bubble = 'Suite 301 Settled ✓'; ag.bubbleType = 'ok'; ag.taskProg = (into18 - 15.0) / 3.0; ag.showBubble = true;
+          ag.bubble = 'Suite 301 Settled ✓'; ag.bubbleType = 'ok'; ag.taskProg = (into18 - 15.6) / 2.4; ag.showBubble = true;
         }
       } else if (pIdx === 1 || pIdx === 2) {
         // Building A ONLY (12.0s cycle = 3 stages x 4.0s)
