@@ -1438,7 +1438,7 @@
     const cssH = (S.canvas && S.canvas.height > 0 && S.dpr) ? (S.canvas.height / S.dpr) : S.vpH;
     const availWidth = Math.max(240, cssW - 24);
     const availHeight = Math.max(160, cssH - 95);
-    const scale = Math.max(0.28, Math.min(zoomMax, Math.min(availWidth / sceneWidth, availHeight / sceneHeight)));
+    const scale = Math.max(0.14, Math.min(zoomMax, Math.min(availWidth / sceneWidth, availHeight / sceneHeight)));
     S.baseFitZoom = scale;
     S.cam.z = scale;
     S.cam.cx = (wb.minX + wb.maxX) / 2;
