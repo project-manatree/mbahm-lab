@@ -228,16 +228,6 @@ const IsoRenderer = (() => {
 
     PH.end();
 
-    // Complaint-Aligned Zone Signs (C1, C2, C3, C5)
-    PHSprites.roomSign(5.0, 0.85, isCur ? 'C1: Outpatient Queue (68m No-ETA)' : 'C1: Wave-Scheduled ETA (12m ✓)', isCur ? '#ef4444' : '#10b981');
-    PHSprites.roomSign(15.2, 0.85, 'Specialist Consultation Rooms 1–5', '#0ea5e9');
-    PHSprites.roomSign(27.2, 0.85, isCur ? 'C2: Radiology (40% Walk-Backs)' : 'C2: CPOE Hard-Stop CT (99% ✓)', isCur ? '#ef4444' : '#10b981');
-    PHSprites.roomSign(6.0, 10.95, 'Inpatient Ward 4A & 4B', '#0ea5e9');
-    PHSprites.roomSign(13.5, 10.95, 'Discharge Lounge', '#10b981');
-    PHSprites.roomSign(20.8, 10.95, isCur ? 'C3: Pharmacy (92m Stockout)' : 'C3: e-Kanban Pharmacy (18m ✓)', isCur ? '#ef4444' : '#10b981');
-    PHSprites.roomSign(29.2, 10.95, isCur ? 'C5: HIS Conflict (SMS≠Phone)' : 'C5: SSOT HIS Sync (99.9% ✓)', isCur ? '#ef4444' : '#a855f7');
-    PHSprites.roomSign(13.5, 18.8, 'MSH Main Entrance ↓', '#0ea5e9');
-
     PH.overlay(simState.showActionLabels);
   }
 

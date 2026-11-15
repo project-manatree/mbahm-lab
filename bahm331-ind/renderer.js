@@ -244,36 +244,6 @@ const IsoRenderer = (() => {
       PHSprites.signalBeam(18.8, 4.8, 12.2, 16.8, '#10b981', 'RBAC: Welfare Check Only (0 PHI)', { phase: 0.66 });
     }
 
-    // Plain Room Signs (pinned along upper room boundaries)
-    PHSprites.roomSign(5.0, 0.85, 'Hydro Pool · IoT Wearables', '#06b6d4');
-    PHSprites.roomSign(13.0, 0.85, 'Yoga & Mobility Studio', '#ec4899');
-    PHSprites.roomSign(
-      20.8,
-      0.85,
-      isWaitMode ? 'Nurse Triage (Unfiltered · 64% Fatigue)' : 'Duty Nurse Triage (6% Fatigue ✓)',
-      isWaitMode ? '#ef4444' : '#0ea5e9'
-    );
-    PHSprites.roomSign(
-      28.8,
-      0.85,
-      isWaitMode ? 'Visiting MD (64% Fatigue · 52% SLA)' : 'Visiting MD (<3m · 98.5% SLA ✓)',
-      isWaitMode ? '#ef4444' : '#10b981'
-    );
-    PHSprites.roomSign(
-      5.5,
-      10.95,
-      isWaitMode ? 'Spa Tablets (PHI Leaked · 14)' : 'Thermal Spa (Welfare Check Only ✓)',
-      isWaitMode ? '#ef4444' : '#10b981'
-    );
-    PHSprites.roomSign(
-      14.8,
-      10.95,
-      isWaitMode ? 'Concierge Tablet (Unmasked PHI)' : 'Concierge (Welfare Check Only · 0 PHI ✓)',
-      isWaitMode ? '#ef4444' : '#10b981'
-    );
-    PHSprites.roomSign(26.2, 10.95, 'Retreat Suites 301–306', '#0d9488');
-    PHSprites.roomSign(14.8, 18.8, 'Main Retreat Entrance ↓', '#10b981');
-
     PH.overlay(simState.showActionLabels);
   }
 

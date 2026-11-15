@@ -717,26 +717,6 @@ const IsoRenderer = (() => {
     });
   }
 
-  function drawRoomSigns(isFut) {
-    PHSprites.roomSign(4.5, 0.85, isFut ? 'ACUTE WARD A (74% OCC.)' : 'ACUTE WARD A (98% BED-BLOCK)', isFut ? '#0ea5e9' : '#ef4444');
-    PHSprites.roomSign(11.5, 0.85, isFut ? 'DISCHARGE WARD B ✓' : 'WARD B BLOCKED (275m)', isFut ? '#10b981' : '#ef4444');
-    PHSprites.roomSign(3.4, 8.35, 'DISCHARGE PHARMACY', '#10b981');
-    PHSprites.roomSign(8.3, 8.35, isFut ? 'PARALLEL e-BILLING ✓' : 'MANUAL BILLING (55m)', isFut ? '#10b981' : '#ef4444');
-    PHSprites.roomSign(12.8, 15.8, 'HOSPITAL MAIN ENTRANCE ↓', '#0ea5e9');
-
-    if (isFut) {
-      PHSprites.roomSign(20.9, 6.05, 'RESORT GARDEN PARK', '#22c55e');
-      PHSprites.roomSign(25.0, 2.45, 'MONTHLY VISITING MD ROOM', '#38bdf8');
-      PHSprites.roomSign(29.5, 2.45, 'THERMAL SPA & MASSAGE', '#14b8a6');
-      PHSprites.roomSign(34.6, 2.45, 'WELLNESS & MOVEMENT CLASS', '#10b981');
-      PHSprites.roomSign(26.4, 8.65, 'EVENTS & SOCIAL LOUNGE', '#f59e0b');
-      PHSprites.roomSign(33.4, 8.65, 'FINE-DINING RESTAURANT', '#10b981');
-      PHSprites.roomSign(25.4, 15.85, 'LUXURY RESORT ENTRANCE ↓', '#10b981');
-    } else {
-      PHSprites.roomSign(30.0, 8.35, 'UNDEVELOPED RETREAT PLOT · NO VAN', '#64748b');
-    }
-  }
-
   function render(simState) {
     const isFut = simState.mode === 'future';
     PH.setCondition(isFut ? 'fut' : 'cur');
@@ -919,15 +899,8 @@ const IsoRenderer = (() => {
 
     PH.end();
 
-    // 1. Register roomSign bounding rects BEFORE overlay so overhead bubbles automatically dodge room signs
-    drawRoomSigns(isFut);
-    // 2. Render character name tags & bubbles
+    // Render character name tags & moving action/vehicle bubbles
     PH.overlay(simState.showActionLabels);
-    // 3. Re-render black room signs ON TOP of character name tags (highest Z-index so labels never cover signs)
-    const savedRoomSigns = PH.S.roomSigns;
-    PH.S.roomSigns = null;
-    drawRoomSigns(isFut);
-    PH.S.roomSigns = savedRoomSigns;
   }
 
   return {
