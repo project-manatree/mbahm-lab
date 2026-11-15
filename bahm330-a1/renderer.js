@@ -4,19 +4,20 @@
 // - Left Building (x: 1..15, y: 1..16): Multi-Wing Partner Specialist Hospital
 //   (Inpatient Ward A, Step-Down Ward B, Central Corridor, Discharge Pharmacy,
 //   Billing & Clearance Hall, Departure Lobby, Main Entrance facing DOWN at y=16)
-// - Walking Park & Back Pool Pocket (x: 15..19.6): Continuous Perimeter Path + Resort Pool
+// - Middle Garden Park & Perimeter Walk (x: 15..19.6): Continuous Walking Loop & Fountain
 // - Right Building (x: 19.6..33.6, y: 2.6..16): Luxury Wellness Resort Pavilion
-// - Front Two-Lane Road (x: 1..35.4, y: 16..20.4): Concierge Transport Left <-> Right
+// - East Pool & Terrace Deck (x: 34.8..38.4): Swimming Pool beside Wellness Class
+// - Front Two-Lane Road (x: 1..38.8, y: 16..20.4): Concierge Transport Left <-> Right
 // ============================================================================
 
 const IsoRenderer = (() => {
-  const GRID_W = 37;
+  const GRID_W = 40;
   const GRID_H = 21;
 
   const MAP = {
     proj: { ax: 40, ay: 2, bx: -10, by: 28 },
-    bounds: { x0: 0.5, y0: 0.3, x1: 35.6, y1: 20.6 },
-    view: { x0: 0.5, y0: 0.3, x1: 35.6, y1: 20.6 },
+    bounds: { x0: 0.5, y0: 0.3, x1: 39.0, y1: 20.6 },
+    view: { x0: 0.5, y0: 0.3, x1: 39.0, y1: 20.6 },
     ground: [
       // ---------------- BUILDING 1 (LEFT: PARTNER HOSPITAL, x: 1..15, y: 1..16)
       { x: 1, y: 1, w: 7, d: 5.5, mat: 'linoBlue' },             // Ward A (Acute Inpatient)
@@ -26,18 +27,21 @@ const IsoRenderer = (() => {
       { x: 5.8, y: 8.5, w: 5.0, d: 7.5, mat: 'linoWhite' },      // Billing & Insurance Hall
       { x: 10.8, y: 8.5, w: 4.2, d: 7.5, mat: 'carpetTeal' },    // Departure & Main Entrance Lobby
 
-      // ---------------- RIGHT SITE: UNDEVELOPED LOT (Current) -> WALKING PARK, POOL & RESORT (Target)
-      { x: 15.0, y: 0.6, w: 20.4, d: 16.0, mat: 'grass' },       // Undeveloped Grass (Cur) / Landscaped Resort Lawn (Fut)
+      // ---------------- RIGHT SITE: UNDEVELOPED LOT (Current) -> GARDEN PARK, RESORT & EAST POOL (Target)
+      { x: 15.0, y: 0.6, w: 23.8, d: 16.0, mat: 'grass' },       // Undeveloped Grass (Cur) / Landscaped Resort Lawn (Fut)
 
-      // Continuous Perimeter Walking Park Loop + Back Pool Sun Terrace (Target Only)
+      // Continuous Perimeter Walking Park Loop & Middle Fountain Garden (Target Only)
       { x: 15.3, y: 1.1, w: 0.9, d: 14.9, mat: { cur: null, fut: 'paver' } },       // West Walking Park Path (Full Loop)
-      { x: 15.3, y: 1.1, w: 19.7, d: 0.95, mat: { cur: null, fut: 'paver' } },      // North Walking Park Path (Full Loop)
-      { x: 34.1, y: 1.1, w: 0.9, d: 14.9, mat: { cur: null, fut: 'paver' } },       // East Park Terrace Walk (Full Loop)
-      { x: 16.2, y: 7.2, w: 3.4, d: 1.3, mat: { cur: null, fut: 'paver' } },        // Poolside & Resort Side-Door Link
-      { x: 16.4, y: 2.2, w: 3.0, d: 4.75, mat: { cur: null, fut: 'travertine' } },  // Back Poolside Sun Terrace
-      { x: 16.7, y: 2.6, w: 1.45, d: 3.7, mat: { cur: null, fut: 'water' } },       // Outdoor Resort Swimming Pool
-      { x: 33.6, y: 4.1, w: 0.6, d: 1.4, mat: { cur: null, fut: 'travertine' } },   // Movement Studio Garden Patio
-      { x: 33.6, y: 11.7, w: 0.6, d: 1.4, mat: { cur: null, fut: 'travertine' } },  // Fine-Dining Garden Terrace Patio
+      { x: 15.3, y: 1.1, w: 19.4, d: 0.95, mat: { cur: null, fut: 'paver' } },      // North Walking Park Path (Full Loop)
+      { x: 33.8, y: 1.1, w: 0.9, d: 14.9, mat: { cur: null, fut: 'paver' } },       // East Park Terrace Walk (Full Loop)
+      { x: 16.2, y: 7.2, w: 3.4, d: 1.3, mat: { cur: null, fut: 'paver' } },        // Park & Resort Side-Door Link
+      { x: 16.6, y: 3.3, w: 2.6, d: 2.6, mat: { cur: null, fut: 'travertine' } },   // Middle Park Fountain Garden Plaza
+      { x: 16.2, y: 4.2, w: 0.45, d: 0.8, mat: { cur: null, fut: 'paver' } },       // Fountain Plaza Connector
+      // East Swimming Pool Deck directly outside Wellness & Movement Class (x: 34.8..38.4, y: 2.2..7.6)
+      { x: 33.6, y: 4.0, w: 1.25, d: 1.6, mat: { cur: null, fut: 'travertine' } },  // Wellness Class -> Pool Deck Bridge
+      { x: 34.8, y: 2.2, w: 3.6, d: 5.4, mat: { cur: null, fut: 'travertine' } },   // East Resort Pool Sun Terrace
+      { x: 35.15, y: 2.7, w: 1.75, d: 4.15, mat: { cur: null, fut: 'water' } },     // Outdoor Resort Swimming Pool
+      { x: 33.6, y: 11.7, w: 1.4, d: 1.5, mat: { cur: null, fut: 'travertine' } },  // Fine-Dining Garden Terrace Patio
 
       // BUILDING 2 (LUXURY WELLNESS RESORT PAVILION, x: 19.6..33.6, y: 2.6..16) — ZERO HOSPITAL WARD BEDS
       { x: 19.6, y: 2.6, w: 4.0, d: 4.2, mat: { cur: null, fut: 'ceramicBlue' } },  // ONLY 1 Medical Room: MONTHLY VISITING MD ROOM
@@ -49,8 +53,8 @@ const IsoRenderer = (() => {
 
       // ---------------- FRONT WALKWAY & CONCIERGE TRANSPORT ROAD (y: 16..20.4)
       { x: 1, y: 16.0, w: 14, d: 0.6, mat: 'paver' },            // Hospital Front Entrance Apron
-      { x: 15.3, y: 16.0, w: 19.7, d: 0.6, mat: { cur: 'grass', fut: 'paver' } }, // Continuous South Promenade & Resort Apron
-      { x: 1, y: 16.6, w: 34.4, d: 3.8, mat: 'asphalt' }           // Horizontal Left<->Right Road
+      { x: 15.3, y: 16.0, w: 23.2, d: 0.6, mat: { cur: 'grass', fut: 'paver' } }, // Continuous South Promenade & Resort Apron
+      { x: 1, y: 16.6, w: 37.8, d: 3.8, mat: 'asphalt' }           // Horizontal Left<->Right Road
     ],
     decals: [
       // Hospital corridor wayfinding line
@@ -58,7 +62,7 @@ const IsoRenderer = (() => {
       // Resort marble promenade accent trim
       { type: 'line', x1: 20.0, y1: 7.8, x2: 33.2, y2: 7.8, w: 0.10, col: '#10b981', when: 'fut' },
       // Road center divider (Left <-> Right)
-      { type: 'line', x1: 1.5, y1: 18.5, x2: 34.8, y2: 18.5, w: 0.09, col: 'rgba(250,204,21,0.75)', dash: [0.6, 0.4] },
+      { type: 'line', x1: 1.5, y1: 18.5, x2: 38.2, y2: 18.5, w: 0.09, col: 'rgba(250,204,21,0.75)', dash: [0.6, 0.4] },
       // Hospital Main Entrance Pick-Up Bay (Facing Down at x: 11.2..14.2, y: 16.7..18.2)
       { type: 'hatch', x: 11.2, y: 16.7, w: 3.0, d: 1.5, col: 'rgba(14,165,233,0.65)' },
       // Luxury Resort VIP Drop-Off Bay (Facing Down at x: 20.4..23.4, y: 16.7..18.2)
@@ -904,42 +908,51 @@ const IsoRenderer = (() => {
       drawRoundBistroTable(30.9, 13.8);
       PHSprites.receptionDesk(31.9, 9.1, 1, 2.0, { col: '#d4a373', wood: '#784e32', clutter: false }); // Culinary Plating Counter
 
-      // ---------------- WALKING PARK LOOP & BACK SWIMMING POOL POCKET
-      drawSwimmingPool(16.7, 2.6, 1.45, 3.7);
-      drawPoolLounger(18.38, 2.65, '#f8fafc');
-      drawPoolUmbrella(18.75, 4.48, '#0d9488', '#fefce8');
-      drawPoolLounger(18.38, 4.95, '#f0fdfa');
+      // ---------------- MIDDLE GARDEN PARK (x: 15..19.6) & EAST SWIMMING POOL BESIDE WELLNESS CLASS (x: 34.8..38.4)
+      // 1. Middle Fountain Garden Park Pocket + Walking Loop
+      drawGardenFountain(17.9, 4.6);
+      drawParkBench(17.15, 2.45, false);
+      drawParkBench(16.55, 6.25, false);
+      drawTreeWithFlowerbed(18.75, 6.30, 0.62, 0);
 
       // Continuous Full Perimeter Walking Park Loop around Building B
       drawCobblestonePath(15.3, 1.15, 0.9, 14.85);
-      drawCobblestonePath(16.2, 1.1, 17.9, 0.95);
-      drawCobblestonePath(34.1, 1.15, 0.9, 14.85);
+      drawCobblestonePath(16.2, 1.1, 17.6, 0.95);
+      drawCobblestonePath(33.8, 1.15, 0.9, 14.85);
       drawCobblestonePath(16.2, 7.25, 3.3, 1.2);
+
+      // 2. East Swimming Pool Terrace directly beside Wellness & Movement Class
+      drawSwimmingPool(35.15, 2.7, 1.75, 4.15);
+      drawPoolLounger(37.15, 2.80, '#f8fafc');
+      drawPoolUmbrella(37.55, 4.72, '#0d9488', '#fefce8');
+      drawPoolLounger(37.15, 5.20, '#f0fdfa');
+      drawHedge(34.9, 7.7, 3.4, 0.35, true);
 
       drawHedge(20.2, 2.25, 13.0, 0.35, true);
 
-      // Flowering Trees & Park Seating along Walking Loop Border + South Lawn Garden
+      // Flowering Trees & Park Seating along North Walk, South Park Pocket & East Lawn
       drawTreeWithFlowerbed(17.8, 13.6, 0.85, 1);
       drawTreeWithFlowerbed(23.8, 1.1, 0.72, 1);
       drawTreeWithFlowerbed(29.0, 1.1, 0.72, 0);
-      drawTreeWithFlowerbed(34.6, 1.35, 0.78, 1);
-      drawTreeWithFlowerbed(34.7, 8.2, 0.78, 0);
-      drawTreeWithFlowerbed(34.6, 14.8, 0.78, 1);
+      drawTreeWithFlowerbed(37.8, 1.45, 0.80, 1);
+      drawTreeWithFlowerbed(37.4, 9.6, 0.82, 0);
+      drawTreeWithFlowerbed(37.4, 14.6, 0.85, 1);
 
-      // Wooden Park Benches bordering Walking Loop & South Pocket Garden
+      // Wooden Park Benches along Walking Loop, Middle Park & East Bistro Garden
       drawParkBench(18.1, 10.2, true);
       drawParkBench(20.8, 1.12, false);
       drawParkBench(31.2, 1.12, false);
-      drawParkBench(34.4, 6.4, true);
-      drawParkBench(34.4, 10.6, true);
+      drawParkBench(35.5, 10.6, true);
+      drawParkBench(35.5, 13.2, true);
 
       PHSprites.streetLamp(15.3, 15.6);
-      PHSprites.streetLamp(34.1, 2.2);
-      PHSprites.streetLamp(34.1, 15.6);
+      PHSprites.streetLamp(16.4, 5.4);
+      PHSprites.streetLamp(34.0, 2.2);
+      PHSprites.streetLamp(34.0, 15.6);
     } else {
       // Current mode: spare trees around undeveloped grassy plot edge
-      PHSprites.tree(33.9, 3.0, 0.9, 0);
-      PHSprites.tree(34.4, 11.5, 0.95, 0);
+      PHSprites.tree(36.8, 3.0, 0.9, 0);
+      PHSprites.tree(37.4, 11.5, 0.95, 0);
     }
 
     // ---------------- VEHICLE SPRITES ON FRONT ROAD (y: 16.8..19.2)

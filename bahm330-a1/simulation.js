@@ -105,8 +105,8 @@ const SimApp = (() => {
     { gx: 30.2, gy: 10.8, pose: 'SITTING' },
     { gx: 27.3, gy: 13.8, pose: 'SITTING' },
     { gx: 31.5, gy: 13.8, pose: 'SITTING' },
-    // RESORT GARDEN PARK (2) — Strictly Outdoors on Wooden Park Benches along North & South Pocket Walks
-    { gx: 21.45, gy: 1.45, pose: 'SITTING' },
+    // RESORT GARDEN PARK (2) — Strictly Outdoors on Wooden Park Benches in Middle Fountain Park & South Lawn
+    { gx: 17.85, gy: 2.7, pose: 'SITTING' },
     { gx: 18.4, gy: 10.9, pose: 'SITTING' }
   ];
 
@@ -366,7 +366,7 @@ const SimApp = (() => {
         const qIdx = sIdx - 7;
         const spot = isFut ? TARGET_SMOOTH_SPOTS[qIdx] : CURRENT_QUEUE_SPOTS[qIdx];
         ag.pose = spot.pose;
-        const isParkSpot = spot.gx > 18 && (spot.gy < 2.5 || spot.gx > 33.8 || (spot.gx < 19.6 && spot.gy > 8.6));
+        const isParkSpot = (spot.gx >= 15.0 && spot.gx <= 19.6) || (spot.gx > 18 && (spot.gy < 2.5 || spot.gx > 33.8));
         const snap = forceSnap || isParkSpot || ((spot.pose === 'LYING_ON_BED' || spot.pose === 'YOGA_STRETCH') && Math.hypot(spot.gx - ag.gx, spot.gy - ag.gy) < 1.2);
         PH.stepAgentPhysics(ag, spot.gx, spot.gy, dtSec, { baseSpeed: 7.4, corridorY: spot.gx > 18 ? 7.8 : 7.5, splitX: 18, snap });
         return;
@@ -516,10 +516,10 @@ const SimApp = (() => {
         ag.roleLabel = '';
         return;
       } else {
-        // pIdx === 5: Continuous Scenic Perimeter Walking Loop around Building B & Poolside
+        // pIdx === 5: Continuous Scenic Perimeter Walking Loop around Building B (passes Middle Fountain Park & East Poolside)
         const loopPts = [
-          [15.75, 14.8], [15.75, 8.0], [15.75, 1.85], [25.0, 1.85], [34.55, 1.85],
-          [34.55, 8.2], [34.55, 14.8], [34.55, 8.2], [34.55, 1.85], [25.0, 1.85],
+          [15.75, 14.8], [15.75, 8.0], [15.75, 1.85], [25.0, 1.85], [34.25, 1.85],
+          [34.25, 8.2], [34.25, 14.8], [34.25, 8.2], [34.25, 1.85], [25.0, 1.85],
           [15.75, 1.85], [15.75, 8.0]
         ];
         if (ag.gx < 15.0) {
