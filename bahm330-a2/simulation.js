@@ -23,7 +23,7 @@ const SimApp = (() => {
   const BED_COORDS = [
     [2.1, 1.8], [4.7, 1.8], [7.3, 1.8],
     [2.1, 4.2], [4.7, 4.2], [7.3, 4.2],
-    [2.1, 6.6], [3.9, 6.6]
+    [2.1, 6.6], [4.9, 6.6]
   ];
 
   // Clinical staff stationed at desks/counters/scanners (aligned with realistic hospital floorplan & v2.1)
