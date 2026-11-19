@@ -26,27 +26,29 @@ const IsoRenderer = (() => {
     bounds: { x0: 0.5, y0: 0.5, x1: 33.5, y1: 20.2 },
     view: { x0: 0.5, y0: 0.5, x1: 33.5, y1: 20.2 },
     ground: [
-      // Top Wing (y: 1..8.5)
-      { x: 1, y: 1, w: 8, d: 7.5, mat: 'linoBlue' },            // 1. Reception & Waiting Hall
-      { x: 3.2, y: 1.8, w: 5.2, d: 5.8, mat: 'carpetBlue' },    // Waiting seating carpet
-      { x: 9, y: 1, w: 12.5, d: 7.5, mat: 'linoMint' },         // 2. Consultation Rooms 1-5
-      { x: 21.5, y: 1, w: 11.5, d: 7.5, mat: 'ceramicBlue' },   // 3. CT & 3T MRI Scan Wing
+      // Top Wing (y: 1..8.5) — Current: worn/congested flooring; Target: renovated bright clinical finishes
+      { x: 1, y: 1, w: 8, d: 7.5, mat: { cur: 'linoWorn', fut: 'linoBlue' }, tint: { cur: 'rgba(239,68,68,0.06)', fut: null } },
+      { x: 3.2, y: 1.8, w: 5.2, d: 5.8, mat: { cur: 'carpetGrey', fut: 'carpetBlue' } },
+      { x: 9, y: 1, w: 12.5, d: 7.5, mat: { cur: 'linoGrey', fut: 'linoMint' } },
+      { x: 21.5, y: 1, w: 11.5, d: 7.5, mat: { cur: 'linoGrey', fut: 'ceramicBlue' }, tint: { cur: 'rgba(245,158,11,0.06)', fut: null } },
 
       // Central Hospital Corridor (y: 8.5..11)
-      { x: 1, y: 8.5, w: 32, d: 2.5, mat: 'terrazzo' },
+      { x: 1, y: 8.5, w: 32, d: 2.5, mat: { cur: 'concrete', fut: 'terrazzo' } },
 
       // Bottom Wing (y: 11..19)
-      { x: 1, y: 11, w: 10, d: 8, mat: 'linoBlue' },            // 4. Inpatient Ward 4A & 4B
-      { x: 11, y: 11, w: 5, d: 8, mat: 'oak' },                 // 5. Discharge Lounge & Main Entrance
-      { x: 16, y: 11, w: 9.5, d: 8, mat: 'ceramic' },           // 6. Central Pharmacy
-      { x: 25.5, y: 11, w: 7.5, d: 8, mat: 'carpetTeal' },      // 7. IT & Booking Command Office
+      { x: 1, y: 11, w: 10, d: 8, mat: { cur: 'linoWorn', fut: 'linoBlue' } },
+      { x: 11, y: 11, w: 5, d: 8, mat: { cur: 'linoSand', fut: 'oak' } },
+      { x: 16, y: 11, w: 9.5, d: 8, mat: { cur: 'linoWorn', fut: 'ceramic' }, tint: { cur: 'rgba(239,68,68,0.06)', fut: null } },
+      { x: 25.5, y: 11, w: 7.5, d: 8, mat: { cur: 'carpetGrey', fut: 'carpetTeal' } },
 
       // Front Main Entrance Walkway Apron (y: 19..19.8)
       { x: 1, y: 19.0, w: 32, d: 0.8, mat: 'paver' }
     ],
     decals: [
-      { type: 'line', x1: 1.5, y1: 9.5, x2: 32.5, y2: 9.5, w: 0.11, col: '#0ea5e9' },
-      { type: 'line', x1: 1.5, y1: 10.1, x2: 32.5, y2: 10.1, w: 0.11, col: '#10b981' }
+      { type: 'line', x1: 1.5, y1: 9.5, x2: 32.5, y2: 9.5, w: 0.11, col: '#ef4444', when: 'cur' },
+      { type: 'line', x1: 1.5, y1: 10.1, x2: 32.5, y2: 10.1, w: 0.11, col: '#f59e0b', when: 'cur' },
+      { type: 'line', x1: 1.5, y1: 9.5, x2: 32.5, y2: 9.5, w: 0.11, col: '#0ea5e9', when: 'fut' },
+      { type: 'line', x1: 1.5, y1: 10.1, x2: 32.5, y2: 10.1, w: 0.11, col: '#10b981', when: 'fut' }
     ],
     walls: [
       // Outer Hospital Perimeter Walls
@@ -143,40 +145,53 @@ const IsoRenderer = (() => {
     PH.begin(simState.elapsedSec);
 
     // ---------------- 1. C1 OUTPATIENT RECEPTION, TRIAGE & WAITING HALL (x: 1..9, y: 1..8.5)
-    // Current: history & outside records collected on the day, no live clinic feed (vague updates)
-    // Target: online pre-visit forms (Action 10) + live delay notices >15 min (Action 4, K4)
-    PHSprites.receptionDesk(1.4, 1.6, 1, 3.2, { col: '#0284c7', clutter: isCur });
-    PHSprites.kiosk(1.5, 5.4, 1, { col: isCur ? '#64748b' : '#10b981' });
-    PHSprites.kiosk(1.5, 6.5, 1, { col: isCur ? '#64748b' : '#0ea5e9' });
-    PHSprites.waitingBench(3.6, 2.2, 0, 6, '#0284c7');
-    PHSprites.waitingBench(3.6, 3.6, 0, 6, '#0284c7');
-    PHSprites.waitingBench(3.6, 5.0, 0, 6, '#0284c7');
-    PHSprites.waitingBench(3.6, 6.4, 0, 6, '#0284c7');
+    // Current: history & outside records collected on the day, cramped seating, no live clinic feed
+    // Target: online pre-visit forms (Action 10), expanded seating & live delay notices >15 min (Action 4, K4)
+    PHSprites.receptionDesk(1.4, 1.6, 1, 3.2, { col: isCur ? '#64748b' : '#0284c7', clutter: isCur });
+    if (isCur) {
+      // Manual paper registration clipboard table (no pre-visit kiosks)
+      PH.furniture(1.45, 5.5, 0.8, 1.4, 0, k => {
+        k.box(0.05, 0.05, 0, 0.70, 1.30, 9.5, '#94a3b8');
+        k.box(0.10, 0.15, 9.5, 0.28, 0.35, 3.6, '#fef3c7');
+        k.box(0.42, 0.65, 9.5, 0.28, 0.35, 4.2, '#fde68a');
+      });
+      PHSprites.waitingBench(3.6, 2.2, 0, 5, '#64748b');
+      PHSprites.waitingBench(3.6, 3.6, 0, 5, '#64748b');
+    } else {
+      PHSprites.kiosk(1.5, 5.4, 1, { col: '#10b981' });
+      PHSprites.kiosk(1.5, 6.5, 1, { col: '#0ea5e9' });
+      PHSprites.waitingBench(3.6, 2.2, 0, 6, '#0284c7');
+      PHSprites.waitingBench(3.6, 3.6, 0, 6, '#0284c7');
+      PHSprites.waitingBench(3.6, 5.0, 0, 6, '#0284c7');
+      PHSprites.waitingBench(3.6, 6.4, 0, 6, '#0284c7');
+      PHSprites.planter(7.6, 7.2, 0.75, 0.75);
+    }
     PHSprites.vendingAndWater(7.4, 1.8, 0);
     statusBoard(7.45, 4.2, 1.3, isCur ? 'off' : 'ok', 11);
 
     // ---------------- 2. 5 SPECIALIST CONSULTATION ROOMS (x: 9..21.5, y: 1..8.5)
-    // Current: consultants arrive ~25 min late from ward rounds; 19 booked into 16 slots (119% utilisation)
-    // Target: punctual session start, 16–17 bookings (90–96% utilisation) + protected urgent slots
+    // Current: Rooms 3–5 unattended at session start while doctors finish ward rounds (+25m, 119% load)
+    // Target: punctual session start across all 5 rooms (90–96% load) + protected urgent slot (K16)
     const roomXs = [9.2, 11.7, 14.2, 16.7, 19.2];
     roomXs.forEach((rx, idx) => {
-      PHSprites.examTable(rx + 0.1, 1.4, 0, { col: '#10b981' });
-      PHSprites.privacyCurtain(rx + 0.1, 2.9, 0, 1.7, '#bae6fd');
+      const roomIdleCur = isCur && idx >= 2;
+      PHSprites.examTable(rx + 0.1, 1.4, 0, { col: roomIdleCur ? '#64748b' : '#10b981' });
+      PHSprites.privacyCurtain(rx + 0.1, 2.9, 0, 1.7, roomIdleCur ? '#cbd5e1' : '#bae6fd');
       PHSprites.officeDesk(rx + 0.1, 4.3, 0, {
         clutter: isCur,
-        screenStyle: isCur ? 'paper' : 'ok',
+        screenStyle: isCur ? (roomIdleCur ? 'off' : 'paper') : 'ok',
         seed: 20 + idx,
         visitorChair: true
       });
     });
 
     // ---------------- 3. C2 DIAGNOSTIC IMAGING WING — CT + 3T MRI + CONTROL BOOTH (x: 21.5..33, y: 1..8.5)
-    // Current: 12% of requests incomplete at arrival → wasted slot & rebooking (MRI slot lost)
+    // Current: 12% of requests incomplete at arrival → 3T MRI slot wasted & patient turned away to rebook
     // Target: required e-order fields, shared GP guide & 72-hour pre-check → ≥95% complete at booking (K5)
     PHSprites.ctScanner(22.2, 1.4, 0, { active: true });
     PHSprites.examTable(25.2, 1.8, 0, { col: '#38bdf8' });
     PHSprites.mriScanner(27.8, 1.4, 0, { active: !isCur });
-    PHSprites.examTable(30.8, 1.8, 0, { col: '#10b981' });
+    PHSprites.examTable(30.8, 1.8, 0, { col: isCur ? '#64748b' : '#10b981' });
     PHSprites.officeDesk(22.2, 6.1, 0, { clutter: isCur, screenStyle: isCur ? 'alert' : 'ok', seed: 31, visitorChair: false });
     PHSprites.officeDesk(25.0, 6.1, 0, { clutter: isCur, screenStyle: 'ecg', seed: 32, visitorChair: false });
     PHSprites.officeDesk(28.2, 6.1, 0, { clutter: isCur, screenStyle: isCur ? 'alert' : 'ok', seed: 33, visitorChair: false });
@@ -190,35 +205,40 @@ const IsoRenderer = (() => {
       [1.4, 16.8], [4.2, 16.8]
     ];
     bedCoords.forEach(([bx, by], idx) => {
-      PHSprites.hospitalBed(bx, by, 0, { blanket: wardBlanket, alert: isCur && idx < 4, ready: !isCur, seed: 40 + idx });
+      PHSprites.hospitalBed(bx, by, 0, { blanket: wardBlanket, alert: isCur && idx < 4, ready: !isCur && idx >= 4, seed: 40 + idx });
     });
     PHSprites.receptionDesk(8.8, 15.2, 1, 2.4, { col: '#0284c7', clutter: isCur });
 
     // ---------------- 5. DISCHARGE LOUNGE & MAIN ENTRANCE (x: 11..16, y: 11..19)
-    PHSprites.sofa(11.6, 12.0, 1, 2.2, '#10b981');
-    PHSprites.sofa(11.6, 15.0, 1, 2.2, '#0ea5e9');
-    PHSprites.kiosk(14.6, 12.2, 1, { col: '#10b981' });
+    PHSprites.sofa(11.6, 12.0, 1, 2.2, isCur ? '#64748b' : '#10b981');
+    PHSprites.sofa(11.6, 15.0, 1, 2.2, isCur ? '#64748b' : '#0ea5e9');
+    if (!isCur) {
+      PHSprites.kiosk(14.6, 12.2, 1, { col: '#10b981' });
+      PHSprites.planter(14.6, 16.8, 0.75, 0.75);
+    }
     PHSprites.vendingAndWater(14.5, 14.2, 0);
 
     // ---------------- 6. C3 DISCHARGE PHARMACY — INVENTORY CONTROL (x: 16..25.5, y: 11..19)
-    // Current: Item X stock-out, linear Rx → queue → ward query (≈90 min)
-    // Target: day-before reconciliation, ABC–VED vital stock, safety stock 22 / ROP 52, weekly cycle counts
-    PHSprites.receptionDesk(16.6, 11.6, 0, 3.6, { col: '#10b981', clutter: isCur });
-    PHSprites.pharmacyShelf(16.6, 14.4, 0, { stockout: isCur, rfid: !isCur });
-    PHSprites.pharmacyShelf(16.6, 16.0, 0, { stockout: isCur, rfid: !isCur });
-    PHSprites.pharmacyShelf(16.6, 17.6, 0, { stockout: isCur, rfid: !isCur });
-    PHSprites.pharmacyShelf(21.4, 12.3, 0, { stockout: isCur, rfid: !isCur });
-    statusBoard(23.4, 12.3, 1.5, isCur ? 'alert' : 'ok', 45);
-    PHSprites.pharmacyShelf(21.4, 15.6, 0, { stockout: isCur, rfid: !isCur });
-    PHSprites.waitingBench(21.2, 17.4, 0, 4, '#475569');
+    // West side (x: 16.3..19.5): Staff Dispensary & ABC–VED Shelving behind vertical counter (x = 18.6)
+    // East side (x: 20.0..25.0): Patient Pickup Window & Waiting Benches aligned with corridor/exit doors
+    statusBoard(16.5, 11.4, 1.8, isCur ? 'alert' : 'ok', 45);
+    PHSprites.pharmacyShelf(16.4, 12.8, 0, { stockout: isCur, rfid: !isCur });
+    PHSprites.pharmacyShelf(16.4, 14.6, 0, { stockout: isCur, rfid: !isCur });
+    PHSprites.pharmacyShelf(16.4, 16.4, 0, { stockout: isCur, rfid: !isCur });
+    if (!isCur) {
+      // Dedicated Item X Safety Stock & ROP 52 reserve rack in Target state
+      PHSprites.pharmacyShelf(16.4, 18.0, 0, { stockout: false, rfid: true });
+    }
+    PHSprites.receptionDesk(18.5, 12.2, 1, 3.8, { col: isCur ? '#ef4444' : '#10b981', clutter: isCur });
+    PHSprites.waitingBench(21.8, 15.6, 0, 4, isCur ? '#64748b' : '#0284c7');
+    PHSprites.waitingBench(21.8, 17.2, 0, 4, isCur ? '#64748b' : '#10b981');
 
     // ---------------- 7. C5 APPOINTMENT & BOOKING OFFICE (x: 25.5..33, y: 11..19)
-    // Current: call centre, RIS and clinic each hold their own booking version (overnight SMS batch, paper day-lists)
-    // Target: one booking owner + master appointment record with event-triggered messages (<1% mismatch, K10)
-    PHSprites.officeDesk(26.2, 12.0, 0, { clutter: isCur, screenStyle: isCur ? 'alert' : 'ok', seed: 51 });
-    PHSprites.officeDesk(29.2, 12.0, 0, { clutter: isCur, screenStyle: isCur ? 'alert' : 'ui', seed: 52 });
-    PHSprites.officeDesk(26.2, 14.8, 0, { clutter: isCur, screenStyle: isCur ? 'alert' : 'ok', seed: 53 });
-    PHSprites.officeDesk(29.2, 14.8, 0, { clutter: isCur, screenStyle: 'ui', seed: 54 });
+    // 3 Channel Desks (Call Centre, RIS, Clinic List) + Booking Owner Desk
+    PHSprites.officeDesk(26.2, 12.2, 0, { clutter: isCur, screenStyle: isCur ? 'alert' : 'ok', seed: 51, visitorChair: false });
+    PHSprites.officeDesk(29.6, 12.2, 0, { clutter: isCur, screenStyle: isCur ? 'alert' : 'ui', seed: 52, visitorChair: false });
+    PHSprites.officeDesk(26.2, 15.0, 0, { clutter: isCur, screenStyle: isCur ? 'paper' : 'ok', seed: 53, visitorChair: false });
+    PHSprites.officeDesk(29.6, 15.0, 0, { clutter: isCur, screenStyle: isCur ? 'alert' : 'ok', seed: 54, visitorChair: false });
     if (isCur) {
       statusBoard(25.9, 17.3, 1.7, 'alert', 61);
       statusBoard(27.9, 17.3, 1.7, 'paper', 62);
@@ -258,15 +278,27 @@ const IsoRenderer = (() => {
 
     PH.end();
 
-    // ---------------- 9. FLOW SIGNALS (Current failure loops vs Target controls)
+    // ---------------- 9. BEFORE vs AFTER ZONE HALOS & FLOW SIGNALS
     if (isCur) {
-      PHSprites.signalBeam(27.6, 15.8, 2.6, 3.4, '#ef4444', 'C5: SMS ≠ call ≠ RIS', { phase: 0 });
-      PHSprites.signalBeam(24.0, 7.6, 13.5, 19.4, '#ef4444', 'C2: incomplete → rebook', { phase: 0.33 });
-      PHSprites.signalBeam(9.6, 15.6, 18.4, 13.2, '#ef4444', 'C3: ward query', { phase: 0.66 });
+      PHSprites.floorHalo(5.4, 5.5, 30, 16, '#ef4444', 'C1: 33m Wait · 119% Load');
+      PHSprites.floorHalo(17.8, 2.8, 34, 15, '#ef4444', 'C1: +25m Late From Ward Round');
+      PHSprites.floorHalo(29.0, 3.2, 26, 14, '#ef4444', 'C2: 12% Incomplete → MRI Idle');
+      PHSprites.floorHalo(22.2, 14.2, 28, 15, '#ef4444', 'C3: Item X Stock-Out (≈90m)');
+      PHSprites.floorHalo(29.2, 13.8, 28, 15, '#ef4444', 'C5: 3 Unlinked Booking Lists');
+
+      PHSprites.signalBeam(27.6, 15.8, 2.4, 3.4, '#ef4444', 'C5: SMS ≠ call ≠ RIS', { phase: 0 });
+      PHSprites.signalBeam(24.0, 7.2, 28.6, 13.4, '#ef4444', 'C2: incomplete → rebook', { phase: 0.33 });
+      PHSprites.signalBeam(9.4, 15.6, 18.2, 13.4, '#ef4444', 'C3: 35m ward query', { phase: 0.66 });
     } else {
-      PHSprites.signalBeam(28.8, 17.4, 2.6, 3.4, '#10b981', 'C5: master record', { phase: 0 });
-      PHSprites.signalBeam(26.8, 12.6, 23.0, 6.8, '#0ea5e9', 'C2: 72h pre-check', { phase: 0.33 });
-      PHSprites.signalBeam(9.6, 15.6, 18.4, 13.2, '#10b981', 'C3: day-before check', { phase: 0.66 });
+      PHSprites.floorHalo(5.4, 5.5, 30, 16, '#10b981', 'C1: 6–9m Wait · Live Notice');
+      PHSprites.floorHalo(17.8, 2.8, 34, 15, '#10b981', 'C1: All 5 Rooms Punctual');
+      PHSprites.floorHalo(29.0, 3.2, 26, 14, '#10b981', 'C2: 72h Pre-Check (≥95% K5)');
+      PHSprites.floorHalo(22.2, 14.2, 28, 15, '#10b981', 'C3: ROP 52 · Pre-Checked (≤30m)');
+      PHSprites.floorHalo(29.2, 13.8, 28, 15, '#10b981', 'C5: 1 Master Record (<1% K10)');
+
+      PHSprites.signalBeam(28.8, 17.4, 2.4, 3.4, '#10b981', 'C5: master record', { phase: 0 });
+      PHSprites.signalBeam(27.0, 12.2, 23.0, 5.8, '#0ea5e9', 'C2: 72h pre-check', { phase: 0.33 });
+      PHSprites.signalBeam(9.4, 15.6, 18.2, 13.4, '#10b981', 'C3: day-before check', { phase: 0.66 });
     }
 
     PH.overlay(simState.showActionLabels);

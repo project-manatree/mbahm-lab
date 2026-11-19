@@ -30,35 +30,37 @@ const SimApp = (() => {
   // st-5..st-7: in Current they start on the ward round and walk to clinic late (C1 late start, A6: +25 min);
   // in Target they start the session on time (Action 3).
   const STAFF_DEFS = [
-    // C1 Reception & Triage
-    { id: 'st-1', roleLabel: '', role: 'reception', gx: 2.2, gy: 2.4, pose: 'TYPING_TERMINAL', taskCur: 'C1 History on the day (10m)', taskFut: 'C1 Pre-visit form done ✓', dur: 2.0, show: false, failCur: true },
-    { id: 'st-2', roleLabel: 'Nurse', role: 'nurse', gx: 2.2, gy: 4.0, pose: 'TYPING_TERMINAL', taskCur: 'C1 Vague update only', taskFut: 'C1 Live delay notice ✓', dur: 2.0, show: false, failCur: true },
-    // 5 Specialist Consultation Room Doctors (15-minute slots, A6)
-    { id: 'st-3', roleLabel: 'Doctor', role: 'doctor', gx: 10.1, gy: 4.8, pose: 'EXAMINING', taskCur: 'C1 19 booked · 119% load', taskFut: 'C1 On time · 16–17 booked ✓', dur: 2.4, show: true, failCur: true },
-    { id: 'st-4', roleLabel: 'Doctor', role: 'doctor', gx: 12.6, gy: 4.8, pose: 'EXAMINING', taskCur: 'Consult (15m slot)', taskFut: 'Consult (15m slot)', dur: 2.4, show: false },
+    // C1 Reception & Triage (positioned behind counter at x = 1.75)
+    { id: 'st-1', roleLabel: '', role: 'reception', gx: 1.75, gy: 2.5, pose: 'TYPING_TERMINAL', taskCur: 'C1 History on the day (10m)', taskFut: 'C1 Pre-visit form done ✓', dur: 2.0, show: false, failCur: true },
+    { id: 'st-2', roleLabel: 'Nurse', role: 'nurse', gx: 1.75, gy: 3.9, pose: 'TYPING_TERMINAL', taskCur: 'C1 Vague update only', taskFut: 'C1 Live delay notice ✓', dur: 2.0, show: false, failCur: true },
+    // 5 Specialist Consultation Room Doctors (seated in doctor chair behind desk at gy = 3.95)
+    { id: 'st-3', roleLabel: 'Doctor', role: 'doctor', gx: 10.1, gy: 3.95, pose: 'EXAMINING', taskCur: 'C1 19 booked · 119% load', taskFut: 'C1 On time · 16–17 booked ✓', dur: 2.4, show: true, failCur: true },
+    { id: 'st-4', roleLabel: 'Doctor', role: 'doctor', gx: 12.6, gy: 3.95, pose: 'EXAMINING', taskCur: 'Consult (15m slot)', taskFut: 'Consult (15m slot)', dur: 2.4, show: false },
     {
-      id: 'st-5', roleLabel: 'Doctor', role: 'doctor', gx: 15.1, gy: 4.8, pose: 'EXAMINING', dur: 2.4, show: false,
-      lateRound: { offset: 0.0, bubble: 'C1 Late from ward round (+25m)', path: [[3.85, 13.4], [3.85, 11.3], [5.7, 11.3], [5.7, 9.7], [15.25, 9.7], [15.25, 7.2], [15.1, 4.8]] }
+      id: 'st-5', roleLabel: 'Doctor', role: 'doctor', gx: 15.1, gy: 3.95, pose: 'EXAMINING', dur: 2.4, show: false,
+      lateRound: { offset: 0.0, bubble: 'C1 Late from ward round (+25m)', path: [[3.85, 13.4], [3.85, 11.3], [5.7, 11.3], [5.7, 9.7], [15.25, 9.7], [16.1, 6.2], [16.1, 3.95], [15.1, 3.95]] }
     },
     {
-      id: 'st-6', roleLabel: 'Doctor', role: 'doctor', gx: 17.6, gy: 4.8, pose: 'EXAMINING', dur: 2.4, show: false,
-      lateRound: { offset: 0.5, path: [[6.65, 13.4], [6.65, 11.3], [5.7, 11.3], [5.7, 9.7], [17.75, 9.7], [17.75, 7.2], [17.6, 4.8]] }
+      id: 'st-6', roleLabel: 'Doctor', role: 'doctor', gx: 17.6, gy: 3.95, pose: 'EXAMINING', dur: 2.4, show: false,
+      lateRound: { offset: 0.5, path: [[6.65, 13.4], [6.65, 11.3], [5.7, 11.3], [5.7, 9.7], [17.75, 9.7], [18.6, 6.2], [18.6, 3.95], [17.6, 3.95]] }
     },
     {
-      id: 'st-7', roleLabel: 'Doctor', role: 'doctor', gx: 20.1, gy: 4.8, pose: 'EXAMINING', dur: 2.4, show: false,
-      lateRound: { offset: 1.0, path: [[9.9, 13.0], [9.9, 11.3], [5.7, 11.3], [5.7, 9.7], [20.25, 9.7], [20.25, 7.2], [20.1, 4.8]] }
+      id: 'st-7', roleLabel: 'Doctor', role: 'doctor', gx: 20.1, gy: 3.95, pose: 'EXAMINING', dur: 2.4, show: false,
+      lateRound: { offset: 1.0, path: [[9.5, 13.0], [9.5, 11.3], [5.7, 11.3], [5.7, 9.7], [20.25, 9.7], [21.1, 6.2], [21.1, 3.95], [20.1, 3.95]] }
     },
-    // C2 Diagnostic Imaging Radiographers (A8: 12% incomplete at arrival)
-    { id: 'st-8', roleLabel: 'Nurse', role: 'radiographer', gx: 23.0, gy: 6.8, pose: 'TYPING_TERMINAL', taskCur: 'C2 Referral incomplete (12%)', taskFut: 'C2 Complete at booking ✓', dur: 2.0, show: true, failCur: true },
-    { id: 'st-9', roleLabel: 'Nurse', role: 'radiographer', gx: 29.0, gy: 6.8, pose: 'TYPING_TERMINAL', taskCur: 'C2 Slot wasted → rebook', taskFut: 'C2 72h pre-check ✓', dur: 2.2, show: false, failCur: true },
+    // C2 Diagnostic Imaging Radiographers (behind control desks at gy = 5.75)
+    { id: 'st-8', roleLabel: 'Nurse', role: 'radiographer', gx: 23.0, gy: 5.75, pose: 'TYPING_TERMINAL', taskCur: 'C2 Referral incomplete (12%)', taskFut: 'C2 Complete at booking ✓', dur: 2.0, show: true, failCur: true },
+    { id: 'st-9', roleLabel: 'Nurse', role: 'radiographer', gx: 29.0, gy: 5.75, pose: 'TYPING_TERMINAL', taskCur: 'C2 Slot wasted → rebook', taskFut: 'C2 72h pre-check ✓', dur: 2.2, show: false, failCur: true },
     // Inpatient Ward Nurses (st-10 alternates cleanly between Bed 2 check and Ward Desk)
-    { id: 'st-10', roleLabel: 'Nurse', role: 'nurse', gx: 5.0, gy: 13.0, pose: 'EXAMINING', taskStations: [{ gx: 5.0, gy: 13.0, pose: 'EXAMINING' }, { gx: 8.5, gy: 15.5, pose: 'TYPING_TERMINAL' }], dwell: 4.2 },
-    { id: 'st-11', roleLabel: 'Nurse', role: 'nurse', gx: 9.2, gy: 16.0, pose: 'TYPING_TERMINAL', taskCur: 'C3 Ward query (35m)', taskFut: 'C3 Day-before check ✓', dur: 2.2, show: false, failCur: true },
-    // C3 Discharge Pharmacy (Item X: safety stock 22, reorder point 52; Appendix C3)
-    { id: 'st-12', roleLabel: 'Pharmacist', role: 'pharmacist', gx: 18.6, gy: 13.8, pose: 'TYPING_TERMINAL', taskCur: 'C3 Item X stock-out', taskFut: 'C3 Safety stock 22 · ROP 52 ✓', dur: 2.3, show: true, failCur: true },
-    { id: 'st-13', roleLabel: 'Pharmacist', role: 'pharmacist', gx: 21.2, gy: 13.6, pose: 'HANDOVER_INTERACTION', taskStations: [{ gx: 21.2, gy: 13.6, pose: 'HANDOVER_INTERACTION' }, { gx: 18.8, gy: 12.5, pose: 'HANDOVER_INTERACTION' }], dwell: 3.8 },
-    // C5 Appointment & Booking Office
-    { id: 'st-14', roleLabel: '', role: 'admin', gx: 28.0, gy: 14.0, pose: 'TYPING_TERMINAL', taskCur: 'C5 3 booking versions', taskFut: 'C5 One master record ✓', dur: 2.0, show: true, failCur: true }
+    { id: 'st-10', roleLabel: 'Nurse', role: 'nurse', gx: 5.0, gy: 13.0, pose: 'EXAMINING', taskStations: [{ gx: 5.0, gy: 13.0, pose: 'EXAMINING' }, { gx: 8.3, gy: 15.8, pose: 'TYPING_TERMINAL' }], dwell: 4.2 },
+    { id: 'st-11', roleLabel: 'Nurse', role: 'nurse', gx: 8.4, gy: 16.6, pose: 'TYPING_TERMINAL', taskCur: 'C3 Ward query (35m)', taskFut: 'C3 Day-before check ✓', dur: 2.2, show: false, failCur: true },
+    // C3 Discharge Pharmacy (inside West staff dispensary behind counter x = 18.5)
+    { id: 'st-12', roleLabel: 'Pharmacist', role: 'pharmacist', gx: 18.1, gy: 13.2, pose: 'TYPING_TERMINAL', taskCur: 'C3 Item X stock-out', taskFut: 'C3 Safety stock 22 · ROP 52 ✓', dur: 2.3, show: true, failCur: true },
+    { id: 'st-13', roleLabel: 'Pharmacist', role: 'pharmacist', gx: 17.5, gy: 15.4, pose: 'HANDOVER_INTERACTION', taskStations: [{ gx: 17.5, gy: 15.4, pose: 'HANDOVER_INTERACTION' }, { gx: 18.2, gy: 14.6, pose: 'HANDOVER_INTERACTION' }], dwell: 3.8 },
+    // C5 Appointment & Booking Office — 3 desks (Call Centre, RIS, Clinic List)
+    { id: 'st-14', roleLabel: '', role: 'admin', gx: 27.0, gy: 11.85, pose: 'TYPING_TERMINAL', taskCur: 'C5 3 booking versions', taskFut: 'C5 One master record ✓', dur: 2.0, show: true, failCur: true },
+    { id: 'st-15', roleLabel: '', role: 'admin', gx: 30.4, gy: 11.85, pose: 'TYPING_TERMINAL', dur: 2.2, show: false },
+    { id: 'st-16', roleLabel: '', role: 'admin', gx: 27.0, gy: 14.65, pose: 'TYPING_TERMINAL', dur: 2.2, show: false }
   ];
 
   const LATE_WARD_END = 5.0;   // on ward round
@@ -323,18 +325,18 @@ const SimApp = (() => {
           }
         }
       } else if (ag.group === 'pharmacy') {
-        // 5 Discharge Pharmacy Patients — Current: queue behind Item X stock-out; Target: meds reconciled the day before
+        // 5 Discharge Pharmacy Patients — Current: queue in East lobby behind Item X stock-out; Target: quick counter pickup
         if (isCur) {
-          tx = 18.2 + (k % 3) * 1.4;
-          ty = 16.2 + Math.floor(k / 3) * 1.3;
+          tx = 20.6 + (k % 3) * 1.3;
+          ty = 12.8 + Math.floor(k / 3) * 1.4;
           ag.pose = 'FRUSTRATED_WAIT';
         } else {
           const rxSpots = [
-            { gx: 17.5, gy: 13.0, pose: 'HANDOVER_INTERACTION' },
-            { gx: 19.2, gy: 13.0, pose: 'HANDOVER_INTERACTION' },
-            { gx: 21.5, gy: 17.4, pose: 'SITTING' },
-            { gx: 22.3, gy: 17.4, pose: 'SITTING' },
-            { gx: 23.1, gy: 17.4, pose: 'SITTING' }
+            { gx: 20.1, gy: 12.8, pose: 'HANDOVER_INTERACTION' },
+            { gx: 20.1, gy: 14.4, pose: 'HANDOVER_INTERACTION' },
+            { gx: 22.1, gy: 15.6, pose: 'SITTING' },
+            { gx: 22.9, gy: 15.6, pose: 'SITTING' },
+            { gx: 23.7, gy: 15.6, pose: 'SITTING' }
           ];
           tx = rxSpots[k].gx;
           ty = rxSpots[k].gy;
@@ -342,13 +344,14 @@ const SimApp = (() => {
         }
       } else {
         // 6 Active Pathway Patients stepping cleanly through 6 hospital stages in 18 seconds (3.0s per stage)
+        // Every target (tx, ty) aligns with its room doorway so agents never clip walls
         const cyclePos = (tSec + k * 3.0) % CYCLE_SEC;
         const stage = Math.floor(cyclePos / 3.0);
         const stageProg = (cyclePos % 3.0) / 3.0;
 
         if (stage === 0) {
-          // Stage 1: C5 Check-in against the booking record
-          tx = 2.4; ty = 5.8; ag.pose = 'HANDOVER_INTERACTION';
+          // Stage 1: C5 Check-in against the booking record (aligned with C1 doorway x=4.5..6.5)
+          tx = 4.6; ty = 3.2; ag.pose = 'HANDOVER_INTERACTION';
           if (k === 0) {
             stepKey = (isCur ? 'c-' : 't-') + 's0';
             stepText = isCur ? 'C5 SMS ≠ call-centre time' : 'C5 One booking record ✓';
@@ -356,8 +359,8 @@ const SimApp = (() => {
             ag.taskProg = stageProg;
           }
         } else if (stage === 1) {
-          // Stage 2: C1 Outpatient Waiting Hall Bench (aligned with C1 sliding door x=4.5..6.5)
-          tx = 5.6; ty = 6.4; ag.pose = isCur ? 'FRUSTRATED_WAIT' : 'SITTING';
+          // Stage 2: C1 Outpatient Waiting Hall Bench (|4.6 - 5.6| <= 1.4, walks directly inside room)
+          tx = 5.6; ty = 6.2; ag.pose = isCur ? 'FRUSTRATED_WAIT' : 'SITTING';
           if (k === 0) {
             stepKey = (isCur ? 'c-' : 't-') + 's1';
             stepText = isCur ? 'C1 Wait 33m · no update' : 'C1 Wait 6–9m · live notice ✓';
@@ -365,7 +368,7 @@ const SimApp = (() => {
             ag.taskProg = stageProg;
           }
         } else if (stage === 2) {
-          // Stage 3: Specialist Consultation Room
+          // Stage 3: Specialist Consultation Room 2 visitor chair (aligned with door x=12.2..13.3)
           tx = 12.7; ty = 5.6; ag.pose = 'SITTING';
           if (k === 0) {
             stepKey = (isCur ? 'c-' : 't-') + 's2';
@@ -374,7 +377,7 @@ const SimApp = (() => {
             ag.taskProg = stageProg;
           }
         } else if (stage === 3) {
-          // Stage 4: C2 Imaging referral completeness check
+          // Stage 4: C2 Imaging referral completeness check (aligned with door x=23.2..24.8)
           tx = 23.6; ty = 7.4; ag.pose = isCur ? 'FRUSTRATED_WAIT' : 'HANDOVER_INTERACTION';
           if (k === 0) {
             stepKey = (isCur ? 'c-' : 't-') + 's3';
@@ -383,20 +386,24 @@ const SimApp = (() => {
             ag.taskProg = stageProg;
           }
         } else if (stage === 4) {
-          // Stage 5: C3 Central Discharge Pharmacy
-          tx = 20.2; ty = 13.0; ag.pose = isCur ? 'FRUSTRATED_WAIT' : 'HANDOVER_INTERACTION';
+          // Stage 5: Obvious C2 divergence — Current: turned away to C5 Rebooking Desk; Target: enters Scan Bay
+          if (isCur) {
+            tx = 28.6; ty = 13.4; ag.pose = 'FRUSTRATED_WAIT';
+          } else {
+            tx = 24.2; ty = 4.2; ag.pose = 'HANDOVER_INTERACTION';
+          }
           if (k === 0) {
             stepKey = (isCur ? 'c-' : 't-') + 's4';
-            stepText = isCur ? 'C3 Rx wait ≈90m' : 'C3 Rx ≤30m ✓';
+            stepText = isCur ? 'C2 Wasted visit → rebook' : 'C2 First-time-right scan ✓';
             stepType = isCur ? 'fail' : 'ok';
             ag.taskProg = stageProg;
           }
         } else {
-          // Stage 6: Discharge Lounge Exit
-          tx = 13.6; ty = 16.8; ag.pose = 'SITTING';
+          // Stage 6: C3 Discharge Pharmacy Pickup Counter (aligned with door x=19.5..21.5)
+          tx = 20.3; ty = 13.6; ag.pose = isCur ? 'FRUSTRATED_WAIT' : 'HANDOVER_INTERACTION';
           if (k === 0) {
             stepKey = (isCur ? 'c-' : 't-') + 's5';
-            stepText = isCur ? 'Waiting for meds' : 'Meds in hand → home ✓';
+            stepText = isCur ? 'C3 Rx wait ≈90m' : 'C3 Pre-packed Rx ≤30m ✓';
             stepType = isCur ? 'fail' : 'ok';
             ag.taskProg = stageProg;
           }
