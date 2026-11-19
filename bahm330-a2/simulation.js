@@ -26,29 +26,104 @@ const SimApp = (() => {
     [2.2, 17.2], [5.0, 17.2]
   ];
 
-  // 14 Clinical Staff stationed at desks/counters/scanners (only walk for specific tasks)
+  // Clinical staff stationed at desks/counters/scanners (aligned with group report v2.1)
+  // st-5..st-7: in Current they start on the ward round and walk to clinic late (C1 late start, A6: +25 min);
+  // in Target they start the session on time (Action 3).
   const STAFF_DEFS = [
     // C1 Reception & Triage
-    { id: 'st-1', roleLabel: '', role: 'reception', gx: 2.2, gy: 2.4, pose: 'TYPING_TERMINAL', taskCur: 'C1 Manual Reg (4m)', taskFut: 'C1 ETA Kiosk (1.5m) ✓', dur: 2.0, show: false },
-    { id: 'st-2', roleLabel: 'Nurse', role: 'nurse', gx: 2.2, gy: 4.0, pose: 'TYPING_TERMINAL', taskCur: 'C1 Queue Backlog', taskFut: 'C1 Wave Triage ✓', dur: 2.0, show: false },
-    // 5 Specialist Consultation Room Doctors
-    { id: 'st-3', roleLabel: 'Doctor', role: 'doctor', gx: 10.1, gy: 4.8, pose: 'EXAMINING', taskCur: 'Examining (18m)', taskFut: 'Examining (18m)', dur: 2.4, show: true },
-    { id: 'st-4', roleLabel: 'Doctor', role: 'doctor', gx: 12.6, gy: 4.8, pose: 'EXAMINING', taskCur: 'Examining (18m)', taskFut: 'Examining (18m)', dur: 2.4, show: false },
-    { id: 'st-5', roleLabel: 'Doctor', role: 'doctor', gx: 15.1, gy: 4.8, pose: 'EXAMINING', taskCur: 'Room Idle', taskFut: 'Examining (18m)', dur: 2.4, show: false },
-    { id: 'st-6', roleLabel: 'Doctor', role: 'doctor', gx: 17.6, gy: 4.8, pose: 'EXAMINING', taskCur: 'Room Idle', taskFut: 'Examining (18m)', dur: 2.4, show: false },
-    { id: 'st-7', roleLabel: 'Doctor', role: 'doctor', gx: 20.1, gy: 4.8, pose: 'EXAMINING', taskCur: 'Room Idle', taskFut: 'Examining (18m)', dur: 2.4, show: false },
-    // C2 Diagnostic Imaging Radiographers
-    { id: 'st-8', roleLabel: 'Nurse', role: 'radiographer', gx: 23.0, gy: 6.8, pose: 'TYPING_TERMINAL', taskCur: 'C2 40% Walk-Backs', taskFut: 'C2 99% CPOE CT ✓', dur: 2.0, show: false },
-    { id: 'st-9', roleLabel: 'Nurse', role: 'radiographer', gx: 29.0, gy: 6.8, pose: 'TYPING_TERMINAL', taskCur: 'C2 Form Rework', taskFut: 'C2 3T MRI Ready ✓', dur: 2.2, show: false },
+    { id: 'st-1', roleLabel: '', role: 'reception', gx: 2.2, gy: 2.4, pose: 'TYPING_TERMINAL', taskCur: 'C1 History on the day (10m)', taskFut: 'C1 Pre-visit form done ✓', dur: 2.0, show: false, failCur: true },
+    { id: 'st-2', roleLabel: 'Nurse', role: 'nurse', gx: 2.2, gy: 4.0, pose: 'TYPING_TERMINAL', taskCur: 'C1 Vague update only', taskFut: 'C1 Live delay notice ✓', dur: 2.0, show: false, failCur: true },
+    // 5 Specialist Consultation Room Doctors (15-minute slots, A6)
+    { id: 'st-3', roleLabel: 'Doctor', role: 'doctor', gx: 10.1, gy: 4.8, pose: 'EXAMINING', taskCur: 'C1 19 booked · 119% load', taskFut: 'C1 On time · 16–17 booked ✓', dur: 2.4, show: true, failCur: true },
+    { id: 'st-4', roleLabel: 'Doctor', role: 'doctor', gx: 12.6, gy: 4.8, pose: 'EXAMINING', taskCur: 'Consult (15m slot)', taskFut: 'Consult (15m slot)', dur: 2.4, show: false },
+    {
+      id: 'st-5', roleLabel: 'Doctor', role: 'doctor', gx: 15.1, gy: 4.8, pose: 'EXAMINING', dur: 2.4, show: false,
+      lateRound: { offset: 0.0, bubble: 'C1 Late from ward round (+25m)', path: [[3.85, 13.4], [3.85, 11.3], [5.7, 11.3], [5.7, 9.7], [15.25, 9.7], [15.25, 7.2], [15.1, 4.8]] }
+    },
+    {
+      id: 'st-6', roleLabel: 'Doctor', role: 'doctor', gx: 17.6, gy: 4.8, pose: 'EXAMINING', dur: 2.4, show: false,
+      lateRound: { offset: 0.5, path: [[6.65, 13.4], [6.65, 11.3], [5.7, 11.3], [5.7, 9.7], [17.75, 9.7], [17.75, 7.2], [17.6, 4.8]] }
+    },
+    {
+      id: 'st-7', roleLabel: 'Doctor', role: 'doctor', gx: 20.1, gy: 4.8, pose: 'EXAMINING', dur: 2.4, show: false,
+      lateRound: { offset: 1.0, path: [[9.9, 13.0], [9.9, 11.3], [5.7, 11.3], [5.7, 9.7], [20.25, 9.7], [20.25, 7.2], [20.1, 4.8]] }
+    },
+    // C2 Diagnostic Imaging Radiographers (A8: 12% incomplete at arrival)
+    { id: 'st-8', roleLabel: 'Nurse', role: 'radiographer', gx: 23.0, gy: 6.8, pose: 'TYPING_TERMINAL', taskCur: 'C2 Referral incomplete (12%)', taskFut: 'C2 Complete at booking ✓', dur: 2.0, show: true, failCur: true },
+    { id: 'st-9', roleLabel: 'Nurse', role: 'radiographer', gx: 29.0, gy: 6.8, pose: 'TYPING_TERMINAL', taskCur: 'C2 Slot wasted → rebook', taskFut: 'C2 72h pre-check ✓', dur: 2.2, show: false, failCur: true },
     // Inpatient Ward Nurses (st-10 alternates cleanly between Bed 2 check and Ward Desk)
     { id: 'st-10', roleLabel: 'Nurse', role: 'nurse', gx: 5.0, gy: 13.0, pose: 'EXAMINING', taskStations: [{ gx: 5.0, gy: 13.0, pose: 'EXAMINING' }, { gx: 8.5, gy: 15.5, pose: 'TYPING_TERMINAL' }], dwell: 4.2 },
-    { id: 'st-11', roleLabel: 'Nurse', role: 'nurse', gx: 9.2, gy: 16.0, pose: 'TYPING_TERMINAL', taskCur: 'C3 Ward Call (92m)', taskFut: 'C3 e-Discharge (18m)', dur: 2.2, show: false },
-    // C3 Central Pharmacy Pharmacists (st-13 alternates cleanly between Robotic Dispenser and Counter)
-    { id: 'st-12', roleLabel: 'Pharmacist', role: 'pharmacist', gx: 18.6, gy: 13.8, pose: 'TYPING_TERMINAL', taskCur: 'C3 Stockout (92m)', taskFut: 'C3 e-Kanban (18m) ✓', dur: 2.3, show: true },
+    { id: 'st-11', roleLabel: 'Nurse', role: 'nurse', gx: 9.2, gy: 16.0, pose: 'TYPING_TERMINAL', taskCur: 'C3 Ward query (35m)', taskFut: 'C3 Day-before check ✓', dur: 2.2, show: false, failCur: true },
+    // C3 Discharge Pharmacy (Item X: safety stock 22, reorder point 52; Appendix C3)
+    { id: 'st-12', roleLabel: 'Pharmacist', role: 'pharmacist', gx: 18.6, gy: 13.8, pose: 'TYPING_TERMINAL', taskCur: 'C3 Item X stock-out', taskFut: 'C3 Safety stock 22 · ROP 52 ✓', dur: 2.3, show: true, failCur: true },
     { id: 'st-13', roleLabel: 'Pharmacist', role: 'pharmacist', gx: 21.2, gy: 13.6, pose: 'HANDOVER_INTERACTION', taskStations: [{ gx: 21.2, gy: 13.6, pose: 'HANDOVER_INTERACTION' }, { gx: 18.8, gy: 12.5, pose: 'HANDOVER_INTERACTION' }], dwell: 3.8 },
-    // C5 Reception & HIS Appointment Sync Command Staff
-    { id: 'st-14', roleLabel: '', role: 'admin', gx: 28.0, gy: 14.0, pose: 'TYPING_TERMINAL', taskCur: 'C5 SMS≠Phone Conflict', taskFut: 'C5 99.9% SSOT Sync ✓', dur: 2.0, show: true }
+    // C5 Appointment & Booking Office
+    { id: 'st-14', roleLabel: '', role: 'admin', gx: 28.0, gy: 14.0, pose: 'TYPING_TERMINAL', taskCur: 'C5 3 booking versions', taskFut: 'C5 One master record ✓', dur: 2.0, show: true, failCur: true }
   ];
+
+  const LATE_WARD_END = 5.0;   // on ward round
+  const LATE_ARRIVE = 9.5;     // reaches clinic ~25 sim-min late
+  const LATE_LEAVE = 14.0;     // heads back for next morning's round
+
+  function easeInOut(f) {
+    const x = Math.max(0, Math.min(1, f));
+    return x * x * (3 - 2 * x);
+  }
+
+  function pointOnPath(pts, f) {
+    let total = 0;
+    const segs = [];
+    for (let i = 1; i < pts.length; i++) {
+      const L = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+      segs.push(L);
+      total += L;
+    }
+    let d = Math.max(0, Math.min(1, f)) * total;
+    for (let i = 0; i < segs.length; i++) {
+      if (d <= segs[i] || i === segs.length - 1) {
+        const r = segs[i] > 0 ? Math.min(1, d / segs[i]) : 1;
+        const a = pts[i], b = pts[i + 1];
+        return { x: a[0] + (b[0] - a[0]) * r, y: a[1] + (b[1] - a[1]) * r, dx: b[0] - a[0], dy: b[1] - a[1] };
+      }
+      d -= segs[i];
+    }
+    const last = pts[pts.length - 1];
+    return { x: last[0], y: last[1], dx: 0, dy: 0 };
+  }
+
+  function dirFrom(dx, dy) {
+    return Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'SE' : 'NW') : (dy > 0 ? 'SW' : 'NE');
+  }
+
+  function stepLateDoctor(ag, tSec, isCur) {
+    const lr = ag.lateRound;
+    const path = lr.path;
+    const desk = path[path.length - 1];
+    ag.taskProg = null;
+    if (!isCur) {
+      // Target: punctual session start — doctor already at the consultation desk
+      ag.gx = desk[0]; ag.gy = desk[1]; ag.pose = 'EXAMINING'; ag.dir = 'SE';
+      setStepBubble(ag, null, null, 'ok', tSec, false);
+      return;
+    }
+    const c = (tSec + lr.offset) % CYCLE_SEC;
+    const cycleNo = Math.floor((tSec + lr.offset) / CYCLE_SEC);
+    let atClinic = false;
+    if (c < LATE_WARD_END) {
+      ag.gx = path[0][0]; ag.gy = path[0][1]; ag.pose = 'EXAMINING'; ag.dir = 'SW';
+    } else if (c < LATE_ARRIVE) {
+      const p = pointOnPath(path, easeInOut((c - LATE_WARD_END) / (LATE_ARRIVE - LATE_WARD_END)));
+      ag.gx = p.x; ag.gy = p.y; ag.pose = 'WALKING'; ag.dir = dirFrom(p.dx, p.dy);
+    } else if (c < LATE_LEAVE) {
+      ag.gx = desk[0]; ag.gy = desk[1]; ag.pose = 'EXAMINING'; ag.dir = 'SE';
+      atClinic = true;
+    } else {
+      const rev = path.slice().reverse();
+      const p = pointOnPath(rev, easeInOut((c - LATE_LEAVE) / (CYCLE_SEC - LATE_LEAVE)));
+      ag.gx = p.x; ag.gy = p.y; ag.pose = 'WALKING'; ag.dir = dirFrom(p.dx, p.dy);
+    }
+    setStepBubble(ag, 'late-' + cycleNo, lr.bubble || null, 'fail', tSec, atClinic && !!lr.bubble);
+  }
 
   function setStepBubble(ag, key, text, type, tSec, active, maxSec = 1.8) {
     if (!active || !text) {
@@ -85,6 +160,8 @@ const SimApp = (() => {
         dur: sd.dur || 2.2,
         show: !!sd.show,
         taskStations: sd.taskStations || null,
+        lateRound: sd.lateRound || null,
+        failCur: !!sd.failCur,
         dwell: sd.dwell || 4.0,
         bubble: null,
         bubbleType: 'ok',
@@ -145,6 +222,10 @@ const SimApp = (() => {
 
       // Staff logic: stationary at desk/counter or clean task station step; 1.8s staggered action pulses
       if (ag.id.startsWith('st-')) {
+        if (ag.lateRound) {
+          stepLateDoctor(ag, tSec, isCur);
+          return;
+        }
         if (ag.taskStations) {
           const stIdx = Math.floor(tSec / ag.dwell) % ag.taskStations.length;
           const st = ag.taskStations[stIdx];
@@ -152,15 +233,12 @@ const SimApp = (() => {
           PH.stepAgentPhysics(ag, st.gx, st.gy, dtSec, { baseSpeed: 4.8 });
           return;
         }
-        if (ag.id === 'st-5' || ag.id === 'st-6' || ag.id === 'st-7') {
-          ag.pose = isCur ? 'IDLE' : 'EXAMINING';
-        }
         const dur = ag.dur || 2.2;
         const pulsePhase = (tSec + idx * 1.45) % 7.2;
         const alpha = ag.show ? PH.actionAlpha(pulsePhase, 1.8) : 0;
         ag.taskProg = (tSec % dur) / dur;
         ag.bubble = alpha > 0.02 ? (isCur ? ag.taskCur : ag.taskFut) : null;
-        ag.bubbleType = isCur && (ag.id === 'st-12' || ag.id === 'st-14') ? 'fail' : 'ok';
+        ag.bubbleType = isCur && ag.failCur ? 'fail' : 'ok';
         ag.bubbleAlpha = alpha;
         ag.showBubble = alpha > 0.02;
         return;
@@ -201,7 +279,7 @@ const SimApp = (() => {
           }
         }
       } else if (ag.group === 'imaging') {
-        // 5 Diagnostic Imaging Patients (Stationary in CT/MRI Scanners, Prep Tables, or Control Queue; zero static bubbles)
+        // 5 Diagnostic Imaging Patients — Current: incomplete requests queue for rework & the MRI slot is wasted; Target: pre-checked, both scanners in use
         if (isCur) {
           if (k === 0) {
             tx = 22.9; ty = 2.6; ag.pose = 'IN_SCANNER'; snap = true;
@@ -245,7 +323,7 @@ const SimApp = (() => {
           }
         }
       } else if (ag.group === 'pharmacy') {
-        // 5 Central Pharmacy Patients (zero static bubbles)
+        // 5 Discharge Pharmacy Patients — Current: queue behind Item X stock-out; Target: meds reconciled the day before
         if (isCur) {
           tx = 18.2 + (k % 3) * 1.4;
           ty = 16.2 + Math.floor(k / 3) * 1.3;
@@ -269,11 +347,11 @@ const SimApp = (() => {
         const stageProg = (cyclePos % 3.0) / 3.0;
 
         if (stage === 0) {
-          // Stage 1: C5 Reception HIS Sync Check-In
+          // Stage 1: C5 Check-in against the booking record
           tx = 2.4; ty = 5.8; ag.pose = 'HANDOVER_INTERACTION';
           if (k === 0) {
             stepKey = (isCur ? 'c-' : 't-') + 's0';
-            stepText = isCur ? 'C5 SMS≠Phone Conflict' : 'C5 99.9% SSOT Sync ✓';
+            stepText = isCur ? 'C5 SMS ≠ call-centre time' : 'C5 One booking record ✓';
             stepType = isCur ? 'fail' : 'ok';
             ag.taskProg = stageProg;
           }
@@ -282,7 +360,7 @@ const SimApp = (() => {
           tx = 5.6; ty = 6.4; ag.pose = isCur ? 'FRUSTRATED_WAIT' : 'SITTING';
           if (k === 0) {
             stepKey = (isCur ? 'c-' : 't-') + 's1';
-            stepText = isCur ? 'C1 No-ETA Wait (68m)' : 'C1 Wave ETA (12m) ✓';
+            stepText = isCur ? 'C1 Wait 33m · no update' : 'C1 Wait 6–9m · live notice ✓';
             stepType = isCur ? 'fail' : 'ok';
             ag.taskProg = stageProg;
           }
@@ -291,16 +369,16 @@ const SimApp = (() => {
           tx = 12.7; ty = 5.6; ag.pose = 'SITTING';
           if (k === 0) {
             stepKey = (isCur ? 'c-' : 't-') + 's2';
-            stepText = 'Specialist Exam (18m)';
+            stepText = 'Consult (15m slot)';
             stepType = 'ok';
             ag.taskProg = stageProg;
           }
         } else if (stage === 3) {
-          // Stage 4: C2 Radiology Referral / CPOE Check
+          // Stage 4: C2 Imaging referral completeness check
           tx = 23.6; ty = 7.4; ag.pose = isCur ? 'FRUSTRATED_WAIT' : 'HANDOVER_INTERACTION';
           if (k === 0) {
             stepKey = (isCur ? 'c-' : 't-') + 's3';
-            stepText = isCur ? 'C2 40% Walk-Back' : 'C2 99% CPOE CT ✓';
+            stepText = isCur ? 'C2 Incomplete → rebook' : 'C2 Pre-checked → scan ✓';
             stepType = isCur ? 'fail' : 'ok';
             ag.taskProg = stageProg;
           }
@@ -309,7 +387,7 @@ const SimApp = (() => {
           tx = 20.2; ty = 13.0; ag.pose = isCur ? 'FRUSTRATED_WAIT' : 'HANDOVER_INTERACTION';
           if (k === 0) {
             stepKey = (isCur ? 'c-' : 't-') + 's4';
-            stepText = isCur ? 'C3 Stockout (92m)' : 'C3 e-Kanban (18m) ✓';
+            stepText = isCur ? 'C3 Rx wait ≈90m' : 'C3 Rx ≤30m ✓';
             stepType = isCur ? 'fail' : 'ok';
             ag.taskProg = stageProg;
           }
@@ -318,7 +396,7 @@ const SimApp = (() => {
           tx = 13.6; ty = 16.8; ag.pose = 'SITTING';
           if (k === 0) {
             stepKey = (isCur ? 'c-' : 't-') + 's5';
-            stepText = isCur ? 'Late Discharge' : 'Smooth Discharge ✓';
+            stepText = isCur ? 'Waiting for meds' : 'Meds in hand → home ✓';
             stepType = isCur ? 'fail' : 'ok';
             ag.taskProg = stageProg;
           }
@@ -357,8 +435,8 @@ const SimApp = (() => {
     if (strip) {
       strip.className = 'cmp-strip ' + (isCur ? 'cur-state' : 'fut-state');
       strip.textContent = isCur
-        ? 'Current: C1 68m No-ETA · C2 40% Walk-Backs · C3 92m Stockout · C5 SMS≠Phone'
-        : 'Target: C1 12m Wave ETA · C2 99% CPOE CT · C3 18m e-Kanban · C5 99.9% SSOT';
+        ? 'Current: C1 33m wait · C2 12% incomplete · C3 ≈90m Rx · C5 3 booking versions'
+        : 'Target: C1 6–9m wait · C2 ≥95% complete · C3 ≤30m Rx · C5 <1% mismatch';
     }
   }
 
