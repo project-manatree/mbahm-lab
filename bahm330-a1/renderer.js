@@ -37,19 +37,22 @@ const IsoRenderer = (() => {
       { x: 16.2, y: 7.2, w: 3.4, d: 1.3, mat: { cur: null, fut: 'paver' } },        // Park & Resort Side-Door Link
       { x: 16.55, y: 9.2, w: 2.65, d: 3.9, mat: { cur: null, fut: 'travertine' } }, // Front Park BBQ & Picnic Rest Patio
       { x: 16.2, y: 10.6, w: 0.4, d: 1.2, mat: { cur: null, fut: 'paver' } },       // BBQ Patio Walkway Link
-      // East Swimming Pool Deck directly outside Wellness & Movement Class (x: 34.8..38.4, y: 2.2..7.6)
+      // East Swimming Pool Deck (y: 2.2..7.6) & Outdoor Al-Fresco Garden Bistro Terrace (y: 8.4..15.6)
       { x: 33.6, y: 4.0, w: 1.25, d: 1.6, mat: { cur: null, fut: 'travertine' } },  // Wellness Class -> Pool Deck Bridge
       { x: 34.8, y: 2.2, w: 3.6, d: 5.4, mat: { cur: null, fut: 'travertine' } },   // East Resort Pool Sun Terrace
       { x: 35.15, y: 2.7, w: 1.75, d: 4.15, mat: { cur: null, fut: 'water' } },     // Outdoor Resort Swimming Pool
-      { x: 33.6, y: 11.7, w: 1.4, d: 1.5, mat: { cur: null, fut: 'travertine' } },  // Fine-Dining Garden Terrace Patio
+      { x: 33.6, y: 7.1, w: 1.25, d: 1.5, mat: { cur: null, fut: 'travertine' } },  // Promenade -> East Garden Bistro Bridge
+      { x: 34.8, y: 8.4, w: 3.7, d: 7.2, mat: { cur: null, fut: 'travertine' } },   // Outdoor Garden Bistro Travertine Terrace
+      { x: 35.05, y: 8.75, w: 3.2, d: 6.5, mat: { cur: null, fut: 'deck' } },       // Outdoor Garden Bistro Warm Teak Dining Deck
 
-      // BUILDING 2 (LUXURY WELLNESS RESORT PAVILION, x: 19.6..33.6, y: 2.6..16) — ZERO HOSPITAL WARD BEDS
-      { x: 19.6, y: 2.6, w: 4.0, d: 4.2, mat: { cur: null, fut: 'ceramicBlue' } },  // ONLY 1 Medical Room: MONTHLY VISITING MD ROOM
-      { x: 23.6, y: 2.6, w: 5.0, d: 4.2, mat: { cur: null, fut: 'travertine' } },   // THERMAL SPA & MASSAGE
-      { x: 28.6, y: 2.6, w: 5.0, d: 4.2, mat: { cur: null, fut: 'oak' } },          // WELLNESS & MOVEMENT CLASS
+      // BUILDING 2 (LUXURY WELLNESS & RECOVERY RESORT PAVILION, x: 19.6..33.6, y: 2.6..16)
+      { x: 19.6, y: 2.6, w: 4.0, d: 4.2, mat: { cur: null, fut: 'ceramicBlue' } },  // 1. VIP Physician & ISBAR Consultation Salon
+      { x: 23.6, y: 2.6, w: 5.0, d: 4.2, mat: { cur: null, fut: 'travertine' } },   // 2. Thermal Spa & Hyperbaric Bio-Recovery
+      { x: 28.6, y: 2.6, w: 5.0, d: 4.2, mat: { cur: null, fut: 'oak' } },          // 3. Wellness & Movement Studio
       { x: 19.6, y: 6.8, w: 14.0, d: 2.0, mat: { cur: null, fut: 'marble' } },      // Resort Central Marble Promenade
-      { x: 19.6, y: 8.8, w: 6.8, d: 7.2, mat: { cur: null, fut: 'carpetBeige' } },  // EVENTS & SOCIAL LOUNGE
-      { x: 26.4, y: 8.8, w: 7.2, d: 7.2, mat: { cur: null, fut: 'ceramicCream' } }, // FINE-DINING RESTAURANT
+      { x: 19.6, y: 8.8, w: 6.8, d: 7.2, mat: { cur: null, fut: 'carpetBeige' } },  // 4. Grand Social Lounge & Piano Drawing Room
+      { x: 26.4, y: 8.8, w: 3.6, d: 7.2, mat: { cur: null, fut: 'oak' } },          // 5. Private Luxury Recovery Suite 301
+      { x: 30.0, y: 8.8, w: 3.6, d: 7.2, mat: { cur: null, fut: 'oak' } },          // 6. Private Luxury Recovery Suite 302
 
       // ---------------- FRONT WALKWAY & CONCIERGE TRANSPORT ROAD (y: 16..20.4)
       { x: 1, y: 16.0, w: 14, d: 0.6, mat: 'paver' },            // Hospital Front Entrance Apron
@@ -82,19 +85,20 @@ const IsoRenderer = (() => {
       { x1: 5.8, y1: 8.5, x2: 5.8, y2: 16, kind: 'int', col: '#cbd5e1', open: [{ at: 11.5, w: 1.4, type: 'door' }] },
       { x1: 10.8, y1: 8.5, x2: 10.8, y2: 16, kind: 'glass', col: '#cbd5e1', open: [{ at: 11.5, w: 1.5, type: 'slide' }] },
 
-      // BUILDING 2 (RIGHT — LUXURY WELLNESS RESORT PAVILION, x: 19.6..33.6, y: 2.6..16)
+      // BUILDING 2 (RIGHT — LUXURY WELLNESS & RECOVERY RESORT PAVILION, x: 19.6..33.6, y: 2.6..16)
       { when: 'fut', x1: 19.6, y1: 2.6, x2: 33.6, y2: 2.6, kind: 'ext', col: '#faf8f5', windows: true },
       { when: 'fut', x1: 19.6, y1: 2.6, x2: 19.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 7.1, w: 1.5, type: 'slide', alwaysOpen: true }] },
-      { when: 'fut', x1: 33.6, y1: 2.6, x2: 33.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 4.1, w: 1.4, type: 'slide', alwaysOpen: true }, { at: 11.7, w: 1.5, type: 'slide', alwaysOpen: true }] },
+      { when: 'fut', x1: 33.6, y1: 2.6, x2: 33.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 4.1, w: 1.4, type: 'slide', alwaysOpen: true }, { at: 7.1, w: 1.5, type: 'slide', alwaysOpen: true }] },
       { when: 'fut', x1: 19.6, y1: 16, x2: 33.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 21.0, w: 2.4, type: 'slide', alwaysOpen: true }] },
-      // Top Wing Dividers: Monthly Visiting MD Room | Thermal Spa & Massage | Wellness & Movement Class
+      // Top Wing Dividers: VIP Physician Salon | Thermal & Hyperbaric Spa | Wellness & Movement Studio
       { when: 'fut', x1: 23.6, y1: 2.6, x2: 23.6, y2: 6.8, kind: 'int', col: '#e2e8f0' },
       { when: 'fut', x1: 28.6, y1: 2.6, x2: 28.6, y2: 6.8, kind: 'glass', col: '#cbd5e1' },
-      // Resort Central Promenade Walls (Corridor y: 6.8..8.8)
+      // Resort Central Promenade Walls (Corridor y: 6.8..8.8) — Doors into Lounge, Suite 301 & Suite 302
       { when: 'fut', x1: 19.6, y1: 6.8, x2: 33.6, y2: 6.8, kind: 'glass', col: '#f8fafc', open: [{ at: 21.0, w: 1.5, type: 'door' }, { at: 25.4, w: 1.6, type: 'slide' }, { at: 30.4, w: 1.8, type: 'slide' }] },
-      { when: 'fut', x1: 19.6, y1: 8.8, x2: 33.6, y2: 8.8, kind: 'glass', col: '#f8fafc', open: [{ at: 21.4, w: 1.8, type: 'slide' }, { at: 29.2, w: 1.8, type: 'slide' }] },
-      // Bottom Wing Divider: Events & Social Lounge | Fine-Dining Restaurant
-      { when: 'fut', x1: 26.4, y1: 8.8, x2: 26.4, y2: 16, kind: 'glass', col: '#e2e8f0', open: [{ at: 11.8, w: 1.8, type: 'slide', alwaysOpen: true }] }
+      { when: 'fut', x1: 19.6, y1: 8.8, x2: 33.6, y2: 8.8, kind: 'glass', col: '#f8fafc', open: [{ at: 21.4, w: 1.8, type: 'slide' }, { at: 27.5, w: 1.3, type: 'door' }, { at: 31.1, w: 1.3, type: 'door' }] },
+      // Bottom Wing Dividers: Social Lounge (19.6..26.4) | Private Recovery Suite 301 (26.4..30.0) | Private Recovery Suite 302 (30.0..33.6)
+      { when: 'fut', x1: 26.4, y1: 8.8, x2: 26.4, y2: 16, kind: 'int', col: '#e2e8f0' },
+      { when: 'fut', x1: 30.0, y1: 8.8, x2: 30.0, y2: 16, kind: 'int', col: '#e2e8f0' }
     ]
   };
 
@@ -1100,8 +1104,8 @@ const IsoRenderer = (() => {
     });
   }
 
-  // 9. Retreat Suite 4 & 5: Persian Silk Rug, Baby Grand Piano, VIP Red-Carpet Stanchions & Sommelier Wine/Elixir Wall
-  function drawLuxuryLoungeAndBistroDetails() {
+  // 9. Retreat Suite 4, Suites 301/302 & Outdoor Garden Bistro Pavilion
+  function drawLuxuryLoungeAndSuiteDetails() {
     // Woven Cream, Burgundy & Gold Persian Silk Area Rug under the Social Lounge Seating (x = 22.1, y = 10.1)
     PH.furniture(22.1, 10.1, 3.6, 4.3, 0, k => {
       k.top(0, 0, 0.12, 3.6, 4.3, '#f5efe6', { stroke: '#d4af37', lw: 1.5 });
@@ -1118,37 +1122,72 @@ const IsoRenderer = (() => {
       k.cyl(1.72, 1.10, 0, 0.07, 8.5, '#d4af37');
     });
 
-    // Sculptural Marble & Gold Art Pedestal in Resort Central Marble Promenade (x = 27.6, y = 7.35)
-    PH.furniture(27.6, 7.35, 0.72, 0.72, 0, k => {
+    // Sculptural Marble & Gold Art Pedestal in Resort Central Marble Promenade (x = 26.0, y = 7.35)
+    PH.furniture(26.0, 7.35, 0.72, 0.72, 0, k => {
       k.box(0.08, 0.08, 0, 0.56, 0.56, 9.6, '#faf8f5');
       k.box(0.04, 0.04, 9.6, 0.64, 0.64, 0.9, '#d4af37');
       k.cyl(0.36, 0.36, 10.5, 0.18, 3.2, '#f8fafc');
       k.blob(0.36, 0.36, 15.2, 0.26, '#f472b6', 3);
       k.blob(0.36, 0.36, 17.0, 0.20, '#fef08a', 4);
     });
+  }
 
-    // Backlit Walnut & Brass Sommelier Wine & Botanical Elixir Cellar Cabinet in Fine-Dining Bistro (x = 27.0, y = 8.92)
-    PH.furniture(27.0, 8.92, 2.1, 0.44, 0, k => {
-      k.box(0.04, 0.04, 0, 2.02, 0.36, 21.5, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.02, 0.02, 21.5, 2.06, 0.40, 1.4, '#d4af37');
-      k.box(0.14, 0.34, 2.5, 1.82, 0.05, 18.0, '#fde68a', { alpha: 0.38 });
-      for (let r = 0; r < 3; r++) {
-        k.box(0.16, 0.10, 5.0 + r * 5.2, 1.78, 0.24, 1.2, '#d4af37');
+  // Private Five-Star Step-Down Recovery Suite Furnishings (Suites 301 & 302)
+  function drawLuxuryRecoverySuite(sx, duvetCol, runnerCol, chairCol, seed) {
+    // King-size luxury upholstered recovery bed with integrated discreet vitals monitor & nightstand
+    PHSprites.luxuryBed(sx + 0.35, 9.8, 0, { duvet: duvetCol, runner: runnerCol, seed });
+    // Private suite lounge armchair + Italian marble & brass tea/orchid side table
+    PHSprites.armchair(sx + 0.35, 13.7, 0, { col: chairCol });
+    PH.furniture(sx + 1.32, 13.85, 0.62, 0.62, 0, k => {
+      k.cyl(0.31, 0.31, 0, 0.18, 0.8, '#d4af37');
+      k.cyl(0.31, 0.31, 0.8, 0.04, 5.2, '#d4af37');
+      k.cyl(0.31, 0.31, 6.0, 0.28, 0.9, '#faf8f5');
+      k.cyl(0.24, 0.28, 6.9, 0.07, 2.2, '#ffffff');
+      k.blob(0.24, 0.28, 10.0, 0.14, '#f472b6', 3);
+      k.cyl(0.40, 0.36, 6.9, 0.06, 1.4, '#d4af37');
+    });
+    // Custom burl-walnut & brass suite wardrobe & luggage credenza along south wall
+    PHSprites.wardrobe(sx + 2.1, 14.9, 0, { wood: '#784e32' });
+  }
+
+  // Outdoor Al-Fresco Teak & Brass Garden Bistro Pavilion on the East Lawn (x: 34.8..38.5, y: 8.4..15.6)
+  function drawOutdoorGardenBistroPavilion() {
+    // Open-air architectural walnut & brass pergola columns + overhead trellis beams (see-through open roof)
+    PH.furniture(34.95, 8.55, 3.4, 6.8, 0, k => {
+      const posts = [[0.08, 0.08], [3.16, 0.08], [0.08, 3.32], [3.16, 3.32], [0.08, 6.56], [3.16, 6.56]];
+      for (const [px, py] of posts) {
+        k.box(px, py, 0, 0.16, 0.16, 1.4, '#d4af37');
+        k.box(px + 0.02, py + 0.02, 1.4, 0.12, 0.12, 20.6, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
+      }
+      // Perimeter top beams & cross rafters
+      k.box(0.06, 0.06, 22.0, 3.28, 0.14, 1.1, '#5c3a21');
+      k.box(0.06, 6.60, 22.0, 3.28, 0.14, 1.1, '#5c3a21');
+      k.box(0.06, 0.06, 22.0, 0.14, 6.68, 1.1, '#784e32');
+      k.box(3.20, 0.06, 22.0, 0.14, 6.68, 1.1, '#784e32');
+      for (let r = 1; r <= 4; r++) {
+        const ry = r * 1.34;
+        k.box(0.14, ry, 22.4, 3.12, 0.08, 0.7, '#784e32');
+        // Warm glowing golden bistro festoon lights along pergola rafters
+        k.cyl(1.10, ry + 0.04, 21.4, 0.06, 1.0, '#fef08a');
+        k.cyl(2.30, ry + 0.04, 21.4, 0.06, 1.0, '#fef08a');
       }
     });
 
-    // Chef's Marble & Brass Tasting Island with Golden Cloche Domes & Overhead Warming Lamps (x = 31.85, y = 11.5)
-    PH.furniture(31.85, 11.5, 1.15, 2.2, 0, k => {
-      k.box(0.06, 0.06, 0, 1.03, 2.08, 10.8, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.02, 0.02, 10.8, 1.11, 2.16, 1.3, '#faf8f5');
-      k.box(0.04, 0.04, 10.2, 1.07, 2.12, 0.6, '#d4af37');
-      // Brass heat-lamp bridge & golden cloche serving domes
-      k.cyl(0.55, 0.35, 12.1, 0.04, 6.5, '#d4af37');
-      k.cyl(0.55, 1.85, 12.1, 0.04, 6.5, '#d4af37');
-      k.box(0.48, 0.30, 18.4, 0.16, 1.60, 0.7, '#d4af37');
-      k.cyl(0.55, 0.75, 12.1, 0.18, 2.2, '#d4af37');
-      k.cyl(0.55, 1.40, 12.1, 0.18, 2.2, '#d4af37');
+    // Chef's Open-Air Marble & Walnut Culinary Tasting Bar at North end of Garden Bistro (x = 35.25, y = 8.85)
+    PH.furniture(35.25, 8.85, 2.8, 0.92, 0, k => {
+      k.box(0.04, 0.06, 0, 2.72, 0.78, 10.6, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
+      k.box(0.02, 0.02, 10.6, 2.76, 0.86, 1.3, '#faf8f5');
+      k.box(0.04, 0.80, 2.4, 2.72, 0.06, 6.4, '#d4af37');
+      // Brass heat-lamp bridge, golden cloche serving domes & botanical elixir jars
+      k.cyl(0.55, 0.44, 11.9, 0.18, 2.2, '#d4af37');
+      k.cyl(1.15, 0.44, 11.9, 0.18, 2.2, '#d4af37');
+      k.cyl(1.85, 0.44, 11.9, 0.12, 3.6, '#10b981');
+      k.cyl(2.25, 0.44, 11.9, 0.12, 3.6, '#f59e0b');
     });
+
+    // Two Round White-Clothed Al-Fresco Bistro Tables with 4 Oak Chairs & Gourmet Plated Meals
+    drawRoundBistroTable(36.65, 11.55);
+    drawRoundBistroTable(36.65, 13.95);
   }
 
   function render(simState) {
@@ -1224,7 +1263,7 @@ const IsoRenderer = (() => {
       drawYogaMat(31.7, 4.8, '#10b981');
 
       // 4. Grand Social Drawing Room, Persian Rug Lounge & Artisanal Espresso Bar (x: 19.6..26.4, y: 8.8..16)
-      drawLuxuryLoungeAndBistroDetails();
+      drawLuxuryLoungeAndSuiteDetails();
       PHSprites.receptionDesk(19.9, 9.4, 1, 2.2, { col: '#d4af37', wood: '#784e32', clutter: false });
       drawWallEventScreen(22.7, 8.92);
       drawEspressoBar(19.9, 12.6);
@@ -1236,14 +1275,11 @@ const IsoRenderer = (() => {
       drawIndoorPalm(25.5, 14.9);
       drawIndoorPalm(19.9, 15.1);
 
-      // 5. Michelin-Style Fine-Dining Therapeutic Restaurant & Sommelier Cellar (x: 26.4..33.6, y: 8.8..16)
-      drawRoundBistroTable(28.0, 10.8);
-      drawRoundBistroTable(30.6, 10.8);
-      drawRoundBistroTable(28.0, 13.8);
-      drawRoundBistroTable(30.6, 13.8);
-      PHSprites.receptionDesk(31.9, 9.1, 1, 2.0, { col: '#d4af37', wood: '#784e32', clutter: false });
+      // 5 & 6. Private Five-Star Step-Down Recovery Suites 301 & 302 (x: 26.4..33.6, y: 8.8..16)
+      drawLuxuryRecoverySuite(26.4, '#0d9488', '#115e59', '#059669', 301);
+      drawLuxuryRecoverySuite(30.0, '#d4af37', '#784e32', '#d4a373', 302);
 
-      // ---------------- MIDDLE REST & BBQ PARK (x: 15..19.6, Back + Front) & EAST POOL BESIDE WELLNESS CLASS
+      // ---------------- MIDDLE REST & BBQ PARK (x: 15..19.6), EAST POOL (y: 2.2..7.6) & EAST GARDEN BISTRO PAVILION (y: 8.4..15.6)
       // 1. Back Shade Park Rest Lawn (y: 2.2..7.0) — Big Shade Tree & Rest Benches (No Fountain)
       drawTreeWithFlowerbed(17.9, 4.2, 1.25, 1);
       drawParkBench(17.15, 2.35, false);
@@ -1261,27 +1297,29 @@ const IsoRenderer = (() => {
       drawCobblestonePath(33.8, 1.15, 0.9, 14.85);
       drawCobblestonePath(16.2, 7.25, 3.3, 1.2);
 
-      // 3. East Swimming Pool Terrace directly beside Wellness & Movement Class
+      // 3. East Swimming Pool Terrace directly beside Wellness & Movement Class (y: 2.2..7.6)
       drawSwimmingPool(35.15, 2.7, 1.75, 4.15);
       drawPoolLounger(37.15, 2.80, '#f8fafc');
       drawPoolUmbrella(37.55, 4.72, '#0d9488', '#fefce8');
       drawPoolLounger(37.15, 5.20, '#f0fdfa');
       drawHedge(34.9, 7.7, 3.4, 0.35, true);
 
+      // 4. Outdoor Al-Fresco Garden Bistro Pavilion on the East Lawn (x: 34.8..38.5, y: 8.4..15.6)
+      drawOutdoorGardenBistroPavilion();
+      drawHedge(34.9, 15.65, 3.5, 0.35, true);
+
       drawHedge(20.2, 2.25, 13.0, 0.35, true);
 
-      // Flowering Trees & Park Seating along North Walk & East Lawn
+      // Flowering Trees & Park Seating along North Walk & East Lawn Corners
       drawTreeWithFlowerbed(23.8, 1.1, 0.72, 1);
       drawTreeWithFlowerbed(29.0, 1.1, 0.72, 0);
       drawTreeWithFlowerbed(37.8, 1.45, 0.80, 1);
-      drawTreeWithFlowerbed(37.4, 9.6, 0.82, 0);
-      drawTreeWithFlowerbed(37.4, 14.6, 0.85, 1);
+      drawTreeWithFlowerbed(38.1, 8.1, 0.74, 0);
+      drawTreeWithFlowerbed(38.1, 15.5, 0.76, 1);
 
-      // Wooden Park Benches along North Walk & East Bistro Garden
+      // Wooden Park Benches along North Walk
       drawParkBench(20.8, 1.12, false);
       drawParkBench(31.2, 1.12, false);
-      drawParkBench(35.5, 10.6, true);
-      drawParkBench(35.5, 13.2, true);
 
       PHSprites.streetLamp(15.3, 15.6);
       PHSprites.streetLamp(16.4, 5.6);
