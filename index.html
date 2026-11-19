@@ -405,7 +405,7 @@
       <div class="kpi-card">
         <div class="kpi-label">Module 1 · BAHM 330 Assignment 1</div>
         <div class="kpi-val">275m → 110m (-60%)</div>
-        <div class="kpi-sub">180m → 10m Wait · 98% → 74% Ward Occ.</div>
+        <div class="kpi-sub">170m → 10m Wait (-94.1%) · +2.75h Bed Freed</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-label">Module 2 · BAHM 330 Assignment 2</div>
@@ -446,9 +446,9 @@
             Contrasts current partner hospital acute ward bed-blocking (undeveloped retreat plot, no concierge van) against unlocked step-down care in Recovery Suite 301, Visiting MD Clinic, Hydrotherapy Pool &amp; Therapeutic Dining via concierge medical van and parallel e-billing.
           </p>
           <div class="metrics-preview">
-            <div><span>Current (Ward Bed-Blocking):</span><span class="val" style="color:var(--bottleneck)">275m Cycle · 180m Wait · 98% Occ.</span></div>
-            <div><span>Target (Retreat Unlocked):</span><span class="val">110m Cycle · 10m Wait · 74% Occ.</span></div>
-            <div><span>Parallel Clearance &amp; PCE:</span><span class="val">Concierge Van + e-Billing · 90.9% PCE</span></div>
+            <div><span>Current (Serial 3-Gate Flow):</span><span class="val" style="color:var(--bottleneck)">275m (105m Active + 170m Wait · 38.2% PCE)</span></div>
+            <div><span>Target (Parallel Track A/B/C):</span><span class="val">110m (100m Active + 10m Wait · 90.9% PCE)</span></div>
+            <div><span>Direct-to-Suite ISBAR &amp; Capacity:</span><span class="val">-94.1% Wait · +2.75h Acute Bed Freed</span></div>
           </div>
         </div>
         <div>
@@ -619,9 +619,9 @@
     function exportSuiteSummaryCSV() {
       const rows = [
         ['Module_Code', 'Simulator_Title', 'Metric_Name', 'Current_Baseline', 'Target_State', 'Unit', 'Data_Notice'],
-        ['BAHM330-A1', 'BAHM 330 Assignment 1 — Hospital-to-Retreat Concierge Transfer Pathway', 'Total Cycle Time', '275', '110 (-60%)', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM330-A1', 'BAHM 330 Assignment 1 — Hospital-to-Retreat Concierge Transfer Pathway', 'Waiting Time Delay', '180', '10', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
-        ['BAHM330-A1', 'BAHM 330 Assignment 1 — Hospital-to-Retreat Concierge Transfer Pathway', 'Acute Ward Occupancy', '98', '74', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM330-A1', 'BAHM 330 Assignment 1 — Hospital-to-Retreat Concierge Transfer Pathway', 'Total Cycle Time', '275 (105m Active + 170m Wait, 38.2% PCE)', '110 (100m Active + 10m Wait, 90.9% PCE, -60%)', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM330-A1', 'BAHM 330 Assignment 1 — Hospital-to-Retreat Concierge Transfer Pathway', 'Waiting Time Waste', '170 (45m TTO + 40m GL + 45m Van + 40m Handover)', '10 (-94.1% via T-24h GL & Parallel Track A/B/C)', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
+        ['BAHM330-A1', 'BAHM 330 Assignment 1 — Hospital-to-Retreat Concierge Transfer Pathway', 'Acute Bed-Hours Freed per Case', '0 (Serial Bed-Blocking)', '2.75 (Target >=2.5h, <3% 72h Readmission, 0% TTO Error)', 'hours', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
         ['BAHM330-A2', 'BAHM 330 Assignment 2 — Meridian Specialist Hospital (C1, C2, C3, C5)', 'C1 Mean Outpatient Wait (A6, Table C1)', '33 (119% utilisation, 25m late start)', '6-9 (punctual start, 16-17 booked)', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
         ['BAHM330-A2', 'BAHM 330 Assignment 2 — Meridian Specialist Hospital (C1, C2, C3, C5)', 'C2 Imaging Requests Complete at Booking (K5)', '88 (12% incomplete, A8)', '>=95 (72h pre-check)', '%', 'SIMULATED ILLUSTRATIVE MODEL DATA'],
         ['BAHM330-A2', 'BAHM 330 Assignment 2 — Meridian Specialist Hospital (C1, C2, C3, C5)', 'C3 Prescription to Handover (K7)', '~90 (Item X stock-out, ROP 30)', '<=30 (safety stock 22, ROP 52)', 'mins', 'SIMULATED ILLUSTRATIVE MODEL DATA'],

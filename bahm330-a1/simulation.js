@@ -22,20 +22,20 @@ const SimApp = (() => {
     agents: []
   };
 
-  // 11 Clinical/Operational Staff (Stationed at desks/counters/beds; only walk for specific tasks)
+  // 12 Clinical/Operational Staff (Stationed behind desks/counters/beds; aligned with Slides 4, 7, 8, 9, 10)
   const STAFF_DEFS = [
-    { id: 'st-1', roleLabel: 'Doctor', role: 'doctor', gx: 3.6, gy: 2.9, pose: 'EXAMINING', taskCur: 'Ward Note (70m)', taskFut: 'Pre-Discharge (15m)', dur: 2.4, show: true },
-    { id: 'st-2', roleLabel: 'Nurse', role: 'nurse', gx: 6.8, gy: 2.2, pose: 'EXAMINING', taskStations: [{ gx: 6.8, gy: 2.0, pose: 'EXAMINING' }, { gx: 6.8, gy: 4.8, pose: 'HANDOVER_INTERACTION' }], dwell: 4.0 },
-    { id: 'st-3', roleLabel: 'Doctor', role: 'doctor', gx: 10.7, gy: 2.8, pose: 'EXAMINING', taskCur: 'Chart Review', taskFut: 'e-Clearance', dur: 2.2, show: false },
-    { id: 'st-4', roleLabel: 'Nurse', role: 'nurse', gx: 13.4, gy: 2.8, pose: 'TYPING_TERMINAL', taskCur: 'Paper Summary', taskFut: 'EHR Sync', dur: 2.0, show: false },
-    { id: 'st-5', roleLabel: 'Pharmacist', role: 'pharmacist', gx: 2.6, gy: 9.7, pose: 'TYPING_TERMINAL', taskCur: 'Manual Rx', taskFut: 'Pre-Packed Rx', dur: 2.2, show: false },
-    { id: 'st-6', roleLabel: '', role: 'reception', gx: 7.5, gy: 10.4, pose: 'TYPING_TERMINAL', taskCur: 'Billing (55m)', taskFut: 'e-Billing (5m) ✓', dur: 2.0, show: true },
-    // Single Concierge operating the Left <-> Right transport between the two downward-facing Main Entrances
-    { id: 'st-7', roleLabel: 'Concierge', role: 'concierge', gx: 12.7, gy: 16.2, pose: 'HANDOVER_INTERACTION', taskCur: 'Ramp Lift', taskFut: 'VIP Ramp (2m)', dur: 2.2, show: true },
-    { id: 'st-8', retreat: true, roleLabel: 'Concierge', role: 'concierge', gx: 21.0, gy: 10.7, pose: 'TYPING_TERMINAL', taskCur: 'Paper Intake (30m)', taskFut: 'Biometric Lounge ✓', dur: 2.0, show: true },
-    { id: 'st-9', retreat: true, roleLabel: 'Doctor', role: 'doctor', gx: 21.5, gy: 4.3, pose: 'EXAMINING', taskCur: 'Delayed MD (30m)', taskFut: 'Monthly MD Visit ✓', dur: 2.4, show: true },
+    { id: 'st-1', roleLabel: 'Doctor', role: 'doctor', gx: 4.1, gy: 2.8, pose: 'EXAMINING', taskCur: 'Gate 1: Summary (25m+30m wait)', taskFut: 'Track A: Clinical e-Sign (20m) ✓', dur: 2.4, show: true },
+    { id: 'st-2', roleLabel: 'Nurse', role: 'nurse', gx: 6.4, gy: 2.2, pose: 'EXAMINING', taskStations: [{ gx: 6.4, gy: 2.2, pose: 'EXAMINING' }, { gx: 6.4, gy: 4.4, pose: 'HANDOVER_INTERACTION' }], dwell: 4.0 },
+    { id: 'st-3', roleLabel: 'Doctor', role: 'doctor', gx: 10.9, gy: 2.8, pose: 'EXAMINING', taskCur: 'Serial Discharge Order', taskFut: 'T-24h Probable Flag ✓', dur: 2.2, show: false },
+    { id: 'st-4', roleLabel: 'Nurse', role: 'nurse', gx: 13.55, gy: 2.6, pose: 'TYPING_TERMINAL', taskCur: 'Paper Summary Queue', taskFut: 'EWS < 3 & ISBAR Check ✓', dur: 2.0, show: false },
+    { id: 'st-5', roleLabel: 'Pharmacist', role: 'pharmacist', gx: 2.2, gy: 10.6, pose: 'TYPING_TERMINAL', taskCur: 'Rank 1: TTO Batch (45m wait)', taskFut: 'Track B: Sealed TTO (20m) ✓', dur: 2.2, show: true },
+    { id: 'st-6', roleLabel: '', role: 'reception', gx: 7.2, gy: 9.15, pose: 'TYPING_TERMINAL', taskCur: 'Rank 3: Serial GL (40m wait)', taskFut: 'Track C: Pre-GL & HL7 (10m) ✓', dur: 2.0, show: true },
+    // Escort RN / Concierge operating the Left <-> Right transport between the two downward-facing Main Entrances
+    { id: 'st-7', roleLabel: 'Concierge', role: 'concierge', gx: 12.7, gy: 16.2, pose: 'HANDOVER_INTERACTION', taskCur: 'Rank 2: Van Lag (45m)', taskFut: 'Hard-Stop ISBAR Gate ✓', dur: 2.2, show: true },
+    { id: 'st-8', retreat: true, roleLabel: 'Concierge', role: 'concierge', gx: 20.25, gy: 10.4, pose: 'TYPING_TERMINAL', taskCur: 'Duplicate Intake (25m)', taskFut: 'Lobby Bypass → Direct Suite ✓', dur: 2.0, show: true },
+    { id: 'st-9', retreat: true, roleLabel: 'Doctor', role: 'doctor', gx: 20.9, gy: 2.85, pose: 'EXAMINING', taskCur: 'Delayed Handover', taskFut: 'ISBAR Suite Handover (+5m) ✓', dur: 2.4, show: true },
     { id: 'st-10', retreat: true, roleLabel: 'Instructor', role: 'therapist', gx: 29.4, gy: 4.3, pose: 'YOGA_STRETCH', taskCur: 'No Class', taskFut: 'Wellness Class ✓', dur: 2.2, show: true },
-    { id: 'st-11', retreat: true, roleLabel: 'Therapist', role: 'therapist', gx: 25.5, gy: 3.6, pose: 'HANDOVER_INTERACTION', taskCur: 'No Spa', taskFut: 'Thermal Massage ✓', dur: 2.5, show: true },
+    { id: 'st-11', retreat: true, roleLabel: 'Therapist', role: 'therapist', gx: 25.5, gy: 3.6, pose: 'HANDOVER_INTERACTION', taskCur: 'No Spa', taskFut: 'Hyperbaric & Thermal Care ✓', dur: 2.5, show: true },
     { id: 'st-12', retreat: true, roleLabel: 'Chef', role: 'chef', gx: 32.4, gy: 10.3, pose: 'HANDOVER_INTERACTION', taskCur: 'No Kitchen', taskFut: 'Bistro Service ✓', dur: 2.3, show: false }
   ];
 
@@ -51,10 +51,10 @@ const SimApp = (() => {
     { gx: 3.3, gy: 5.4, pose: 'SITTING_WAIT' },
     { gx: 9.4, gy: 5.4, pose: 'FRUSTRATED_WAIT' },
     { gx: 10.3, gy: 5.4, pose: 'SITTING_WAIT' },
-    // Pharmacy queue (3)
-    { gx: 1.7, gy: 14.6, pose: 'SITTING_WAIT' },
-    { gx: 2.6, gy: 14.6, pose: 'SITTING_WAIT' },
-    { gx: 3.5, gy: 14.6, pose: 'FRUSTRATED_WAIT' },
+    // Pharmacy queue (3) — queued in front of vertical TTO counter at x = 3.1..4.7
+    { gx: 3.1, gy: 14.6, pose: 'SITTING_WAIT' },
+    { gx: 3.9, gy: 14.6, pose: 'SITTING_WAIT' },
+    { gx: 4.7, gy: 14.6, pose: 'FRUSTRATED_WAIT' },
     // Billing hall queue (8)
     { gx: 6.5, gy: 11.8, pose: 'SITTING_WAIT' },
     { gx: 7.4, gy: 11.8, pose: 'SITTING_WAIT' },
@@ -82,8 +82,8 @@ const SimApp = (() => {
     { gx: 12.1, gy: 9.5, pose: 'SITTING' },
     { gx: 11.5, gy: 11.5, pose: 'SITTING' },
     // Hospital e-Billing & Pre-Packed Rx fast-track counters (2)
-    { gx: 8.6, gy: 10.5, pose: 'HANDOVER_INTERACTION' },
-    { gx: 2.8, gy: 10.5, pose: 'HANDOVER_INTERACTION' },
+    { gx: 7.4, gy: 10.8, pose: 'HANDOVER_INTERACTION' },
+    { gx: 3.9, gy: 10.8, pose: 'HANDOVER_INTERACTION' },
     // MONTHLY VISITING MD ROOM (1 compact medical check-up suite ONLY) (2)
     { gx: 21.3, gy: 5.5, pose: 'SITTING' },
     { gx: 22.4, gy: 3.7, pose: 'SITTING' },
@@ -404,19 +404,19 @@ const SimApp = (() => {
           return;
         }
 
-        // pIdx 0..4 circulate strictly inside Hospital Bottleneck (18s = 3 stages x 6s)
+        // pIdx 0..4 circulate strictly inside Hospital Serial Bottleneck (18s = 3 stages x 6s: Gate 1 -> Gate 2/3 -> Transport Lag)
         const cPos = (tSec + pIdx * 3.6) % CYCLE_SEC;
         const stg = Math.floor(cPos / 6.0);
         const sProg = (cPos % 6.0) / 6.0;
         if (stg === 0) {
           tx = 11.4 + (pIdx % 3) * 0.45; ty = 3.8; ag.pose = 'FRUSTRATED_WAIT';
-          if (pIdx === 0) { stepKey = 'c0-0'; stepText = 'Ward Bed-Block (98%)'; ag.taskProg = sProg; }
+          if (pIdx === 0) { stepKey = 'c0-0'; stepText = 'Gate 1: Summary Wait (55m)'; ag.taskProg = sProg; }
         } else if (stg === 1) {
-          tx = 8.7 + (pIdx % 3) * 0.4; ty = 10.6; ag.pose = 'FRUSTRATED_WAIT';
-          if (pIdx === 0) { stepKey = 'c0-1'; stepText = 'Billing Wait (55m)'; ag.taskProg = sProg; }
+          tx = 7.4 + (pIdx % 3) * 0.45; ty = 10.9; ag.pose = 'FRUSTRATED_WAIT';
+          if (pIdx === 0) { stepKey = 'c0-1'; stepText = 'TTO 45m + GL 40m Wait'; ag.taskProg = sProg; }
         } else {
-          tx = 12.5 + (pIdx % 3) * 0.4; ty = 14.0; ag.pose = 'FRUSTRATED_WAIT';
-          if (pIdx === 0) { stepKey = 'c0-2'; stepText = '275m Cycle · No Van'; ag.taskProg = sProg; }
+          tx = 12.4 + (pIdx % 3) * 0.4; ty = 13.6; ag.pose = 'FRUSTRATED_WAIT';
+          if (pIdx === 0) { stepKey = 'c0-2'; stepText = '275m (170m Wait · 38.2% PCE)'; ag.taskProg = sProg; }
         }
         PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.4, corridorY: 7.5, splitX: 18, snap });
         const arrived = Math.hypot(tx - ag.gx, ty - ag.gy) < 0.95;
@@ -425,7 +425,7 @@ const SimApp = (() => {
       }
 
       // TARGET MODE (isFut === true):
-      // - pIdx = 0: Live Full-Journey Transfer Agent (Building A -> Rides INSIDE Concierge Van -> Luxury Wellness Resort)
+      // - pIdx = 0: Live Full-Journey Transfer Agent (Track A/B/C Parallel -> Scheduled Van -> Lobby Bypass Direct-to-Suite ISBAR)
       // - pIdx = 1, 2: Hospital-side Discharge Pipeline inside Building A ONLY (x < 15)
       // - pIdx = 3, 4: Luxury Resort Wellness Pavilion Pipeline (Building B ONLY, aligned doors)
       // - pIdx = 5: Continuous Walking Park Perimeter Stroller (West -> North -> East -> back around Building B)
@@ -433,17 +433,17 @@ const SimApp = (() => {
         if (into18 < 2.2) {
           if (ag.gx > 18) snap = true;
           tx = 11.8; ty = 3.8; ag.pose = 'HANDOVER_INTERACTION';
-          stepKey = 'p0-predisch'; stepText = 'Pre-Discharge (15m) ✓'; ag.taskProg = into18 / 2.2;
+          stepKey = 'p0-predisch'; stepText = 'Track A: e-Sign (20m) ✓'; ag.taskProg = into18 / 2.2;
         } else if (into18 < 5.0) {
-          tx = 9.0; ty = 10.6; ag.pose = 'HANDOVER_INTERACTION';
-          stepKey = 'p0-ebill'; stepText = 'e-Billing (5m) ✓'; ag.taskProg = (into18 - 2.2) / 2.8;
+          tx = 7.6; ty = 10.8; ag.pose = 'HANDOVER_INTERACTION';
+          stepKey = 'p0-ebill'; stepText = 'Track B/C: TTO + Pre-GL ✓'; ag.taskProg = (into18 - 2.2) / 2.8;
         } else if (into18 < 8.5) {
           const boarding = into18 >= 6.5;
-          tx = boarding ? 12.6 : 12.8;
-          ty = boarding ? 16.35 : 15.4;
+          tx = boarding ? 12.6 : 12.6;
+          ty = boarding ? 16.35 : 14.2;
           ag.pose = 'HANDOVER_INTERACTION';
           stepKey = boarding ? 'p0-board' : 'p0-lounge';
-          stepText = boarding ? 'VIP Ramp Boarding (2m) ✓' : 'Departure Lounge ✓';
+          stepText = boarding ? 'Escort RN Boarding ✓' : 'Hard-Stop ISBAR Gate ✓';
           ag.taskProg = (into18 - 5.0) / 3.5;
         } else if (into18 < 12.5) {
           // Riding INSIDE Executive Concierge Shuttle Left -> Right across road
@@ -455,19 +455,19 @@ const SimApp = (() => {
           ag.pose = 'SITTING';
           return;
         } else if (into18 < 13.5) {
-          // Step down automated side/rear ramp into Luxury Resort Entrance (x = 21.0..23.4, y = 16.0)
+          // Step down automated side/rear ramp into Luxury Resort Entrance (Lobby Bypass!)
           ag.inVehicle = false;
           if (ag.gy > 16.6 || ag.gx < 19.6) {
             ag.gx = 22.1; ag.gy = 16.35; ag.z = 0;
           }
           tx = 22.1; ty = 15.3; ag.pose = 'HANDOVER_INTERACTION';
-          stepKey = 'p0-exit'; stepText = 'Exiting VIP Ramp ✓'; ag.taskProg = (into18 - 12.5) / 1.0;
+          stepKey = 'p0-exit'; stepText = 'Lobby Bypass → Suite ✓'; ag.taskProg = (into18 - 12.5) / 1.0;
         } else if (into18 < 15.8) {
-          tx = 22.2; ty = 10.7; ag.pose = 'HANDOVER_INTERACTION';
-          stepKey = 'p0-concierge'; stepText = 'Lounge Concierge (5m) ✓'; ag.taskProg = (into18 - 13.5) / 2.3;
+          tx = 21.6; ty = 5.2; ag.pose = 'HANDOVER_INTERACTION';
+          stepKey = 'p0-concierge'; stepText = 'ISBAR Suite Entry (+5m) ✓'; ag.taskProg = (into18 - 13.5) / 2.3;
         } else {
           tx = 30.0; ty = 12.2; ag.pose = 'SITTING';
-          stepKey = 'p0-bistro'; stepText = 'Fine-Dining Bistro ✓'; ag.taskProg = (into18 - 15.8) / 2.2;
+          stepKey = 'p0-bistro'; stepText = '110m Total (90.9% PCE) ✓'; ag.taskProg = (into18 - 15.8) / 2.2;
         }
       } else if (pIdx === 1 || pIdx === 2) {
         // Building A ONLY (12.0s cycle = 3 stages x 4.0s)
@@ -572,8 +572,8 @@ const SimApp = (() => {
     if (strip) {
       strip.className = 'cmp-strip ' + (isCur ? 'cur-state' : 'fut-state');
       strip.textContent = isCur
-        ? 'Current: 275m Cycle · 180m Wait · 98% Ward Occ. · No Retreat / No Van'
-        : 'Target: 110m Cycle · 10m Wait · 74% Ward Occ. · Concierge Van + e-Billing';
+        ? 'Current: 275m Serial (105m Active + 170m Wait · 38.2% PCE) · 45m TTO · 40m GL · 45m Van Lag'
+        : 'Target: 110m Parallel (100m Active + 10m Wait · 90.9% PCE) · Track A/B/C · ISBAR Suite (+2.75h Freed)';
     }
   }
 
