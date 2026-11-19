@@ -19,14 +19,13 @@ const IsoRenderer = (() => {
     bounds: { x0: 0.5, y0: 0.3, x1: 39.0, y1: 20.6 },
     view: { x0: 0.5, y0: 0.3, x1: 39.0, y1: 20.6 },
     ground: [
-      // ---------------- BUILDING 1 (LEFT: PARTNER HOSPITAL, x: 1..15, y: 1..16)
-      // Current: worn/congested serial-flow flooring; Target: bright renovated parallel-flow finishes
-      { x: 1, y: 1, w: 7, d: 5.5, mat: { cur: 'linoWorn', fut: 'linoBlue' }, tint: { cur: 'rgba(239,68,68,0.06)', fut: null } }, // Ward A (Acute Inpatient)
-      { x: 8, y: 1, w: 7, d: 5.5, mat: { cur: 'linoGrey', fut: 'linoMint' } },             // Discharge Ward B (Gate 1 / Track A)
-      { x: 1, y: 6.5, w: 14, d: 2.0, mat: { cur: 'concrete', fut: 'terrazzo' } },          // Hospital Central Corridor
-      { x: 1, y: 8.5, w: 4.8, d: 7.5, mat: { cur: 'linoWorn', fut: 'ceramic' }, tint: { cur: 'rgba(245,158,11,0.06)', fut: null } }, // Discharge Pharmacy (Gate 2 / Track B)
-      { x: 5.8, y: 8.5, w: 5.0, d: 7.5, mat: { cur: 'linoGrey', fut: 'linoWhite' }, tint: { cur: 'rgba(239,68,68,0.05)', fut: null } }, // Billing & GL Hall (Gate 3 / Track C)
-      { x: 10.8, y: 8.5, w: 4.2, d: 7.5, mat: { cur: 'carpetGrey', fut: 'carpetTeal' } },  // Hard-Stop ISBAR Boarding Gate & Departure Lobby
+      // ---------------- BUILDING 1 (LEFT: PARTNER HOSPITAL, x: 1..15, y: 1..16) — 100% IDENTICAL IN BOTH MODES
+      { x: 1, y: 1, w: 7, d: 5.5, mat: 'linoBlue' },             // Ward A (Acute Inpatient)
+      { x: 8, y: 1, w: 7, d: 5.5, mat: 'linoMint' },             // Discharge Ward B (Gate 1 / Track A)
+      { x: 1, y: 6.5, w: 14, d: 2.0, mat: 'terrazzo' },          // Hospital Central Corridor
+      { x: 1, y: 8.5, w: 4.8, d: 7.5, mat: 'ceramic' },          // Discharge Pharmacy (Gate 2 / Track B)
+      { x: 5.8, y: 8.5, w: 5.0, d: 7.5, mat: 'linoWhite' },      // Billing & GL Hall (Gate 3 / Track C)
+      { x: 10.8, y: 8.5, w: 4.2, d: 7.5, mat: 'carpetTeal' },    // Hard-Stop ISBAR Boarding Gate & Departure Lobby
 
       // ---------------- RIGHT SITE: UNDEVELOPED LOT (Current) -> GARDEN PARK, RESORT & EAST POOL (Target)
       { x: 15.0, y: 0.6, w: 23.8, d: 16.0, mat: 'grass' },       // Undeveloped Grass (Cur) / Landscaped Resort Lawn (Fut)
@@ -58,9 +57,8 @@ const IsoRenderer = (() => {
       { x: 1, y: 16.6, w: 37.8, d: 3.8, mat: 'asphalt' }           // Horizontal Left<->Right Road
     ],
     decals: [
-      // Hospital corridor wayfinding line (Red serial bottleneck in Current -> Cyan parallel flow in Target)
-      { type: 'line', x1: 1.5, y1: 7.5, x2: 14.5, y2: 7.5, w: 0.11, col: '#ef4444', when: 'cur' },
-      { type: 'line', x1: 1.5, y1: 7.5, x2: 14.5, y2: 7.5, w: 0.11, col: '#0ea5e9', when: 'fut' },
+      // Hospital corridor wayfinding line
+      { type: 'line', x1: 1.5, y1: 7.5, x2: 14.5, y2: 7.5, w: 0.10, col: '#0ea5e9' },
       // Resort marble promenade accent trim
       { type: 'line', x1: 20.0, y1: 7.8, x2: 33.2, y2: 7.8, w: 0.10, col: '#10b981', when: 'fut' },
       // Road center divider (Left <-> Right)
@@ -832,23 +830,23 @@ const IsoRenderer = (() => {
   }
 
   // 1. Ward A & B: Rolling Bedside Vitals Monitor (EWS < 3 check) & Chrome IV Infusion Stand
-  function drawBedsideVitalsAndIV(x, y, isAlert, seed) {
+  function drawBedsideVitalsAndIV(x, y, seed) {
     PH.furniture(x, y, 0.46, 0.46, 0, k => {
       k.cyl(0.23, 0.23, 0, 0.15, 0.8, '#475569');
       k.cyl(0.16, 0.18, 0.8, 0.03, 18.0, '#cbd5e1');
       k.box(0.08, 0.10, 8.2, 0.17, 0.15, 3.0, '#0284c7');
-      k.box(0.10, 0.25, 8.7, 0.12, 0.03, 2.0, isAlert ? '#ef4444' : '#38bdf8');
+      k.box(0.10, 0.25, 8.7, 0.12, 0.03, 2.0, '#38bdf8');
       k.box(0.06, 0.12, 16.0, 0.10, 0.08, 2.3, '#bae6fd', { alpha: 0.78 });
       k.box(0.20, 0.12, 16.0, 0.10, 0.08, 2.3, '#fde68a', { alpha: 0.78 });
       k.box(0.22, 0.18, 11.0, 0.22, 0.13, 4.0, '#0f172a');
       k.part(0.33, 0.32, 3, () => {
-        k.now.screen('+v', 0.32, 0.23, 0.42, 11.4, 14.6, isAlert ? 'ecgAlarm' : 'ecg', seed || 1);
+        k.now.screen('+v', 0.32, 0.23, 0.42, 11.4, 14.6, 'ecg', seed || 1);
       });
     });
   }
 
   // 2. Ward A/B: Red Emergency Resuscitation Crash Cart + Defibrillator + O2 Cylinder & Mobile Nursing COW Cart
-  function drawWardClinicalEquipment(isFut) {
+  function drawWardClinicalEquipment() {
     // Red 5-drawer Crash Cart at Ward A/B Nurse Bay (x = 6.7, y = 5.0)
     PH.furniture(6.7, 5.1, 0.84, 0.56, 0, k => {
       k.box(0.04, 0.04, 0, 0.76, 0.48, 1.2, '#1e293b');
@@ -877,13 +875,13 @@ const IsoRenderer = (() => {
       k.box(0.06, 0.08, 10.3, 0.50, 0.40, 1.0, '#e2e8f0');
       k.box(0.12, 0.14, 11.3, 0.38, 0.10, 4.6, '#0f172a');
       k.part(0.31, 0.25, 3, () => {
-        k.now.screen('+v', 0.25, 0.15, 0.47, 11.7, 15.5, isFut ? 'ok' : 'alert', 77);
+        k.now.screen('+v', 0.25, 0.15, 0.47, 11.7, 15.5, 'ui', 77);
       });
     });
   }
 
-  // 3. Gate 2 / Track B Discharge Pharmacy: Cold-Chain Fridge & Concurrent TTO Unit-Dose Sealing Station (<5 Oral TTOs)
-  function drawHospitalPharmacyEquipment(isFut) {
+  // 3. Gate 2 / Track B Discharge Pharmacy: Cold-Chain Fridge & TTO Unit-Dose Sealing Station (<5 Oral TTOs)
+  function drawHospitalPharmacyEquipment() {
     // Glass-door Cold-Chain Biologics Fridge (2°C–8°C) inside West Dispensary (x = 1.25, y = 12.8)
     PH.furniture(1.25, 12.8, 1.15, 0.68, 0, k => {
       k.box(0.04, 0.04, 0, 1.07, 0.60, 21.0, '#f8fafc');
@@ -897,42 +895,27 @@ const IsoRenderer = (() => {
     PH.furniture(1.25, 14.3, 1.35, 0.68, 0, k => {
       k.box(0.06, 0.06, 0, 1.23, 0.56, 10.0, '#cbd5e1');
       k.box(0.02, 0.02, 10.0, 1.31, 0.64, 1.2, '#f8fafc');
-      // Thermal Rx label printer, barcode scanner & sealed TTO packs (green in Target vs amber batch pile in Current)
       k.box(0.14, 0.16, 11.2, 0.28, 0.28, 2.5, '#1e293b');
-      k.box(0.52, 0.14, 11.2, 0.34, 0.34, 2.4, isFut ? '#10b981' : '#ef4444');
-      k.box(0.92, 0.14, 11.2, 0.30, 0.34, 2.4, isFut ? '#0ea5e9' : '#fde68a');
+      k.box(0.52, 0.14, 11.2, 0.34, 0.34, 2.4, '#10b981');
+      k.box(0.92, 0.14, 11.2, 0.30, 0.34, 2.4, '#0ea5e9');
     });
-    statusBoard(3.8, 8.85, 1.5, isFut ? 'ok' : 'alert', 41);
+    statusBoard(3.8, 8.85, 1.5, 'ui', 41);
   }
 
-  // 4. Gate 3 / Track C Billing & GL Hall: Serial Paper GL Query Stack (Cur) vs T-24h Pre-Cleared GL & HL7 Server (Fut)
-  function drawBillingGlEquipment(isFut) {
-    statusBoard(6.1, 8.85, 1.5, isFut ? 'ok' : 'alert', 42);
-    if (!isFut) {
-      // High-volume paper invoice printer & manual insurer GL fax/query folders (Rank 3: 40m Serial GL Wait)
-      PH.furniture(9.1, 9.2, 1.25, 0.82, 0, k => {
-        k.box(0.06, 0.06, 0, 1.13, 0.70, 10.2, '#94a3b8');
-        k.box(0.12, 0.12, 10.2, 0.50, 0.52, 4.6, '#e2e8f0');
-        k.box(0.70, 0.16, 10.2, 0.34, 0.40, 4.4, '#fef3c7');
-        k.box(0.72, 0.18, 14.6, 0.30, 0.36, 3.0, '#fde68a');
-        k.box(0.18, 0.20, 14.8, 0.36, 0.38, 1.2, '#ef4444');
-      });
-    } else {
-      // T-24h Pre-Cleared Package GL & HL7 Auto-Dispatch Gateway Rack (Track C: 10m)
-      PH.furniture(9.2, 9.1, 1.15, 1.45, 0, k => {
-        k.box(0.06, 0.06, 0, 1.03, 1.33, 20.5, '#0f172a');
-        k.box(0.04, 0.04, 20.5, 1.07, 1.37, 1.5, '#10b981');
-        for (let b = 0; b < 4; b++) {
-          k.box(0.12, 1.36, 3.2 + b * 4.0, 0.88, 0.04, 1.4, b % 2 === 0 ? '#10b981' : '#0ea5e9');
-        }
-      });
-    }
+  // 4. Gate 3 / Track C Billing & GL Hall: GL Server & Printer Station
+  function drawBillingGlEquipment() {
+    statusBoard(6.1, 8.85, 1.5, 'ui', 42);
+    PH.furniture(9.1, 9.2, 1.25, 0.82, 0, k => {
+      k.box(0.06, 0.06, 0, 1.13, 0.70, 10.2, '#94a3b8');
+      k.box(0.12, 0.12, 10.2, 0.50, 0.52, 4.6, '#e2e8f0');
+      k.box(0.70, 0.16, 10.2, 0.34, 0.40, 4.4, '#cbd5e1');
+      k.box(0.18, 0.20, 14.8, 0.36, 0.38, 1.2, '#0284c7');
+    });
   }
 
   // 5. Departure Lobby: Hard-Stop ISBAR Boarding Gate & Hospital Escort Wheelchairs (Slide 10 Safety Controls)
-  function drawDepartureBoardingGate(isFut) {
-    // Hard-Stop Boarding Gate Pillar (verifies e-Discharge + Sealed TTOs + ISBAR + EWS < 3 before van boarding)
-    statusBoard(13.1, 14.1, 1.5, isFut ? 'ok' : 'alert', 43);
+  function drawDepartureBoardingGate() {
+    statusBoard(13.1, 14.1, 1.5, 'ui', 43);
     // Escort Wheelchairs parked inside Departure Lobby
     for (let i = 0; i < 2; i++) {
       PH.furniture(11.0 + i * 0.78, 14.8, 0.70, 0.70, 0, k => {
@@ -991,54 +974,48 @@ const IsoRenderer = (() => {
     PH.setCondition(isFut ? 'fut' : 'cur');
     PH.begin(simState.elapsedSec);
 
-    // ---------------- BUILDING 1 (LEFT, x: 1..15, y: 1..16): PARTNER HOSPITAL
+    // ---------------- BUILDING 1 (LEFT, x: 1..15, y: 1..16): PARTNER HOSPITAL (100% SAME COLORS & STRUCTURE IN BOTH MODES)
     // 1. Ward A (x: 1..8, y: 1..6.5) — 4 Inpatient Beds + Bedside Vitals/IV + Curtains + Crash Cart
-    const bedBlanket = isFut ? '#0ea5e9' : '#f59e0b';
-    PHSprites.hospitalBed(1.4, 1.4, 0, { blanket: bedBlanket, alert: !isFut, ready: isFut, seed: 1 });
-    drawBedsideVitalsAndIV(3.52, 1.45, !isFut, 11);
+    const bedBlanket = '#0ea5e9';
+    PHSprites.hospitalBed(1.4, 1.4, 0, { blanket: bedBlanket, ready: true, seed: 1 });
+    drawBedsideVitalsAndIV(3.52, 1.45, 11);
     PHSprites.privacyCurtain(1.4, 2.9, 0, 1.8, '#bae6fd');
-    PHSprites.hospitalBed(1.4, 3.4, 0, { blanket: bedBlanket, alert: !isFut, ready: isFut, seed: 2 });
-    drawBedsideVitalsAndIV(3.52, 3.45, !isFut, 12);
-    PHSprites.hospitalBed(4.4, 1.4, 0, { blanket: bedBlanket, alert: !isFut, ready: isFut, seed: 3 });
-    PHSprites.hospitalBed(4.4, 3.4, 0, { blanket: bedBlanket, alert: !isFut, ready: isFut, seed: 4 });
-    PHSprites.waitingBench(2.2, 5.3, 0, 4, isFut ? '#3b82f6' : '#64748b');
+    PHSprites.hospitalBed(1.4, 3.4, 0, { blanket: bedBlanket, ready: true, seed: 2 });
+    drawBedsideVitalsAndIV(3.52, 3.45, 12);
+    PHSprites.hospitalBed(4.4, 1.4, 0, { blanket: bedBlanket, ready: true, seed: 3 });
+    PHSprites.hospitalBed(4.4, 3.4, 0, { blanket: bedBlanket, ready: true, seed: 4 });
+    PHSprites.waitingBench(2.2, 5.3, 0, 4, '#3b82f6');
 
-    // 2. Discharge Ward B (x: 8..15, y: 1..6.5) — Gate 1 / Track A Clinical e-Sign & EWS < 3 Check
-    PHSprites.hospitalBed(8.4, 1.4, 0, { blanket: '#38bdf8', alert: !isFut, ready: isFut, seed: 5 });
-    drawBedsideVitalsAndIV(10.52, 1.45, !isFut, 15);
+    // 2. Discharge Ward B (x: 8..15, y: 1..6.5) — 3 Discharge-Ready Beds + Nurse Desk
+    PHSprites.hospitalBed(8.4, 1.4, 0, { blanket: '#38bdf8', ready: true, seed: 5 });
+    drawBedsideVitalsAndIV(10.52, 1.45, 15);
     PHSprites.hospitalBed(8.4, 3.4, 0, { blanket: '#38bdf8', ready: true, seed: 6 });
     PHSprites.hospitalBed(11.2, 1.4, 0, { blanket: '#38bdf8', ready: true, seed: 7 });
-    PHSprites.receptionDesk(13.2, 1.6, 1, 2.4, { col: '#0284c7', clutter: !isFut });
-    PHSprites.waitingBench(9.2, 5.3, 0, 4, isFut ? '#0284c7' : '#64748b');
-    drawWardClinicalEquipment(isFut);
+    PHSprites.receptionDesk(13.2, 1.6, 1, 2.4, { col: '#0284c7', clutter: false });
+    PHSprites.waitingBench(9.2, 5.3, 0, 4, '#0284c7');
+    drawWardClinicalEquipment();
 
-    // 3. Discharge Pharmacy (x: 1..5.8, y: 8.5..16) — Gate 2 (45m TTO Batching) vs Track B (20m Sealed TTO Pack)
-    // West Staff Dispensary (x = 1.2..2.5) behind vertical counter at x = 2.5
-    PHSprites.pharmacyShelf(1.25, 9.2, 0, { stockout: !isFut, rfid: isFut });
-    PHSprites.pharmacyShelf(1.25, 11.0, 0, { stockout: !isFut, rfid: isFut });
-    drawHospitalPharmacyEquipment(isFut);
-    PHSprites.receptionDesk(2.55, 9.6, 1, 3.0, { col: isFut ? '#10b981' : '#ef4444', clutter: !isFut });
-    PHSprites.waitingBench(2.8, 14.6, 0, 4, isFut ? '#0284c7' : '#475569');
+    // 3. Discharge Pharmacy (x: 1..5.8, y: 8.5..16) — West Staff Dispensary (x = 1.2..2.5) behind vertical counter
+    PHSprites.pharmacyShelf(1.25, 9.2, 0, { stockout: false, rfid: true });
+    PHSprites.pharmacyShelf(1.25, 11.0, 0, { stockout: false, rfid: true });
+    drawHospitalPharmacyEquipment();
+    PHSprites.receptionDesk(2.55, 9.6, 1, 3.0, { col: '#10b981', clutter: false });
+    PHSprites.waitingBench(2.8, 14.6, 0, 4, '#475569');
 
-    // 4. Billing & GL Clearance Hall (x: 5.8..10.8, y: 8.5..16) — Gate 3 (40m Serial GL) vs Track C (10m Pre-GL & HL7)
-    PHSprites.receptionDesk(6.1, 9.6, 0, 2.4, { col: isFut ? '#0284c7' : '#64748b', clutter: !isFut });
-    drawBillingGlEquipment(isFut);
-    PHSprites.waitingBench(6.3, 11.8, 0, 4, isFut ? '#0284c7' : '#475569');
-    PHSprites.waitingBench(6.3, 13.2, 0, 4, isFut ? '#0284c7' : '#475569');
-    PHSprites.waitingBench(6.3, 14.6, 0, 4, isFut ? '#0284c7' : '#475569');
+    // 4. Billing & GL Clearance Hall (x: 5.8..10.8, y: 8.5..16)
+    PHSprites.receptionDesk(6.1, 9.6, 0, 2.4, { col: '#0284c7', clutter: false });
+    drawBillingGlEquipment();
+    PHSprites.waitingBench(6.3, 11.8, 0, 4, '#475569');
+    PHSprites.waitingBench(6.3, 13.2, 0, 4, '#475569');
+    PHSprites.waitingBench(6.3, 14.6, 0, 4, '#475569');
 
     // 5. Hard-Stop ISBAR Boarding Gate & Departure Lobby (x: 10.8..15, y: 8.5..16)
-    PHSprites.sofa(11.0, 9.2, 0, 1.45, isFut ? '#0d9488' : '#64748b');
-    PHSprites.sofa(11.0, 11.2, 0, 1.45, isFut ? '#0284c7' : '#64748b');
-    PHSprites.kiosk(13.8, 9.2, 1, { col: isFut ? '#10b981' : '#64748b' });
-    PHSprites.kiosk(13.8, 10.6, 1, { col: isFut ? '#0ea5e9' : '#64748b' });
+    PHSprites.sofa(11.0, 9.2, 0, 1.45, '#0d9488');
+    PHSprites.sofa(11.0, 11.2, 0, 1.45, '#0284c7');
+    PHSprites.kiosk(13.8, 9.2, 1, { col: '#10b981' });
+    PHSprites.kiosk(13.8, 10.6, 1, { col: '#0ea5e9' });
     PHSprites.vendingAndWater(13.6, 12.2, 0);
-    drawDepartureBoardingGate(isFut);
-    if (!isFut) {
-      // Subtle red queue-pulse rings at the blocked discharge & billing desks in Current mode
-      drawBlockedQueueRings(13.4, 3.0);
-      drawBlockedQueueRings(7.4, 10.6);
-    }
+    drawDepartureBoardingGate();
 
     if (isFut) {
       // ---------------- BUILDING 2 (x: 19.6..33.6, y: 2.6..16): LUXURY WELLNESS RESORT PAVILION (ZERO HOSPITAL BEDS)
@@ -1186,28 +1163,6 @@ const IsoRenderer = (() => {
     });
 
     PH.end();
-
-    // ---------------- BEFORE vs AFTER ZONE HALOS & SERIAL vs PARALLEL SIGNAL BEAMS (Slides 4, 7, 8, 9, 10)
-    if (!isFut) {
-      PHSprites.floorHalo(10.8, 3.4, 30, 15, '#ef4444', 'Gate 1: 55m (30m Wait · 98% Occ.)');
-      PHSprites.floorHalo(3.4, 12.6, 24, 14, '#ef4444', 'Rank 1: 45m TTO Batch Wait');
-      PHSprites.floorHalo(8.2, 12.8, 25, 14, '#ef4444', 'Rank 3: 40m Serial GL Wait');
-      PHSprites.floorHalo(12.8, 13.6, 22, 13, '#ef4444', 'Rank 2: 45m Ad-Hoc Van Lag');
-
-      PHSprites.signalBeam(11.4, 3.8, 3.6, 10.6, '#ef4444', 'Serial 1→2: 10:30 Batch', { phase: 0 });
-      PHSprites.signalBeam(3.6, 10.6, 7.6, 10.6, '#ef4444', 'Serial 2→3: Late GL Query', { phase: 0.33 });
-      PHSprites.signalBeam(7.6, 10.6, 12.6, 14.8, '#ef4444', 'Serial 3→4: Book After Pay', { phase: 0.66 });
-    } else {
-      PHSprites.floorHalo(10.8, 3.4, 30, 15, '#10b981', 'Track A: 20m e-Sign (+2.75h Freed)');
-      PHSprites.floorHalo(3.4, 12.6, 24, 14, '#10b981', 'Track B: 20m Sealed TTO Pack');
-      PHSprites.floorHalo(8.2, 12.8, 25, 14, '#10b981', 'Track C: 10m Pre-GL & HL7');
-      PHSprites.floorHalo(21.6, 4.8, 24, 14, '#10b981', 'ISBAR Direct-to-Suite (+5m)');
-      PHSprites.floorHalo(26.2, 4.6, 25, 14, '#0ea5e9', 'Step-Down Recovery (90.9% PCE)');
-
-      PHSprites.signalBeam(11.8, 3.8, 12.8, 14.2, '#10b981', 'Track A: e-Sign + EWS<3', { phase: 0 });
-      PHSprites.signalBeam(3.2, 10.8, 12.8, 14.2, '#0ea5e9', 'Track B: Sealed TTOs', { phase: 0.33 });
-      PHSprites.signalBeam(8.8, 10.2, 21.4, 4.6, '#10b981', 'Track C: HL7 Suite Pre-Alert', { phase: 0.66 });
-    }
 
     // Render character name tags & moving action/vehicle bubbles
     PH.overlay(simState.showActionLabels);
