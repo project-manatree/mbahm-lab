@@ -44,15 +44,15 @@ const IsoRenderer = (() => {
       { x: 35.15, y: 2.7, w: 1.75, d: 4.15, mat: { cur: null, fut: 'water' } },     // Outdoor Resort Swimming Pool
       { x: 33.6, y: 7.1, w: 1.25, d: 1.5, mat: { cur: null, fut: 'travertine' } },  // Promenade -> East Pool & Garden Bistro Bridge
       { x: 34.8, y: 8.4, w: 3.7, d: 7.2, mat: { cur: null, fut: 'travertine' } },   // Outdoor Garden Bistro Travertine Terrace
-      { x: 35.05, y: 8.75, w: 3.2, d: 6.5, mat: { cur: null, fut: 'deck' } },       // Outdoor Garden Bistro Warm Teak Dining Deck
+      { x: 35.05, y: 8.75, w: 3.2, d: 6.5, mat: { cur: null, fut: 'marble' } },     // Outdoor Garden Bistro White Calacatta Marble Dining Deck
 
-      // BUILDING 2 (FIVE-STAR LUXURY RETREAT: HOTEL LOBBY + DOCTOR ROOM + 3 RECOVERY SUITES 301–303 + RECREATION & GAMES CLUB + YOGA STUDIO)
-      { x: 19.6, y: 2.6, w: 3.5, d: 4.2, mat: { cur: null, fut: 'marble' } },        // Visiting Doctor & ISBAR Clinical Salon (Italian Marble)
-      { x: 23.1, y: 2.6, w: 10.5, d: 4.2, mat: { cur: null, fut: 'oak' } },         // 3 Private Recovery Suites 301, 302 & 303 (3.5 x 4.2 each)
-      { x: 19.6, y: 6.8, w: 14.0, d: 2.0, mat: { cur: null, fut: 'marble' } },      // Resort Central Marble Promenade
-      { x: 19.6, y: 8.8, w: 5.0, d: 7.2, mat: { cur: null, fut: 'carpetBeige' } },  // Main Entrance 5-Star Hotel Lobby & Lounge
-      { x: 24.6, y: 8.8, w: 4.6, d: 7.2, mat: { cur: null, fut: 'oak' } },          // Recreation & Games Club Room (Billiards, Grand Piano, Chess & Mahjong)
-      { x: 29.2, y: 8.8, w: 4.4, d: 7.2, mat: { cur: null, fut: 'deck' } },         // Yoga, Wellness & Movement Studio (beside East Pool & Terrace)
+      // BUILDING 2 (FIVE-STAR LUXURY RETREAT: LUMINOUS WHITE MARBLE, TRAVERTINE, BRUSHED GOLD & ROYAL SAPPHIRE — ZERO MUDDY BROWN)
+      { x: 19.6, y: 2.6, w: 3.5, d: 4.2, mat: { cur: null, fut: 'ceramicCream' } }, // Visiting Doctor & ISBAR Clinical Salon (Ivory Porcelain)
+      { x: 23.1, y: 2.6, w: 10.5, d: 4.2, mat: { cur: null, fut: 'travertine' } },  // 3 Private Recovery Suites 301, 302 & 303 (Roman Travertine Stone)
+      { x: 19.6, y: 6.8, w: 14.0, d: 2.0, mat: { cur: null, fut: 'marble' } },      // Resort Central White Calacatta Marble Promenade
+      { x: 19.6, y: 8.8, w: 5.0, d: 7.2, mat: { cur: null, fut: 'marble' } },       // Main Entrance 5-Star White Marble Hotel Lobby & Lounge
+      { x: 24.6, y: 8.8, w: 4.6, d: 7.2, mat: { cur: null, fut: 'ceramicCream' } }, // Recreation & Games Club Room (Ivory Porcelain + Royal Navy Carpet)
+      { x: 29.2, y: 8.8, w: 4.4, d: 7.2, mat: { cur: null, fut: 'travertine' } },   // Yoga, Wellness & Movement Studio (Limestone Spa Stone)
 
       // ---------------- FRONT WALKWAY & CONCIERGE TRANSPORT ROAD (y: 16..20.4)
       { x: 1, y: 16.0, w: 14, d: 0.6, mat: 'paver' },            // Hospital Front Entrance Apron
@@ -512,22 +512,22 @@ const IsoRenderer = (() => {
 
   function drawPoolLounger(gx, gy, cushionCol = '#f8fafc') {
     PH.furniture(gx, gy, 0.72, 1.48, 0, k => {
-      // Warm teak sun-lounger frame
-      k.box(0.06, 0.06, 0, 0.60, 1.36, 3.0, '#b47842', { tex: 'deskwood', texAlpha: 0.45 });
-      // Plush waterproof cushion + reclined backrest + champagne-gold head pillow
-      k.box(0.04, 0.04, 3.0, 0.64, 1.40, 1.9, cushionCol, { tex: 'fabric', texAlpha: 0.3 });
+      // Brushed champagne-gold & pearl resort sun-lounger frame
+      k.box(0.06, 0.06, 0, 0.60, 1.36, 3.0, '#d4af37');
+      // Plush waterproof ivory cushion + reclined backrest + royal sapphire head pillow
+      k.box(0.04, 0.04, 3.0, 0.64, 1.40, 1.9, cushionCol, { tex: 'fabric', texAlpha: 0.25 });
       k.box(0.04, 0.04, 4.9, 0.64, 0.44, 2.5, cushionCol);
-      k.cyl(0.36, 0.24, 7.4, 0.08, 0.44, '#d4af37');
+      k.cyl(0.36, 0.24, 7.4, 0.08, 0.44, '#1e3a8a');
     });
   }
 
-  function drawPoolUmbrella(cx, cy, colA = '#7e3b45', colB = '#fefce8') {
+  function drawPoolUmbrella(cx, cy, colA = '#1e3a8a', colB = '#fefce8') {
     PH.item(cx + cy, () => {
       const c = PH.S.ctx;
       const z = PH.zoom;
-      // Round teak poolside drink table + glass
-      PH.cyl(cx, cy, 0, 0.06, 4.2, '#784e32');
-      PH.disc(cx, cy, 4.3, 0.28, '#b47842', '#784e32');
+      // Round white marble & gold poolside drink table + glass
+      PH.cyl(cx, cy, 0, 0.06, 4.2, '#d4af37');
+      PH.disc(cx, cy, 4.3, 0.28, '#faf8f5', '#d4af37');
       PH.cyl(cx + 0.08, cy - 0.06, 4.4, 0.045, 1.4, '#38bdf8');
       // Soft ground shadow beneath parasol
       const sp = PH.P(cx - 0.12, cy + 0.12, 0.25);
@@ -614,10 +614,10 @@ const IsoRenderer = (() => {
     });
   }
 
-  function drawYogaMat(gx, gy, col = '#c89b6e') {
+  function drawYogaMat(gx, gy, col = '#2563eb') {
     PH.furniture(gx, gy, 1.35, 0.62, 0, k => {
       k.top(0.04, 0.04, 0.15, 1.26, 0.54, col, { stroke: '#d4af37' });
-      k.cyl(0.18, 0.31, 0.2, 0.07, 0.44, '#f5efe6');
+      k.cyl(0.18, 0.31, 0.2, 0.07, 0.44, '#ffffff');
     });
   }
 
@@ -625,23 +625,23 @@ const IsoRenderer = (() => {
     PH.item(cx + cy + 0.5, () => {
       const c = PH.S.ctx;
       const z = PH.zoom;
-      // 4 Curved Walnut & Royal Burgundy Velvet Bistro Chairs around Round Table
+      // 4 Pearl-Ivory & Royal Sapphire Velvet Bistro Chairs with Brushed-Gold Frames around Round Table
       const offsets = [[-0.68, 0], [0.68, 0], [0, -0.68], [0, 0.68]];
       offsets.forEach(([ox, oy]) => {
         const chx = cx + ox - 0.17;
         const chy = cy + oy - 0.17;
-        PH.box(chx, chy, 0, 0.34, 0.34, 5.2, '#784e32', { tex: 'deskwood', texAlpha: 0.45 });
-        PH.box(chx + 0.03, chy + 0.03, 5.2, 0.28, 0.28, 1.2, '#7e3b45');
-        // Wooden chair backrest
+        PH.box(chx, chy, 0, 0.34, 0.34, 5.2, '#f8fafc');
+        PH.box(chx + 0.03, chy + 0.03, 5.2, 0.28, 0.28, 1.2, '#1e3a8a');
+        // Pearl & gold chair backrest
         const bx = ox < 0 ? chx : ox > 0 ? chx + 0.26 : chx + 0.02;
         const by = oy < 0 ? chy : oy > 0 ? chy + 0.26 : chy + 0.02;
         const bw = Math.abs(ox) > 0 ? 0.08 : 0.30;
         const bd = Math.abs(oy) > 0 ? 0.08 : 0.30;
-        PH.box(bx, by, 6.4, bw, bd, 4.8, '#784e32');
+        PH.box(bx, by, 6.4, bw, bd, 4.8, '#d4af37');
       });
       // Brass & Cast-Iron Pedestal
       PH.cyl(cx, cy, 0, 0.24, 1.2, '#d4af37');
-      PH.cyl(cx, cy, 1.2, 0.08, 8.6, '#475569');
+      PH.cyl(cx, cy, 1.2, 0.08, 8.6, '#cbd5e1');
       // Round White-Clothed Table Drape & Tabletop
       PH.cyl(cx, cy, 8.4, 0.52, 2.2, '#ffffff');
       PH.disc(cx, cy, 10.65, 0.54, '#ffffff', '#d4af37');
@@ -659,10 +659,11 @@ const IsoRenderer = (() => {
 
   function drawCoffeeTableAndSet(cx, cy) {
     PH.furniture(cx - 0.55, cy - 0.38, 1.1, 0.76, 0, k => {
-      k.box(0.08, 0.08, 0, 0.94, 0.60, 4.8, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.04, 0.04, 4.8, 1.02, 0.68, 1.0, '#faf8f5');
+      // Brushed champagne-gold frame with white Calacatta marble tabletop
+      k.box(0.08, 0.08, 0, 0.94, 0.60, 4.8, '#d4af37');
+      k.box(0.04, 0.04, 4.8, 1.02, 0.68, 1.0, '#ffffff');
       // Porcelain & gold tea service + floral centerpiece
-      k.cyl(0.50, 0.38, 5.8, 0.08, 2.2, '#f8fafc');
+      k.cyl(0.50, 0.38, 5.8, 0.08, 2.2, '#1e3a8a');
       k.cyl(0.28, 0.38, 5.8, 0.06, 2.8, '#d4af37');
       k.cyl(0.75, 0.38, 5.8, 0.12, 0.5, '#fef08a');
     });
@@ -670,15 +671,16 @@ const IsoRenderer = (() => {
 
   function drawEspressoBar(gx, gy) {
     PH.furniture(gx, gy, 1.1, 2.2, 0, k => {
-      // Walnut counter with cream marble bar top
-      k.box(0.08, 0.05, 0, 0.62, 2.1, 11.2, '#784e32', { tex: 'deskwood', texAlpha: 0.45 });
-      k.box(0.04, 0.02, 11.2, 0.70, 2.16, 1.4, '#f8fafc');
-      // Brushed steel espresso machine & glass pastry display
-      k.box(0.14, 0.25, 12.6, 0.38, 0.52, 4.6, '#cbd5e1');
+      // White Calacatta marble & brushed-gold champagne bar counter
+      k.box(0.08, 0.05, 0, 0.62, 2.1, 11.2, '#f8fafc');
+      k.box(0.06, 0.04, 0, 0.66, 2.12, 1.2, '#d4af37');
+      k.box(0.04, 0.02, 11.2, 0.70, 2.16, 1.4, '#ffffff');
+      // Chrome & gold espresso machine + crystal pastry display
+      k.box(0.14, 0.25, 12.6, 0.38, 0.52, 4.6, '#d4af37');
       k.box(0.14, 1.15, 12.6, 0.38, 0.58, 4.2, '#bae6fd', { alpha: 0.65 });
-      // Two oak barstools in front of bar
-      k.cyl(0.92, 0.62, 0, 0.16, 8.2, '#d4a373');
-      k.cyl(0.92, 1.52, 0, 0.16, 8.2, '#d4a373');
+      // Two royal-sapphire & gold barstools in front of bar
+      k.cyl(0.92, 0.62, 0, 0.16, 8.2, '#1e3a8a');
+      k.cyl(0.92, 1.52, 0, 0.16, 8.2, '#1e3a8a');
     });
   }
 
@@ -997,71 +999,71 @@ const IsoRenderer = (() => {
   // FIVE-STAR HIGH-END LUXURY WELLNESS RETREAT FURNISHINGS (BUILDING 2)
   // ---------------------------------------------------------------------------
 
-  // 6. Retreat Top-Left (x: 19.6..22.8, y: 2.6..6.8): Private VIP Doctor & ISBAR Clinical Salon
+  // 6. Retreat Top-Left (x: 19.6..23.1, y: 2.6..6.8): Private VIP Doctor & ISBAR Clinical Salon
   function drawLuxuryExecutiveSalon() {
-    // Custom Burl-Walnut & Brushed-Gold Executive Doctor Desk (x = 19.8, y = 2.95)
+    // White Calacatta Marble & Brushed-Gold Executive Doctor Desk (x = 19.8, y = 2.95)
     PH.furniture(19.8, 2.95, 1.50, 0.90, 0, k => {
       k.box(0.06, 0.10, 0, 0.34, 0.70, 1.2, '#d4af37');
       k.box(1.10, 0.10, 0, 0.34, 0.70, 1.2, '#d4af37');
-      k.box(0.08, 0.12, 1.2, 0.30, 0.66, 9.4, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(1.12, 0.12, 1.2, 0.30, 0.66, 9.4, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.08, 0.70, 1.8, 1.34, 0.08, 8.8, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.02, 0.04, 10.6, 1.46, 0.80, 1.4, '#784e32', { tex: 'deskwood', texAlpha: 0.5 });
-      k.top(0.38, 0.16, 12.1, 0.74, 0.44, '#f5efe6', { stroke: '#d4af37' });
+      k.box(0.08, 0.12, 1.2, 0.30, 0.66, 9.4, '#f8fafc');
+      k.box(1.12, 0.12, 1.2, 0.30, 0.66, 9.4, '#f8fafc');
+      k.box(0.08, 0.70, 1.8, 1.34, 0.08, 8.8, '#f1f5f9');
+      k.box(0.02, 0.04, 10.6, 1.46, 0.80, 1.4, '#ffffff');
+      k.top(0.38, 0.16, 12.1, 0.74, 0.44, '#1e3a8a', { stroke: '#d4af37' });
       k.box(0.54, 0.54, 12.0, 0.44, 0.07, 6.0, '#d4af37');
       k.part(0.76, 0.50, 3, () => {
         k.now.screen('-v', 0.53, 0.57, 0.95, 12.4, 17.6, 'ok', 11);
       });
       k.cyl(0.22, 0.48, 12.0, 0.07, 3.6, '#d4af37');
       k.box(0.14, 0.38, 15.4, 0.18, 0.18, 1.3, '#fef08a');
-      k.box(0.54, -0.32, 5.2, 0.42, 0.38, 1.8, '#d4a373');
-      k.box(0.54, -0.36, 7.0, 0.42, 0.10, 8.4, '#b47842');
+      k.box(0.54, -0.32, 5.2, 0.42, 0.38, 1.8, '#1e3a8a');
+      k.box(0.54, -0.36, 7.0, 0.42, 0.10, 8.4, '#1e40af');
     });
 
-    // Plush Cream Tufted Leather & Teak Examination Daybed Lounger (x = 19.8, y = 4.95)
+    // Plush Pearl-Ivory Leather & Brushed-Gold Examination Daybed Lounger (x = 19.8, y = 4.95)
     PH.furniture(19.8, 4.95, 1.85, 0.98, 0, k => {
-      k.box(0.04, 0.06, 0, 1.77, 0.86, 3.2, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
+      k.box(0.04, 0.06, 0, 1.77, 0.86, 3.2, '#f1f5f9');
       k.box(0.02, 0.04, 3.2, 1.81, 0.90, 0.8, '#d4af37');
-      k.box(0.08, 0.10, 4.0, 1.69, 0.78, 3.4, '#faf8f5', { tex: 'quilt', texAlpha: 0.35 });
-      k.box(0.12, 0.14, 7.4, 0.32, 0.70, 3.0, '#f5efe6');
+      k.box(0.08, 0.10, 4.0, 1.69, 0.78, 3.4, '#ffffff', { tex: 'quilt', texAlpha: 0.3 });
+      k.box(0.12, 0.14, 7.4, 0.32, 0.70, 3.0, '#f8fafc');
       k.box(0.38, 0.20, 7.4, 0.20, 0.54, 2.2, '#d4af37');
-      k.box(1.28, 0.12, 7.4, 0.44, 0.74, 0.6, '#7e3b45');
+      k.box(1.28, 0.12, 7.4, 0.44, 0.74, 0.6, '#1e3a8a');
     });
 
-    // Italian Marble & Brass Medical Vanity Credenza with Orchid & ISBAR Tablet (x = 21.8, y = 3.2)
+    // Italian White Calacatta Marble & Brushed-Gold Medical Vanity Credenza with Orchid (x = 21.8, y = 3.2)
     PH.furniture(21.8, 3.2, 0.78, 1.45, 0, k => {
-      k.box(0.06, 0.06, 0, 0.66, 1.33, 9.2, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.02, 0.02, 9.2, 0.74, 1.41, 1.2, '#faf8f5');
+      k.box(0.06, 0.06, 0, 0.66, 1.33, 9.2, '#f8fafc');
+      k.box(0.02, 0.02, 9.2, 0.74, 1.41, 1.2, '#ffffff');
       k.box(0.04, 0.04, 8.6, 0.70, 1.37, 0.6, '#d4af37');
-      k.cyl(0.38, 0.38, 10.4, 0.11, 3.4, '#ffffff');
+      k.cyl(0.38, 0.38, 10.4, 0.11, 3.4, '#1e3a8a');
       k.blob(0.38, 0.38, 15.0, 0.20, '#f472b6', 3);
       k.cyl(0.40, 1.00, 10.4, 0.09, 2.4, '#d4af37');
     });
   }
 
-  // 7. Compact Five-Star King Recovery Suite Bed (fits cleanly in both North Suites 301–303 and South Suites 304–306)
+  // 7. Five-Star Pearl-Ivory & Brushed-Gold King Recovery Suite Bed
   function drawCompactLuxuryBed(x, y, duvetCol, runnerCol, seed) {
     PH.furniture(x, y, 1.88, 1.32, 0, k => {
-      // Woven cream & gold bedside area rug
-      k.top(-0.04, -0.06, 0.10, 1.96, 1.44, '#f5efe6', { stroke: '#d4af37', lw: 1.0 });
-      // Burl-walnut & brushed-brass bed platform frame
+      // Woven pearl-ivory & gold silk bedside area rug
+      k.top(-0.04, -0.06, 0.10, 1.96, 1.44, '#ffffff', { stroke: '#d4af37', lw: 1.1 });
+      // Pearl-ivory lacquer & brushed-gold bed platform frame
       k.box(0.06, 0.10, 0, 1.72, 1.12, 1.2, '#d4af37');
-      k.box(0.08, 0.12, 1.2, 1.68, 1.08, 4.0, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
-      // Tufted cream & walnut hotel headboard with gold crown
-      k.box(0.04, 0.06, 0, 0.14, 1.20, 19.5, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.15, 0.14, 5.2, 0.06, 1.04, 12.2, '#faf8f5', { tex: 'quilt', texAlpha: 0.35 });
+      k.box(0.08, 0.12, 1.2, 1.68, 1.08, 4.0, '#f8fafc');
+      // Tufted pearl-white velvet headboard with brushed champagne-gold crown
+      k.box(0.04, 0.06, 0, 0.14, 1.20, 19.5, '#e2e8f0');
+      k.box(0.15, 0.14, 5.2, 0.06, 1.04, 12.2, '#ffffff', { tex: 'quilt', texAlpha: 0.35 });
       k.box(0.03, 0.05, 19.5, 0.16, 1.22, 1.2, '#d4af37');
       // Orthopaedic mattress, silk quilted duvet & runner
       k.box(0.18, 0.14, 5.2, 1.54, 1.04, 4.4, '#ffffff', { tex: 'fabric', texAlpha: 0.25 });
-      k.box(0.56, 0.13, 5.7, 1.16, 1.06, 4.4, duvetCol, { tex: 'quilt', texAlpha: 0.38 });
+      k.box(0.56, 0.13, 5.7, 1.16, 1.06, 4.4, duvetCol, { tex: 'quilt', texAlpha: 0.35 });
       k.box(1.36, 0.12, 5.9, 0.32, 1.08, 4.5, runnerCol, { tex: 'fabric', texAlpha: 0.45 });
-      // 2 Hotel pillows + 2 accent pillows
+      // 2 Hotel pillows + 2 gold accent pillows
       k.box(0.22, 0.18, 9.6, 0.26, 0.38, 2.4, '#ffffff');
       k.box(0.22, 0.72, 9.6, 0.26, 0.38, 2.4, '#ffffff');
       k.box(0.36, 0.22, 9.9, 0.18, 0.32, 2.0, '#fde68a');
       k.box(0.36, 0.76, 9.9, 0.18, 0.32, 2.0, '#fde68a');
-      // Walnut & brass nightstand with warm bedside lamp
-      k.box(0.10, 1.26, 0, 0.36, 0.32, 8.6, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
+      // White marble & brushed-gold nightstand with crystal bedside lamp
+      k.box(0.10, 1.26, 0, 0.36, 0.32, 8.6, '#f8fafc');
       k.box(0.08, 1.24, 8.6, 0.40, 0.36, 1.0, '#d4af37');
       k.cyl(0.26, 1.40, 9.6, 0.05, 2.4, '#d4af37');
       k.cyl(0.26, 1.40, 11.8, 0.11, 2.8, '#fef3c7');
@@ -1075,228 +1077,224 @@ const IsoRenderer = (() => {
     });
   }
 
-  // North Private Luxury Recovery Suites 301, 302, 303 (x: 23.1..33.6, y: 2.6..6.8, each 3.5 x 4.2 — no therapist/spa room)
+  // North Private Luxury Recovery Suites 301, 302, 303 (x: 23.1..33.6, y: 2.6..6.8, each 3.5 x 4.2)
   function drawNorthRecoverySuite(sx, duvetCol, runnerCol, chairCol, seed) {
     drawCompactLuxuryBed(sx + 0.36, 3.05, duvetCol, runnerCol, seed);
     // Private velvet lounge armchair for family visitors (left of suite entry door)
     PHSprites.armchair(sx + 0.26, 5.48, 0, { col: chairCol });
-    // Custom burl-walnut & brass suite wardrobe along right wall
-    PHSprites.wardrobe(sx + 2.22, 3.05, 0, { wood: '#784e32' });
-    // Italian marble & brass vanity credenza with fresh orchid (right of suite entry door)
+    // Custom pearl-ivory & brushed-gold suite wardrobe along right wall
+    PHSprites.wardrobe(sx + 2.22, 3.05, 0, { wood: '#e2e8f0' });
+    // Italian white marble & gold vanity credenza with fresh orchid (right of suite entry door)
     PH.furniture(sx + 2.48, 5.15, 0.82, 0.56, 0, k => {
-      k.box(0.04, 0.04, 0, 0.74, 0.48, 8.6, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.02, 0.02, 8.6, 0.78, 0.52, 0.9, '#faf8f5');
-      k.cyl(0.38, 0.26, 9.5, 0.08, 2.2, '#ffffff');
+      k.box(0.04, 0.04, 0, 0.74, 0.48, 8.6, '#f8fafc');
+      k.box(0.02, 0.02, 8.6, 0.78, 0.52, 0.9, '#d4af37');
+      k.cyl(0.38, 0.26, 9.5, 0.08, 2.2, '#1e3a8a');
       k.blob(0.38, 0.26, 12.6, 0.14, '#f472b6', 3);
       k.cyl(0.58, 0.28, 9.5, 0.06, 1.8, '#d4af37');
     });
   }
 
   // Retreat Bottom-Middle (x: 24.6..29.2, y: 8.8..16.0, 4.6 x 7.2): Recreation & Games Club Room
-  // (Championship Green-Felt Billiards/Pool Table, Concert Ebony Grand Piano, Mahjong Table & Royal Chess Table)
+  // (Gloss Ebony, White Marble, Brushed Gold & Royal Sapphire-Blue Tournament Felt — zero brown, zero green)
   function drawRecreationGamesClubRoom() {
-    // 1. Wall-Mounted Mahogany & Brass Billiard Cue Rack & Club Scoreboard on West Wall (x = 24.72, y = 9.55)
+    // 1. Wall-Mounted Ebony & Brushed-Gold Billiard Cue Rack on West Wall (x = 24.72, y = 9.55)
     PH.furniture(24.72, 9.55, 0.28, 1.55, 0, k => {
-      k.box(0.02, 0.04, 2.0, 0.16, 1.46, 17.5, '#5c3a21', { tex: 'deskwood', texAlpha: 0.58 });
+      k.box(0.02, 0.04, 2.0, 0.16, 1.46, 17.5, '#0f172a');
       k.box(0.0, 0.02, 19.5, 0.20, 1.50, 0.9, '#d4af37');
       for (const cy of [0.22, 0.44, 0.66, 0.88, 1.10, 1.32]) {
-        k.cyl(0.14, cy, 3.0, 0.025, 15.6, '#d4a373');
+        k.cyl(0.14, cy, 3.0, 0.025, 15.6, '#f8fafc');
       }
     });
 
-    // 2. Championship Royal-Bordeaux Velvet & Brushed-Gold Billiards / Pool Table (x = 25.15, y = 9.55, w = 2.25, d = 1.38 — zero green)
+    // 2. Championship Royal-Sapphire Blue Felt, Gloss-Ebony & Brushed-Gold Billiards / Pool Table (x = 25.15, y = 9.55, w = 2.25, d = 1.38)
     PH.furniture(25.15, 9.55, 2.25, 1.38, 0, k => {
-      // Woven ivory-cream & gold silk club carpet beneath billiards table
-      k.top(-0.18, -0.18, 0.10, 2.61, 1.74, '#f5efe6', { stroke: '#d4af37', lw: 1.4 });
-      k.top(-0.08, -0.08, 0.13, 2.41, 1.54, '#efe7d6', { stroke: '#b47842', lw: 0.9 });
-      // 4 carved burl-walnut pedestal legs with brushed-brass feet
+      // Woven pearl-white & gold silk club carpet beneath billiards table
+      k.top(-0.18, -0.18, 0.10, 2.61, 1.74, '#ffffff', { stroke: '#d4af37', lw: 1.4 });
+      k.top(-0.08, -0.08, 0.13, 2.41, 1.54, '#f1f5f9', { stroke: '#94a3b8', lw: 0.9 });
+      // 4 gloss-ebony pedestal legs with brushed-gold feet
       for (const [lx, ly] of [[0.14, 0.14], [1.85, 0.14], [0.14, 0.98], [1.85, 0.98]]) {
         k.box(lx, ly, 0, 0.26, 0.26, 1.4, '#d4af37');
-        k.box(lx + 0.02, ly + 0.02, 1.4, 0.22, 0.22, 6.2, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
+        k.box(lx + 0.02, ly + 0.02, 1.4, 0.22, 0.22, 6.2, '#0f172a');
       }
-      // Mahogany slate cabinet & brushed-gold trim
-      k.box(0.06, 0.06, 7.2, 2.13, 1.26, 2.4, '#5c3a21', { tex: 'deskwood', texAlpha: 0.58 });
-      k.box(0.02, 0.02, 9.6, 2.21, 1.34, 1.4, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
-      // Rich Royal-Bordeaux / Burgundy tournament baize felt playing surface (Five-Star Mayfair Club style)
-      k.top(0.16, 0.16, 11.05, 1.93, 1.06, '#7e3b45', { stroke: '#d4af37', lw: 1.2 });
-      k.top(0.22, 0.22, 11.10, 1.81, 0.94, '#881337');
-      // 6 brass & leather billiard pockets (4 corners + 2 side pockets)
+      // Gloss-ebony & brushed-gold slate cabinet
+      k.box(0.06, 0.06, 7.2, 2.13, 1.26, 2.4, '#0f172a');
+      k.box(0.02, 0.02, 9.6, 2.21, 1.34, 1.4, '#1e293b');
+      // Vivid Royal-Sapphire Blue tournament felt playing surface (Five-Star Penthouse Club style)
+      k.top(0.16, 0.16, 11.05, 1.93, 1.06, '#1e3a8a', { stroke: '#d4af37', lw: 1.2 });
+      k.top(0.22, 0.22, 11.10, 1.81, 0.94, '#2563eb');
+      // 6 brushed-gold & onyx billiard pockets (4 corners + 2 side pockets)
       for (const [px, py] of [[0.14, 0.14], [1.12, 0.12], [2.10, 0.14], [0.14, 1.24], [1.12, 1.26], [2.10, 1.24]]) {
         k.cyl(px, py, 10.6, 0.09, 0.6, '#d4af37');
         k.cyl(px, py, 10.9, 0.065, 0.4, '#0f172a');
       }
-      // Racked colorful billiard balls + white cue ball + 2 maple pool cues
+      // Racked colorful billiard balls + white cue ball + 2 cues
       const balls = [
         [0.62, 0.69, '#ffffff'],
         [1.42, 0.69, '#facc15'],
-        [1.54, 0.61, '#f97316'], [1.54, 0.77, '#38bdf8'],
+        [1.54, 0.61, '#ef4444'], [1.54, 0.77, '#f97316'],
         [1.66, 0.53, '#fde047'], [1.66, 0.69, '#0f172a'], [1.66, 0.85, '#f472b6']
       ];
       for (const [bx, by, bcol] of balls) {
         k.cyl(bx, by, 11.15, 0.048, 0.75, bcol);
       }
-      k.box(0.32, 0.35, 11.2, 0.95, 0.03, 0.3, '#fde68a');
-      k.box(0.85, 0.98, 11.2, 0.95, 0.03, 0.3, '#d4a373');
+      k.box(0.32, 0.35, 11.2, 0.95, 0.03, 0.3, '#f8fafc');
+      k.box(0.85, 0.98, 11.2, 0.95, 0.03, 0.3, '#fde68a');
     });
 
-    // 3. Concert Ebony & Brushed-Gold Baby Grand Piano + Tufted Leather Piano Bench (x = 25.05, y = 12.95)
+    // 3. Concert Ebony & Brushed-Gold Baby Grand Piano + Pearl-White Leather Piano Bench (x = 25.05, y = 12.95)
     PH.furniture(25.05, 12.95, 1.85, 1.75, 0, k => {
-      // Three solid ebony legs with brass casters
       for (const [lx, ly] of [[0.18, 0.18], [1.48, 0.22], [0.24, 1.38]]) {
         k.cyl(lx, ly, 0, 0.06, 1.2, '#d4af37');
         k.cyl(lx, ly, 1.2, 0.07, 6.8, '#0f172a');
       }
-      // Brass pedal lyre
       k.box(0.28, 0.78, 0, 0.12, 0.28, 7.6, '#d4af37');
-      // Gloss ebony grand piano main wing & curved tail
       k.box(0.12, 0.12, 8.0, 1.12, 1.48, 3.6, '#0f172a');
       k.box(1.12, 0.16, 8.0, 0.56, 1.06, 3.6, '#0f172a');
-      // Golden harp soundboard interior + raised angled ebony lid with brass prop stick
-      k.top(0.20, 0.20, 11.7, 1.40, 1.28, '#d4af37', { stroke: '#b45309' });
+      k.top(0.20, 0.20, 11.7, 1.40, 1.28, '#d4af37', { stroke: '#eab308' });
       k.box(0.18, 0.16, 14.8, 1.42, 1.26, 0.5, '#1e293b');
       k.cyl(1.42, 1.28, 11.7, 0.025, 3.4, '#d4af37');
-      // 88-key ivory & ebony piano keyboard along west/south front + brass music desk
       k.box(0.02, 0.22, 9.2, 0.22, 1.24, 1.4, '#f8fafc');
       k.box(0.08, 0.26, 10.6, 0.12, 1.16, 0.4, '#1e293b');
       k.box(0.22, 0.56, 11.7, 0.08, 0.52, 2.8, '#f8fafc');
-      // Tufted ebony & gold piano bench (on south side for pianist at gx=25.55, gy=14.95)
-      k.box(0.32, 1.56, 0, 0.74, 0.34, 5.4, '#1e293b');
-      k.box(0.30, 1.54, 5.4, 0.78, 0.38, 1.2, '#d4af37');
+      // Pearl-white & gold tufted piano bench
+      k.box(0.32, 1.56, 0, 0.74, 0.34, 5.4, '#d4af37');
+      k.box(0.30, 1.54, 5.4, 0.78, 0.38, 1.2, '#ffffff');
     });
 
-    // 4. VIP Champagne-Velvet & Burl-Walnut Mahjong & Card Club Table with 4 Tile Walls & Burgundy Club Chairs (x = 27.65, y = 9.75)
+    // 4. VIP White-Marble & Brushed-Gold Mahjong Table with Royal-Sapphire Velvet Surface & Pearl Club Chairs (x = 27.65, y = 9.75)
     PH.furniture(27.65, 9.75, 1.22, 1.22, 0, k => {
-      // 2 walnut & Royal Burgundy velvet club chairs (North & South of Mahjong table)
-      k.box(0.38, -0.26, 0, 0.46, 0.36, 5.2, '#784e32', { tex: 'deskwood', texAlpha: 0.5 });
-      k.box(0.38, -0.28, 5.2, 0.46, 0.10, 5.4, '#7e3b45');
-      k.box(0.38, 1.12, 0, 0.46, 0.36, 5.2, '#784e32', { tex: 'deskwood', texAlpha: 0.5 });
-      k.box(0.38, 1.38, 5.2, 0.46, 0.10, 5.4, '#7e3b45');
-      // Square burl-walnut & brass mahjong table with warm champagne-camel velvet surface
+      // 2 pearl-white & royal-sapphire velvet club chairs (North & South of Mahjong table)
+      k.box(0.38, -0.26, 0, 0.46, 0.36, 5.2, '#f8fafc');
+      k.box(0.38, -0.28, 5.2, 0.46, 0.10, 5.4, '#1e3a8a');
+      k.box(0.38, 1.12, 0, 0.46, 0.36, 5.2, '#f8fafc');
+      k.box(0.38, 1.38, 5.2, 0.46, 0.10, 5.4, '#1e3a8a');
+      // Square white Calacatta marble & gold mahjong table with royal sapphire surface
       k.cyl(0.61, 0.61, 0, 0.26, 1.0, '#d4af37');
-      k.cyl(0.61, 0.61, 1.0, 0.10, 7.6, '#5c3a21');
-      k.box(0.08, 0.08, 8.6, 1.06, 1.06, 1.6, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
-      k.top(0.16, 0.16, 10.25, 0.90, 0.90, '#c89b6e', { stroke: '#d4af37', lw: 1.1 });
+      k.cyl(0.61, 0.61, 1.0, 0.10, 7.6, '#e2e8f0');
+      k.box(0.08, 0.08, 8.6, 1.06, 1.06, 1.6, '#ffffff');
+      k.top(0.16, 0.16, 10.25, 0.90, 0.90, '#1e3a8a', { stroke: '#d4af37', lw: 1.1 });
       // 4 miniature ivory & gold mahjong tile walls in a square
-      k.box(0.30, 0.26, 10.3, 0.62, 0.06, 0.7, '#faf8f5');
-      k.box(0.30, 0.90, 10.3, 0.62, 0.06, 0.7, '#faf8f5');
-      k.box(0.26, 0.32, 10.3, 0.06, 0.56, 0.7, '#faf8f5');
-      k.box(0.90, 0.32, 10.3, 0.06, 0.56, 0.7, '#faf8f5');
+      k.box(0.30, 0.26, 10.3, 0.62, 0.06, 0.7, '#ffffff');
+      k.box(0.30, 0.90, 10.3, 0.62, 0.06, 0.7, '#ffffff');
+      k.box(0.26, 0.32, 10.3, 0.06, 0.56, 0.7, '#ffffff');
+      k.box(0.90, 0.32, 10.3, 0.06, 0.56, 0.7, '#ffffff');
     });
 
-    // 5. Inlaid Marble & Walnut Royal Chess & Backgammon Table with Club Chairs (x = 27.65, y = 12.95)
+    // 5. White Calacatta Marble & Brushed-Gold Royal Chess Table with Sapphire Velvet Club Chairs (x = 27.65, y = 12.95)
     PH.furniture(27.65, 12.95, 1.22, 1.22, 0, k => {
-      // 2 walnut & gold club chairs (North & South of Chess table)
-      k.box(0.38, -0.26, 0, 0.46, 0.36, 5.2, '#784e32', { tex: 'deskwood', texAlpha: 0.5 });
-      k.box(0.38, -0.28, 5.2, 0.46, 0.10, 5.4, '#d4a373');
-      k.box(0.38, 1.12, 0, 0.46, 0.36, 5.2, '#784e32', { tex: 'deskwood', texAlpha: 0.5 });
-      k.box(0.38, 1.38, 5.2, 0.46, 0.10, 5.4, '#d4a373');
-      // Walnut pedestal table with checkered chessboard inlay
+      // 2 pearl-white & champagne-gold velvet club chairs
+      k.box(0.38, -0.26, 0, 0.46, 0.36, 5.2, '#f8fafc');
+      k.box(0.38, -0.28, 5.2, 0.46, 0.10, 5.4, '#d4af37');
+      k.box(0.38, 1.12, 0, 0.46, 0.36, 5.2, '#f8fafc');
+      k.box(0.38, 1.38, 5.2, 0.46, 0.10, 5.4, '#d4af37');
+      // White marble & gold pedestal table with crystal/ebony chessboard inlay
       k.cyl(0.61, 0.61, 0, 0.26, 1.0, '#d4af37');
-      k.cyl(0.61, 0.61, 1.0, 0.10, 7.6, '#5c3a21');
-      k.box(0.10, 0.10, 8.6, 1.02, 1.02, 1.6, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
-      k.top(0.22, 0.22, 10.25, 0.78, 0.78, '#faf8f5', { stroke: '#d4af37', lw: 1.1 });
+      k.cyl(0.61, 0.61, 1.0, 0.10, 7.6, '#e2e8f0');
+      k.box(0.10, 0.10, 8.6, 1.02, 1.02, 1.6, '#ffffff');
+      k.top(0.22, 0.22, 10.25, 0.78, 0.78, '#f8fafc', { stroke: '#d4af37', lw: 1.1 });
       k.top(0.32, 0.32, 10.30, 0.28, 0.28, '#1e293b');
       k.top(0.60, 0.60, 10.30, 0.28, 0.28, '#1e293b');
-      // Gold & ivory chess pieces
+      // Gold & crystal chess pieces
       for (const px of [0.38, 0.52, 0.66, 0.80]) {
         k.cyl(px, 0.38, 10.35, 0.035, 1.1, '#d4af37');
-        k.cyl(px, 0.82, 10.35, 0.035, 1.1, '#f8fafc');
+        k.cyl(px, 0.82, 10.35, 0.035, 1.1, '#38bdf8');
       }
     });
   }
 
   // Retreat Bottom-Right (x: 29.2..33.6, y: 8.8..16.0, 4.4 x 7.2): Yoga, Wellness & Movement Studio (beside East Pool & Terrace)
   function drawYogaStudio() {
-    // Floor-to-ceiling mirror wall & oak ballet/stretch barre along the south wall
+    // Floor-to-ceiling crystal mirror wall & brushed-gold ballet/stretch barre along the south wall
     PH.furniture(29.45, 15.62, 3.9, 0.3, 0, k => {
       k.box(0.0, 0.18, 0, 3.9, 0.08, 24.0, '#e0f2fe', { alpha: 0.75 });
       k.box(0.0, 0.16, 0, 3.9, 0.12, 0.8, '#d4af37');
-      k.box(0.0, 0.02, 10.2, 3.9, 0.08, 0.8, '#b47842');
+      k.box(0.0, 0.02, 10.2, 3.9, 0.08, 0.8, '#d4af37');
       for (const px of [0.2, 1.4, 2.6, 3.7]) k.box(px, 0.04, 0, 0.06, 0.12, 10.2, '#d4af37');
     });
-    // Instructor platform with sound-healing gong & brass stand (front of class)
+    // White marble instructor platform with sound-healing golden gong (front of class)
     PH.furniture(29.45, 9.05, 0.95, 1.35, 0, k => {
-      k.box(0.06, 0.08, 0, 0.84, 1.20, 1.6, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
+      k.box(0.06, 0.08, 0, 0.84, 1.20, 1.6, '#ffffff');
       k.cyl(0.42, 0.22, 1.6, 0.04, 15.0, '#d4af37');
       k.cyl(0.42, 1.08, 1.6, 0.04, 15.0, '#d4af37');
       k.box(0.38, 0.18, 16.4, 0.10, 0.96, 0.8, '#d4af37');
-      k.box(0.40, 0.38, 5.4, 0.06, 0.54, 9.4, '#f59e0b');
+      k.box(0.40, 0.38, 5.4, 0.06, 0.54, 9.4, '#facc15');
     });
-    // 6 Yoga mats in a cohesive 5-Star Spa Champagne-Gold, Royal-Burgundy & Cognac-Bronze palette (zero green)
+    // 6 Yoga mats in Royal Sapphire, Champagne Gold & Amethyst Silk (zero green, zero brown)
     const mats = [
-      [29.85, 10.9, '#c89b6e'], [31.75, 10.9, '#7e3b45'],
-      [29.85, 12.4, '#7e3b45'], [31.75, 12.4, '#c89b6e'],
-      [29.85, 13.9, '#85583a'], [31.75, 13.9, '#7e3b45']
+      [29.85, 10.9, '#2563eb'], [31.75, 10.9, '#eab308'],
+      [29.85, 12.4, '#7c3aed'], [31.75, 12.4, '#2563eb'],
+      [29.85, 13.9, '#eab308'], [31.75, 13.9, '#7c3aed']
     ];
     for (const [mx, my, mc] of mats) drawYogaMat(mx, my, mc);
-    // Props shelf: rolled mats, blocks, bolsters & infused-water station
+    // White marble & gold props shelf
     PH.furniture(32.35, 9.05, 0.98, 0.5, 0, k => {
-      k.box(0.04, 0.04, 0, 0.90, 0.42, 9.0, '#b47842', { tex: 'deskwood', texAlpha: 0.5 });
-      for (const [px, c] of [[0.18, '#d4af37'], [0.42, '#7e3b45'], [0.66, '#c89b6e']]) k.cyl(px, 0.22, 9.0, 0.09, 2.6, c);
-      k.cyl(0.82, 0.22, 9.0, 0.07, 2.8, '#fef08a');
+      k.box(0.04, 0.04, 0, 0.90, 0.42, 9.0, '#f8fafc');
+      k.box(0.02, 0.02, 9.0, 0.94, 0.46, 0.8, '#d4af37');
+      for (const [px, c] of [[0.18, '#2563eb'], [0.42, '#eab308'], [0.66, '#7c3aed']]) k.cyl(px, 0.22, 9.8, 0.09, 2.6, c);
+      k.cyl(0.82, 0.22, 9.8, 0.07, 2.8, '#38bdf8');
     });
   }
 
   // 9. Retreat Front-Left (x: 19.6..24.6, y: 8.8..16.0): Five-Star Hotel Entrance Lobby, Concierge & Lounge
   function drawLuxuryHotelLobbyDetails() {
-    // Woven Cream, Burgundy & Gold Persian Silk Area Rug under the Hotel Lobby Sofas (x = 21.4, y = 10.1)
+    // Woven Pearl-Ivory, Royal-Sapphire & Champagne-Gold Silk Area Rug under the Hotel Lobby Sofas (x = 21.4, y = 10.1)
     PH.furniture(21.4, 10.1, 2.8, 4.2, 0, k => {
-      k.top(0, 0, 0.12, 2.8, 4.2, '#f5efe6', { stroke: '#d4af37', lw: 1.5 });
-      k.top(0.20, 0.20, 0.15, 2.40, 3.80, '#7e3b45', { stroke: '#fde68a', lw: 1.0 });
-      k.top(0.45, 0.45, 0.18, 1.90, 3.30, '#efe7d6', { stroke: '#d4af37', lw: 0.9 });
+      k.top(0, 0, 0.12, 2.8, 4.2, '#ffffff', { stroke: '#d4af37', lw: 1.5 });
+      k.top(0.20, 0.20, 0.15, 2.40, 3.80, '#1e3a8a', { stroke: '#fde68a', lw: 1.1 });
+      k.top(0.45, 0.45, 0.18, 1.90, 3.30, '#f8fafc', { stroke: '#d4af37', lw: 0.9 });
     });
 
-    // VIP Burgundy & Gold Welcome Carpet Runner + Brass Stanchion Posts inside Hotel Main Entrance (x = 21.3, y = 14.7)
+    // VIP Royal-Sapphire & Gold Welcome Carpet Runner + Brass Stanchion Posts inside Hotel Main Entrance (x = 21.3, y = 14.7)
     PH.furniture(21.3, 14.7, 1.8, 1.25, 0, k => {
-      k.top(0.15, 0.02, 0.14, 1.50, 1.20, '#7e3b45', { stroke: '#d4af37', lw: 1.4 });
+      k.top(0.15, 0.02, 0.14, 1.50, 1.20, '#1e3a8a', { stroke: '#d4af37', lw: 1.4 });
       k.cyl(0.08, 0.15, 0, 0.07, 8.5, '#d4af37');
       k.cyl(1.72, 0.15, 0, 0.07, 8.5, '#d4af37');
       k.cyl(0.08, 1.10, 0, 0.07, 8.5, '#d4af37');
       k.cyl(1.72, 1.10, 0, 0.07, 8.5, '#d4af37');
     });
 
-    // Sculptural Marble & Gold Floral Art Pedestal in Resort Central Marble Promenade (x = 24.4, y = 7.35)
+    // Sculptural White Marble & Gold Floral Art Pedestal in Resort Central Marble Promenade (x = 24.4, y = 7.35)
     PH.furniture(24.4, 7.35, 0.72, 0.72, 0, k => {
-      k.box(0.08, 0.08, 0, 0.56, 0.56, 9.6, '#faf8f5');
+      k.box(0.08, 0.08, 0, 0.56, 0.56, 9.6, '#ffffff');
       k.box(0.04, 0.04, 9.6, 0.64, 0.64, 0.9, '#d4af37');
-      k.cyl(0.36, 0.36, 10.5, 0.18, 3.2, '#f8fafc');
+      k.cyl(0.36, 0.36, 10.5, 0.18, 3.2, '#1e3a8a');
       k.blob(0.36, 0.36, 15.2, 0.26, '#f472b6', 3);
       k.blob(0.36, 0.36, 17.0, 0.20, '#fef08a', 4);
     });
   }
 
-  // Outdoor Al-Fresco Teak & Brass Garden Bistro Pavilion on the East Lawn (x: 34.8..38.5, y: 8.4..15.6)
+  // Outdoor Al-Fresco White-Marble & Brushed-Gold Garden Bistro Pavilion on the East Lawn (x: 34.8..38.5, y: 8.4..15.6)
   function drawOutdoorGardenBistroPavilion() {
-    // Open-air architectural walnut & brass pergola columns + overhead trellis beams (see-through open roof)
+    // Open-air architectural white marble & brushed-gold colonnade pergola + overhead beams (zero brown wood)
     PH.furniture(34.95, 8.55, 3.4, 6.8, 0, k => {
       const posts = [[0.08, 0.08], [3.16, 0.08], [0.08, 3.32], [3.16, 3.32], [0.08, 6.56], [3.16, 6.56]];
       for (const [px, py] of posts) {
         k.box(px, py, 0, 0.16, 0.16, 1.4, '#d4af37');
-        k.box(px + 0.02, py + 0.02, 1.4, 0.12, 0.12, 20.6, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
+        k.box(px + 0.02, py + 0.02, 1.4, 0.12, 0.12, 20.6, '#f8fafc');
       }
-      // Perimeter top beams & cross rafters
-      k.box(0.06, 0.06, 22.0, 3.28, 0.14, 1.1, '#5c3a21');
-      k.box(0.06, 6.60, 22.0, 3.28, 0.14, 1.1, '#5c3a21');
-      k.box(0.06, 0.06, 22.0, 0.14, 6.68, 1.1, '#784e32');
-      k.box(3.20, 0.06, 22.0, 0.14, 6.68, 1.1, '#784e32');
+      // White marble & gold perimeter top beams & cross rafters
+      k.box(0.06, 0.06, 22.0, 3.28, 0.14, 1.1, '#d4af37');
+      k.box(0.06, 6.60, 22.0, 3.28, 0.14, 1.1, '#d4af37');
+      k.box(0.06, 0.06, 22.0, 0.14, 6.68, 1.1, '#f8fafc');
+      k.box(3.20, 0.06, 22.0, 0.14, 6.68, 1.1, '#f8fafc');
       for (let r = 1; r <= 4; r++) {
         const ry = r * 1.34;
-        k.box(0.14, ry, 22.4, 3.12, 0.08, 0.7, '#784e32');
+        k.box(0.14, ry, 22.4, 3.12, 0.08, 0.7, '#e2e8f0');
         // Warm glowing golden bistro festoon lights along pergola rafters
         k.cyl(1.10, ry + 0.04, 21.4, 0.06, 1.0, '#fef08a');
         k.cyl(2.30, ry + 0.04, 21.4, 0.06, 1.0, '#fef08a');
       }
     });
 
-    // Chef's Open-Air Marble & Walnut Culinary Tasting Bar at North end of Garden Bistro (x = 35.25, y = 8.85)
+    // Chef's Open-Air White Calacatta Marble & Brushed-Gold Culinary Tasting Bar at North end of Garden Bistro (x = 35.25, y = 8.85)
     PH.furniture(35.25, 8.85, 2.8, 0.92, 0, k => {
-      k.box(0.04, 0.06, 0, 2.72, 0.78, 10.6, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.02, 0.02, 10.6, 2.76, 0.86, 1.3, '#faf8f5');
+      k.box(0.04, 0.06, 0, 2.72, 0.78, 10.6, '#f8fafc');
+      k.box(0.02, 0.02, 10.6, 2.76, 0.86, 1.3, '#ffffff');
       k.box(0.04, 0.80, 2.4, 2.72, 0.06, 6.4, '#d4af37');
-      // Brass heat-lamp bridge, golden cloche serving domes & Bordeaux wine / amber decanters
+      // Brass heat-lamp bridge, golden cloche serving domes & crystal decanters
       k.cyl(0.55, 0.44, 11.9, 0.18, 2.2, '#d4af37');
       k.cyl(1.15, 0.44, 11.9, 0.18, 2.2, '#d4af37');
-      k.cyl(1.85, 0.44, 11.9, 0.12, 3.6, '#7e3b45');
+      k.cyl(1.85, 0.44, 11.9, 0.12, 3.6, '#1e3a8a');
       k.cyl(2.25, 0.44, 11.9, 0.12, 3.6, '#f59e0b');
     });
 
@@ -1362,20 +1360,20 @@ const IsoRenderer = (() => {
       // 1. Visiting Doctor & ISBAR Clinical Salon (Top-Left, x: 19.6..23.1, y: 2.6..6.8)
       drawLuxuryExecutiveSalon();
 
-      // 2. Three North Private Luxury Recovery Suites 301, 302 & 303 (x: 23.1..33.6, y: 2.6..6.8 — unified Five-Star Champagne Gold, Royal Burgundy & Cognac palette)
-      drawNorthRecoverySuite(23.1, '#f5efe6', '#7e3b45', '#7e3b45', 301);
-      drawNorthRecoverySuite(26.6, '#d4af37', '#5c3a21', '#b47842', 302);
-      drawNorthRecoverySuite(30.1, '#e6d5b8', '#784e32', '#7e3b45', 303);
+      // 2. Three North Private Luxury Recovery Suites 301, 302 & 303 (x: 23.1..33.6, y: 2.6..6.8 — Pearl Ivory, Royal Sapphire, Champagne Gold & Royal Amethyst)
+      drawNorthRecoverySuite(23.1, '#2563eb', '#1e3a8a', '#1e3a8a', 301);
+      drawNorthRecoverySuite(26.6, '#fde68a', '#d4af37', '#eab308', 302);
+      drawNorthRecoverySuite(30.1, '#7c3aed', '#4c1d95', '#6d28d9', 303);
 
-      // 3. Main Entrance Five-Star Hotel Lobby, Concierge & Espresso Lounge (Front-Left, x: 19.6..24.6, y: 8.8..16 — Royal Burgundy, Ivory Velvet & Cognac Leather, zero green)
+      // 3. Main Entrance Five-Star Hotel Lobby, Concierge & Espresso Lounge (Front-Left, x: 19.6..24.6, y: 8.8..16 — White Marble, Brushed Gold, Pearl Ivory & Royal Sapphire Velvet)
       drawLuxuryHotelLobbyDetails();
-      PHSprites.receptionDesk(19.85, 9.4, 1, 2.2, { col: '#d4af37', wood: '#784e32', clutter: false });
+      PHSprites.receptionDesk(19.85, 9.4, 1, 2.2, { col: '#d4af37', wood: '#f8fafc', clutter: false });
       drawWallEventScreen(21.8, 8.92);
       drawEspressoBar(19.85, 12.6);
-      PHSprites.sofa(21.65, 10.3, 0, 1.8, '#f5efe6');
+      PHSprites.sofa(21.65, 10.3, 0, 1.8, '#ffffff');
       drawCoffeeTableAndSet(22.55, 12.2);
-      PHSprites.sofa(21.65, 13.4, 0, 1.8, '#7e3b45');
-      PHSprites.armchair(23.55, 11.4, 0, { col: '#b47842' });
+      PHSprites.sofa(21.65, 13.4, 0, 1.8, '#1e3a8a');
+      PHSprites.armchair(23.55, 11.4, 0, { col: '#eab308' });
       drawIndoorPalm(23.75, 9.2);
       drawIndoorPalm(19.85, 15.1);
 
@@ -1403,9 +1401,9 @@ const IsoRenderer = (() => {
 
       // 3. East Swimming Pool Terrace directly beside Wellness & Movement Class (y: 2.2..7.6)
       drawSwimmingPool(35.15, 2.7, 1.75, 4.15);
-      drawPoolLounger(37.15, 2.80, '#f5efe6');
-      drawPoolUmbrella(37.55, 4.72, '#7e3b45', '#fefce8');
-      drawPoolLounger(37.15, 5.20, '#f5efe6');
+      drawPoolLounger(37.15, 2.80, '#ffffff');
+      drawPoolUmbrella(37.55, 4.72, '#1e3a8a', '#fefce8');
+      drawPoolLounger(37.15, 5.20, '#ffffff');
       drawHedge(34.9, 7.7, 3.4, 0.35, true);
 
       // 4. Outdoor Al-Fresco Garden Bistro Pavilion on the East Lawn (x: 34.8..38.5, y: 8.4..15.6)
