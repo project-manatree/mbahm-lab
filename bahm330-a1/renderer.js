@@ -1180,15 +1180,15 @@ const IsoRenderer = (() => {
       // Gloss-ebony & brushed-gold slate cabinet
       k.box(0.06, 0.06, 7.2, 2.13, 1.26, 2.4, '#0f172a');
       k.box(0.02, 0.02, 9.6, 2.21, 1.34, 1.4, '#1e293b');
-      // Vivid Royal-Sapphire Blue tournament felt playing surface (Five-Star Penthouse Club style)
-      k.top(0.16, 0.16, 11.05, 1.93, 1.06, '#1e3a8a', { stroke: '#d4af37', lw: 1.2 });
-      k.top(0.22, 0.22, 11.10, 1.81, 0.94, '#2563eb');
+      // Rich Royal-Bordeaux / Burgundy tournament baize felt playing surface (Five-Star Mayfair Club style, zero blue)
+      k.top(0.16, 0.16, 11.05, 1.93, 1.06, '#7e3b45', { stroke: '#d4af37', lw: 1.2 });
+      k.top(0.22, 0.22, 11.10, 1.81, 0.94, '#881337');
       // 6 brushed-gold & onyx billiard pockets (4 corners + 2 side pockets)
       for (const [px, py] of [[0.14, 0.14], [1.12, 0.12], [2.10, 0.14], [0.14, 1.24], [1.12, 1.26], [2.10, 1.24]]) {
         k.cyl(px, py, 10.6, 0.09, 0.6, '#d4af37');
         k.cyl(px, py, 10.9, 0.065, 0.4, '#0f172a');
       }
-      // Racked colorful billiard balls + white cue ball + 2 cues
+      // Racked colorful billiard balls + white cue ball + brass triangle rack + chalk + 2 cues
       const balls = [
         [0.62, 0.69, '#ffffff'],
         [1.42, 0.69, '#facc15'],
@@ -1198,8 +1198,18 @@ const IsoRenderer = (() => {
       for (const [bx, by, bcol] of balls) {
         k.cyl(bx, by, 11.15, 0.048, 0.75, bcol);
       }
+      // Brass triangle rack & chalk cubes on corner rails
+      k.box(1.36, 0.50, 11.15, 0.04, 0.38, 0.4, '#d4af37');
+      k.box(0.22, 0.08, 11.15, 0.07, 0.07, 0.45, '#f8fafc');
+      k.box(2.02, 1.24, 11.15, 0.07, 0.07, 0.45, '#7e3b45');
       k.box(0.32, 0.35, 11.2, 0.95, 0.03, 0.3, '#f8fafc');
       k.box(0.85, 0.98, 11.2, 0.95, 0.03, 0.3, '#fde68a');
+      // Overhead Brass & Amber-Glass Billiard Chandelier Light Bar suspended above table
+      k.cyl(0.68, 0.69, 24.5, 0.19, 1.4, '#d4af37');
+      k.cyl(0.68, 0.69, 23.8, 0.16, 0.8, '#fef08a');
+      k.cyl(1.56, 0.69, 24.5, 0.19, 1.4, '#d4af37');
+      k.cyl(1.56, 0.69, 23.8, 0.16, 0.8, '#fef08a');
+      k.box(0.66, 0.66, 25.9, 0.92, 0.06, 0.5, '#d4af37');
     });
 
     // 3. Concert Ebony & Brushed-Gold Baby Grand Piano + Pearl-White Leather Piano Bench (x = 25.05, y = 12.95)
@@ -1222,44 +1232,66 @@ const IsoRenderer = (() => {
       k.box(0.30, 1.54, 5.4, 0.78, 0.38, 1.2, '#ffffff');
     });
 
-    // 4. VIP White-Marble & Brushed-Gold Mahjong Table with Royal-Sapphire Velvet Surface & Pearl Club Chairs (x = 27.65, y = 9.75)
+    // 4. VIP White-Marble & Brushed-Gold Mahjong Table with Champagne-Camel Velvet Surface & Burgundy Club Chairs (x = 27.65, y = 9.75)
     PH.furniture(27.65, 9.75, 1.22, 1.22, 0, k => {
-      // 2 pearl-white & royal-sapphire velvet club chairs (North & South of Mahjong table)
+      // 2 pearl-white & royal-burgundy velvet club chairs (North & South of Mahjong table)
       k.box(0.38, -0.26, 0, 0.46, 0.36, 5.2, '#f8fafc');
-      k.box(0.38, -0.28, 5.2, 0.46, 0.10, 5.4, '#1e3a8a');
+      k.box(0.38, -0.28, 5.2, 0.46, 0.10, 5.4, '#7e3b45');
       k.box(0.38, 1.12, 0, 0.46, 0.36, 5.2, '#f8fafc');
-      k.box(0.38, 1.38, 5.2, 0.46, 0.10, 5.4, '#1e3a8a');
-      // Square white Calacatta marble & gold mahjong table with royal sapphire surface
+      k.box(0.38, 1.38, 5.2, 0.46, 0.10, 5.4, '#7e3b45');
+      // Square white Calacatta marble & gold mahjong table with warm champagne-camel velvet surface
       k.cyl(0.61, 0.61, 0, 0.26, 1.0, '#d4af37');
       k.cyl(0.61, 0.61, 1.0, 0.10, 7.6, '#e2e8f0');
       k.box(0.08, 0.08, 8.6, 1.06, 1.06, 1.6, '#ffffff');
-      k.top(0.16, 0.16, 10.25, 0.90, 0.90, '#1e3a8a', { stroke: '#d4af37', lw: 1.1 });
-      // 4 miniature ivory & gold mahjong tile walls in a square
+      k.top(0.16, 0.16, 10.25, 0.90, 0.90, '#c89b6e', { stroke: '#d4af37', lw: 1.1 });
+      // 4 miniature ivory & gold mahjong tile walls + center dice puck + 4 porcelain tea cups
       k.box(0.30, 0.26, 10.3, 0.62, 0.06, 0.7, '#ffffff');
       k.box(0.30, 0.90, 10.3, 0.62, 0.06, 0.7, '#ffffff');
       k.box(0.26, 0.32, 10.3, 0.06, 0.56, 0.7, '#ffffff');
       k.box(0.90, 0.32, 10.3, 0.06, 0.56, 0.7, '#ffffff');
+      k.cyl(0.61, 0.61, 10.3, 0.08, 0.4, '#d4af37');
+      for (const [tx, ty] of [[0.22, 0.22], [1.00, 0.22], [0.22, 1.00], [1.00, 1.00]]) {
+        k.cyl(tx, ty, 10.3, 0.045, 0.8, '#faf8f5');
+      }
     });
 
-    // 5. White Calacatta Marble & Brushed-Gold Royal Chess Table with Sapphire Velvet Club Chairs (x = 27.65, y = 12.95)
+    // 5. White Calacatta Marble & Brushed-Gold Royal Chess Table with Tall 3D Chess Pieces & Brass Clock (x = 27.65, y = 12.95)
     PH.furniture(27.65, 12.95, 1.22, 1.22, 0, k => {
       // 2 pearl-white & champagne-gold velvet club chairs
       k.box(0.38, -0.26, 0, 0.46, 0.36, 5.2, '#f8fafc');
       k.box(0.38, -0.28, 5.2, 0.46, 0.10, 5.4, '#d4af37');
       k.box(0.38, 1.12, 0, 0.46, 0.36, 5.2, '#f8fafc');
       k.box(0.38, 1.38, 5.2, 0.46, 0.10, 5.4, '#d4af37');
-      // White marble & gold pedestal table with crystal/ebony chessboard inlay
+      // White marble & gold pedestal table with checkered chessboard inlay
       k.cyl(0.61, 0.61, 0, 0.26, 1.0, '#d4af37');
       k.cyl(0.61, 0.61, 1.0, 0.10, 7.6, '#e2e8f0');
       k.box(0.10, 0.10, 8.6, 1.02, 1.02, 1.6, '#ffffff');
       k.top(0.22, 0.22, 10.25, 0.78, 0.78, '#f8fafc', { stroke: '#d4af37', lw: 1.1 });
       k.top(0.32, 0.32, 10.30, 0.28, 0.28, '#1e293b');
       k.top(0.60, 0.60, 10.30, 0.28, 0.28, '#1e293b');
-      // Gold & crystal chess pieces
-      for (const px of [0.38, 0.52, 0.66, 0.80]) {
-        k.cyl(px, 0.38, 10.35, 0.035, 1.1, '#d4af37');
-        k.cyl(px, 0.82, 10.35, 0.035, 1.1, '#38bdf8');
+      // Sculpted 3D Gold & Ebony King/Queen/Rook chess pieces + brass chess clock
+      for (const [i, px] of [[0, 0.36], [1, 0.51], [2, 0.66], [3, 0.81]]) {
+        const h = (i === 1 || i === 2) ? 1.8 : 1.3;
+        k.cyl(px, 0.36, 10.35, 0.042, h, '#d4af37');
+        k.cyl(px, 0.84, 10.35, 0.042, h, '#1e293b');
       }
+      k.box(1.02, 0.50, 10.30, 0.10, 0.22, 0.9, '#d4af37');
+    });
+
+    // 6. Wall-Mounted Tournament Dartboard Cabinet & Board-Game Vitrine on East Side of Club Room
+    PH.furniture(28.88, 11.4, 0.22, 1.05, 0, k => {
+      k.box(0.02, 0.04, 10.0, 0.14, 0.96, 12.0, '#0f172a');
+      k.cyl(0.06, 0.52, 15.8, 0.34, 0.4, '#faf8f5');
+      k.cyl(0.04, 0.52, 15.8, 0.22, 0.5, '#7e3b45');
+      k.cyl(0.02, 0.52, 15.8, 0.08, 0.6, '#d4af37');
+    });
+    PH.furniture(27.55, 14.95, 1.35, 0.62, 0, k => {
+      k.box(0.04, 0.04, 0, 1.26, 0.54, 8.8, '#0f172a');
+      k.box(0.02, 0.02, 8.8, 1.30, 0.58, 0.9, '#d4af37');
+      // Stacked luxury board-game boxes (Backgammon, Cards) & crystal water carafe
+      k.box(0.18, 0.14, 9.7, 0.44, 0.34, 1.4, '#7e3b45');
+      k.box(0.22, 0.16, 11.1, 0.36, 0.28, 1.1, '#c89b6e');
+      k.cyl(0.98, 0.30, 9.7, 0.09, 2.6, '#f8fafc');
     });
   }
 
@@ -1280,19 +1312,55 @@ const IsoRenderer = (() => {
       k.box(0.38, 0.18, 16.4, 0.10, 0.96, 0.8, '#d4af37');
       k.box(0.40, 0.38, 5.4, 0.06, 0.54, 9.4, '#facc15');
     });
-    // 6 Yoga mats in Royal Sapphire, Champagne Gold & Amethyst Silk (zero green, zero brown)
+    // 6 Yoga mats in a calm 5-Star Spa Champagne-Taupe, Royal-Burgundy & Warm-Sandstone palette (zero blue)
     const mats = [
-      [29.85, 10.9, '#2563eb'], [31.75, 10.9, '#eab308'],
-      [29.85, 12.4, '#7c3aed'], [31.75, 12.4, '#2563eb'],
-      [29.85, 13.9, '#eab308'], [31.75, 13.9, '#7c3aed']
+      [29.85, 10.9, '#c89b6e'], [31.75, 10.9, '#7e3b45'],
+      [29.85, 12.4, '#7e3b45'], [31.75, 12.4, '#c89b6e'],
+      [29.85, 13.9, '#a88b73'], [31.75, 13.9, '#7e3b45']
     ];
     for (const [mx, my, mc] of mats) drawYogaMat(mx, my, mc);
-    // White marble & gold props shelf
+    // 3D Yoga Blocks & Cylindrical Meditation Bolsters beside mats so studio has vertical depth
+    PH.furniture(31.22, 10.95, 0.42, 0.48, 0, k => {
+      k.box(0.06, 0.08, 0, 0.22, 0.14, 1.4, '#c89b6e');
+      k.box(0.06, 0.08, 1.4, 0.22, 0.14, 1.4, '#7e3b45');
+      k.cyl(0.22, 0.34, 0, 0.11, 1.8, '#faf8f5');
+    });
+    PH.furniture(31.22, 13.95, 0.42, 0.48, 0, k => {
+      k.box(0.06, 0.08, 0, 0.22, 0.14, 1.4, '#a88b73');
+      k.cyl(0.22, 0.34, 0, 0.11, 1.8, '#c89b6e');
+    });
+    // Stability Pilates Balls & Warm Glowing Ambient Spa Lanterns near mirror wall
+    PH.furniture(32.55, 14.55, 0.85, 0.85, 0, k => {
+      k.blob(0.32, 0.32, 2.8, 0.28, '#c89b6e', 4);
+      k.blob(0.62, 0.56, 2.5, 0.24, '#f8fafc', 4);
+    });
+    PH.furniture(29.45, 14.85, 0.45, 0.45, 0, k => {
+      k.cyl(0.22, 0.22, 0, 0.12, 1.2, '#d4af37');
+      k.cyl(0.22, 0.22, 1.2, 0.10, 4.2, '#fed7aa');
+    });
+    // White marble & gold props shelf with kettlebells, rolled mats, towels & infused-water dispenser
     PH.furniture(32.35, 9.05, 0.98, 0.5, 0, k => {
       k.box(0.04, 0.04, 0, 0.90, 0.42, 9.0, '#f8fafc');
       k.box(0.02, 0.02, 9.0, 0.94, 0.46, 0.8, '#d4af37');
-      for (const [px, c] of [[0.18, '#2563eb'], [0.42, '#eab308'], [0.66, '#7c3aed']]) k.cyl(px, 0.22, 9.8, 0.09, 2.6, c);
-      k.cyl(0.82, 0.22, 9.8, 0.07, 2.8, '#38bdf8');
+      for (const [px, c] of [[0.18, '#c89b6e'], [0.42, '#7e3b45'], [0.66, '#a88b73']]) k.cyl(px, 0.22, 9.8, 0.09, 2.6, c);
+      k.cyl(0.82, 0.22, 9.8, 0.08, 3.2, '#fef08a');
+    });
+  }
+
+  // Single Compact 5-Star Concierge Welcome Podium & Digital ISBAR Tablet (zero duplicate multi-station hospital reception waste)
+  function drawLuxuryConciergePodium(gx, gy) {
+    PH.furniture(gx, gy, 0.95, 1.25, 0, k => {
+      // Single alabaster marble & antique champagne-brass concierge podium
+      k.box(0.08, 0.08, 0, 0.78, 1.08, 1.2, '#c9a96e');
+      k.box(0.10, 0.10, 1.2, 0.74, 1.04, 10.6, '#faf8f5');
+      k.box(0.06, 0.06, 11.8, 0.82, 1.12, 1.2, '#ffffff');
+      k.box(0.80, 0.14, 3.0, 0.06, 0.96, 6.4, '#c9a96e');
+      // Single sleek ISBAR Digital Check-In Tablet + brass desk lamp + guest welcome folder
+      k.part(0.45, 0.48, 3, () => {
+        k.now.screen('-v', 0.28, 0.34, 0.46, 13.0, 16.4, 'ok', 9);
+      });
+      k.cyl(0.32, 0.92, 13.0, 0.06, 2.8, '#c9a96e');
+      k.cyl(0.32, 0.92, 15.8, 0.12, 2.2, '#fef3c7');
     });
   }
 
@@ -1455,9 +1523,9 @@ const IsoRenderer = (() => {
       drawNorthRecoverySuite(30.1, '#7c3aed', '#4c1d95', '#6d28d9', 303);
 
       // 3. Main Entrance Five-Star Hotel Lobby (Front-Left, x: 19.6..24.6, y: 8.8..16)
-      // West: Concierge Desk + Bellhop Cart | Center-Left (x=20.8..22.2): Clear Walkthrough | East (x=22.3..24.45): Waiting Lounge Seating
+      // West: Single Compact Concierge Welcome Podium (Zero Duplicate Reception Waste!) + Bellhop Cart | Center: Clear Walkthrough | East: Lounge Seating
       drawLuxuryHotelLobbyDetails();
-      PHSprites.receptionDesk(19.85, 9.8, 1, 2.5, { col: '#c9a96e', wood: '#f8fafc', clutter: false });
+      drawLuxuryConciergePodium(19.85, 10.35);
       PHSprites.sofa(22.48, 9.95, 0, 1.72, '#e07a5f');
       drawCoffeeTableAndSet(23.35, 11.75);
       PHSprites.armchair(22.46, 12.85, 0, { col: '#f4a261' });
