@@ -6,8 +6,8 @@
 //   Billing & Clearance Hall, Departure Lobby, Main Entrance facing DOWN at y=16)
 // - Middle Garden Park & Perimeter Walk (x: 15..19.6): Continuous Walking Loop & Fountain
 // - Right Building (x: 19.6..33.6, y: 2.6..16): Luxury Retreat (Hotel Lobby, Doctor Room,
-//   3 Recovery Suites, Spa Room, Large Yoga Studio, Indoor Restaurant -> Outdoor Garden Bistro)
-// - East Pool & Terrace Deck (x: 34.8..38.4): Swimming Pool beside Spa Room
+//   3 Recovery Suites, Cinema/Library Social Lounge, Yoga Studio)
+// - East Pool (y: 2.2..7.6) & Outdoor Garden Bistro Restaurant (y: 8.4..15.6) on East Lawn
 // - Front Two-Lane Road (x: 1..38.8, y: 16..20.4): Concierge Transport Left <-> Right
 // ============================================================================
 
@@ -46,14 +46,13 @@ const IsoRenderer = (() => {
       { x: 34.8, y: 8.4, w: 3.7, d: 7.2, mat: { cur: null, fut: 'travertine' } },   // Outdoor Garden Bistro Travertine Terrace
       { x: 35.05, y: 8.75, w: 3.2, d: 6.5, mat: { cur: null, fut: 'deck' } },       // Outdoor Garden Bistro Warm Teak Dining Deck
 
-      // BUILDING 2 (FIVE-STAR LUXURY RETREAT: HOTEL LOBBY + DOCTOR ROOM + 3 RECOVERY SUITES 301–303 + LARGE YOGA STUDIO + GRAND INDOOR-OUTDOOR RESTAURANT)
+      // BUILDING 2 (FIVE-STAR LUXURY RETREAT: HOTEL LOBBY + DOCTOR ROOM + 3 RECOVERY SUITES 301–303 + CINEMA/LIBRARY LOUNGE + YOGA STUDIO)
       { x: 19.6, y: 2.6, w: 3.5, d: 4.2, mat: { cur: null, fut: 'ceramicBlue' } },  // Visiting Doctor & ISBAR Clinical Room
       { x: 23.1, y: 2.6, w: 10.5, d: 4.2, mat: { cur: null, fut: 'oak' } },         // 3 Private Recovery Suites 301, 302 & 303 (3.5 x 4.2 each)
       { x: 19.6, y: 6.8, w: 14.0, d: 2.0, mat: { cur: null, fut: 'marble' } },      // Resort Central Marble Promenade
       { x: 19.6, y: 8.8, w: 5.0, d: 7.2, mat: { cur: null, fut: 'carpetBeige' } },  // Main Entrance 5-Star Hotel Lobby & Lounge
-      { x: 24.6, y: 8.8, w: 4.4, d: 7.2, mat: { cur: null, fut: 'deck' } },         // Large Yoga, Wellness & Movement Studio
-      { x: 29.0, y: 8.8, w: 4.6, d: 7.2, mat: { cur: null, fut: 'terrazzo' } },     // Grand Indoor Restaurant Dining Hall (-> Outdoor Bistro Terrace)
-      { x: 33.6, y: 11.1, w: 1.25, d: 1.8, mat: { cur: null, fut: 'travertine' } }, // Indoor Restaurant -> Outdoor Garden Bistro Bridge
+      { x: 24.6, y: 8.8, w: 4.6, d: 7.2, mat: { cur: null, fut: 'oak' } },          // Luxury Cinema, Library & Social Recovery Lounge
+      { x: 29.2, y: 8.8, w: 4.4, d: 7.2, mat: { cur: null, fut: 'deck' } },         // Yoga, Wellness & Movement Studio (beside East Pool & Terrace)
 
       // ---------------- FRONT WALKWAY & CONCIERGE TRANSPORT ROAD (y: 16..20.4)
       { x: 1, y: 16.0, w: 14, d: 0.6, mat: 'paver' },            // Hospital Front Entrance Apron
@@ -92,17 +91,17 @@ const IsoRenderer = (() => {
       { x1: 5.8, y1: 8.5, x2: 5.8, y2: 16, kind: 'glass', col: '#cbd5e1', open: [{ at: 11.5, w: 1.6, type: 'slide', alwaysOpen: true }] },
       { x1: 10.8, y1: 8.5, x2: 10.8, y2: 16, kind: 'glass', col: '#cbd5e1', open: [{ at: 11.0, w: 3.0, type: 'slide', alwaysOpen: true }] },
 
-      // BUILDING 2 (RIGHT — FIVE-STAR LUXURY RETREAT: HOTEL LOBBY + DOCTOR ROOM + 3 RECOVERY SUITES 301–303 + LARGE YOGA STUDIO + GRAND INDOOR-OUTDOOR RESTAURANT)
+      // BUILDING 2 (RIGHT — FIVE-STAR LUXURY RETREAT: HOTEL LOBBY + DOCTOR ROOM + 3 RECOVERY SUITES 301–303 + CINEMA/LIBRARY LOUNGE + YOGA STUDIO)
       { when: 'fut', x1: 19.6, y1: 2.6, x2: 33.6, y2: 2.6, kind: 'ext', col: '#faf8f5', windows: true },
       { when: 'fut', x1: 19.6, y1: 2.6, x2: 19.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 7.1, w: 1.5, type: 'slide', alwaysOpen: true }] },
-      { when: 'fut', x1: 33.6, y1: 2.6, x2: 33.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 7.1, w: 1.5, type: 'slide', alwaysOpen: true }, { at: 11.1, w: 1.8, type: 'slide', alwaysOpen: true }] },
+      { when: 'fut', x1: 33.6, y1: 2.6, x2: 33.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 7.1, w: 1.5, type: 'slide', alwaysOpen: true }] },
       // Building 2 Bottom Front Wall (y = 16) — Main Entrance opens directly into 5-Star Hotel Lobby (x = 21.0..23.4)
       { when: 'fut', x1: 19.6, y1: 16, x2: 33.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 21.0, w: 2.4, type: 'slide', alwaysOpen: true }] },
       // Top Wing Dividers: Visiting Doctor Room (19.6..23.1) | Suite 301 (23.1..26.6) | Suite 302 (26.6..30.1) | Suite 303 (30.1..33.6)
       { when: 'fut', x1: 23.1, y1: 2.6, x2: 23.1, y2: 6.8, kind: 'int', col: '#e2e8f0' },
       { when: 'fut', x1: 26.6, y1: 2.6, x2: 26.6, y2: 6.8, kind: 'int', col: '#e2e8f0' },
       { when: 'fut', x1: 30.1, y1: 2.6, x2: 30.1, y2: 6.8, kind: 'int', col: '#e2e8f0' },
-      // Resort Central Promenade Walls (Corridor y: 6.8..8.8) — Doors to Doctor Room, Suites 301–303, Hotel Lobby, Yoga Studio & Grand Restaurant
+      // Resort Central Promenade Walls (Corridor y: 6.8..8.8) — Doors to Doctor Room, Suites 301–303, Hotel Lobby, Cinema/Library Lounge & Yoga Studio
       {
         when: 'fut', x1: 19.6, y1: 6.8, x2: 33.6, y2: 6.8, kind: 'glass', col: '#f8fafc',
         open: [
@@ -116,13 +115,13 @@ const IsoRenderer = (() => {
         when: 'fut', x1: 19.6, y1: 8.8, x2: 33.6, y2: 8.8, kind: 'glass', col: '#f8fafc',
         open: [
           { at: 21.2, w: 2.0, type: 'slide', alwaysOpen: true },
-          { at: 26.0, w: 1.6, type: 'slide', alwaysOpen: true },
-          { at: 30.5, w: 1.8, type: 'slide', alwaysOpen: true }
+          { at: 26.1, w: 1.6, type: 'slide', alwaysOpen: true },
+          { at: 30.6, w: 1.6, type: 'slide', alwaysOpen: true }
         ]
       },
-      // Bottom Wing Dividers: 5-Star Hotel Lobby (19.6..24.6) | Large Yoga Studio (24.6..29.0) | Grand Indoor Restaurant (29.0..33.6)
+      // Bottom Wing Dividers: 5-Star Hotel Lobby (19.6..24.6) | Cinema, Library & Social Lounge (24.6..29.2) | Yoga & Movement Studio (29.2..33.6)
       { when: 'fut', x1: 24.6, y1: 8.8, x2: 24.6, y2: 16, kind: 'int', col: '#e2e8f0' },
-      { when: 'fut', x1: 29.0, y1: 8.8, x2: 29.0, y2: 16, kind: 'int', col: '#e2e8f0' }
+      { when: 'fut', x1: 29.2, y1: 8.8, x2: 29.2, y2: 16, kind: 'glass', col: '#cbd5e1' }
     ]
   };
 
@@ -1093,17 +1092,70 @@ const IsoRenderer = (() => {
     });
   }
 
-  // Retreat Bottom-Middle (x: 24.6..29.0, y: 8.8..16.0): Spacious Yoga, Wellness & Movement Studio (4.4 x 7.2)
+  // Retreat Bottom-Middle (x: 24.6..29.2, y: 8.8..16.0, 4.6 x 7.2): Luxury Cinema, Library & Social Recovery Lounge
+  function drawCinemaLibraryLounge() {
+    // Plush royal-navy & gold woven acoustic cinema & library salon carpet
+    PH.furniture(25.3, 10.1, 3.55, 5.2, 0, k => {
+      k.top(0, 0, 0.12, 3.55, 5.2, '#f5efe6', { stroke: '#d4af37', lw: 1.4 });
+      k.top(0.18, 0.18, 0.15, 3.19, 4.84, '#1e3a8a', { stroke: '#fde68a', lw: 1.0 });
+      k.top(0.40, 0.40, 0.18, 2.75, 4.40, '#efe7d6', { stroke: '#d4af37', lw: 0.9 });
+    });
+    // Floor-to-ceiling Burl-Walnut & Brass Library Bookshelf Wall along West divider (x = 24.75, y = 9.25)
+    PH.furniture(24.75, 9.25, 0.55, 3.6, 0, k => {
+      k.box(0.02, 0.04, 0, 0.48, 3.52, 22.0, '#5c3a21', { tex: 'deskwood', texAlpha: 0.58 });
+      k.box(0.0, 0.02, 22.0, 0.52, 3.56, 1.2, '#d4af37');
+      // 4 tiers of colorful leather-bound books & brass bookends
+      const bookCols = ['#7e3b45', '#0d9488', '#d4af37', '#1e3a8a', '#059669', '#b45309'];
+      for (const z of [4.2, 9.0, 13.8, 18.2]) {
+        k.box(0.04, 0.08, z - 0.5, 0.44, 3.44, 0.5, '#784e32');
+        for (let bi = 0; bi < 6; bi++) {
+          const by = 0.22 + bi * 0.52;
+          k.box(0.12, by, z, 0.32, 0.36, 3.2, bookCols[(bi + Math.round(z)) % bookCols.length]);
+        }
+      }
+    });
+    // Grand Curved 85-inch 4K Cinema Theatre Wall & Dolby Walnut Media Credenza along North-East / South wall (x = 25.35, y = 14.95)
+    PH.furniture(25.35, 14.95, 3.4, 0.72, 0, k => {
+      // Burl-walnut & brass Dolby media credenza
+      k.box(0.06, 0.08, 0, 3.28, 0.56, 7.6, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
+      k.box(0.04, 0.06, 7.6, 3.32, 0.60, 1.0, '#d4af37');
+      // Left & right brushed-brass tower acoustic speakers
+      k.cyl(0.26, 0.34, 8.6, 0.12, 11.5, '#1e293b');
+      k.cyl(0.26, 0.34, 20.1, 0.13, 0.8, '#d4af37');
+      k.cyl(3.14, 0.34, 8.6, 0.12, 11.5, '#1e293b');
+      k.cyl(3.14, 0.34, 20.1, 0.13, 0.8, '#d4af37');
+      // 85-inch widescreen 4K cinema display with glowing ambient frame
+      k.box(0.52, 0.24, 9.2, 2.36, 0.14, 13.4, '#0f172a');
+      k.box(0.48, 0.22, 8.8, 2.44, 0.18, 0.6, '#d4af37');
+      k.box(0.60, 0.20, 10.0, 2.20, 0.06, 11.6, '#38bdf8', { alpha: 0.82 });
+      k.box(0.95, 0.18, 12.2, 1.50, 0.04, 7.2, '#fde047', { alpha: 0.75 });
+    });
+    // Two tiered rows of plush velvet cinema & family lounge sofas + marble refreshment table
+    PHSprites.sofa(25.55, 10.35, 0, 1.85, '#f5efe6');
+    drawCoffeeTableAndSet(26.45, 12.15);
+    PHSprites.sofa(25.55, 13.30, 0, 1.85, '#059669');
+    // Quiet library reading armchairs & warm brass floor lamp along East side of lounge
+    PHSprites.armchair(27.95, 10.45, 0, { col: '#d4a373' });
+    PHSprites.armchair(27.95, 13.15, 0, { col: '#0d9488' });
+    PH.furniture(28.15, 12.0, 0.45, 0.45, 0, k => {
+      k.cyl(0.22, 0.22, 0, 0.16, 0.8, '#d4af37');
+      k.cyl(0.22, 0.22, 0.8, 0.03, 13.5, '#d4af37');
+      k.cyl(0.22, 0.22, 14.3, 0.18, 3.2, '#fef3c7');
+    });
+    drawIndoorPalm(28.35, 9.05);
+  }
+
+  // Retreat Bottom-Right (x: 29.2..33.6, y: 8.8..16.0, 4.4 x 7.2): Yoga, Wellness & Movement Studio (beside East Pool & Terrace)
   function drawYogaStudio() {
     // Floor-to-ceiling mirror wall & oak ballet/stretch barre along the south wall
-    PH.furniture(24.85, 15.62, 3.9, 0.3, 0, k => {
+    PH.furniture(29.45, 15.62, 3.9, 0.3, 0, k => {
       k.box(0.0, 0.18, 0, 3.9, 0.08, 24.0, '#e0f2fe', { alpha: 0.75 });
       k.box(0.0, 0.16, 0, 3.9, 0.12, 0.8, '#d4af37');
       k.box(0.0, 0.02, 10.2, 3.9, 0.08, 0.8, '#b47842');
       for (const px of [0.2, 1.4, 2.6, 3.7]) k.box(px, 0.04, 0, 0.06, 0.12, 10.2, '#d4af37');
     });
     // Instructor platform with sound-healing gong & brass stand (front of class)
-    PH.furniture(24.85, 9.05, 0.95, 1.35, 0, k => {
+    PH.furniture(29.45, 9.05, 0.95, 1.35, 0, k => {
       k.box(0.06, 0.08, 0, 0.84, 1.20, 1.6, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
       k.cyl(0.42, 0.22, 1.6, 0.04, 15.0, '#d4af37');
       k.cyl(0.42, 1.08, 1.6, 0.04, 15.0, '#d4af37');
@@ -1112,47 +1164,17 @@ const IsoRenderer = (() => {
     });
     // 6 Yoga mats in a spacious 2 x 3 studio grid
     const mats = [
-      [25.25, 10.9, '#14b8a6'], [27.15, 10.9, '#0ea5e9'],
-      [25.25, 12.4, '#f472b6'], [27.15, 12.4, '#14b8a6'],
-      [25.25, 13.9, '#0ea5e9'], [27.15, 13.9, '#a78bfa']
+      [29.85, 10.9, '#14b8a6'], [31.75, 10.9, '#0ea5e9'],
+      [29.85, 12.4, '#f472b6'], [31.75, 12.4, '#14b8a6'],
+      [29.85, 13.9, '#0ea5e9'], [31.75, 13.9, '#a78bfa']
     ];
     for (const [mx, my, mc] of mats) drawYogaMat(mx, my, mc);
     // Props shelf: rolled mats, blocks, bolsters & infused-water station
-    PH.furniture(27.8, 9.05, 0.98, 0.5, 0, k => {
+    PH.furniture(32.35, 9.05, 0.98, 0.5, 0, k => {
       k.box(0.04, 0.04, 0, 0.90, 0.42, 9.0, '#b47842', { tex: 'deskwood', texAlpha: 0.5 });
       for (const [px, c] of [[0.18, '#14b8a6'], [0.42, '#a78bfa'], [0.66, '#0ea5e9']]) k.cyl(px, 0.22, 9.0, 0.09, 2.6, c);
       k.cyl(0.82, 0.22, 9.0, 0.07, 2.8, '#bae6fd');
     });
-  }
-
-  // Retreat Bottom-Right (x: 29.0..33.6, y: 8.8..16.0, 4.6 x 7.2): Grand Indoor Fine-Dining Restaurant Hall
-  // (connects seamlessly through wide east glass doors onto the Outdoor Al-Fresco Garden Bistro Terrace = 8.3 x 7.2 Restaurant Wing)
-  function drawIndoorRestaurant() {
-    // Three round white-clothed fine-dining tables indoors with 4 oak chairs & gourmet plated meals each
-    drawRoundBistroTable(30.35, 10.35);
-    drawRoundBistroTable(32.35, 10.35);
-    drawRoundBistroTable(30.75, 12.65);
-    // Walnut & glass sommelier wine / botanical elixir display cabinet beside the terrace doors
-    PH.furniture(32.85, 12.8, 0.58, 1.15, 0, k => {
-      k.box(0.04, 0.04, 0, 0.50, 1.07, 20.0, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.0, 0.10, 2.0, 0.06, 0.95, 16.0, '#bae6fd', { alpha: 0.6 });
-      for (const z of [5.0, 9.5, 14.0]) {
-        for (const py of [0.25, 0.55, 0.85]) k.cyl(0.26, py, z, 0.05, 2.6, z === 9.5 ? '#f59e0b' : '#7e3b45');
-      }
-    });
-    // Chef's grand open culinary show kitchen: marble pass counter, induction range, brass extractor hood & cloche dishes
-    PH.furniture(29.4, 14.35, 3.7, 0.82, 0, k => {
-      k.box(0.04, 0.04, 0, 3.62, 0.74, 10.4, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.0, 0.0, 10.4, 3.70, 0.82, 1.2, '#faf8f5');
-      k.box(0.35, 0.20, 11.6, 1.10, 0.44, 0.4, '#0f172a');
-      k.box(0.45, 0.20, 26.0, 0.90, 0.44, 3.0, '#d4af37');
-      k.box(0.80, 0.32, 15.0, 0.20, 0.18, 11.0, '#b8962e');
-      for (const [px, c] of [[1.85, '#fb923c'], [2.35, '#4ade80'], [2.85, '#f87171'], [3.30, '#facc15']]) {
-        k.cyl(px, 0.40, 11.6, 0.14, 0.5, '#f8fafc');
-        k.cyl(px, 0.40, 12.1, 0.08, 0.6, c);
-      }
-    });
-    drawIndoorPalm(29.2, 9.05);
   }
 
   // 9. Retreat Front-Left (x: 19.6..24.6, y: 8.8..16.0): Five-Star Hotel Entrance Lobby, Concierge & Lounge
@@ -1297,9 +1319,9 @@ const IsoRenderer = (() => {
       drawIndoorPalm(23.75, 9.2);
       drawIndoorPalm(19.85, 15.1);
 
-      // 4. Large Yoga, Wellness & Movement Studio (x: 24.6..29.0) + Grand Indoor Fine-Dining Restaurant (x: 29.0..33.6 -> Outdoor Garden Bistro)
+      // 4. Luxury Cinema, Library & Social Recovery Lounge (x: 24.6..29.2) + Yoga, Wellness & Movement Studio (x: 29.2..33.6, beside East Pool)
+      drawCinemaLibraryLounge();
       drawYogaStudio();
-      drawIndoorRestaurant();
 
       // ---------------- MIDDLE REST & BBQ PARK (x: 15..19.6), EAST POOL (y: 2.2..7.6) & EAST GARDEN BISTRO PAVILION (y: 8.4..15.6)
       // 1. Back Shade Park Rest Lawn (y: 2.2..7.0) — Big Shade Tree & Rest Benches (No Fountain)

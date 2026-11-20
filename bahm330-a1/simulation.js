@@ -34,9 +34,9 @@ const SimApp = (() => {
     { id: 'st-7', roleLabel: 'Concierge', role: 'concierge', gx: 12.7, gy: 16.2, pose: 'HANDOVER_INTERACTION', taskCur: 'Rank 2: Van Lag (45m)', taskFut: 'Hard-Stop ISBAR Gate ✓', dur: 2.2, show: true },
     { id: 'st-8', retreat: true, roleLabel: 'Concierge', role: 'concierge', gx: 20.2, gy: 10.4, pose: 'TYPING_TERMINAL', taskCur: 'Duplicate Intake (25m)', taskFut: 'Hotel Lobby Concierge ✓', dur: 2.0, show: true },
     { id: 'st-9', retreat: true, roleLabel: 'Doctor', role: 'doctor', gx: 20.55, gy: 2.85, pose: 'EXAMINING', taskCur: 'Delayed Handover', taskFut: 'ISBAR Clinical Salon ✓', dur: 2.4, show: true },
-    { id: 'st-10', retreat: true, roleLabel: 'Instructor', role: 'therapist', gx: 26.2, gy: 9.8, pose: 'YOGA_STRETCH', taskCur: 'No Class', taskFut: 'Yoga Studio Class ✓', dur: 2.2, show: true },
+    { id: 'st-10', retreat: true, roleLabel: 'Instructor', role: 'therapist', gx: 31.1, gy: 9.8, pose: 'YOGA_STRETCH', taskCur: 'No Class', taskFut: 'Yoga Studio Class ✓', dur: 2.2, show: true },
     { id: 'st-11', retreat: true, roleLabel: 'Nurse', role: 'nurse', gx: 26.2, gy: 7.8, pose: 'HANDOVER_INTERACTION', taskCur: 'No Retreat RN', taskFut: 'Suites 301–303 RN ✓', dur: 2.5, show: true },
-    { id: 'st-12', retreat: true, roleLabel: 'Chef', role: 'chef', gx: 31.2, gy: 15.2, pose: 'HANDOVER_INTERACTION', taskCur: 'No Kitchen', taskFut: 'Grand Restaurant Chef ✓', dur: 2.3, show: true }
+    { id: 'st-12', retreat: true, roleLabel: 'Chef', role: 'chef', gx: 36.4, gy: 9.4, pose: 'HANDOVER_INTERACTION', taskCur: 'No Kitchen', taskFut: 'Garden Bistro Chef ✓', dur: 2.3, show: false }
   ];
 
   // Fixed Stationary Slots for 30 Non-Pathway Patients (Zero Slot-Shifting or Endless Loops)
@@ -89,21 +89,21 @@ const SimApp = (() => {
     // SUITES 301 & 302 FAMILY VISITOR ARMCHAIRS (2)
     { gx: 23.79, gy: 5.89, pose: 'SITTING' },
     { gx: 27.29, gy: 5.89, pose: 'SITTING' },
-    // LARGE YOGA, WELLNESS & MOVEMENT STUDIO (x: 24.6..29.0, y: 8.8..16.0) — 5 of 6 Yoga Mats (5)
-    { gx: 25.90, gy: 11.2, pose: 'YOGA_STRETCH' },
-    { gx: 27.80, gy: 11.2, pose: 'YOGA_STRETCH' },
-    { gx: 25.90, gy: 12.7, pose: 'YOGA_STRETCH' },
-    { gx: 27.80, gy: 12.7, pose: 'YOGA_STRETCH' },
-    { gx: 27.80, gy: 14.2, pose: 'YOGA_STRETCH' },
-    // GRAND INDOOR FINE-DINING RESTAURANT (x: 29.0..33.6, y: 8.8..16.0) — 3 Indoor Dining Tables (3)
-    { gx: 29.67, gy: 10.35, pose: 'SITTING' },
-    { gx: 33.03, gy: 10.35, pose: 'SITTING' },
-    { gx: 30.07, gy: 12.65, pose: 'SITTING' },
+    // LUXURY CINEMA, LIBRARY & SOCIAL RECOVERY LOUNGE (x: 24.6..29.2, y: 8.8..16.0) (3)
+    { gx: 26.15, gy: 10.75, pose: 'SITTING' },
+    { gx: 26.15, gy: 13.70, pose: 'SITTING' },
+    { gx: 28.38, gy: 10.85, pose: 'SITTING' },
+    // YOGA, WELLNESS & MOVEMENT STUDIO (x: 29.2..33.6, y: 8.8..16.0, beside East Pool) — 5 of 6 Yoga Mats (5)
+    { gx: 30.50, gy: 11.2, pose: 'YOGA_STRETCH' },
+    { gx: 32.40, gy: 11.2, pose: 'YOGA_STRETCH' },
+    { gx: 30.50, gy: 12.7, pose: 'YOGA_STRETCH' },
+    { gx: 32.40, gy: 12.7, pose: 'YOGA_STRETCH' },
+    { gx: 32.40, gy: 14.2, pose: 'YOGA_STRETCH' },
     // 5-STAR HOTEL ENTRANCE LOBBY & LOUNGE (x: 19.6..24.6, y: 8.8..16.0) (3)
     { gx: 22.2, gy: 10.7, pose: 'SITTING' },
     { gx: 23.0, gy: 10.7, pose: 'SITTING' },
     { gx: 22.2, gy: 13.7, pose: 'SITTING' },
-    // OUTDOOR AL-FRESCO GARDEN BISTRO TERRACE (x: 34.8..38.5, y: 8.4..15.6) (2)
+    // OUTDOOR AL-FRESCO GARDEN BISTRO RESTAURANT PAVILION (x: 34.8..38.5, y: 8.4..15.6) (2)
     { gx: 35.95, gy: 11.55, pose: 'SITTING' }, // Outdoor Garden Bistro Table 1
     { gx: 37.35, gy: 13.95, pose: 'SITTING' }, // Outdoor Garden Bistro Table 2
     // RESORT GARDEN PARK (2) — Strictly Outdoors on Shade Rest Bench & Front BBQ Picnic Bench
@@ -487,7 +487,7 @@ const SimApp = (() => {
           if (pIdx === 1 && into18 >= 8.5) { stepKey = 'p1-staging'; stepText = 'Shuttle Staging ✓'; ag.taskProg = sProg; }
         }
       } else if (pIdx === 3) {
-        // Building B Indoor Wellness & Culinary Loop (Doctor Clinical Salon -> Large Yoga Studio -> Grand Indoor Restaurant)
+        // Building B Indoor Wellness Loop (Doctor Clinical Salon -> Luxury Cinema, Library & Social Lounge -> Yoga Studio)
         const cPos = tSec % 12.0;
         const stg = Math.floor(cPos / 4.0);
         const sProg = (cPos % 4.0) / 4.0;
@@ -495,11 +495,11 @@ const SimApp = (() => {
           tx = 21.1; ty = 4.4; ag.pose = 'SITTING';
           stepKey = 'p3-md'; stepText = 'Doctor Salon Check ✓';
         } else if (stg === 1) {
-          tx = 25.90; ty = 14.2; ag.pose = 'YOGA_STRETCH';
-          stepKey = 'p3-spa'; stepText = 'Yoga Studio Class ✓';
+          tx = 28.38; ty = 13.55; ag.pose = 'SITTING';
+          stepKey = 'p3-spa'; stepText = 'Cinema & Library Lounge ✓';
         } else {
-          tx = 31.43; ty = 12.65; ag.pose = 'SITTING';
-          stepKey = 'p3-bistro'; stepText = 'Grand Restaurant Dining ✓';
+          tx = 30.50; ty = 14.2; ag.pose = 'YOGA_STRETCH';
+          stepKey = 'p3-bistro'; stepText = 'Yoga Studio Class ✓';
         }
         ag.taskProg = sProg;
       } else if (pIdx === 4) {
