@@ -32,10 +32,10 @@ const SimApp = (() => {
     { id: 'st-6', roleLabel: '', role: 'reception', gx: 7.2, gy: 9.15, pose: 'TYPING_TERMINAL', taskCur: 'Rank 3: Serial GL (40m wait)', taskFut: 'Track C: Pre-GL & HL7 (10m) ✓', dur: 2.0, show: true },
     // Escort RN / Concierge operating the Left <-> Right transport between the two downward-facing Main Entrances
     { id: 'st-7', roleLabel: 'Concierge', role: 'concierge', gx: 12.7, gy: 16.2, pose: 'HANDOVER_INTERACTION', taskCur: 'Rank 2: Van Lag (45m)', taskFut: 'Hard-Stop ISBAR Gate ✓', dur: 2.2, show: true },
-    { id: 'st-8', retreat: true, roleLabel: 'Concierge', role: 'concierge', gx: 20.25, gy: 10.4, pose: 'TYPING_TERMINAL', taskCur: 'Duplicate Intake (25m)', taskFut: 'Lobby Bypass → Direct Suite ✓', dur: 2.0, show: true },
-    { id: 'st-9', retreat: true, roleLabel: 'Doctor', role: 'doctor', gx: 20.9, gy: 2.85, pose: 'EXAMINING', taskCur: 'Delayed Handover', taskFut: 'ISBAR Suite Handover (+5m) ✓', dur: 2.4, show: true },
-    { id: 'st-10', retreat: true, roleLabel: 'Instructor', role: 'therapist', gx: 29.4, gy: 4.3, pose: 'YOGA_STRETCH', taskCur: 'No Class', taskFut: 'Wellness Class ✓', dur: 2.2, show: true },
-    { id: 'st-11', retreat: true, roleLabel: 'Therapist', role: 'therapist', gx: 25.5, gy: 3.6, pose: 'HANDOVER_INTERACTION', taskCur: 'No Spa', taskFut: 'Hyperbaric & Thermal Care ✓', dur: 2.5, show: true },
+    { id: 'st-8', retreat: true, roleLabel: 'Concierge', role: 'concierge', gx: 20.2, gy: 10.4, pose: 'TYPING_TERMINAL', taskCur: 'Duplicate Intake (25m)', taskFut: 'Hotel Lobby Concierge ✓', dur: 2.0, show: true },
+    { id: 'st-9', retreat: true, roleLabel: 'Doctor', role: 'doctor', gx: 20.55, gy: 2.85, pose: 'EXAMINING', taskCur: 'Delayed Handover', taskFut: 'ISBAR Clinical Salon ✓', dur: 2.4, show: true },
+    { id: 'st-10', retreat: true, roleLabel: 'Instructor', role: 'therapist', gx: 31.1, gy: 4.3, pose: 'YOGA_STRETCH', taskCur: 'No Class', taskFut: 'Wellness Studio ✓', dur: 2.2, show: true },
+    { id: 'st-11', retreat: true, roleLabel: 'Nurse', role: 'nurse', gx: 26.4, gy: 7.8, pose: 'HANDOVER_INTERACTION', taskCur: 'No Retreat RN', taskFut: '6-Suite Recovery RN ✓', dur: 2.5, show: true },
     { id: 'st-12', retreat: true, roleLabel: 'Chef', role: 'chef', gx: 36.4, gy: 9.4, pose: 'HANDOVER_INTERACTION', taskCur: 'No Kitchen', taskFut: 'Garden Bistro Chef ✓', dur: 2.3, show: false }
   ];
 
@@ -77,34 +77,34 @@ const SimApp = (() => {
   ];
 
   const TARGET_SMOOTH_SPOTS = [
-    // Hospital Departure Lounge relaxed seating (3)
+    // Hospital Main Entrance Waiting Room & Departure Lounge relaxed seating (3)
     { gx: 11.4, gy: 9.5, pose: 'SITTING' },
     { gx: 12.1, gy: 9.5, pose: 'SITTING' },
     { gx: 11.5, gy: 11.5, pose: 'SITTING' },
     // Hospital e-Billing & Pre-Packed Rx fast-track counters (2)
     { gx: 7.4, gy: 10.8, pose: 'HANDOVER_INTERACTION' },
     { gx: 3.9, gy: 10.8, pose: 'HANDOVER_INTERACTION' },
-    // MONTHLY VISITING MD ROOM (1 compact medical check-up suite ONLY) (2)
-    { gx: 21.3, gy: 5.5, pose: 'SITTING' },
-    { gx: 22.4, gy: 3.7, pose: 'SITTING' },
-    // THERMAL SPA & MASSAGE (2) — Heated Massage Table + Relaxation Lounger
-    { gx: 24.8, gy: 5.2, pose: 'LYING_ON_BED' },
-    { gx: 27.2, gy: 5.9, pose: 'SITTING' },
-    // WELLNESS & MOVEMENT CLASS (4) — Yoga / Tai Chi Studio Mats
-    { gx: 30.7, gy: 3.4, pose: 'YOGA_STRETCH' },
+    // VISITING DOCTOR & ISBAR CLINICAL SALON (x: 19.6..22.8, y: 2.6..6.8) (2)
+    { gx: 20.7, gy: 5.3, pose: 'SITTING' },
+    { gx: 21.4, gy: 4.2, pose: 'SITTING' },
+    // PRIVATE RECOVERY SUITES 301, 302, 303 & 305 BEDS (4)
+    { gx: 23.94, gy: 3.65, pose: 'LYING_ON_BED' }, // Suite 301 Recovery Bed
+    { gx: 26.47, gy: 3.65, pose: 'LYING_ON_BED' }, // Suite 302 Recovery Bed
+    { gx: 29.00, gy: 3.65, pose: 'LYING_ON_BED' }, // Suite 303 Recovery Bed
+    { gx: 29.08, gy: 10.35, pose: 'LYING_ON_BED' }, // Suite 305 Recovery Bed
+    // WELLNESS & MOVEMENT STUDIO (x: 30.4..33.6, y: 2.6..6.8) — 2 Yoga Mats (2)
     { gx: 32.3, gy: 3.4, pose: 'YOGA_STRETCH' },
-    { gx: 30.7, gy: 5.1, pose: 'YOGA_STRETCH' },
     { gx: 32.3, gy: 5.1, pose: 'YOGA_STRETCH' },
-    // EVENTS & SOCIAL LOUNGE (4) — Plush Cream/Emerald Sofas, Coffee Table & Espresso Bar (Zero Beds)
-    { gx: 23.4, gy: 10.7, pose: 'SITTING' },
-    { gx: 24.2, gy: 10.7, pose: 'SITTING' },
-    { gx: 23.4, gy: 13.7, pose: 'SITTING' },
-    { gx: 25.4, gy: 11.8, pose: 'SITTING' },
-    // PRIVATE RECOVERY SUITES 301 & 302 (2) + OUTDOOR AL-FRESCO GARDEN BISTRO PAVILION (2)
-    { gx: 26.8, gy: 14.1, pose: 'SITTING' },
-    { gx: 30.4, gy: 14.1, pose: 'SITTING' },
-    { gx: 35.95, gy: 11.55, pose: 'SITTING' },
-    { gx: 37.35, gy: 13.95, pose: 'SITTING' },
+    // 5-STAR HOTEL ENTRANCE LOBBY & LOUNGE (x: 19.6..25.0, y: 8.8..16.0) (4)
+    { gx: 22.4, gy: 10.7, pose: 'SITTING' },
+    { gx: 23.2, gy: 10.7, pose: 'SITTING' },
+    { gx: 22.4, gy: 13.7, pose: 'SITTING' },
+    { gx: 24.1, gy: 11.7, pose: 'SITTING' },
+    // PRIVATE RECOVERY SUITES 304 & 305 LOUNGE ARMCHAIRS (2) + OUTDOOR GARDEN BISTRO (2)
+    { gx: 25.66, gy: 13.81, pose: 'SITTING' }, // Suite 304 Private Armchair
+    { gx: 28.52, gy: 13.81, pose: 'SITTING' }, // Suite 305 Private Armchair
+    { gx: 35.95, gy: 11.55, pose: 'SITTING' }, // Outdoor Garden Bistro Table 1
+    { gx: 37.35, gy: 13.95, pose: 'SITTING' }, // Outdoor Garden Bistro Table 2
     // RESORT GARDEN PARK (2) — Strictly Outdoors on Shade Rest Bench & Front BBQ Picnic Bench
     { gx: 17.85, gy: 2.6, pose: 'SITTING' },
     { gx: 17.95, gy: 12.25, pose: 'SITTING' }
@@ -347,12 +347,12 @@ const SimApp = (() => {
 
       const sIdx = ag.slotIdx;
 
-      // Group A (0..6): 7 Inpatient Ward Beds in Current (98% occ) -> 2 Transferred into Private Luxury Recovery Suites 301 & 302 in Target (74% occ)
+      // Group A (0..6): 7 Inpatient Ward Beds in Current (98% occ) -> 2 Transferred into Private Luxury Recovery Suites 304 & 306 in Target (74% occ, all 6 Suites 301-306 occupied!)
       if (sIdx < 7) {
         if (isFut && sIdx >= 5) {
           const rSpot = sIdx === 5
-            ? { gx: 27.65, gy: 10.55, pose: 'LYING_ON_BED' } // Suite 301 King Recovery Bed
-            : { gx: 31.25, gy: 10.55, pose: 'LYING_ON_BED' }; // Suite 302 King Recovery Bed
+            ? { gx: 26.22, gy: 10.35, pose: 'LYING_ON_BED' } // Suite 304 Recovery Bed
+            : { gx: 31.95, gy: 10.35, pose: 'LYING_ON_BED' }; // Suite 306 Recovery Bed
           ag.pose = rSpot.pose;
           PH.stepAgentPhysics(ag, rSpot.gx, rSpot.gy, dtSec, { splitX: 18, snap: true });
           return;
@@ -457,19 +457,19 @@ const SimApp = (() => {
           ag.pose = 'SITTING';
           return;
         } else if (into18 < 13.5) {
-          // Step down automated side/rear ramp into Luxury Resort Entrance (Lobby Bypass!)
+          // Step down automated side/rear ramp into Luxury Hotel Lobby Entrance (Lobby Bypass!)
           ag.inVehicle = false;
           if (ag.gy > 16.6 || ag.gx < 19.6) {
             ag.gx = 22.1; ag.gy = 16.35; ag.z = 0;
           }
           tx = 22.1; ty = 15.3; ag.pose = 'HANDOVER_INTERACTION';
-          stepKey = 'p0-exit'; stepText = 'Lobby Bypass → Suite 301 ✓'; ag.taskProg = (into18 - 12.5) / 1.0;
+          stepKey = 'p0-exit'; stepText = 'Hotel Lobby Bypass → Suite ✓'; ag.taskProg = (into18 - 12.5) / 1.0;
         } else if (into18 < 15.8) {
-          tx = 28.1; ty = 12.5; ag.pose = 'HANDOVER_INTERACTION';
-          stepKey = 'p0-concierge'; stepText = 'ISBAR Suite 301 Entry (+5m) ✓'; ag.taskProg = (into18 - 13.5) / 2.3;
+          tx = 26.3; ty = 12.4; ag.pose = 'HANDOVER_INTERACTION';
+          stepKey = 'p0-concierge'; stepText = 'ISBAR Suite 304 Entry (+5m) ✓'; ag.taskProg = (into18 - 13.5) / 2.3;
         } else {
-          tx = 28.1; ty = 13.5; ag.pose = 'SITTING';
-          stepKey = 'p0-bistro'; stepText = 'Suite 301 Recovery (110m) ✓'; ag.taskProg = (into18 - 15.8) / 2.2;
+          tx = 26.3; ty = 13.5; ag.pose = 'SITTING';
+          stepKey = 'p0-bistro'; stepText = 'Suite 304 Recovery (110m) ✓'; ag.taskProg = (into18 - 15.8) / 2.2;
         }
       } else if (pIdx === 1 || pIdx === 2) {
         // Building A ONLY (12.0s cycle = 3 stages x 4.0s)
@@ -485,34 +485,34 @@ const SimApp = (() => {
           if (pIdx === 1 && into18 >= 8.5) { stepKey = 'p1-staging'; stepText = 'Shuttle Staging ✓'; ag.taskProg = sProg; }
         }
       } else if (pIdx === 3) {
-        // Building B Indoor Wellness & Recovery Loop (VIP Physician Salon -> Thermal/Hyperbaric Spa -> Private Recovery Suite 302)
+        // Building B Indoor Wellness & Recovery Loop (Doctor Clinical Salon -> Private Recovery Suite 305 -> Private Recovery Suite 306)
         const cPos = tSec % 12.0;
         const stg = Math.floor(cPos / 4.0);
         const sProg = (cPos % 4.0) / 4.0;
         if (stg === 0) {
-          tx = 21.7; ty = 4.6; ag.pose = 'SITTING';
-          stepKey = 'p3-md'; stepText = 'VIP Physician Check ✓';
+          tx = 21.1; ty = 4.4; ag.pose = 'SITTING';
+          stepKey = 'p3-md'; stepText = 'Doctor Salon Check ✓';
         } else if (stg === 1) {
-          tx = 26.2; ty = 5.5; ag.pose = 'SITTING';
-          stepKey = 'p3-spa'; stepText = 'Hyperbaric & Thermal Spa ✓';
+          tx = 29.2; ty = 12.4; ag.pose = 'SITTING';
+          stepKey = 'p3-spa'; stepText = 'Recovery Suite 305 ✓';
         } else {
-          tx = 31.7; ty = 12.5; ag.pose = 'SITTING';
-          stepKey = 'p3-bistro'; stepText = 'Recovery Suite 302 ✓';
+          tx = 32.0; ty = 13.8; ag.pose = 'SITTING';
+          stepKey = 'p3-bistro'; stepText = 'Recovery Suite 306 ✓';
         }
         ag.taskProg = sProg;
       } else if (pIdx === 4) {
-        // Anchored strictly INSIDE EVENTS & SOCIAL LOUNGE (x: 19.6..26.4, y: 8.8..16); zero static clutter labels
-        if (ag.gx < 19.6 || ag.gx > 26.4 || ag.gy < 8.8) {
+        // Anchored strictly INSIDE 5-STAR HOTEL ENTRANCE LOBBY & LOUNGE (x: 19.6..25.0, y: 8.8..16); zero static clutter labels
+        if (ag.gx < 19.6 || ag.gx > 25.0 || ag.gy < 8.8) {
           snap = true;
         }
         const cPos = (tSec + 2.0) % 12.0;
         const stg = Math.floor(cPos / 4.0);
         if (stg === 0) {
-          tx = 22.6; ty = 10.6; ag.pose = 'SITTING';
+          tx = 22.0; ty = 10.6; ag.pose = 'SITTING';
         } else if (stg === 1) {
           tx = 21.1; ty = 13.3; ag.pose = 'IDLE';
         } else {
-          tx = 23.5; ty = 13.7; ag.pose = 'SITTING';
+          tx = 22.8; ty = 13.7; ag.pose = 'SITTING';
         }
         PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.4, corridorY: null, splitX: 18, snap });
         ag.roleLabel = '';

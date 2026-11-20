@@ -20,12 +20,13 @@ const IsoRenderer = (() => {
     view: { x0: 0.5, y0: 0.3, x1: 39.0, y1: 20.6 },
     ground: [
       // ---------------- BUILDING 1 (LEFT: PARTNER HOSPITAL, x: 1..15, y: 1..16) — 100% IDENTICAL IN BOTH MODES
-      { x: 1, y: 1, w: 7, d: 5.5, mat: 'linoBlue' },             // Ward A (Acute Inpatient)
-      { x: 8, y: 1, w: 7, d: 5.5, mat: 'linoMint' },             // Discharge Ward B (Gate 1 / Track A)
+      { x: 1, y: 1, w: 7, d: 5.5, mat: 'linoBlue' },             // Rear-Left: Ward A (Acute Inpatient)
+      { x: 8, y: 1, w: 7, d: 5.5, mat: 'linoMint' },             // Rear-Right: Discharge Ward B (Gate 1 / Track A)
       { x: 1, y: 6.5, w: 14, d: 2.0, mat: 'terrazzo' },          // Hospital Central Corridor
-      { x: 1, y: 8.5, w: 4.8, d: 7.5, mat: 'ceramic' },          // Discharge Pharmacy (Gate 2 / Track B)
-      { x: 5.8, y: 8.5, w: 5.0, d: 7.5, mat: 'linoWhite' },      // Billing & GL Hall (Gate 3 / Track C)
-      { x: 10.8, y: 8.5, w: 4.2, d: 7.5, mat: 'carpetTeal' },    // Hard-Stop ISBAR Boarding Gate & Departure Lobby
+      { x: 1, y: 8.5, w: 4.8, d: 7.5, mat: 'ceramic' },          // Front-Left: Discharge Pharmacy (Gate 2 / Track B)
+      { x: 5.8, y: 8.5, w: 9.2, d: 7.5, mat: 'linoWhite' },      // Front-Center & Right: Main Entrance Waiting Room, Billing & Boarding Gate
+      { x: 6.1, y: 11.4, w: 4.5, d: 3.9, mat: 'carpetBlue' },    // Main Waiting Room Seating Carpet Inlay
+      { x: 10.8, y: 8.8, w: 4.0, d: 6.8, mat: 'carpetTeal' },    // Departure & Pre-Boarding Waiting Zone
 
       // ---------------- RIGHT SITE: UNDEVELOPED LOT (Current) -> GARDEN PARK, RESORT & EAST POOL (Target)
       { x: 15.0, y: 0.6, w: 23.8, d: 16.0, mat: 'grass' },       // Undeveloped Grass (Cur) / Landscaped Resort Lawn (Fut)
@@ -45,14 +46,13 @@ const IsoRenderer = (() => {
       { x: 34.8, y: 8.4, w: 3.7, d: 7.2, mat: { cur: null, fut: 'travertine' } },   // Outdoor Garden Bistro Travertine Terrace
       { x: 35.05, y: 8.75, w: 3.2, d: 6.5, mat: { cur: null, fut: 'deck' } },       // Outdoor Garden Bistro Warm Teak Dining Deck
 
-      // BUILDING 2 (LUXURY WELLNESS & RECOVERY RESORT PAVILION, x: 19.6..33.6, y: 2.6..16)
-      { x: 19.6, y: 2.6, w: 4.0, d: 4.2, mat: { cur: null, fut: 'ceramicBlue' } },  // 1. VIP Physician & ISBAR Consultation Salon
-      { x: 23.6, y: 2.6, w: 5.0, d: 4.2, mat: { cur: null, fut: 'travertine' } },   // 2. Thermal Spa & Hyperbaric Bio-Recovery
-      { x: 28.6, y: 2.6, w: 5.0, d: 4.2, mat: { cur: null, fut: 'oak' } },          // 3. Wellness & Movement Studio
+      // BUILDING 2 (FIVE-STAR LUXURY RETREAT: HOTEL LOBBY + DOCTOR ROOM + 6 RECOVERY SUITES 301–306 + WELLNESS STUDIO)
+      { x: 19.6, y: 2.6, w: 3.2, d: 4.2, mat: { cur: null, fut: 'ceramicBlue' } },  // Visiting Doctor & ISBAR Clinical Room
+      { x: 22.8, y: 2.6, w: 7.6, d: 4.2, mat: { cur: null, fut: 'oak' } },          // North Recovery Suites 301, 302 & 303
+      { x: 30.4, y: 2.6, w: 3.2, d: 4.2, mat: { cur: null, fut: 'travertine' } },   // Wellness & Movement Studio
       { x: 19.6, y: 6.8, w: 14.0, d: 2.0, mat: { cur: null, fut: 'marble' } },      // Resort Central Marble Promenade
-      { x: 19.6, y: 8.8, w: 6.8, d: 7.2, mat: { cur: null, fut: 'carpetBeige' } },  // 4. Grand Social Lounge & Piano Drawing Room
-      { x: 26.4, y: 8.8, w: 3.6, d: 7.2, mat: { cur: null, fut: 'oak' } },          // 5. Private Luxury Recovery Suite 301
-      { x: 30.0, y: 8.8, w: 3.6, d: 7.2, mat: { cur: null, fut: 'oak' } },          // 6. Private Luxury Recovery Suite 302
+      { x: 19.6, y: 8.8, w: 5.4, d: 7.2, mat: { cur: null, fut: 'carpetBeige' } },  // Main Entrance 5-Star Hotel Lobby & Lounge
+      { x: 25.0, y: 8.8, w: 8.6, d: 7.2, mat: { cur: null, fut: 'oak' } },          // South Recovery Suites 304, 305 & 306
 
       // ---------------- FRONT WALKWAY & CONCIERGE TRANSPORT ROAD (y: 16..20.4)
       { x: 1, y: 16.0, w: 14, d: 0.6, mat: 'paver' },            // Hospital Front Entrance Apron
@@ -76,29 +76,56 @@ const IsoRenderer = (() => {
       { x1: 1, y1: 1, x2: 15, y2: 1, kind: 'ext', col: '#e2e8f0', windows: true },
       { x1: 1, y1: 1, x2: 1, y2: 16, kind: 'ext', col: '#e2e8f0', windows: true },
       { x1: 15, y1: 1, x2: 15, y2: 16, kind: 'ext', col: '#e2e8f0', windows: true },
-      // Building 1 Bottom Front Wall (y = 16) — MAIN ENTRANCE FACING DOWN at x = 11.6..14.0
-      { x1: 1, y1: 16, x2: 15, y2: 16, kind: 'ext', col: '#e2e8f0', windows: true, open: [{ at: 11.6, w: 2.4, type: 'slide', alwaysOpen: true }] },
+      // Building 1 Bottom Front Wall (y = 16) — Main Entrance opens directly into Waiting Room (x = 7.4..9.8) & Boarding Bay (x = 11.6..14.0)
+      {
+        x1: 1, y1: 16, x2: 15, y2: 16, kind: 'ext', col: '#e2e8f0', windows: true,
+        open: [
+          { at: 7.4, w: 2.4, type: 'slide', alwaysOpen: true },
+          { at: 11.6, w: 2.4, type: 'slide', alwaysOpen: true }
+        ]
+      },
       // Building 1 Interior Walls
       { x1: 8, y1: 1, x2: 8, y2: 6.5, kind: 'int', col: '#cbd5e1', open: [{ at: 3.2, w: 1.3, type: 'door' }] },
       { x1: 1, y1: 6.5, x2: 15, y2: 6.5, kind: 'int', col: '#cbd5e1', open: [{ at: 4.0, w: 1.5, type: 'double' }, { at: 11.0, w: 1.5, type: 'double' }] },
-      { x1: 1, y1: 8.5, x2: 15, y2: 8.5, kind: 'int', col: '#cbd5e1', open: [{ at: 2.8, w: 1.4, type: 'door' }, { at: 8.5, w: 1.4, type: 'slide' }, { at: 12.3, w: 1.5, type: 'slide' }] },
-      { x1: 5.8, y1: 8.5, x2: 5.8, y2: 16, kind: 'int', col: '#cbd5e1', open: [{ at: 11.5, w: 1.4, type: 'door' }] },
-      { x1: 10.8, y1: 8.5, x2: 10.8, y2: 16, kind: 'glass', col: '#cbd5e1', open: [{ at: 11.5, w: 1.5, type: 'slide' }] },
+      { x1: 1, y1: 8.5, x2: 15, y2: 8.5, kind: 'int', col: '#cbd5e1', open: [{ at: 2.8, w: 1.4, type: 'door' }, { at: 8.2, w: 1.8, type: 'slide', alwaysOpen: true }, { at: 12.1, w: 1.7, type: 'slide', alwaysOpen: true }] },
+      { x1: 5.8, y1: 8.5, x2: 5.8, y2: 16, kind: 'glass', col: '#cbd5e1', open: [{ at: 11.5, w: 1.6, type: 'slide', alwaysOpen: true }] },
+      { x1: 10.8, y1: 8.5, x2: 10.8, y2: 16, kind: 'glass', col: '#cbd5e1', open: [{ at: 11.0, w: 3.0, type: 'slide', alwaysOpen: true }] },
 
-      // BUILDING 2 (RIGHT — LUXURY WELLNESS & RECOVERY RESORT PAVILION, x: 19.6..33.6, y: 2.6..16)
+      // BUILDING 2 (RIGHT — FIVE-STAR LUXURY RETREAT: HOTEL LOBBY + DOCTOR ROOM + 6 RECOVERY SUITES 301–306 + WELLNESS STUDIO)
       { when: 'fut', x1: 19.6, y1: 2.6, x2: 33.6, y2: 2.6, kind: 'ext', col: '#faf8f5', windows: true },
       { when: 'fut', x1: 19.6, y1: 2.6, x2: 19.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 7.1, w: 1.5, type: 'slide', alwaysOpen: true }] },
       { when: 'fut', x1: 33.6, y1: 2.6, x2: 33.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 4.1, w: 1.4, type: 'slide', alwaysOpen: true }, { at: 7.1, w: 1.5, type: 'slide', alwaysOpen: true }] },
+      // Building 2 Bottom Front Wall (y = 16) — Main Entrance opens directly into 5-Star Hotel Lobby (x = 21.0..23.4)
       { when: 'fut', x1: 19.6, y1: 16, x2: 33.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 21.0, w: 2.4, type: 'slide', alwaysOpen: true }] },
-      // Top Wing Dividers: VIP Physician Salon | Thermal & Hyperbaric Spa | Wellness & Movement Studio
-      { when: 'fut', x1: 23.6, y1: 2.6, x2: 23.6, y2: 6.8, kind: 'int', col: '#e2e8f0' },
-      { when: 'fut', x1: 28.6, y1: 2.6, x2: 28.6, y2: 6.8, kind: 'glass', col: '#cbd5e1' },
-      // Resort Central Promenade Walls (Corridor y: 6.8..8.8) — Doors into Lounge, Suite 301 & Suite 302
-      { when: 'fut', x1: 19.6, y1: 6.8, x2: 33.6, y2: 6.8, kind: 'glass', col: '#f8fafc', open: [{ at: 21.0, w: 1.5, type: 'door' }, { at: 25.4, w: 1.6, type: 'slide' }, { at: 30.4, w: 1.8, type: 'slide' }] },
-      { when: 'fut', x1: 19.6, y1: 8.8, x2: 33.6, y2: 8.8, kind: 'glass', col: '#f8fafc', open: [{ at: 21.4, w: 1.8, type: 'slide' }, { at: 27.5, w: 1.3, type: 'door' }, { at: 31.1, w: 1.3, type: 'door' }] },
-      // Bottom Wing Dividers: Social Lounge (19.6..26.4) | Private Recovery Suite 301 (26.4..30.0) | Private Recovery Suite 302 (30.0..33.6)
-      { when: 'fut', x1: 26.4, y1: 8.8, x2: 26.4, y2: 16, kind: 'int', col: '#e2e8f0' },
-      { when: 'fut', x1: 30.0, y1: 8.8, x2: 30.0, y2: 16, kind: 'int', col: '#e2e8f0' }
+      // Top Wing Dividers: Visiting Doctor Room (19.6..22.8) | Suite 301 (22.8..25.33) | Suite 302 (25.33..27.86) | Suite 303 (27.86..30.4) | Wellness Studio (30.4..33.6)
+      { when: 'fut', x1: 22.8, y1: 2.6, x2: 22.8, y2: 6.8, kind: 'int', col: '#e2e8f0' },
+      { when: 'fut', x1: 25.33, y1: 2.6, x2: 25.33, y2: 6.8, kind: 'int', col: '#e2e8f0' },
+      { when: 'fut', x1: 27.86, y1: 2.6, x2: 27.86, y2: 6.8, kind: 'int', col: '#e2e8f0' },
+      { when: 'fut', x1: 30.4, y1: 2.6, x2: 30.4, y2: 6.8, kind: 'glass', col: '#cbd5e1' },
+      // Resort Central Promenade Walls (Corridor y: 6.8..8.8) — Doors to Doctor Room, Suites 301–303, Wellness Studio, Hotel Lobby & Suites 304–306
+      {
+        when: 'fut', x1: 19.6, y1: 6.8, x2: 33.6, y2: 6.8, kind: 'glass', col: '#f8fafc',
+        open: [
+          { at: 20.6, w: 1.1, type: 'door' },
+          { at: 23.5, w: 1.0, type: 'door' },
+          { at: 26.0, w: 1.0, type: 'door' },
+          { at: 28.6, w: 1.0, type: 'door' },
+          { at: 31.4, w: 1.2, type: 'slide' }
+        ]
+      },
+      {
+        when: 'fut', x1: 19.6, y1: 8.8, x2: 33.6, y2: 8.8, kind: 'glass', col: '#f8fafc',
+        open: [
+          { at: 21.3, w: 2.0, type: 'slide', alwaysOpen: true },
+          { at: 25.8, w: 1.1, type: 'door' },
+          { at: 28.7, w: 1.1, type: 'door' },
+          { at: 31.6, w: 1.1, type: 'door' }
+        ]
+      },
+      // Bottom Wing Dividers: 5-Star Hotel Lobby (19.6..25.0) | Suite 304 (25.0..27.86) | Suite 305 (27.86..30.73) | Suite 306 (30.73..33.6)
+      { when: 'fut', x1: 25.0, y1: 8.8, x2: 25.0, y2: 16, kind: 'int', col: '#e2e8f0' },
+      { when: 'fut', x1: 27.86, y1: 8.8, x2: 27.86, y2: 16, kind: 'int', col: '#e2e8f0' },
+      { when: 'fut', x1: 30.73, y1: 8.8, x2: 30.73, y2: 16, kind: 'int', col: '#e2e8f0' }
     ]
   };
 
@@ -974,146 +1001,135 @@ const IsoRenderer = (() => {
   // FIVE-STAR HIGH-END LUXURY WELLNESS RETREAT FURNISHINGS (BUILDING 2)
   // ---------------------------------------------------------------------------
 
-  // 6. Retreat Suite 1: Private VIP Physician & Wellness Salon (Walnut & Brass Desk, Tufted Daybed, Rattan Screen, Orchid Credenza)
+  // 6. Retreat Top-Left (x: 19.6..22.8, y: 2.6..6.8): Private VIP Doctor & ISBAR Clinical Salon
   function drawLuxuryExecutiveSalon() {
-    // Custom Burl-Walnut & Brushed-Gold Executive Desk (x = 20.0, y = 2.95)
-    PH.furniture(20.0, 2.95, 1.72, 0.96, 0, k => {
-      // Walnut pedestals with brushed gold plinth trim
-      k.box(0.06, 0.10, 0, 0.40, 0.74, 1.2, '#d4af37');
-      k.box(1.26, 0.10, 0, 0.40, 0.74, 1.2, '#d4af37');
-      k.box(0.08, 0.12, 1.2, 0.36, 0.70, 9.4, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(1.28, 0.12, 1.2, 0.36, 0.70, 9.4, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.08, 0.74, 1.8, 1.56, 0.08, 8.8, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
-      // Cream marble & walnut inlaid desktop + cream leather blotter
-      k.box(0.02, 0.04, 10.6, 1.68, 0.86, 1.4, '#784e32', { tex: 'deskwood', texAlpha: 0.5 });
-      k.top(0.44, 0.18, 12.1, 0.84, 0.48, '#f5efe6', { stroke: '#d4af37' });
-      // Sleek gold-bezel all-in-one display & brass banker's lamp
-      k.box(0.62, 0.58, 12.0, 0.48, 0.07, 6.2, '#d4af37');
-      k.part(0.86, 0.54, 3, () => {
-        k.now.screen('-v', 0.57, 0.65, 1.07, 12.4, 17.8, 'ok', 11);
+    // Custom Burl-Walnut & Brushed-Gold Executive Doctor Desk (x = 19.8, y = 2.95)
+    PH.furniture(19.8, 2.95, 1.50, 0.90, 0, k => {
+      k.box(0.06, 0.10, 0, 0.34, 0.70, 1.2, '#d4af37');
+      k.box(1.10, 0.10, 0, 0.34, 0.70, 1.2, '#d4af37');
+      k.box(0.08, 0.12, 1.2, 0.30, 0.66, 9.4, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
+      k.box(1.12, 0.12, 1.2, 0.30, 0.66, 9.4, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
+      k.box(0.08, 0.70, 1.8, 1.34, 0.08, 8.8, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
+      k.box(0.02, 0.04, 10.6, 1.46, 0.80, 1.4, '#784e32', { tex: 'deskwood', texAlpha: 0.5 });
+      k.top(0.38, 0.16, 12.1, 0.74, 0.44, '#f5efe6', { stroke: '#d4af37' });
+      k.box(0.54, 0.54, 12.0, 0.44, 0.07, 6.0, '#d4af37');
+      k.part(0.76, 0.50, 3, () => {
+        k.now.screen('-v', 0.53, 0.57, 0.95, 12.4, 17.6, 'ok', 11);
       });
-      k.cyl(0.24, 0.52, 12.0, 0.08, 3.8, '#d4af37');
-      k.box(0.14, 0.42, 15.6, 0.22, 0.20, 1.4, '#fef08a');
-      // Tufted camel-leather executive armchair behind desk + 2 velvet guest chairs
-      k.box(0.64, -0.34, 5.2, 0.44, 0.40, 1.8, '#d4a373');
-      k.box(0.64, -0.38, 7.0, 0.44, 0.10, 8.6, '#b47842');
-      k.box(0.58, 1.06, 0, 0.46, 0.42, 5.6, '#059669');
-      k.box(0.58, 1.40, 5.6, 0.46, 0.10, 6.4, '#047857');
+      k.cyl(0.22, 0.48, 12.0, 0.07, 3.6, '#d4af37');
+      k.box(0.14, 0.38, 15.4, 0.18, 0.18, 1.3, '#fef08a');
+      k.box(0.54, -0.32, 5.2, 0.42, 0.38, 1.8, '#d4a373');
+      k.box(0.54, -0.36, 7.0, 0.42, 0.10, 8.4, '#b47842');
     });
 
-    // Plush Cream Tufted Leather & Teak Daybed Lounger (x = 19.95, y = 4.95)
-    PH.furniture(19.95, 4.95, 2.05, 1.05, 0, k => {
-      k.box(0.04, 0.06, 0, 1.97, 0.92, 3.2, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.02, 0.04, 3.2, 2.01, 0.96, 0.8, '#d4af37');
-      k.box(0.08, 0.10, 4.0, 1.89, 0.84, 3.4, '#faf8f5', { tex: 'quilt', texAlpha: 0.35 });
-      // Bolster headrest & emerald silk throw cushion
-      k.box(0.12, 0.14, 7.4, 0.36, 0.76, 3.2, '#f5efe6');
-      k.box(0.42, 0.22, 7.4, 0.22, 0.58, 2.4, '#10b981');
-      k.box(1.42, 0.12, 7.4, 0.48, 0.80, 0.6, '#059669');
+    // Plush Cream Tufted Leather & Teak Examination Daybed Lounger (x = 19.8, y = 4.95)
+    PH.furniture(19.8, 4.95, 1.85, 0.98, 0, k => {
+      k.box(0.04, 0.06, 0, 1.77, 0.86, 3.2, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
+      k.box(0.02, 0.04, 3.2, 1.81, 0.90, 0.8, '#d4af37');
+      k.box(0.08, 0.10, 4.0, 1.69, 0.78, 3.4, '#faf8f5', { tex: 'quilt', texAlpha: 0.35 });
+      k.box(0.12, 0.14, 7.4, 0.32, 0.70, 3.0, '#f5efe6');
+      k.box(0.38, 0.20, 7.4, 0.20, 0.54, 2.2, '#10b981');
+      k.box(1.28, 0.12, 7.4, 0.44, 0.74, 0.6, '#059669');
     });
 
-    // Designer Walnut & Woven Cane Folding Privacy Screen (x = 22.15, y = 2.95)
-    PH.furniture(22.15, 2.95, 0.22, 1.45, 0, k => {
-      for (let p = 0; p < 3; p++) {
-        const py = 0.04 + p * 0.46;
-        k.box(0.04, py, 0, 0.12, 0.42, 19.5, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
-        k.box(0.02, py + 0.04, 1.8, 0.16, 0.34, 16.0, '#f5efe6');
-        k.box(0.03, py + 0.02, 19.5, 0.14, 0.38, 0.8, '#d4af37');
-      }
-    });
-
-    // Italian Marble & Brass Credenza with Orchid Arrangement & Warm Tea Carafe (x = 22.45, y = 4.55)
-    PH.furniture(22.45, 4.55, 0.88, 1.35, 0, k => {
-      k.box(0.06, 0.06, 0, 0.76, 1.23, 9.2, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.02, 0.02, 9.2, 0.84, 1.31, 1.2, '#faf8f5');
-      k.box(0.04, 0.04, 8.6, 0.80, 1.27, 0.6, '#d4af37');
-      // White porcelain vase with pink/white Phalaenopsis orchids + golden tea service
-      k.cyl(0.42, 0.38, 10.4, 0.12, 3.6, '#ffffff');
-      k.blob(0.42, 0.38, 15.2, 0.22, '#f472b6', 3);
-      k.blob(0.36, 0.46, 16.5, 0.18, '#fdf2f8', 4);
-      k.cyl(0.44, 0.94, 10.4, 0.10, 2.6, '#d4af37');
+    // Italian Marble & Brass Medical Vanity Credenza with Orchid & ISBAR Tablet (x = 21.8, y = 3.2)
+    PH.furniture(21.8, 3.2, 0.78, 1.45, 0, k => {
+      k.box(0.06, 0.06, 0, 0.66, 1.33, 9.2, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
+      k.box(0.02, 0.02, 9.2, 0.74, 1.41, 1.2, '#faf8f5');
+      k.box(0.04, 0.04, 8.6, 0.70, 1.37, 0.6, '#d4af37');
+      k.cyl(0.38, 0.38, 10.4, 0.11, 3.4, '#ffffff');
+      k.blob(0.38, 0.38, 15.0, 0.20, '#f472b6', 3);
+      k.cyl(0.40, 1.00, 10.4, 0.09, 2.4, '#d4af37');
     });
   }
 
-  // 7. Retreat Suite 2: Wood & Glass Hyperbaric Bio-Recovery Sanctuary + glowing Himalayan Salt & Aromatherapy Credenza
-  function drawHyperbaricChamber(gx, gy) {
-    PH.furniture(gx, gy, 2.05, 1.18, 0, k => {
-      // Sculpted dark walnut outer timber arch rings & brushed-gold plinth base
-      k.box(0.04, 0.06, 0, 1.97, 1.06, 1.0, '#d4af37');
-      k.box(0.06, 0.08, 1.0, 1.93, 1.02, 1.4, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.04, 0.06, 2.4, 0.24, 1.06, 17.5, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(1.77, 0.06, 2.4, 0.24, 1.06, 17.5, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.04, 0.06, 18.4, 1.97, 1.06, 2.0, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
-      // Cream luxury padded leather zero-gravity recliner inside chamber with warm golden LED cove
-      k.box(0.38, 0.24, 2.6, 1.28, 0.68, 3.4, '#f5efe6');
-      k.box(0.38, 0.22, 6.0, 0.28, 0.68, 7.2, '#e7dec8');
-      k.box(0.32, 0.18, 17.6, 1.40, 0.76, 0.6, '#fde68a');
-      // Curved panoramic acrylic/glass pressure hull viewport
-      k.box(0.28, 0.10, 2.4, 1.49, 0.98, 15.8, '#bae6fd', { alpha: 0.30 });
-      // Center vertical bronze frame Mullion + Integrated Smart Touch Biometric Console on front glass
-      k.box(0.92, 1.04, 2.4, 0.22, 0.06, 15.8, '#5c3a21');
-      k.box(0.84, 1.08, 7.2, 0.38, 0.05, 6.4, '#0f172a');
-      k.part(1.03, 1.14, 3, () => {
-        k.now.screen('+v', 1.14, 0.87, 1.19, 7.6, 13.2, 'ui', 91);
+  // 7. Compact Five-Star King Recovery Suite Bed (fits cleanly in both North Suites 301–303 and South Suites 304–306)
+  function drawCompactLuxuryBed(x, y, duvetCol, runnerCol, seed) {
+    PH.furniture(x, y, 1.88, 1.32, 0, k => {
+      // Woven cream & gold bedside area rug
+      k.top(-0.04, -0.06, 0.10, 1.96, 1.44, '#f5efe6', { stroke: '#d4af37', lw: 1.0 });
+      // Burl-walnut & brushed-brass bed platform frame
+      k.box(0.06, 0.10, 0, 1.72, 1.12, 1.2, '#d4af37');
+      k.box(0.08, 0.12, 1.2, 1.68, 1.08, 4.0, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
+      // Tufted cream & walnut hotel headboard with gold crown
+      k.box(0.04, 0.06, 0, 0.14, 1.20, 19.5, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
+      k.box(0.15, 0.14, 5.2, 0.06, 1.04, 12.2, '#faf8f5', { tex: 'quilt', texAlpha: 0.35 });
+      k.box(0.03, 0.05, 19.5, 0.16, 1.22, 1.2, '#d4af37');
+      // Orthopaedic mattress, silk quilted duvet & runner
+      k.box(0.18, 0.14, 5.2, 1.54, 1.04, 4.4, '#ffffff', { tex: 'fabric', texAlpha: 0.25 });
+      k.box(0.56, 0.13, 5.7, 1.16, 1.06, 4.4, duvetCol, { tex: 'quilt', texAlpha: 0.38 });
+      k.box(1.36, 0.12, 5.9, 0.32, 1.08, 4.5, runnerCol, { tex: 'fabric', texAlpha: 0.45 });
+      // 2 Hotel pillows + 2 accent pillows
+      k.box(0.22, 0.18, 9.6, 0.26, 0.38, 2.4, '#ffffff');
+      k.box(0.22, 0.72, 9.6, 0.26, 0.38, 2.4, '#ffffff');
+      k.box(0.36, 0.22, 9.9, 0.18, 0.32, 2.0, '#fde68a');
+      k.box(0.36, 0.76, 9.9, 0.18, 0.32, 2.0, '#fde68a');
+      // Walnut & brass nightstand with warm bedside lamp
+      k.box(0.10, 1.26, 0, 0.36, 0.32, 8.6, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
+      k.box(0.08, 1.24, 8.6, 0.40, 0.36, 1.0, '#d4af37');
+      k.cyl(0.26, 1.40, 9.6, 0.05, 2.4, '#d4af37');
+      k.cyl(0.26, 1.40, 11.8, 0.11, 2.8, '#fef3c7');
+      // Discreet bedside ISBAR & biometric monitor on stand
+      k.cyl(0.38, -0.18, 0, 0.10, 1.0, '#64748b');
+      k.cyl(0.38, -0.18, 1.0, 0.03, 12.0, '#cbd5e1');
+      k.box(0.24, -0.28, 13.0, 0.30, 0.18, 5.4, '#0f172a');
+      k.part(0.38, -0.09, 3, () => {
+        k.now.screen('+v', -0.09, 0.26, 0.52, 13.5, 18.0, 'ecg', seed || 7);
       });
     });
   }
 
-  function drawLuxurySpaSanctuaryDetails() {
-    // Warm Glowing Himalayan Pink-Salt Wellness Feature Wall & Essential-Oil Candle Bar (x = 24.0, y = 2.66)
-    PH.furniture(24.0, 2.65, 1.95, 0.24, 0, k => {
-      k.box(0.04, 0.04, 3.0, 1.87, 0.14, 16.5, '#5c3a21');
-      k.box(0.12, 0.14, 4.2, 1.71, 0.06, 14.0, '#fb923c');
-      k.box(0.18, 0.16, 5.2, 1.59, 0.05, 12.0, '#fdba74');
-    });
-    // Teak & Marble Aromatherapy Credenza with Essential Oils, Rolled Egyptian Towels & Candlelight (x = 27.55, y = 4.45)
-    PH.furniture(27.55, 4.45, 0.85, 1.75, 0, k => {
-      k.box(0.06, 0.06, 0, 0.73, 1.63, 8.8, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.02, 0.02, 8.8, 0.81, 1.71, 1.1, '#faf8f5');
-      // Rolled white spa towels, amber essential-oil diffusers & glowing tea-light candles
-      k.cyl(0.42, 0.35, 9.9, 0.12, 1.8, '#ffffff');
-      k.cyl(0.42, 0.58, 9.9, 0.12, 1.8, '#ffffff');
-      k.cyl(0.42, 0.98, 9.9, 0.09, 2.8, '#d4af37');
-      k.cyl(0.42, 1.35, 9.9, 0.08, 1.6, '#fef08a');
+  // North Compact Private Recovery Suites 301, 302, 303 (x: 22.8..30.4, y: 2.6..6.8)
+  function drawNorthRecoverySuite(sx, duvetCol, runnerCol, seed) {
+    drawCompactLuxuryBed(sx + 0.26, 3.05, duvetCol, runnerCol, seed);
+    // Compact walnut & brass suite console/credence along right wall
+    PH.furniture(sx + 1.55, 5.1, 0.76, 0.52, 0, k => {
+      k.box(0.04, 0.04, 0, 0.68, 0.44, 8.6, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
+      k.box(0.02, 0.02, 8.6, 0.72, 0.48, 0.9, '#faf8f5');
+      k.cyl(0.38, 0.26, 9.5, 0.08, 2.2, '#d4af37');
     });
   }
 
-  // 8. Retreat Suite 3: Sound-Healing Bronze Gong & Crystal Singing-Bowl Studio Altar + Botanical Refreshment Bar
+  // South Executive Private Recovery Suites 304, 305, 306 (x: 25.0..33.6, y: 8.8..16.0)
+  function drawSouthRecoverySuite(sx, duvetCol, runnerCol, chairCol, seed) {
+    drawCompactLuxuryBed(sx + 0.34, 9.75, duvetCol, runnerCol, seed);
+    // Private suite lounge armchair + Italian marble & brass tea/orchid side table
+    PHSprites.armchair(sx + 0.30, 13.45, 0, { col: chairCol });
+    PH.furniture(sx + 1.24, 13.6, 0.56, 0.56, 0, k => {
+      k.cyl(0.28, 0.28, 0, 0.16, 0.8, '#d4af37');
+      k.cyl(0.28, 0.28, 0.8, 0.04, 5.0, '#d4af37');
+      k.cyl(0.28, 0.28, 5.8, 0.25, 0.8, '#faf8f5');
+      k.cyl(0.22, 0.26, 6.6, 0.06, 2.0, '#ffffff');
+      k.blob(0.22, 0.26, 9.5, 0.13, '#f472b6', 3);
+      k.cyl(0.36, 0.32, 6.6, 0.05, 1.3, '#d4af37');
+    });
+    // Custom burl-walnut & brass suite wardrobe along south wall
+    PHSprites.wardrobe(sx + 1.42, 14.9, 0, { wood: '#784e32' });
+  }
+
+  // 8. Retreat Top-Right (x: 30.4..33.6, y: 2.6..6.8): Wellness, Yoga & Movement Studio
   function drawLuxuryWellnessStudioDetails() {
-    // Teak & Brushed-Brass Sound-Healing Gong Stand & Crystal Bowls (x = 28.85, y = 2.95)
-    PH.furniture(28.85, 2.95, 0.95, 1.45, 0, k => {
-      k.box(0.06, 0.08, 0, 0.82, 1.28, 3.2, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.04, 0.06, 3.2, 0.86, 1.32, 0.8, '#faf8f5');
-      // Brass frame & suspended golden acoustic resonance gong + 3 singing bowls
-      k.cyl(0.44, 0.24, 4.0, 0.04, 15.5, '#d4af37');
-      k.cyl(0.44, 1.18, 4.0, 0.04, 15.5, '#d4af37');
-      k.box(0.38, 0.20, 19.2, 0.12, 1.04, 0.8, '#d4af37');
-      k.box(0.41, 0.44, 7.5, 0.06, 0.56, 9.5, '#f59e0b');
-      k.cyl(0.28, 0.42, 4.0, 0.10, 1.4, '#f8fafc');
-      k.cyl(0.28, 0.72, 4.0, 0.11, 1.5, '#fde68a');
-      k.cyl(0.28, 1.02, 4.0, 0.09, 1.3, '#f8fafc');
-    });
-    // Botanical Infused-Water & Bamboo Towel Bar near East Pool Terrace Door (x = 28.85, y = 4.85)
-    PH.furniture(28.85, 4.85, 0.88, 1.45, 0, k => {
-      k.box(0.06, 0.06, 0, 0.76, 1.33, 9.2, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.02, 0.02, 9.2, 0.84, 1.41, 1.0, '#faf8f5');
-      // Glass cucumber/citrus water dispenser jars & stacked spa towels
-      k.cyl(0.42, 0.38, 10.2, 0.14, 3.8, '#bae6fd');
-      k.cyl(0.42, 0.78, 10.2, 0.14, 3.8, '#fde68a');
-      k.box(0.22, 1.04, 10.2, 0.42, 0.28, 2.0, '#ffffff');
+    // Teak & Brushed-Brass Sound-Healing Gong Stand & Infused-Water Bar (x = 30.55, y = 2.95)
+    PH.furniture(30.55, 2.95, 0.82, 1.35, 0, k => {
+      k.box(0.06, 0.08, 0, 0.70, 1.18, 3.2, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
+      k.box(0.04, 0.06, 3.2, 0.74, 1.22, 0.8, '#faf8f5');
+      k.cyl(0.38, 0.22, 4.0, 0.04, 15.0, '#d4af37');
+      k.cyl(0.38, 1.10, 4.0, 0.04, 15.0, '#d4af37');
+      k.box(0.32, 0.18, 18.8, 0.12, 0.96, 0.8, '#d4af37');
+      k.box(0.35, 0.40, 7.2, 0.06, 0.52, 9.0, '#f59e0b');
     });
   }
 
-  // 9. Retreat Suite 4, Suites 301/302 & Outdoor Garden Bistro Pavilion
-  function drawLuxuryLoungeAndSuiteDetails() {
-    // Woven Cream, Burgundy & Gold Persian Silk Area Rug under the Social Lounge Seating (x = 22.1, y = 10.1)
-    PH.furniture(22.1, 10.1, 3.6, 4.3, 0, k => {
-      k.top(0, 0, 0.12, 3.6, 4.3, '#f5efe6', { stroke: '#d4af37', lw: 1.5 });
-      k.top(0.22, 0.22, 0.15, 3.16, 3.86, '#7e3b45', { stroke: '#fde68a', lw: 1.0 });
-      k.top(0.52, 0.52, 0.18, 2.56, 3.26, '#efe7d6', { stroke: '#d4af37', lw: 0.9 });
+  // 9. Retreat Front-Left (x: 19.6..25.0, y: 8.8..16.0): Five-Star Hotel Entrance Lobby, Concierge & Lounge
+  function drawLuxuryHotelLobbyDetails() {
+    // Woven Cream, Burgundy & Gold Persian Silk Area Rug under the Hotel Lobby Sofas (x = 21.5, y = 10.1)
+    PH.furniture(21.5, 10.1, 3.0, 4.2, 0, k => {
+      k.top(0, 0, 0.12, 3.0, 4.2, '#f5efe6', { stroke: '#d4af37', lw: 1.5 });
+      k.top(0.20, 0.20, 0.15, 2.60, 3.80, '#7e3b45', { stroke: '#fde68a', lw: 1.0 });
+      k.top(0.45, 0.45, 0.18, 2.10, 3.30, '#efe7d6', { stroke: '#d4af37', lw: 0.9 });
     });
 
-    // VIP Burgundy & Gold Welcome Carpet Runner + Brass Stanchion Posts inside Resort Main Entrance (x = 21.3, y = 14.7)
+    // VIP Burgundy & Gold Welcome Carpet Runner + Brass Stanchion Posts inside Hotel Main Entrance (x = 21.3, y = 14.7)
     PH.furniture(21.3, 14.7, 1.8, 1.25, 0, k => {
       k.top(0.15, 0.02, 0.14, 1.50, 1.20, '#7e3b45', { stroke: '#d4af37', lw: 1.4 });
       k.cyl(0.08, 0.15, 0, 0.07, 8.5, '#d4af37');
@@ -1122,32 +1138,14 @@ const IsoRenderer = (() => {
       k.cyl(1.72, 1.10, 0, 0.07, 8.5, '#d4af37');
     });
 
-    // Sculptural Marble & Gold Art Pedestal in Resort Central Marble Promenade (x = 26.0, y = 7.35)
-    PH.furniture(26.0, 7.35, 0.72, 0.72, 0, k => {
+    // Sculptural Marble & Gold Floral Art Pedestal in Resort Central Marble Promenade (x = 24.4, y = 7.35)
+    PH.furniture(24.4, 7.35, 0.72, 0.72, 0, k => {
       k.box(0.08, 0.08, 0, 0.56, 0.56, 9.6, '#faf8f5');
       k.box(0.04, 0.04, 9.6, 0.64, 0.64, 0.9, '#d4af37');
       k.cyl(0.36, 0.36, 10.5, 0.18, 3.2, '#f8fafc');
       k.blob(0.36, 0.36, 15.2, 0.26, '#f472b6', 3);
       k.blob(0.36, 0.36, 17.0, 0.20, '#fef08a', 4);
     });
-  }
-
-  // Private Five-Star Step-Down Recovery Suite Furnishings (Suites 301 & 302)
-  function drawLuxuryRecoverySuite(sx, duvetCol, runnerCol, chairCol, seed) {
-    // King-size luxury upholstered recovery bed with integrated discreet vitals monitor & nightstand
-    PHSprites.luxuryBed(sx + 0.35, 9.8, 0, { duvet: duvetCol, runner: runnerCol, seed });
-    // Private suite lounge armchair + Italian marble & brass tea/orchid side table
-    PHSprites.armchair(sx + 0.35, 13.7, 0, { col: chairCol });
-    PH.furniture(sx + 1.32, 13.85, 0.62, 0.62, 0, k => {
-      k.cyl(0.31, 0.31, 0, 0.18, 0.8, '#d4af37');
-      k.cyl(0.31, 0.31, 0.8, 0.04, 5.2, '#d4af37');
-      k.cyl(0.31, 0.31, 6.0, 0.28, 0.9, '#faf8f5');
-      k.cyl(0.24, 0.28, 6.9, 0.07, 2.2, '#ffffff');
-      k.blob(0.24, 0.28, 10.0, 0.14, '#f472b6', 3);
-      k.cyl(0.40, 0.36, 6.9, 0.06, 1.4, '#d4af37');
-    });
-    // Custom burl-walnut & brass suite wardrobe & luggage credenza along south wall
-    PHSprites.wardrobe(sx + 2.1, 14.9, 0, { wood: '#784e32' });
   }
 
   // Outdoor Al-Fresco Teak & Brass Garden Bistro Pavilion on the East Lawn (x: 34.8..38.5, y: 8.4..15.6)
@@ -1243,41 +1241,36 @@ const IsoRenderer = (() => {
     drawDepartureBoardingGate();
 
     if (isFut) {
-      // ---------------- BUILDING 2 (x: 19.6..33.6, y: 2.6..16): FIVE-STAR LUXURY WELLNESS RESORT PAVILION
-      // 1. Private VIP Physician & Executive Wellness Salon (x: 19.6..23.6, y: 2.6..6.8)
+      // ---------------- BUILDING 2 (x: 19.6..33.6, y: 2.6..16): FIVE-STAR LUXURY RETREAT (HOTEL LOBBY + DOCTOR ROOM + 6 SUITES 301–306 + WELLNESS STUDIO)
+      // 1. Visiting Doctor & ISBAR Clinical Salon (Top-Left, x: 19.6..22.8, y: 2.6..6.8)
       drawLuxuryExecutiveSalon();
 
-      // 2. Five-Star Thermal Spa, Himalayan Salt Wall & Hyperbaric Bio-Recovery Sanctuary (x: 23.6..28.6, y: 2.6..6.8)
-      PHSprites.spaTable(23.9, 3.0, 0, { col: '#5eead4' });
-      PHSprites.spaTable(23.9, 4.8, 0, { col: '#2dd4bf' });
-      drawHyperbaricChamber(26.15, 2.85);
-      drawThermalLounger(26.2, 4.5, '#f8fafc');
-      drawThermalLounger(26.2, 5.6, '#f0fdfa');
-      drawLuxurySpaSanctuaryDetails();
+      // 2. Three North Private Luxury Recovery Suites 301, 302 & 303 (x: 22.8..30.4, y: 2.6..6.8)
+      drawNorthRecoverySuite(22.8, '#0d9488', '#115e59', 301);
+      drawNorthRecoverySuite(25.33, '#d4af37', '#784e32', 302);
+      drawNorthRecoverySuite(27.86, '#0284c7', '#1e3a8a', 303);
 
-      // 3. Panoramic Timber Yoga, Pilates & Sound-Healing Studio (x: 28.6..33.6, y: 2.6..6.8)
+      // 3. Wellness, Yoga & Movement Studio (Top-Right, x: 30.4..33.6, y: 2.6..6.8 — opens to East Swimming Pool)
       drawLuxuryWellnessStudioDetails();
-      drawYogaMat(30.1, 3.1, '#14b8a6');
-      drawYogaMat(31.7, 3.1, '#0ea5e9');
-      drawYogaMat(30.1, 4.8, '#2dd4bf');
-      drawYogaMat(31.7, 4.8, '#10b981');
+      drawYogaMat(31.8, 3.1, '#14b8a6');
+      drawYogaMat(31.8, 4.8, '#0ea5e9');
 
-      // 4. Grand Social Drawing Room, Persian Rug Lounge & Artisanal Espresso Bar (x: 19.6..26.4, y: 8.8..16)
-      drawLuxuryLoungeAndSuiteDetails();
-      PHSprites.receptionDesk(19.9, 9.4, 1, 2.2, { col: '#d4af37', wood: '#784e32', clutter: false });
-      drawWallEventScreen(22.7, 8.92);
-      drawEspressoBar(19.9, 12.6);
-      PHSprites.sofa(22.5, 10.3, 0, 2.1, '#f5efe6');
-      drawCoffeeTableAndSet(23.6, 12.2);
-      PHSprites.sofa(22.5, 13.4, 0, 2.1, '#059669');
-      PHSprites.armchair(24.9, 11.4, 0, { col: '#059669' });
-      drawIndoorPalm(25.5, 9.2);
-      drawIndoorPalm(25.5, 14.9);
-      drawIndoorPalm(19.9, 15.1);
+      // 4. Main Entrance Five-Star Hotel Lobby, Concierge & Espresso Lounge (Front-Left, x: 19.6..25.0, y: 8.8..16)
+      drawLuxuryHotelLobbyDetails();
+      PHSprites.receptionDesk(19.85, 9.4, 1, 2.2, { col: '#d4af37', wood: '#784e32', clutter: false });
+      drawWallEventScreen(22.0, 8.92);
+      drawEspressoBar(19.85, 12.6);
+      PHSprites.sofa(21.75, 10.3, 0, 1.9, '#f5efe6');
+      drawCoffeeTableAndSet(22.75, 12.2);
+      PHSprites.sofa(21.75, 13.4, 0, 1.9, '#059669');
+      PHSprites.armchair(23.85, 11.4, 0, { col: '#059669' });
+      drawIndoorPalm(24.1, 9.2);
+      drawIndoorPalm(19.85, 15.1);
 
-      // 5 & 6. Private Five-Star Step-Down Recovery Suites 301 & 302 (x: 26.4..33.6, y: 8.8..16)
-      drawLuxuryRecoverySuite(26.4, '#0d9488', '#115e59', '#059669', 301);
-      drawLuxuryRecoverySuite(30.0, '#d4af37', '#784e32', '#d4a373', 302);
+      // 5. Three South Executive Private Recovery Suites 304, 305 & 306 (Bottom-Right, x: 25.0..33.6, y: 8.8..16)
+      drawSouthRecoverySuite(25.0, '#0d9488', '#115e59', '#059669', 304);
+      drawSouthRecoverySuite(27.86, '#d4af37', '#784e32', '#d4a373', 305);
+      drawSouthRecoverySuite(30.73, '#059669', '#064e3b', '#0d9488', 306);
 
       // ---------------- MIDDLE REST & BBQ PARK (x: 15..19.6), EAST POOL (y: 2.2..7.6) & EAST GARDEN BISTRO PAVILION (y: 8.4..15.6)
       // 1. Back Shade Park Rest Lawn (y: 2.2..7.0) — Big Shade Tree & Rest Benches (No Fountain)
