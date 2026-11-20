@@ -37,7 +37,7 @@ const IsoRenderer = (() => {
       { x: 15.3, y: 1.1, w: 19.4, d: 0.95, mat: { cur: null, fut: 'paver' } },      // North Walking Park Path (Full Loop)
       { x: 33.8, y: 1.1, w: 0.9, d: 14.9, mat: { cur: null, fut: 'paver' } },       // East Park Terrace Walk (Full Loop)
       { x: 16.2, y: 7.2, w: 3.4, d: 1.3, mat: { cur: null, fut: 'paver' } },        // Park & Resort Side-Door Link
-      { x: 16.5, y: 7.0, w: 2.75, d: 3.8, mat: { cur: null, fut: 'travertine' } },  // Central Park Fountain Courtyard Plaza
+      { x: 16.5, y: 7.2, w: 2.7, d: 2.9, mat: { cur: null, fut: 'paver' } },        // Central Stone Fountain Courtyard Plaza
       // East Swimming Pool Deck (y: 2.2..7.6) & Outdoor Al-Fresco Garden Bistro Terrace (y: 8.4..15.6)
       { x: 34.8, y: 2.2, w: 3.6, d: 5.4, mat: { cur: null, fut: 'travertine' } },   // East Resort Pool Sun Terrace
       { x: 35.15, y: 2.7, w: 1.75, d: 4.15, mat: { cur: null, fut: 'water' } },     // Outdoor Resort Swimming Pool
@@ -690,18 +690,18 @@ const IsoRenderer = (() => {
     PH.item(cx + cy + 0.4, () => {
       const c = PH.S.ctx;
       const z = PH.zoom;
-      // Outer carved travertine & brushed-gold fountain basin rim
-      PH.cyl(cx, cy, 0, 0.96, 2.6, '#f8fafc');
-      PH.disc(cx, cy, 2.65, 0.98, '#faf8f5', '#c9a96e');
-      // Crystal turquoise lower water pool
-      PH.disc(cx, cy, 2.75, 0.82, '#38bdf8', '#0284c7');
-      // Central sculpted marble pedestal & second-tier water bowl
-      PH.cyl(cx, cy, 2.75, 0.22, 3.8, '#f1f5f9');
-      PH.cyl(cx, cy, 6.5, 0.44, 1.1, '#ffffff');
-      PH.disc(cx, cy, 7.65, 0.45, '#38bdf8', '#c9a96e');
-      // Top golden finial water spout
-      PH.cyl(cx, cy, 7.65, 0.10, 2.6, '#d4af37');
-      PH.disc(cx, cy, 10.3, 0.13, '#fef08a', '#d4af37');
+      // Outer carved natural grey-limestone / granite fountain basin rim
+      PH.cyl(cx, cy, 0, 0.96, 2.6, '#94a3b8');
+      PH.disc(cx, cy, 2.65, 0.98, '#cbd5e1', '#64748b');
+      // Crystal water lower pool
+      PH.disc(cx, cy, 2.75, 0.80, '#38bdf8', '#0284c7');
+      // Central sculpted natural stone pedestal & second-tier carved stone water bowl
+      PH.cyl(cx, cy, 2.75, 0.22, 3.8, '#94a3b8');
+      PH.cyl(cx, cy, 6.5, 0.44, 1.1, '#cbd5e1');
+      PH.disc(cx, cy, 7.65, 0.45, '#38bdf8', '#64748b');
+      // Top carved stone finial water spout
+      PH.cyl(cx, cy, 7.65, 0.11, 2.6, '#94a3b8');
+      PH.disc(cx, cy, 10.3, 0.14, '#cbd5e1', '#64748b');
 
       // Animated concentric water ripples & sparkling fountain water jets
       c.save();
@@ -1454,17 +1454,16 @@ const IsoRenderer = (() => {
       drawYogaStudio();
 
       // ---------------- MIDDLE RELAXATION & WALKING FOUNTAIN PARK (x: 15..19.6), EAST POOL (y: 2.2..7.6) & EAST GARDEN BISTRO PAVILION (y: 8.4..15.6)
-      // 1. North Shade Tree & Relaxing Bench (y: 2.0..5.2)
-      drawParkBench(17.15, 2.20, false);
-      drawTreeWithFlowerbed(17.85, 3.65, 1.22, 1);
+      // 1. North Shade Tree with Park Bench directly under its canopy (y: 3.3..4.7)
+      drawTreeWithFlowerbed(17.85, 3.35, 1.22, 1);
+      drawParkBench(17.15, 4.45, false);
 
-      // 2. Central Garden Fountain Plaza between the 2 Park Trees (y: 6.0..12.2) — Small Tiered Fountain + 2 Park Benches for Relaxing & Strolling
-      drawParkBench(17.15, 6.15, false);
-      drawGardenFountain(17.85, 8.95);
-      drawParkBench(17.15, 11.45, false);
+      // 2. Central Carved-Stone Garden Fountain between the 2 Park Trees (y = 8.65 — no benches beside fountain)
+      drawGardenFountain(17.85, 8.65);
 
-      // 3. South Shade Tree & Landscaped Park Lawn (y: 13.0..15.8)
-      drawTreeWithFlowerbed(17.85, 14.35, 1.22, 0);
+      // 3. South Shade Tree with Park Bench directly under its canopy (y: 13.4..14.8)
+      drawTreeWithFlowerbed(17.85, 13.45, 1.22, 0);
+      drawParkBench(17.15, 14.55, false);
 
       // Continuous Full Perimeter Walking Park Loop around Building B
       drawCobblestonePath(15.3, 1.15, 0.9, 14.85);
