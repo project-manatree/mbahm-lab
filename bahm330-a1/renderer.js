@@ -793,13 +793,13 @@ const IsoRenderer = (() => {
     });
   }
 
-  function drawParkBench(gx, gy, alongY = false) {
+  function drawParkBench(gx, gy, alongY = false, faceNorth = false) {
     PH.furniture(gx, gy, alongY ? 0.55 : 1.45, alongY ? 1.45 : 0.55, alongY ? 1 : 0, k => {
       // Cast-iron legs + slatted warm teak park bench
       k.box(0.08, 0.08, 0, 0.10, 0.40, 4.4, '#334155');
       k.box(1.26, 0.08, 0, 0.10, 0.40, 4.4, '#334155');
       k.box(0.05, 0.08, 4.4, 1.34, 0.38, 1.2, '#b47842', { tex: 'deskwood', texAlpha: 0.45 });
-      k.box(0.05, 0.06, 5.6, 1.34, 0.08, 4.8, '#9a6332');
+      k.box(0.05, faceNorth ? 0.40 : 0.06, 5.6, 1.34, 0.08, 4.8, '#9a6332');
     });
   }
 
@@ -1472,9 +1472,9 @@ const IsoRenderer = (() => {
       // 2. Central Carved-Stone Cupid Fountain aligned straight with the Building 2 Side Exit Door (y = 7.85) on natural park grass
       drawGardenFountain(17.85, 7.85);
 
-      // 3. South Shade Tree with Park Bench directly under its canopy (y: 13.4..14.8)
-      drawTreeWithFlowerbed(17.85, 13.45, 1.22, 0);
-      drawParkBench(17.15, 14.55, false);
+      // 3. South Shade Tree with Park Bench on its inner (north) side facing the Central Fountain
+      drawParkBench(17.15, 12.15, false, true);
+      drawTreeWithFlowerbed(17.85, 13.85, 1.22, 0);
 
       // Continuous Full Perimeter Walking Park Loop around Building B
       drawCobblestonePath(15.3, 1.15, 0.9, 14.85);
