@@ -518,7 +518,7 @@ const IsoRenderer = (() => {
     });
   }
 
-  function drawPoolUmbrella(cx, cy, colA = '#7dd3fc', colB = '#7dd3fc') {
+  function drawPoolUmbrella(cx, cy, colA = '#f97316', colB = '#f97316') {
     PH.item(cx + cy, () => {
       const c = PH.S.ctx;
       const z = PH.zoom;
@@ -1488,7 +1488,7 @@ const IsoRenderer = (() => {
       // 3. East Swimming Pool Terrace directly beside Wellness & Movement Class (y: 2.2..7.6)
       drawSwimmingPool(35.15, 2.7, 1.75, 4.15);
       drawPoolLounger(37.15, 2.80, '#ffffff');
-      drawPoolUmbrella(37.55, 4.72, '#7dd3fc', '#7dd3fc');
+      drawPoolUmbrella(37.55, 4.72, '#f97316', '#f97316');
       drawPoolLounger(37.15, 5.20, '#ffffff');
       drawHedge(34.9, 7.7, 3.4, 0.35, true);
 
