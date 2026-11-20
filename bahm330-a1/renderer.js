@@ -32,13 +32,12 @@ const IsoRenderer = (() => {
       // ---------------- RIGHT SITE: UNDEVELOPED LOT (Current) -> GARDEN PARK, RESORT & EAST POOL (Target)
       { x: 15.0, y: 0.6, w: 23.8, d: 16.0, mat: 'grass' },       // Undeveloped Grass (Cur) / Landscaped Resort Lawn (Fut)
 
-      // Continuous Perimeter Walking Park Loop & Front BBQ Park Patio (Target Only)
+      // Continuous Perimeter Walking Park Loop & Central Garden Fountain Plaza (Target Only)
       { x: 15.3, y: 1.1, w: 0.9, d: 14.9, mat: { cur: null, fut: 'paver' } },       // West Walking Park Path (Full Loop)
       { x: 15.3, y: 1.1, w: 19.4, d: 0.95, mat: { cur: null, fut: 'paver' } },      // North Walking Park Path (Full Loop)
       { x: 33.8, y: 1.1, w: 0.9, d: 14.9, mat: { cur: null, fut: 'paver' } },       // East Park Terrace Walk (Full Loop)
       { x: 16.2, y: 7.2, w: 3.4, d: 1.3, mat: { cur: null, fut: 'paver' } },        // Park & Resort Side-Door Link
-      { x: 16.55, y: 9.2, w: 2.65, d: 3.9, mat: { cur: null, fut: 'travertine' } }, // Front Park BBQ & Picnic Rest Patio
-      { x: 16.2, y: 10.6, w: 0.4, d: 1.2, mat: { cur: null, fut: 'paver' } },       // BBQ Patio Walkway Link
+      { x: 16.5, y: 7.0, w: 2.75, d: 3.8, mat: { cur: null, fut: 'travertine' } },  // Central Park Fountain Courtyard Plaza
       // East Swimming Pool Deck (y: 2.2..7.6) & Outdoor Al-Fresco Garden Bistro Terrace (y: 8.4..15.6)
       { x: 34.8, y: 2.2, w: 3.6, d: 5.4, mat: { cur: null, fut: 'travertine' } },   // East Resort Pool Sun Terrace
       { x: 35.15, y: 2.7, w: 1.75, d: 4.15, mat: { cur: null, fut: 'water' } },     // Outdoor Resort Swimming Pool
@@ -684,6 +683,50 @@ const IsoRenderer = (() => {
       // Two muted slate-blue & brass barstools in front of bar
       k.cyl(0.92, 0.62, 0, 0.16, 8.2, '#475569');
       k.cyl(0.92, 1.52, 0, 0.16, 8.2, '#475569');
+    });
+  }
+
+  function drawGardenFountain(cx, cy) {
+    PH.item(cx + cy + 0.4, () => {
+      const c = PH.S.ctx;
+      const z = PH.zoom;
+      // Outer carved travertine & brushed-gold fountain basin rim
+      PH.cyl(cx, cy, 0, 0.96, 2.6, '#f8fafc');
+      PH.disc(cx, cy, 2.65, 0.98, '#faf8f5', '#c9a96e');
+      // Crystal turquoise lower water pool
+      PH.disc(cx, cy, 2.75, 0.82, '#38bdf8', '#0284c7');
+      // Central sculpted marble pedestal & second-tier water bowl
+      PH.cyl(cx, cy, 2.75, 0.22, 3.8, '#f1f5f9');
+      PH.cyl(cx, cy, 6.5, 0.44, 1.1, '#ffffff');
+      PH.disc(cx, cy, 7.65, 0.45, '#38bdf8', '#c9a96e');
+      // Top golden finial water spout
+      PH.cyl(cx, cy, 7.65, 0.10, 2.6, '#d4af37');
+      PH.disc(cx, cy, 10.3, 0.13, '#fef08a', '#d4af37');
+
+      // Animated concentric water ripples & sparkling fountain water jets
+      c.save();
+      for (let i = 0; i < 2; i++) {
+        const rp = ((PH.t / 90) + i * 0.5) % 1;
+        const p = PH.P(cx, cy, 2.85);
+        c.strokeStyle = `rgba(224, 242, 254, ${(0.7 * (1 - rp)).toFixed(2)})`;
+        c.lineWidth = 1.2;
+        c.beginPath();
+        c.ellipse(p.x, p.y, (4 + rp * 18) * z, (2.2 + rp * 9.5) * z, 0, 0, Math.PI * 2);
+        c.stroke();
+      }
+      // Sparkling water arcs cascading from the top spout into the bowls
+      const topP = PH.P(cx, cy, 11.4);
+      c.strokeStyle = 'rgba(186, 230, 253, 0.85)';
+      c.lineWidth = 1.4 * z;
+      for (const [dx, dy] of [[-0.28, -0.14], [0.28, -0.14], [-0.22, 0.20], [0.22, 0.20]]) {
+        const midP = PH.P(cx + dx * 0.55, cy + dy * 0.55, 12.6 + Math.sin(PH.t * 0.08) * 0.4);
+        const endP = PH.P(cx + dx, cy + dy, 7.7);
+        c.beginPath();
+        c.moveTo(topP.x, topP.y);
+        c.quadraticCurveTo(midP.x, midP.y, endP.x, endP.y);
+        c.stroke();
+      }
+      c.restore();
     });
   }
 
@@ -1410,17 +1453,18 @@ const IsoRenderer = (() => {
       drawRecreationGamesClubRoom();
       drawYogaStudio();
 
-      // ---------------- MIDDLE REST & BBQ PARK (x: 15..19.6), EAST POOL (y: 2.2..7.6) & EAST GARDEN BISTRO PAVILION (y: 8.4..15.6)
-      // 1. Back Shade Park Rest Lawn (y: 2.2..7.0) — Big Shade Tree & Rest Benches (No Fountain)
-      drawTreeWithFlowerbed(17.9, 4.2, 1.25, 1);
-      drawParkBench(17.15, 2.35, false);
-      drawParkBench(17.15, 5.95, false);
+      // ---------------- MIDDLE RELAXATION & WALKING FOUNTAIN PARK (x: 15..19.6), EAST POOL (y: 2.2..7.6) & EAST GARDEN BISTRO PAVILION (y: 8.4..15.6)
+      // 1. North Shade Tree & Relaxing Bench (y: 2.0..5.2)
+      drawParkBench(17.15, 2.20, false);
+      drawTreeWithFlowerbed(17.85, 3.65, 1.22, 1);
 
-      // 2. Front Big BBQ & Picnic Rest Area (y: 8.6..15.8) — BBQ Stove, Picnic Table, Seat & Big Front Tree
-      drawBbqStove(18.0, 9.45);
-      drawParkBench(16.62, 9.55, true);
-      drawParkPicnicTable(17.25, 11.20);
-      drawTreeWithFlowerbed(17.9, 14.45, 1.25, 0);
+      // 2. Central Garden Fountain Plaza between the 2 Park Trees (y: 6.0..12.2) — Small Tiered Fountain + 2 Park Benches for Relaxing & Strolling
+      drawParkBench(17.15, 6.15, false);
+      drawGardenFountain(17.85, 8.95);
+      drawParkBench(17.15, 11.45, false);
+
+      // 3. South Shade Tree & Landscaped Park Lawn (y: 13.0..15.8)
+      drawTreeWithFlowerbed(17.85, 14.35, 1.22, 0);
 
       // Continuous Full Perimeter Walking Park Loop around Building B
       drawCobblestonePath(15.3, 1.15, 0.9, 14.85);
