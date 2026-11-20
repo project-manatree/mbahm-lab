@@ -1476,8 +1476,8 @@ const IsoRenderer = (() => {
       // 2. Central Carved-Stone Cupid Fountain aligned straight with the Building 2 Side Exit Door (y = 7.85) on natural park grass
       drawGardenFountain(17.85, 7.85);
 
-      // 3. South Shade Tree (original x = 17.85) with identical-size Park Bench on its inner (north) side facing the Central Fountain
-      drawParkBench(17.15, 11.65, false, true);
+      // 3. South Shade Tree (original x = 17.85, y = 14.35) with identical-size Park Bench snug right above its inner (north) canopy facing the Central Fountain
+      drawParkBench(16.80, 12.35, false, true);
       drawTreeWithFlowerbed(17.85, 14.35, 1.18, 0);
 
       // Continuous Full Perimeter Walking Park Loop around Building B
