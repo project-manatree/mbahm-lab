@@ -1469,9 +1469,9 @@ const IsoRenderer = (() => {
       drawYogaStudio();
 
       // ---------------- MIDDLE RELAXATION & WALKING FOUNTAIN PARK (x: 16.2..19.6, exact centerline x = 17.90)
-      // 1. North Shade Tree (x = 17.90) with Park Bench centered on its inner (south) side facing the Central Fountain
+      // 1. North Shade Tree (x = 17.90) with Park Bench centered slightly lower on its inner (south) side facing the Central Fountain
       drawTreeWithFlowerbed(17.90, 3.15, 1.18, 1);
-      drawParkBench(17.18, 4.35, false, false);
+      drawParkBench(17.18, 4.75, false, false);
 
       // 2. Central Carved-Stone Cupid Fountain aligned straight with the Building 2 Side Exit Door (y = 7.85) on natural park grass
       drawGardenFountain(17.90, 7.85);
