@@ -35,8 +35,8 @@ const SimApp = (() => {
     { id: 'st-8', retreat: true, roleLabel: 'Concierge', role: 'concierge', gx: 20.15, gy: 11.0, pose: 'TYPING_TERMINAL', taskCur: 'Duplicate Intake (25m)', taskFut: 'Hotel Lobby Concierge ✓', dur: 2.0, show: true },
     { id: 'st-9', retreat: true, roleLabel: 'Doctor', role: 'doctor', gx: 20.55, gy: 2.85, pose: 'EXAMINING', taskCur: 'Delayed Handover', taskFut: 'ISBAR Clinical Salon ✓', dur: 2.4, show: true },
     { id: 'st-10', retreat: true, roleLabel: 'Instructor', role: 'therapist', gx: 31.40, gy: 14.95, z: 3.5, pose: 'YOGA_STRETCH', taskCur: 'No Class', taskFut: 'Yoga Studio Class ✓', dur: 2.2, show: true },
-    { id: 'st-11', retreat: true, roleLabel: 'Nurse', role: 'nurse', gx: 26.2, gy: 7.8, pose: 'HANDOVER_INTERACTION', taskCur: 'No Retreat RN', taskFut: 'Suites 301–303 RN ✓', dur: 2.5, show: true },
-    { id: 'st-12', retreat: true, roleLabel: 'Chef', role: 'chef', gx: 36.4, gy: 9.4, pose: 'HANDOVER_INTERACTION', taskCur: 'No Kitchen', taskFut: 'Garden Bistro Chef ✓', dur: 2.3, show: false }
+    { id: 'st-11', retreat: true, roleLabel: 'Nurse', role: 'nurse', gx: 26.2, gy: 7.8, pose: 'HANDOVER_INTERACTION', taskCur: 'No Retreat RN', taskFut: 'Suites 301–303 RN ✓', dur: 2.5, show: true, taskStations: [{ gx: 24.9, gy: 7.8, pose: 'HANDOVER_INTERACTION' }, { gx: 28.4, gy: 7.8, pose: 'HANDOVER_INTERACTION' }, { gx: 31.9, gy: 7.8, pose: 'HANDOVER_INTERACTION' }], dwell: 4.5 },
+    { id: 'st-12', retreat: true, roleLabel: 'Chef', role: 'chef', gx: 36.4, gy: 9.4, pose: 'HANDOVER_INTERACTION', taskCur: 'No Kitchen', taskFut: 'Garden Bistro Chef ✓', dur: 2.3, show: false, taskStations: [{ gx: 36.4, gy: 9.55, pose: 'HANDOVER_INTERACTION' }, { gx: 35.75, gy: 11.45, pose: 'HANDOVER_INTERACTION' }, { gx: 35.75, gy: 13.85, pose: 'HANDOVER_INTERACTION' }], dwell: 3.8 }
   ];
 
   // Fixed Stationary Slots for 30 Non-Pathway Patients (Zero Slot-Shifting or Endless Loops)
@@ -206,22 +206,28 @@ const SimApp = (() => {
   function updateTransport(tr, elapsedSec, isFut) {
     const into = elapsedSec % CYCLE_SEC;
     tr.active = true;
+    const rampWin = (el, total) => el < 0.55 ? smoothStep(el / 0.55) : (el > total - 0.55 ? smoothStep((total - el) / 0.55) : 1);
     if (!isFut) {
       // Current: Emergency Ambulance continuously queuing/unloading acute arrivals at Hospital ED only (never sends patients home)
       if (into < 5.0) {
         const sT = smoothStep(into / 5.0);
         tr.gx = 1.5 + sT * 10.1; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = false;
+        tr.rampProg = 0; tr.braking = into > 4.1; tr.blinker = false;
         tr.phase = 'ed_inbound'; tr.phaseProg = into / 5.0; tr.label = 'Ambulance Queuing → ED';
       } else if (into < 10.5) {
+        const el = into - 5.0;
         tr.gx = 11.6; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = true;
-        tr.phase = 'ed_dropoff'; tr.phaseProg = (into - 5.0) / 5.5;
+        tr.rampProg = rampWin(el, 5.5); tr.braking = true; tr.blinker = into > 9.65;
+        tr.phase = 'ed_dropoff'; tr.phaseProg = el / 5.5;
         tr.label = 'Hospital ED Queue / Drop-Off';
       } else if (into < 15.0) {
         const sT = smoothStep((into - 10.5) / 4.5);
         tr.gx = 11.6 - sT * 10.1; tr.gy = 18.6; tr.dirX = -1; tr.openDoor = false;
+        tr.rampProg = 0; tr.braking = into > 14.3; tr.blinker = false;
         tr.phase = 'ed_depart'; tr.phaseProg = (into - 10.5) / 4.5; tr.label = '← Ambulance Clearing ED';
       } else {
         tr.gx = 1.5; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = false;
+        tr.rampProg = 0; tr.braking = false; tr.blinker = into > 17.15;
         tr.phase = 'ed_approach'; tr.phaseProg = (into - 15.0) / 3.0; tr.label = 'Next EMS Unit → ED Queue';
       }
       return;
@@ -230,30 +236,40 @@ const SimApp = (() => {
     if (into < 6.5) {
       // Phase 1a: Pre-staged open at Hospital Main Entrance awaiting outgoing pathway patient
       tr.gx = 11.6; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = true;
+      tr.rampProg = into < 0.55 ? smoothStep(into / 0.55) : 1;
+      tr.braking = true; tr.blinker = false;
       tr.phase = 'ready'; tr.phaseProg = into / 6.5;
       tr.label = 'VIP Concierge Pre-Staged (0m Wait)';
     } else if (into < 8.5) {
       // Phase 1b: 2.0s automated wheelchair ramp boarding at Hospital Main Entrance
+      const el = into - 6.5;
       tr.gx = 11.6; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = true;
-      tr.phase = 'board'; tr.phaseProg = (into - 6.5) / 2.0;
+      tr.rampProg = el > 1.45 ? smoothStep((2.0 - el) / 0.55) : 1;
+      tr.braking = true; tr.blinker = into > 7.65;
+      tr.phase = 'board'; tr.phaseProg = el / 2.0;
       tr.label = 'Automated Ramp Lift (2.0m)';
     } else if (into < 12.5) {
       // Phase 2: 4.0s smooth S-curve transit Left -> Right carrying patient
       const rawT = (into - 8.5) / 4.0;
       const sT = smoothStep(rawT);
       tr.gx = 11.6 + sT * 9.2; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = false;
+      tr.rampProg = 0; tr.braking = rawT > 0.80; tr.blinker = false;
       tr.phase = 'outbound'; tr.phaseProg = rawT;
       tr.label = 'Executive Shuttle → Resort (25m)';
     } else if (into < 14.5) {
       // Phase 3: 2.0s automated wheelchair ramp unloading at Luxury Resort Entrance
+      const el = into - 12.5;
       tr.gx = 20.8; tr.gy = 16.85; tr.dirX = 1; tr.openDoor = true;
-      tr.phase = 'dropoff'; tr.phaseProg = (into - 12.5) / 2.0;
+      tr.rampProg = rampWin(el, 2.0);
+      tr.braking = true; tr.blinker = into > 13.65;
+      tr.phase = 'dropoff'; tr.phaseProg = el / 2.0;
       tr.label = 'Resort VIP Handover (2.0m)';
     } else {
       // Phase 4: 3.5s smooth return Right -> Left
       const rawT = (into - 14.5) / 3.5;
       const sT = smoothStep(rawT);
       tr.gx = 20.8 - sT * 9.2; tr.gy = 18.6; tr.dirX = -1; tr.openDoor = false;
+      tr.rampProg = 0; tr.braking = rawT > 0.82; tr.blinker = into > 17.15;
       tr.phase = 'return'; tr.phaseProg = rawT;
       tr.label = '← Returning to Hospital';
     }
@@ -326,7 +342,6 @@ const SimApp = (() => {
           const st = ag.taskStations[stIdx];
           ag.pose = st.pose;
           PH.stepAgentPhysics(ag, st.gx, st.gy, dtSec, { baseSpeed: 4.8, splitX: 18, snap: forceSnap });
-          return;
         }
         const dur = ag.dur || 2.2;
         const pulsePhase = (tSec + idx * 1.45) % 7.2;
@@ -520,20 +535,34 @@ const SimApp = (() => {
         ag.roleLabel = '';
         return;
       } else {
-        // pIdx === 5: Continuous Scenic Perimeter Walking Loop around Building B (passes Middle Fountain Park & East Poolside)
+        // pIdx === 5: Continuous constant-speed Perimeter Walking Loop around Building B (passes Middle Fountain Park & East Poolside)
         const loopPts = [
           [15.75, 14.8], [15.75, 8.0], [15.75, 1.85], [25.0, 1.85], [34.25, 1.85],
           [34.25, 8.2], [34.25, 14.8], [34.25, 8.2], [34.25, 1.85], [25.0, 1.85],
           [15.75, 1.85], [15.75, 8.0]
         ];
-        if (ag.gx < 15.0) {
-          snap = true;
+        let totalLen = 0;
+        const segLens = loopPts.map((pt, i) => {
+          const nxt = loopPts[(i + 1) % loopPts.length];
+          const l = Math.hypot(nxt[0] - pt[0], nxt[1] - pt[1]);
+          totalLen += l;
+          return l;
+        });
+        let rem = (tSec * 2.6) % totalLen;
+        let segIdx = 0;
+        while (segIdx < segLens.length - 1 && rem > segLens[segIdx]) {
+          rem -= segLens[segIdx];
+          segIdx++;
         }
-        const stg = Math.floor((tSec / 2.2) % loopPts.length);
-        tx = loopPts[stg][0];
-        ty = loopPts[stg][1];
-        ag.pose = 'IDLE';
-        PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 6.2, corridorY: null, splitX: null, snap });
+        const pA = loopPts[segIdx];
+        const pB = loopPts[(segIdx + 1) % loopPts.length];
+        const dx = pB[0] - pA[0];
+        const dy = pB[1] - pA[1];
+        const frac = segLens[segIdx] > 0 ? rem / segLens[segIdx] : 0;
+        ag.gx = pA[0] + dx * frac;
+        ag.gy = pA[1] + dy * frac;
+        ag.pose = 'WALKING';
+        ag.dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'SE' : 'NW') : (dy > 0 ? 'SW' : 'NE');
         ag.roleLabel = '';
         return;
       }

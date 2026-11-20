@@ -149,15 +149,31 @@ const IsoRenderer = (() => {
   function drawEmergencyAmbulance(gx, gy, opts = {}) {
     const dirX = opts.dirX || 1;
     const openDoor = !!opts.openDoor;
+    const rampProg = opts.rampProg != null ? opts.rampProg : (openDoor ? 1 : 0);
+    const blinker = !!opts.blinker;
+    const braking = !!opts.braking;
     const label = opts.label || 'Ambulance → Hospital ED';
     const len = 2.62;
     const wid = 1.18;
 
     PH.item(gx + gy + 1.65, () => {
-      const bounce = openDoor ? 0 : Math.sin(PH.t * 0.18) * 0.18;
+      const bounce = (openDoor || rampProg > 0.04) ? 0 : Math.sin(PH.t * 0.18) * 0.18;
       const c = PH.S.ctx;
       const z = PH.zoom;
       const flashA = Math.floor(PH.t / 10) % 2 === 0;
+      const rearX = dirX > 0 ? gx : gx + len;
+
+      // Subtle tailpipe exhaust puffs while driving (Current-state diesel ambulance)
+      if (!openDoor && rampProg < 0.05) {
+        c.save();
+        for (let i = 0; i < 3; i++) {
+          const ep = ((PH.t / 46) + i * 0.33) % 1;
+          const ex = PH.P(rearX - dirX * (0.14 + ep * 0.65), gy + 0.25 + ep * 0.08, 2.2 + ep * 3.8);
+          c.fillStyle = `rgba(148, 163, 184, ${(0.34 * (1 - ep)).toFixed(2)})`;
+          c.beginPath(); c.arc(ex.x, ex.y, (1.8 + ep * 3.2) * z, 0, Math.PI * 2); c.fill();
+        }
+        c.restore();
+      }
 
       // Ground drop shadow
       const sp = PH.P(gx + len / 2, gy + wid / 2, 0);
@@ -182,19 +198,20 @@ const IsoRenderer = (() => {
       c.fill();
       c.restore();
 
-      // Rear Double Doors (Framed shut when moving; swung open with ED gurney bay at entrance)
-      const rearX = dirX > 0 ? gx : gx + len;
+      // Rear Double Doors (Framed shut when moving; smoothly extending ramp & doors at ED bay)
       const boxLen = len - 0.72;
       const boxX = dirX > 0 ? gx : gx + 0.72;
       const cabX = dirX > 0 ? gx + boxLen : gx;
 
-      if (openDoor) {
-        const rampX0 = dirX > 0 ? gx - 0.78 : gx + len + 0.04;
-        PH.topQuad(rampX0, gy + 0.18, 0.25, 0.74, 0.80, '#cbd5e1', { stroke: '#ef4444' });
-        PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy - 0.20, 4.0, 0.12, 0.50, 12.6, '#ffffff');
-        PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy + wid - 0.30, 4.0, 0.12, 0.50, 12.6, '#f8fafc');
-        PH.box(rearX - (dirX > 0 ? 0.14 : 0), gy - 0.18, 6.2, 0.10, 0.46, 2.2, '#dc2626');
-        PH.box(rearX - (dirX > 0 ? 0.14 : 0), gy + wid - 0.28, 6.2, 0.10, 0.46, 2.2, '#dc2626');
+      if (rampProg > 0.04) {
+        const rLen = 0.74 * rampProg;
+        const rampX0 = dirX > 0 ? gx - 0.04 - rLen : gx + len + 0.04;
+        PH.topQuad(rampX0, gy + 0.18, 0.25, rLen, 0.80, '#cbd5e1', { stroke: '#ef4444' });
+        const dOff = 0.20 * rampProg;
+        PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy - dOff, 4.0, 0.12, 0.50, 12.6, '#ffffff');
+        PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy + wid - 0.50 + dOff, 4.0, 0.12, 0.50, 12.6, '#f8fafc');
+        PH.box(rearX - (dirX > 0 ? 0.14 : 0), gy - dOff + 0.02, 6.2, 0.10, 0.46, 2.2, '#dc2626');
+        PH.box(rearX - (dirX > 0 ? 0.14 : 0), gy + wid - 0.48 + dOff, 6.2, 0.10, 0.46, 2.2, '#dc2626');
       }
 
       // Chassis skirt & bumpers
@@ -255,7 +272,7 @@ const IsoRenderer = (() => {
       // Cab side window
       PH.box(cabX + (dirX > 0 ? 0.08 : 0.32), gy + 0.02, 10.2 + bounce, 0.32, wid - 0.04, 3.6, '#1e293b', { alpha: 0.78 });
 
-      // Front Bumper Grille + Headlights
+      // Front Bumper Grille + Headlights + Rear Brake & Turn-Signal Blinker
       const noseX = dirX > 0 ? gx + len + 0.01 : gx - 0.01;
       for (const hy of [gy + 0.20, gy + wid - 0.24]) {
         const hp = PH.P(noseX, hy, 5.2 + bounce);
@@ -263,6 +280,21 @@ const IsoRenderer = (() => {
         c.beginPath(); c.arc(hp.x, hp.y, 2.8 * z, 0, Math.PI * 2); c.fill();
       }
       PH.line3(noseX, gy + 0.32, 5.2 + bounce, noseX, gy + wid - 0.32, 5.2 + bounce, '#94a3b8', 2.2);
+      if (braking || rampProg > 0.04) {
+        const tailX = dirX > 0 ? gx - 0.01 : gx + len + 0.01;
+        for (const ty of [gy + 0.16, gy + wid - 0.16]) {
+          const tpR = PH.P(tailX, ty, 5.0 + bounce);
+          c.fillStyle = 'rgba(239,68,68,0.45)';
+          c.beginPath(); c.arc(tpR.x, tpR.y, 4.2 * z, 0, Math.PI * 2); c.fill();
+          c.fillStyle = '#ef4444';
+          c.beginPath(); c.arc(tpR.x, tpR.y, 2.1 * z, 0, Math.PI * 2); c.fill();
+        }
+      }
+      if (blinker && Math.floor(PH.t / 12) % 2 === 0) {
+        const bp = PH.P(noseX, gy + wid - 0.12, 4.4 + bounce);
+        c.fillStyle = '#f59e0b';
+        c.beginPath(); c.arc(bp.x, bp.y, 2.8 * z, 0, Math.PI * 2); c.fill();
+      }
 
       // Bold Red Medical Cross on Near Side Box Panel
       const mx = boxX + boxLen * 0.52;
@@ -319,12 +351,15 @@ const IsoRenderer = (() => {
   function drawLuxuryConciergeVan(gx, gy, opts = {}) {
     const dirX = opts.dirX || 1;
     const openDoor = !!opts.openDoor;
+    const rampProg = opts.rampProg != null ? opts.rampProg : (openDoor ? 1 : 0);
+    const blinker = !!opts.blinker;
+    const braking = !!opts.braking;
     const label = opts.label || 'Executive Concierge Shuttle';
     const len = 2.70;
     const wid = 1.18;
 
     PH.item(gx + gy + 1.65, () => {
-      const bounce = openDoor ? 0 : Math.sin(PH.t * 0.16) * 0.16;
+      const bounce = (openDoor || rampProg > 0.04) ? 0 : Math.sin(PH.t * 0.16) * 0.16;
       const c = PH.S.ctx;
       const z = PH.zoom;
 
@@ -360,34 +395,44 @@ const IsoRenderer = (() => {
       const cabinX = dirX > 0 ? gx : gx + 0.60;
       const cabX = dirX > 0 ? gx + len - 0.60 : gx;
 
-      // Visible Fold-Out Hydraulic Boarding Ramps when parked at Hospital / Retreat Entrance Bays
-      if (openDoor) {
+      // Smoothly Unfolding Hydraulic Boarding Ramps & Chasing Guidance LEDs at Entrance Bays
+      if (rampProg > 0.04) {
         const ledPulse = 0.60 + 0.40 * Math.sin(PH.t * 0.12);
-        // Rear Fold-Out Non-Slip Aluminium Wheelchair Ramp
-        const rampX0 = dirX > 0 ? gx - 1.05 : gx + len + 0.05;
-        PH.topQuad(rampX0, gy + 0.14, 0.35, 1.02, 0.90, '#e2e8f0', { stroke: '#d4af37' });
+        const rLen = 1.02 * rampProg;
+        const rampX0 = dirX > 0 ? gx - 0.03 - rLen : gx + len + 0.05;
+        PH.topQuad(rampX0, gy + 0.14, 0.35, rLen, 0.90, '#e2e8f0', { stroke: '#d4af37' });
         for (let r = 1; r <= 3; r++) {
-          const rx = rampX0 + r * 0.25;
+          const rx = rampX0 + r * (rLen / 4);
           PH.line3(rx, gy + 0.18, 0.40, rx, gy + 1.00, 0.40, '#94a3b8', 1.4);
         }
-        PH.box(rampX0, gy + 0.10, 0.40, 1.02, 0.08, 1.8, '#d4af37');
-        PH.box(rampX0, gy + 1.00, 0.40, 1.02, 0.08, 1.8, '#d4af37');
-        PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy - 0.18, 3.2, 0.12, 0.45, 12.2, '#fdfcf8');
-        PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy + wid - 0.27, 3.2, 0.12, 0.45, 12.2, '#c9a227');
+        PH.box(rampX0, gy + 0.10, 0.40, rLen, 0.08, 1.8 * rampProg, '#d4af37');
+        PH.box(rampX0, gy + 1.00, 0.40, rLen, 0.08, 1.8 * rampProg, '#d4af37');
+        const dOff = 0.18 * rampProg;
+        PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy - dOff, 3.2, 0.12, 0.45, 12.2, '#fdfcf8');
+        PH.box(rearX - (dirX > 0 ? 0.12 : 0), gy + wid - 0.45 + dOff, 3.2, 0.12, 0.45, 12.2, '#c9a227');
         // Prominent Curb-Side Fold-Out Entrance Bridge toward Sidewalk Bay (y < gy)
-        PH.topQuad(gx + 0.58, gy - 0.85, 0.40, 1.20, 0.85, '#f8fafc', { stroke: '#10b981' });
+        const bDep = 0.85 * rampProg;
+        PH.topQuad(gx + 0.58, gy - bDep, 0.40, 1.20, bDep, '#f8fafc', { stroke: '#10b981' });
         for (let s = 1; s <= 3; s++) {
-          const sy = gy - s * 0.21;
+          const sy = gy - s * (bDep / 4);
           PH.line3(gx + 0.64, sy, 0.45, gx + 1.72, sy, 0.45, '#cbd5e1', 1.5);
         }
-        PH.box(gx + 0.56, gy - 0.85, 0.45, 0.09, 0.85, 1.8, '#d4af37');
-        PH.box(gx + 1.70, gy - 0.85, 0.09, 0.85, 1.8, '#d4af37');
+        PH.box(gx + 0.56, gy - bDep, 0.45, 0.09, bDep, 1.8 * rampProg, '#d4af37');
+        PH.box(gx + 1.70, gy - bDep, 0.45, 0.09, bDep, 1.8 * rampProg, '#d4af37');
         const ledA = PH.P(rampX0 + 0.08, gy + 0.59, 0.7);
-        const ledB = PH.P(gx + 1.18, gy - 0.78, 0.7);
+        const ledB = PH.P(gx + 1.18, gy - bDep + 0.07, 0.7);
         c.save();
         c.fillStyle = `rgba(16, 185, 129, ${ledPulse.toFixed(2)})`;
         c.beginPath(); c.arc(ledA.x, ledA.y, 3.6 * z, 0, Math.PI * 2); c.fill();
         c.beginPath(); c.arc(ledB.x, ledB.y, 3.6 * z, 0, Math.PI * 2); c.fill();
+        if (rampProg > 0.7) {
+          const activeDot = Math.floor(PH.t / 10) % 3;
+          for (let g = 0; g < 3; g++) {
+            const dp = PH.P(gx + 0.74 + g * 0.44, gy - bDep * 0.5, 0.55);
+            c.fillStyle = g === activeDot ? '#34d399' : 'rgba(16, 185, 129, 0.35)';
+            c.beginPath(); c.arc(dp.x, dp.y, (g === activeDot ? 2.4 : 1.6) * z, 0, Math.PI * 2); c.fill();
+          }
+        }
         c.restore();
       }
 
@@ -439,6 +484,21 @@ const IsoRenderer = (() => {
         c.beginPath(); c.arc(hp.x, hp.y, 3.1 * z, 0, Math.PI * 2); c.fill();
         c.strokeStyle = '#fde047'; c.lineWidth = 1.2; c.stroke();
         c.restore();
+      }
+      if (braking || rampProg > 0.04) {
+        const tailX = dirX > 0 ? gx - 0.01 : gx + len + 0.01;
+        for (const ty of [gy + 0.16, gy + wid - 0.16]) {
+          const tpR = PH.P(tailX, ty, 5.2 + bounce);
+          c.fillStyle = 'rgba(239,68,68,0.45)';
+          c.beginPath(); c.arc(tpR.x, tpR.y, 4.2 * z, 0, Math.PI * 2); c.fill();
+          c.fillStyle = '#ef4444';
+          c.beginPath(); c.arc(tpR.x, tpR.y, 2.1 * z, 0, Math.PI * 2); c.fill();
+        }
+      }
+      if (blinker && Math.floor(PH.t / 12) % 2 === 0) {
+        const bp = PH.P(noseX, gy + wid - 0.12, 4.6 + bounce);
+        c.fillStyle = '#f59e0b';
+        c.beginPath(); c.arc(bp.x, bp.y, 2.8 * z, 0, Math.PI * 2); c.fill();
       }
 
       // Discreet Champagne-Gold & Pearl Wellness Crest on Sliding VIP Door
@@ -574,8 +634,17 @@ const IsoRenderer = (() => {
       // South submerged entry steps
       PH.topQuad(x + 0.18, y + d - 0.58, 0.18, w - 0.36, 0.22, 'rgba(224,242,254,0.48)');
       PH.topQuad(x + 0.18, y + d - 0.32, 0.20, w - 0.36, 0.24, 'rgba(240,249,255,0.65)');
-      // Gentle animated pool shimmer ripples & floating swim ring
+      // Gentle animated pool shimmer ripples, drifting caustics, sun glints & bobbing coral swim ring
       c.save();
+      for (let i = 0; i < 3; i++) {
+        const cxC = x + w * (0.36 + 0.24 * Math.sin(PH.t * 0.018 + i * 2.1));
+        const cyC = y + d * (0.28 + i * 0.22 + 0.06 * Math.cos(PH.t * 0.022 + i));
+        const cpC = PH.P(cxC, cyC, 0.19);
+        c.fillStyle = `rgba(186, 230, 253, ${(0.16 + 0.08 * Math.sin(PH.t * 0.04 + i)).toFixed(2)})`;
+        c.beginPath();
+        c.ellipse(cpC.x, cpC.y, 9.5 * z, 4.2 * z, 0.25, 0, Math.PI * 2);
+        c.fill();
+      }
       for (let i = 0; i < 3; i++) {
         const rp = ((PH.t / 135) + i * 0.33) % 1;
         const rcx = x + w * (0.42 + (i % 2) * 0.16);
@@ -587,9 +656,23 @@ const IsoRenderer = (() => {
         c.ellipse(p.x, p.y, (3 + rp * 11) * z, (1.6 + rp * 6.0) * z, 0, 0, Math.PI * 2);
         c.stroke();
       }
+      for (let g = 0; g < 2; g++) {
+        const ga = Math.max(0, Math.sin(PH.t * 0.075 + g * 2.7));
+        if (ga > 0.35) {
+          const gp = PH.P(x + w * (0.28 + g * 0.42), y + d * (0.34 + g * 0.30), 0.25);
+          c.fillStyle = `rgba(255, 255, 255, ${(ga * 0.8).toFixed(2)})`;
+          c.beginPath(); c.arc(gp.x, gp.y, 1.8 * z, 0, Math.PI * 2); c.fill();
+        }
+      }
       const floatX = x + w * 0.45 + Math.sin(PH.t * 0.035) * 0.10;
       const floatY = y + d * 0.48 + Math.cos(PH.t * 0.028) * 0.14;
+      const frp = (PH.t / 110) % 1;
       const fp = PH.P(floatX, floatY, 0.35);
+      c.strokeStyle = `rgba(224, 242, 254, ${(0.55 * (1 - frp)).toFixed(2)})`;
+      c.lineWidth = 1.0 * z;
+      c.beginPath();
+      c.ellipse(fp.x, fp.y, (5.5 + frp * 8.5) * z, (3.0 + frp * 4.5) * z, 0.15, 0, Math.PI * 2);
+      c.stroke();
       c.strokeStyle = '#fb7185';
       c.lineWidth = 3.2 * z;
       c.beginPath();
@@ -651,8 +734,15 @@ const IsoRenderer = (() => {
       PH.cyl(cx - 0.14, cy - 0.14, 10.8, 0.035, 1.5, '#be123c');
       PH.cyl(cx, cy, 10.8, 0.055, 2.4, '#f59e0b');
       const fl = PH.P(cx, cy, 13.6);
-      c.fillStyle = 'rgba(251, 146, 60, 0.75)';
-      c.beginPath(); c.arc(fl.x, fl.y, 2.8 * z, 0, Math.PI * 2); c.fill();
+      const flPulse = Math.sin(PH.t * 0.22 + cx);
+      c.fillStyle = `rgba(251, 146, 60, ${(0.72 + flPulse * 0.13).toFixed(2)})`;
+      c.beginPath(); c.arc(fl.x, fl.y, (2.5 + flPulse * 0.55) * z, 0, Math.PI * 2); c.fill();
+      for (const [si, sx] of [[-0.18, 0], [0.18, 0.5]]) {
+        const spSt = ((PH.t / 120) + sx) % 1;
+        const stP = PH.P(cx + si + Math.sin(spSt * 4 + cx) * 0.03, cy, 11.4 + spSt * 6.5);
+        c.fillStyle = `rgba(255, 251, 235, ${(0.38 * (1 - spSt)).toFixed(2)})`;
+        c.beginPath(); c.arc(stP.x, stP.y, (1.4 + spSt * 1.8) * z, 0, Math.PI * 2); c.fill();
+      }
     });
   }
 
@@ -725,19 +815,71 @@ const IsoRenderer = (() => {
         c.ellipse(p.x, p.y, (4 + rp * 18) * z, (2.2 + rp * 9.5) * z, 0, 0, Math.PI * 2);
         c.stroke();
       }
-      // Sparkling water arcs cascading from Cupid's urn into the stone basin
+      // Sparkling water arcs cascading from Cupid's urn + animated water droplets, splash rings & sparkles
       const topP = PH.P(cx + 0.14, cy - 0.04, 10.6);
-      c.strokeStyle = 'rgba(186, 230, 253, 0.88)';
-      c.lineWidth = 1.4 * z;
-      for (const [dx, dy] of [[0.34, -0.14], [0.28, 0.24], [-0.26, 0.18], [-0.24, -0.18]]) {
-        const midP = PH.P(cx + dx * 0.55, cy + dy * 0.55, 11.4 + Math.sin(PH.t * 0.08) * 0.4);
+      const arcs = [[0.34, -0.14], [0.28, 0.24], [-0.26, 0.18], [-0.24, -0.18]];
+      for (let ai = 0; ai < arcs.length; ai++) {
+        const [dx, dy] = arcs[ai];
+        const midP = PH.P(cx + dx * 0.55, cy + dy * 0.55, 11.4 + Math.sin(PH.t * 0.08 + ai) * 0.4);
         const endP = PH.P(cx + dx, cy + dy, 3.0);
+        c.strokeStyle = 'rgba(186, 230, 253, 0.88)';
+        c.lineWidth = 1.4 * z;
         c.beginPath();
         c.moveTo(topP.x, topP.y);
         c.quadraticCurveTo(midP.x, midP.y, endP.x, endP.y);
         c.stroke();
+        // Traveling sparkling water-droplet beads along the quadratic arc
+        for (let k = 0; k < 2; k++) {
+          const u = ((PH.t / 42) + k * 0.5 + ai * 0.25) % 1;
+          const omt = 1 - u;
+          const bx = omt * omt * topP.x + 2 * omt * u * midP.x + u * u * endP.x;
+          const by = omt * omt * topP.y + 2 * omt * u * midP.y + u * u * endP.y;
+          c.fillStyle = 'rgba(240, 249, 255, 0.92)';
+          c.beginPath(); c.arc(bx, by, 1.55 * z, 0, Math.PI * 2); c.fill();
+        }
+        // Expanding white splash ring at landing point
+        const spR = ((PH.t / 55) + ai * 0.25) % 1;
+        const splP = PH.P(cx + dx, cy + dy, 2.85);
+        c.strokeStyle = `rgba(255, 255, 255, ${(0.62 * (1 - spR)).toFixed(2)})`;
+        c.lineWidth = 0.95 * z;
+        c.beginPath(); c.ellipse(splP.x, splP.y, (1.5 + spR * 4.8) * z, (0.8 + spR * 2.5) * z, 0, 0, Math.PI * 2); c.stroke();
+      }
+      for (const [sa, sd] of [[0.42, 0.35], [-0.46, -0.32]]) {
+        const tw = Math.max(0, Math.sin(PH.t * 0.09 + sa * 8));
+        if (tw > 0.4) {
+          const stp = PH.P(cx + sa, cy + sd, 2.75);
+          c.fillStyle = `rgba(255, 255, 255, ${(tw * 0.85).toFixed(2)})`;
+          c.beginPath(); c.arc(stp.x, stp.y, 1.6 * z, 0, Math.PI * 2); c.fill();
+        }
       }
       c.restore();
+    });
+  }
+
+  function drawParkButterflies() {
+    const specs = [
+      { cx: 17.90, cy: 7.85, rx: 0.55, ry: 0.42, sp: 0.026, col: '#fde047', ph: 0.2 },
+      { cx: 17.90, cy: 3.60, rx: 0.48, ry: 0.36, sp: 0.031, col: '#ffffff', ph: 2.1 },
+      { cx: 17.90, cy: 13.60, rx: 0.50, ry: 0.38, sp: 0.028, col: '#fb923c', ph: 4.3 }
+    ];
+    specs.forEach((b, i) => {
+      const gx = b.cx + Math.sin(PH.t * b.sp + b.ph) * b.rx;
+      const gy = b.cy + Math.sin(PH.t * b.sp * 2 + b.ph) * b.ry;
+      const gz = 7.5 + Math.sin(PH.t * 0.14 + i) * 2.4;
+      PH.item(gx + gy + 0.65, () => {
+        const c = PH.S.ctx;
+        const z = PH.zoom;
+        const bp = PH.P(gx, gy, gz);
+        const wing = (1.1 + Math.abs(Math.sin(PH.t * 0.45 + i * 2.0)) * 2.3) * z;
+        c.save();
+        c.translate(bp.x, bp.y);
+        c.fillStyle = b.col;
+        c.beginPath(); c.ellipse(-wing * 0.55, -0.4 * z, wing * 0.55, 1.5 * z, -0.35, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.ellipse(wing * 0.55, -0.4 * z, wing * 0.55, 1.5 * z, 0.35, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#334155';
+        c.fillRect(-0.5 * z, -1.3 * z, 1.0 * z, 2.6 * z);
+        c.restore();
+      });
     });
   }
 
@@ -793,17 +935,17 @@ const IsoRenderer = (() => {
     });
   }
 
-  function drawParkBench(gx, gy, alongY = false, faceNorth = false) {
+  function drawParkBench(gx, gy, alongY = false) {
     PH.furniture(gx, gy, alongY ? 0.34 : 1.45, alongY ? 1.45 : 0.34, alongY ? 1 : 0, k => {
-      // Slim modern resort teak & cast-iron park bench (matched visual screen height for North & South orientations)
-      k.box(0.08, 0.07, 0, 0.10, 0.20, 4.2, '#334155');
-      k.box(1.26, 0.07, 0, 0.10, 0.20, 4.2, '#334155');
-      k.box(0.05, 0.06, 4.2, 1.34, 0.22, 1.1, '#b47842', { tex: 'deskwood', texAlpha: 0.45 });
-      if (faceNorth) {
-        k.box(0.05, 0.22, 5.3, 1.34, 0.06, 5.0, '#9a6332');
-      } else {
-        k.box(0.05, 0.05, 5.3, 1.34, 0.06, 1.8, '#9a6332');
-      }
+      // 100% symmetric slim resort teak & cast-iron park bench (exact identical dimensions & ratio for North and South)
+      k.box(0.10, 0.06, 0, 0.10, 0.22, 4.2, '#334155');
+      k.box(1.25, 0.06, 0, 0.10, 0.22, 4.2, '#334155');
+      k.box(0.18, 0.14, 1.5, 1.09, 0.06, 0.6, '#475569');
+      // Twin slim teak seat slats + flush cast-iron end caps
+      k.box(0.06, 0.05, 4.2, 1.33, 0.11, 1.2, '#b47842', { tex: 'deskwood', texAlpha: 0.45 });
+      k.box(0.06, 0.18, 4.2, 1.33, 0.11, 1.2, '#b47842', { tex: 'deskwood', texAlpha: 0.45 });
+      k.box(0.02, 0.05, 4.2, 0.04, 0.24, 1.3, '#334155');
+      k.box(1.39, 0.05, 4.2, 0.04, 0.24, 1.3, '#334155');
     });
   }
 
@@ -1160,8 +1302,11 @@ const IsoRenderer = (() => {
   // Championship Pool Table (with Clear 3D Balls & Pool Sticks), Dartboard & Cozy Cinema Corner
   function drawRecreationGamesClubRoom() {
     // 1. Two Upright Retro SEGA Arcade Cabinets along North-Left Wall (facing +y, left of x=26.1..27.7 entrance)
-    const drawSegaCabinet = (gx, gy, trimCol, marqueeCol, screenAccent) => {
+    const drawSegaCabinet = (gx, gy, trimCol, marqueeCol, screenAccent, seed = 0) => {
       PH.furniture(gx, gy, 0.58, 0.72, 0, k => {
+        const blink = Math.sin(PH.t * 0.12 + seed * 2.0) > 0;
+        const joyDx = Math.sin(PH.t * 0.24 + seed * 1.7) * 0.025;
+        const joyDy = Math.cos(PH.t * 0.20 + seed * 1.3) * 0.020;
         // Tall dark arcade body & glowing side-art trim strips
         k.box(0.02, 0.02, 0, 0.54, 0.56, 21.5, '#18181b');
         k.box(0.0, 0.04, 0.5, 0.05, 0.52, 20.5, trimCol);
@@ -1169,22 +1314,26 @@ const IsoRenderer = (() => {
         // Protruding backlit SEGA-style marquee header box at top (+v front banner facing camera)
         k.box(0.02, 0.06, 18.8, 0.54, 0.66, 3.0, '#0f172a');
         k.panel('+v', 0.725, 0.05, 0.53, 19.0, 21.6, marqueeCol, { layer: 2 });
-        k.panel('+v', 0.73, 0.12, 0.46, 19.7, 20.9, '#ffffff', { layer: 3 });
-        // Recessed CRT arcade monitor screen with vivid retro game art on +v
+        k.panel('+v', 0.73, 0.12, 0.46, 19.7, 20.9, blink ? '#ffffff' : '#fef08a', { layer: 3 });
+        // Recessed CRT arcade monitor screen with live moving pixel sprites on +v
         k.panel('+v', 0.585, 0.06, 0.52, 11.4, 18.2, '#090d16', { layer: 2 });
         k.panel('+v', 0.59, 0.10, 0.48, 12.0, 17.6, '#0f172a', { layer: 3 });
-        k.panel('+v', 0.595, 0.12, 0.46, 12.2, 14.0, '#16a34a', { layer: 4 });
-        k.panel('+v', 0.595, 0.22, 0.36, 13.8, 16.4, screenAccent, { layer: 4 });
-        k.panel('+v', 0.595, 0.12, 0.46, 16.6, 17.4, '#facc15', { layer: 4 });
-        // Protruding arcade control deck with two 3D ball-top joysticks & colorful push buttons
+        k.panel('+v', 0.595, 0.11, 0.47, 12.1, 13.6, '#16a34a', { layer: 4 });
+        const playerX = 0.13 + (0.5 + 0.5 * Math.sin(PH.t * 0.11 + seed * 2.1)) * 0.24;
+        const targetX = 0.13 + (0.5 + 0.5 * Math.cos(PH.t * 0.085 + seed)) * 0.24;
+        const targetZ = 14.5 + Math.sin(PH.t * 0.16 + seed) * 1.1;
+        k.panel('+v', 0.596, playerX, playerX + 0.09, 13.6, 15.0, screenAccent, { layer: 4 });
+        k.panel('+v', 0.596, targetX, targetX + 0.07, targetZ, targetZ + 0.9, '#facc15', { layer: 4 });
+        k.panel('+v', 0.595, 0.12, 0.12 + (blink ? 0.34 : 0.26), 16.7, 17.4, '#38bdf8', { layer: 4 });
+        // Protruding arcade control deck with animated 3D ball-top joysticks & colorful push buttons
         k.box(0.02, 0.52, 8.6, 0.54, 0.30, 1.8, '#27272a');
         k.box(0.04, 0.54, 10.4, 0.50, 0.26, 0.3, trimCol);
         k.cyl(0.16, 0.68, 10.7, 0.018, 1.5, '#090d16');
-        k.blob(0.16, 0.68, 12.4, 0.045, '#ef4444', 4);
+        k.blob(0.16 + joyDx, 0.68 + joyDy, 12.4, 0.045, '#ef4444', 4);
         k.cyl(0.32, 0.68, 10.7, 0.018, 1.5, '#090d16');
-        k.blob(0.32, 0.68, 12.4, 0.045, '#facc15', 4);
-        k.cyl(0.24, 0.72, 10.7, 0.028, 0.5, '#22c55e');
-        k.cyl(0.42, 0.70, 10.7, 0.028, 0.5, '#ef4444');
+        k.blob(0.32 - joyDx, 0.68 - joyDy, 12.4, 0.045, '#facc15', 4);
+        k.cyl(0.24, 0.72, 10.7, 0.028, blink ? 0.55 : 0.35, '#22c55e');
+        k.cyl(0.42, 0.70, 10.7, 0.028, blink ? 0.35 : 0.55, '#ef4444');
         k.cyl(0.48, 0.73, 10.7, 0.028, 0.5, '#f59e0b');
         // Lower front coin-slot panel on +v
         k.panel('+v', 0.585, 0.14, 0.44, 2.2, 7.2, '#27272a', { layer: 2 });
@@ -1192,16 +1341,18 @@ const IsoRenderer = (() => {
         k.panel('+v', 0.59, 0.32, 0.38, 4.4, 6.2, '#f97316', { layer: 3 });
       });
     };
-    drawSegaCabinet(24.76, 8.95, '#dc2626', '#facc15', '#ef4444');
-    drawSegaCabinet(25.42, 8.95, '#ea580c', '#dc2626', '#38bdf8');
+    drawSegaCabinet(24.76, 8.95, '#dc2626', '#facc15', '#ef4444', 0);
+    drawSegaCabinet(25.42, 8.95, '#ea580c', '#dc2626', '#38bdf8', 1);
 
     // 2. Illuminated Snack & Cold-Drink Vending Machine along North-Right Wall (facing +y, right of entrance)
     PH.furniture(27.92, 8.95, 1.06, 0.72, 0, k => {
+      const ledBlink = Math.floor(PH.t / 28) % 2 === 0;
+      const shZ = 6.6 + ((PH.t * 0.09) % 13.0);
       // Classic crimson-ruby vending cabinet & top brushed trim
       k.box(0.02, 0.02, 0, 1.02, 0.66, 22.2, '#991b1b');
       k.box(0.0, 0.0, 22.2, 1.06, 0.70, 0.8, '#e2e8f0');
       k.box(0.04, 0.64, 0.8, 0.98, 0.06, 21.4, '#18181b');
-      // Stocked backlit glass display front (+v) with 4 shelves of colorful drinks & snacks
+      // Stocked backlit glass display front (+v) with 4 shelves of colorful drinks & snacks + gliding light shimmer
       k.panel('+v', 0.705, 0.07, 0.72, 6.2, 20.8, '#f8fafc', { layer: 2 });
       const shelfColors = [
         ['#ef4444', '#f97316', '#facc15', '#22c55e', '#38bdf8'],
@@ -1216,11 +1367,12 @@ const IsoRenderer = (() => {
           k.panel('+v', 0.712, px0, px0 + 0.085, sz + 0.1, sz + 2.3, pCol, { layer: 4 });
         });
       });
-      // Right-side digital selection keypad, green LED display & coin acceptor
+      k.panel('+v', 0.716, 0.09, 0.70, shZ, Math.min(20.6, shZ + 1.1), 'rgba(255,255,255,0.28)', { layer: 5 });
+      // Right-side digital selection keypad, blinking LED readout & coin acceptor
       k.panel('+v', 0.705, 0.76, 0.98, 7.5, 19.2, '#27272a', { layer: 2 });
-      k.panel('+v', 0.71, 0.79, 0.95, 16.4, 18.4, '#10b981', { layer: 3 });
+      k.panel('+v', 0.71, 0.79, 0.95, 16.4, 18.4, ledBlink ? '#10b981' : '#34d399', { layer: 3 });
       k.panel('+v', 0.71, 0.79, 0.95, 11.8, 15.6, '#cbd5e1', { layer: 3 });
-      k.panel('+v', 0.71, 0.83, 0.91, 9.0, 10.6, '#f59e0b', { layer: 3 });
+      k.panel('+v', 0.71, 0.83, 0.91, 9.0, 10.6, ledBlink ? '#f59e0b' : '#fbbf24', { layer: 3 });
       // Bottom pickup dispense flap chute
       k.panel('+v', 0.705, 0.09, 0.72, 1.4, 4.8, '#090d16', { layer: 2 });
       k.panel('+v', 0.71, 0.13, 0.68, 3.6, 4.4, '#cbd5e1', { layer: 3 });
@@ -1237,8 +1389,17 @@ const IsoRenderer = (() => {
       }
     });
 
-    // 4. Championship Pool / Billiards Table with Clear 3D Balls & Two-Tone Pool Sticks (x = 24.98, y = 10.35, w = 2.55, d = 1.40)
+    // 4. Championship Pool / Billiards Table with Animated Cue Strike & Rolling 3D Balls (x = 24.98, y = 10.35, w = 2.55, d = 1.40)
     PH.furniture(24.98, 10.35, 2.55, 1.40, 0, k => {
+      const cyc = (PH.t % 270) / 270;
+      let cuePull = 0;
+      if (cyc < 0.28) cuePull = Math.sin((cyc / 0.28) * Math.PI * 0.5) * 0.24;
+      else if (cyc < 0.38) {
+        const s = (cyc - 0.28) / 0.10;
+        cuePull = 0.24 * (1 - s) - 0.06 * s;
+      }
+      const ballT = (cyc >= 0.38 && cyc <= 0.68) ? Math.sin(((cyc - 0.38) / 0.30) * Math.PI) : 0;
+
       // 4 carved walnut pedestal legs with brushed-brass feet (sits directly on clean plain floor)
       for (const [lx, ly] of [[0.14, 0.14], [2.15, 0.14], [0.14, 1.00], [2.15, 1.00]]) {
         k.box(lx, ly, 0, 0.26, 0.26, 1.3, '#d4af37');
@@ -1256,26 +1417,31 @@ const IsoRenderer = (() => {
         k.cyl(px, py, 10.6, 0.105, 0.65, '#d4af37');
         k.cyl(px, py, 10.9, 0.078, 0.45, '#090d16');
       }
-      // 12 Glossy 3D Billiard Balls (white cue ball + colorful triangle rack + 2 active balls)
+      // 12 Glossy 3D Billiard Balls (animated white cue ball + nudged red ball + racked triangle)
       const balls = [
-        [0.66, 0.70, '#ffffff'],
+        [0.66 + ballT * 0.80, 0.70, '#ffffff'],
         [1.62, 0.70, '#facc15'],
         [1.74, 0.61, '#ef4444'], [1.74, 0.79, '#2563eb'],
         [1.86, 0.52, '#f97316'], [1.86, 0.70, '#111827'], [1.86, 0.88, '#9333ea'],
         [1.98, 0.44, '#be123c'], [1.98, 0.61, '#eab308'], [1.98, 0.79, '#0d9488'], [1.98, 0.96, '#dc2626'],
-        [1.12, 0.36, '#ef4444'], [1.26, 1.04, '#facc15']
+        [1.12 + ballT * 0.16, 0.36, '#ef4444'], [1.26, 1.04, '#facc15']
       ];
       for (const [bx, by, bcol] of balls) {
         k.blob(bx, by, 11.65, 0.082, bcol, 3);
       }
+      if (cyc >= 0.36 && cyc <= 0.44) {
+        k.blob(0.66, 0.70, 11.9, 0.06, '#e0f2fe', 4);
+      }
       // Chalk cubes resting on corner wooden rails
       k.box(0.24, 0.06, 11.05, 0.08, 0.08, 0.55, '#38bdf8');
       k.box(2.26, 1.28, 11.05, 0.08, 0.08, 0.55, '#38bdf8');
-      // 2 Prominent Two-Tone Pool Sticks (Cues) resting across/on the table
-      // Cue 1 (front-left rail aiming toward white cue ball)
-      k.line(0.04, 1.44, 12.10, 0.30, 1.12, 11.95, '#3b1f0e', 3.8, 4);
-      k.line(0.30, 1.12, 11.95, 0.55, 0.82, 11.75, '#fde68a', 2.6, 4);
-      k.line(0.55, 0.82, 11.75, 0.58, 0.78, 11.73, '#38bdf8', 2.6, 4);
+      // 2 Prominent Two-Tone Pool Sticks (Cues): Cue 1 animates pull-back & forward shot along its axis
+      const cuX = -0.54 * cuePull;
+      const cuY = 0.66 * cuePull;
+      const cuZ = 0.37 * cuePull;
+      k.line(0.04 + cuX, 1.44 + cuY, 12.10 + cuZ, 0.30 + cuX, 1.12 + cuY, 11.95 + cuZ, '#3b1f0e', 3.8, 4);
+      k.line(0.30 + cuX, 1.12 + cuY, 11.95 + cuZ, 0.55 + cuX, 0.82 + cuY, 11.75 + cuZ, '#fde68a', 2.6, 4);
+      k.line(0.55 + cuX, 0.82 + cuY, 11.75 + cuZ, 0.58 + cuX, 0.78 + cuY, 11.73 + cuZ, '#38bdf8', 2.6, 4);
       // Cue 2 (resting diagonally along far-right rail)
       k.line(2.44, 0.14, 11.80, 1.90, 0.20, 11.75, '#3b1f0e', 3.6, 4);
       k.line(1.90, 0.20, 11.75, 1.22, 0.28, 11.70, '#fde68a', 2.5, 4);
@@ -1304,8 +1470,11 @@ const IsoRenderer = (() => {
       k.top(0, 0, 0.10, 3.45, 2.75, '#27272a', { stroke: '#d4af37', lw: 1.2 });
     }, -0.9);
 
-    // Wide 16:9 Illuminated Cinema Screen, Theater Curtains, Soundbar & Tower Speakers (facing +y)
+    // Wide 16:9 Illuminated Live Movie Screen, Theater Curtains, Soundbar & Tower Speakers (facing +y)
     PH.furniture(25.65, 12.95, 2.95, 0.45, 0, k => {
+      const sunShift = Math.sin(PH.t * 0.03) * 0.65;
+      const gliderU = 0.56 + ((PH.t * 0.004) % 1.48);
+      const starBlink = Math.floor(PH.t / 24) % 2 === 0;
       // Matte black media console & brushed-gold soundbar
       k.box(0.30, 0.06, 0, 2.35, 0.34, 4.5, '#18181b');
       k.box(0.65, 0.14, 4.5, 1.65, 0.22, 1.0, '#d4af37');
@@ -1315,15 +1484,29 @@ const IsoRenderer = (() => {
         k.panel('+v', 0.385, sx + 0.04, sx + 0.20, 8.2, 12.6, '#c89b6e', { layer: 2 });
         k.panel('+v', 0.385, sx + 0.04, sx + 0.20, 2.8, 7.0, '#c89b6e', { layer: 2 });
       }
-      // Cinema screen frame + velvet curtains + colorful illuminated movie scene on +v
+      // Cinema screen frame + velvet curtains + live animated movie scene on +v
       k.box(0.30, 0.08, 6.0, 2.35, 0.30, 11.6, '#090d16');
       k.panel('+v', 0.385, 0.32, 0.50, 6.2, 17.4, '#991b1b', { layer: 2 });
       k.panel('+v', 0.385, 2.45, 2.63, 6.2, 17.4, '#991b1b', { layer: 2 });
       k.panel('+v', 0.385, 0.50, 2.45, 6.5, 17.1, '#1e1b4b', { layer: 2 });
       k.panel('+v', 0.39, 0.52, 2.43, 10.0, 15.8, '#7c2d12', { layer: 3 });
       k.panel('+v', 0.395, 0.52, 2.43, 8.2, 12.6, '#d97706', { layer: 4 });
-      k.panel('+v', 0.40, 1.18, 1.78, 11.2, 14.8, '#fbbf24', { layer: 5 });
+      k.panel('+v', 0.40, 1.18, 1.78, 11.2 + sunShift, 14.8 + sunShift, '#fbbf24', { layer: 5 });
       k.panel('+v', 0.40, 0.52, 2.43, 6.6, 8.4, '#0f172a', { layer: 5 });
+      k.panel('+v', 0.402, gliderU, Math.min(2.40, gliderU + 0.32), 7.6, 9.2, '#f8fafc', { layer: 6 });
+      k.panel('+v', 0.402, 0.72, 0.78, 16.0, 16.5, starBlink ? '#ffffff' : '#94a3b8', { layer: 6 });
+      k.panel('+v', 0.402, 2.12, 2.18, 15.7, 16.2, starBlink ? '#94a3b8' : '#ffffff', { layer: 6 });
+    });
+
+    // Subtle pulsing warm theater floor reflection in front of the cinema screen
+    PH.item(40.65, () => {
+      const a = (0.07 + 0.03 * Math.sin(PH.t * 0.07)).toFixed(3);
+      PH.poly([
+        PH.P(26.15, 13.45, 0.14),
+        PH.P(28.15, 13.45, 0.14),
+        PH.P(28.55, 14.40, 0.14),
+        PH.P(25.75, 14.40, 0.14)
+      ], `rgba(251, 191, 36, ${a})`);
     });
 
     // Low Walnut Cinema Coffee Table with Red-Striped Popcorn Bucket & Soda Cups
@@ -1419,6 +1602,27 @@ const IsoRenderer = (() => {
     PH.furniture(32.80, 14.60, 0.72, 0.78, 0, k => {
       k.blob(0.24, 0.24, 2.4, 0.22, '#fef08a', 3);
       k.blob(0.50, 0.50, 2.2, 0.20, '#faf8f5', 3);
+    });
+    // Breathing golden halos on stage lanterns + periodic sound-healing gong resonance wave
+    PH.item(31.4 + 15.1, () => {
+      const c = PH.S.ctx;
+      const z = PH.zoom;
+      const glowA = (0.24 + 0.14 * Math.sin(PH.t * 0.07)).toFixed(2);
+      c.save();
+      for (const lx of [30.33, 32.47]) {
+        const lp = PH.P(lx, 14.50, 6.2);
+        c.fillStyle = `rgba(253, 224, 71, ${glowA})`;
+        c.beginPath(); c.arc(lp.x, lp.y, 7.5 * z, 0, Math.PI * 2); c.fill();
+      }
+      const gp = (PH.t % 240) / 240;
+      if (gp < 0.45) {
+        const gt = gp / 0.45;
+        const ringP = PH.P(29.69, 14.92, 8.0);
+        c.strokeStyle = `rgba(250, 204, 21, ${(0.58 * (1 - gt)).toFixed(2)})`;
+        c.lineWidth = 1.4 * z;
+        c.beginPath(); c.ellipse(ringP.x, ringP.y, (5 + gt * 18) * z, (4 + gt * 14) * z, 0, 0, Math.PI * 2); c.stroke();
+      }
+      c.restore();
     });
   }
 
@@ -1533,6 +1737,32 @@ const IsoRenderer = (() => {
     // Two Round White-Clothed Al-Fresco Bistro Tables with 4 Oak Chairs & Gourmet Plated Meals
     drawRoundBistroTable(36.65, 11.55);
     drawRoundBistroTable(36.65, 13.95);
+
+    // Animated twinkling pergola lantern halos & warm wood-fired oven ember glow + aroma wisps
+    PH.item(36.6 + 15.8, () => {
+      const c = PH.S.ctx;
+      const z = PH.zoom;
+      c.save();
+      for (let r = 1; r <= 4; r++) {
+        const ry = 8.55 + r * 1.34 + 0.04;
+        for (const [li, lx] of [[0, 36.05], [1, 37.25]]) {
+          const al = (0.20 + 0.14 * Math.sin(PH.t * 0.09 + r * 1.3 + li)).toFixed(2);
+          const lp = PH.P(lx, ry, 21.8);
+          c.fillStyle = `rgba(253, 224, 71, ${al})`;
+          c.beginPath(); c.arc(lp.x, lp.y, 7.2 * z, 0, Math.PI * 2); c.fill();
+        }
+      }
+      const em = PH.P(35.83, 9.52, 12.8);
+      c.fillStyle = `rgba(249, 115, 22, ${(0.28 + 0.16 * Math.sin(PH.t * 0.19)).toFixed(2)})`;
+      c.beginPath(); c.arc(em.x, em.y, 6.2 * z, 0, Math.PI * 2); c.fill();
+      for (let i = 0; i < 2; i++) {
+        const ap = ((PH.t / 95) + i * 0.5) % 1;
+        const apP = PH.P(35.83 + Math.sin(ap * 5 + i) * 0.05, 9.29 - ap * 0.08, 15.3 + ap * 7.5);
+        c.fillStyle = `rgba(255, 251, 235, ${(0.36 * (1 - ap)).toFixed(2)})`;
+        c.beginPath(); c.arc(apP.x, apP.y, (1.6 + ap * 2.2) * z, 0, Math.PI * 2); c.fill();
+      }
+      c.restore();
+    });
   }
 
   function render(simState) {
@@ -1614,14 +1844,15 @@ const IsoRenderer = (() => {
       // ---------------- MIDDLE RELAXATION & WALKING FOUNTAIN PARK (x: 16.2..19.6, exact centerline x = 17.90)
       // 1. North Shade Tree (x = 17.90) with Park Bench centered slightly lower on its inner (south) side facing the Central Fountain
       drawTreeWithFlowerbed(17.90, 3.15, 1.18, 1);
-      drawParkBench(17.18, 4.75, false, false);
+      drawParkBench(17.18, 4.75, false);
 
       // 2. Central Carved-Stone Cupid Fountain aligned straight with the Building 2 Side Exit Door (y = 7.85) on natural park grass
       drawGardenFountain(17.90, 7.85);
 
-      // 3. South Shade Tree (x = 17.90) with identical-size Park Bench aligned at gx = 17.18 (exact center x = 17.90) facing the Central Fountain
-      drawParkBench(17.18, 12.35, false, true);
+      // 3. South Shade Tree (x = 17.90) with 100%-identical size Park Bench aligned at gx = 17.18 (exact center x = 17.90)
+      drawParkBench(17.18, 12.35, false);
       drawTreeWithFlowerbed(17.90, 14.35, 1.18, 0);
+      drawParkButterflies();
 
       // Continuous Full Perimeter Walking Park Loop around Building B
       drawCobblestonePath(15.3, 1.15, 0.9, 14.85);
@@ -1671,12 +1902,18 @@ const IsoRenderer = (() => {
           drawLuxuryConciergeVan(tr.gx, tr.gy, {
             dirX: tr.dirX,
             openDoor: tr.openDoor,
+            rampProg: tr.rampProg,
+            blinker: tr.blinker,
+            braking: tr.braking,
             label: tr.label
           });
         } else {
           drawEmergencyAmbulance(tr.gx, tr.gy, {
             dirX: tr.dirX,
             openDoor: tr.openDoor,
+            rampProg: tr.rampProg,
+            blinker: tr.blinker,
+            braking: tr.braking,
             label: tr.label
           });
         }

@@ -842,7 +842,10 @@
     const ph = Math.sin(t * 0.145);
     const idleBreath = walk ? 0 : Math.sin(t * 0.055) * 0.42;
     const idleSway = walk ? 0 : Math.cos(t * 0.04) * 0.28;
-    const bob = walk ? -Math.abs(Math.cos(t * 0.145)) * 0.85 : idleBreath;
+    const yPhase = S.t * 0.042 - (spec.role === 'therapist' ? 0 : 0.25 + ((spec.seed || 0) % 3) * 0.08);
+    const yFlow = (Math.sin(yPhase) + 1) * 0.5;
+    const yogaDip = pose === 'yoga' ? (1 - yFlow) * 1.4 : 0;
+    const bob = (walk ? -Math.abs(Math.cos(t * 0.145)) * 0.85 : idleBreath) + yogaDip;
     let hipY = -21, torsoTop = -37, headY = -44.5;
     let sit = pose === 'sit' || pose === 'wheelchair' || (pose === 'type' && spec.seated) || (pose === 'phone' && spec.seated);
     if (sit) { hipY = -12.5; torsoTop = -28.5; headY = -36; }
@@ -955,14 +958,18 @@
           const st = Math.sin(t * 0.16) * 6;
           arm(-1, -10, -9 + st * 0.4, -8, -8, false); arm(1, 10, -9 - st * 0.4, 8, -8, true);
         } else if (pose === 'yoga') {
-          const sy = Math.sin(t * 0.08) * 2;
-          arm(-1, -8.5, torsoTop - 12 + sy, -7.5, torsoTop - 5, true); arm(1, 8.5, torsoTop - 12 + sy, 7.5, torsoTop - 5, true);
+          const hx = 12.5 + (7.5 - 12.5) * yFlow;
+          const hy = (torsoTop + 0.5) + ((torsoTop - 13.5) - (torsoTop + 0.5)) * yFlow;
+          const ex = 8.5 + (7.8 - 8.5) * yFlow;
+          const ey = (torsoTop + 1.5) + ((torsoTop - 5.5) - (torsoTop + 1.5)) * yFlow;
+          arm(-1, -hx, hy, -ex, ey, true); arm(1, hx, hy, ex, ey, true);
         } else if (pose === 'handsup') {
           const wv = Math.sin(t * 0.16) * 2.4;
           arm(-1, -9 + wv, torsoTop - 11, -8.5, torsoTop - 4, true); arm(1, 9 - wv, torsoTop - 11, 8.5, torsoTop - 4, true);
         } else if (pose === 'type') {
-          const o = Math.sin(t * 0.24) * 1.05;
-          arm(-1, 4.5, hipY - 5 + o, -5.6, hipY - 6, true); arm(1, 8.8, hipY - 5.5 - o, 7.4, hipY - 7, true);
+          const o1 = Math.sin(t * 0.28) * 1.25;
+          const o2 = Math.cos(t * 0.34) * 1.25;
+          arm(-1, 4.5 + o2 * 0.45, hipY - 5 + o1, -5.6, hipY - 6, true); arm(1, 8.8 - o1 * 0.45, hipY - 5.5 - o2, 7.4, hipY - 7, true);
         } else if (pose === 'phone') {
           arm(-1, -6.4, hipY - 1, -7, hipY - 7, true);
           arm(1, 3.6, headY + 1.5, 7.8, torsoTop + 7, true);
@@ -972,8 +979,9 @@
           arm(-1, 7, hipY - 4 + m, 0, hipY - 6, true); arm(1, 11.5, hipY - 7 - m, 9, torsoTop + 7, true);
           c.fillStyle = '#c0c7cf'; c.beginPath(); c.arc(11.8, hipY - 7 - m, 1.3, 0, 7); c.fill();
         } else if (pose === 'handover') {
-          arm(-1, -6.6, hipY - 1, -7, hipY - 7, true); arm(1, 11, torsoTop + 9, 8.5, torsoTop + 7, true);
-          drawProp(spec.prop || 'paper', 11.5, torsoTop + 7.5);
+          const hv = Math.sin(t * 0.10) * 1.6;
+          arm(-1, -6.6, hipY - 1, -7, hipY - 7, true); arm(1, 11, torsoTop + 9 + hv, 8.5, torsoTop + 7 + hv * 0.4, true);
+          drawProp(spec.prop || 'paper', 11.5, torsoTop + 7.5 + hv);
         } else if (pose === 'tablet' || pose === 'carry') {
           arm(-1, 2.5, torsoTop + 11, -6, torsoTop + 9, true); arm(1, 7.5, torsoTop + 11, 7.8, torsoTop + 8, true);
           drawProp(spec.prop || (pose === 'tablet' ? 'tablet' : 'box'), 5, torsoTop + 10, spec.propCol);
@@ -983,7 +991,8 @@
           arm(-1, 2, torsoTop + 9, -6.5, torsoTop + 10, true); arm(1, 3.5, torsoTop + 8, 7.2, torsoTop + 10, true);
           c.fillStyle = '#111'; c.fillRect(1.2, torsoTop + 8.3, 1.6, 1.4);
         } else if (sit || pose === 'situp') {
-          arm(-1, 2.5, hipY - 1.5, -6.6, hipY - 6, true); arm(1, 6.5, hipY - 1.8, 7.2, hipY - 6.5, true);
+          const stShift = Math.sin(t * 0.06) * 0.8;
+          arm(-1, 2.5 + stShift * 0.35, hipY - 1.5 + stShift * 0.5, -6.6, hipY - 6, true); arm(1, 6.5 - stShift * 0.35, hipY - 1.8 - stShift * 0.5, 7.2, hipY - 6.5, true);
         } else {
           const sw = walk ? ph * 2.4 : 0;
           arm(-1, -6.4 - sw * 0.3, hipY - 0.5, -7 - sw * 0.5, hipY - 7.5, true);
