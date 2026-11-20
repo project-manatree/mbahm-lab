@@ -36,8 +36,6 @@ const IsoRenderer = (() => {
       { x: 15.3, y: 1.1, w: 0.9, d: 14.9, mat: { cur: null, fut: 'paver' } },       // West Walking Park Path (Full Loop)
       { x: 15.3, y: 1.1, w: 19.4, d: 0.95, mat: { cur: null, fut: 'paver' } },      // North Walking Park Path (Full Loop)
       { x: 33.8, y: 1.1, w: 0.9, d: 14.9, mat: { cur: null, fut: 'paver' } },       // East Park Terrace Walk (Full Loop)
-      { x: 16.2, y: 7.2, w: 3.4, d: 1.3, mat: { cur: null, fut: 'paver' } },        // Park & Resort Side-Door Link
-      { x: 16.5, y: 7.2, w: 2.7, d: 2.9, mat: { cur: null, fut: 'paver' } },        // Central Stone Fountain Courtyard Plaza
       // East Swimming Pool Deck (y: 2.2..7.6) & Outdoor Al-Fresco Garden Bistro Terrace (y: 8.4..15.6)
       { x: 34.8, y: 2.2, w: 3.6, d: 5.4, mat: { cur: null, fut: 'travertine' } },   // East Resort Pool Sun Terrace
       { x: 35.15, y: 2.7, w: 1.75, d: 4.15, mat: { cur: null, fut: 'water' } },     // Outdoor Resort Swimming Pool
@@ -690,37 +688,50 @@ const IsoRenderer = (() => {
     PH.item(cx + cy + 0.4, () => {
       const c = PH.S.ctx;
       const z = PH.zoom;
-      // Outer carved natural grey-limestone / granite fountain basin rim
-      PH.cyl(cx, cy, 0, 0.96, 2.6, '#94a3b8');
-      PH.disc(cx, cy, 2.65, 0.98, '#cbd5e1', '#64748b');
+      // Outer carved natural grey-limestone / granite fountain basin rim (sits directly on park grass)
+      PH.cyl(cx, cy, 0, 0.94, 2.5, '#94a3b8');
+      PH.disc(cx, cy, 2.55, 0.96, '#cbd5e1', '#64748b');
       // Crystal water lower pool
-      PH.disc(cx, cy, 2.75, 0.80, '#38bdf8', '#0284c7');
-      // Central sculpted natural stone pedestal & second-tier carved stone water bowl
-      PH.cyl(cx, cy, 2.75, 0.22, 3.8, '#94a3b8');
-      PH.cyl(cx, cy, 6.5, 0.44, 1.1, '#cbd5e1');
-      PH.disc(cx, cy, 7.65, 0.45, '#38bdf8', '#64748b');
-      // Top carved stone finial water spout
-      PH.cyl(cx, cy, 7.65, 0.11, 2.6, '#94a3b8');
-      PH.disc(cx, cy, 10.3, 0.14, '#cbd5e1', '#64748b');
+      PH.disc(cx, cy, 2.65, 0.78, '#38bdf8', '#0284c7');
+      // Central sculpted natural stone pedestal & upper carved stone bowl
+      PH.cyl(cx, cy, 2.65, 0.24, 3.4, '#94a3b8');
+      PH.cyl(cx, cy, 6.0, 0.44, 1.0, '#cbd5e1');
+      PH.disc(cx, cy, 7.05, 0.45, '#38bdf8', '#64748b');
+
+      // Little Carved-Stone Cupid / Cherub Statue standing atop the upper fountain bowl
+      PH.cyl(cx, cy, 7.05, 0.14, 1.0, '#94a3b8');       // Statue stone plinth
+      PH.cyl(cx, cy, 8.05, 0.11, 2.6, '#cbd5e1');       // Cherub torso
+      PH.disc(cx, cy, 11.4, 0.11, '#e2e8f0', '#64748b'); // Cherub head
+      // Delicate carved-stone Cupid wings (left & right)
+      const wBaseL = PH.P(cx - 0.06, cy - 0.06, 9.6);
+      const wTipL = PH.P(cx - 0.34, cy - 0.22, 11.8);
+      const wLowL = PH.P(cx - 0.24, cy - 0.14, 8.6);
+      PH.poly([wBaseL, wTipL, wLowL], '#f1f5f9', '#64748b', 0.8);
+      const wBaseR = PH.P(cx + 0.06, cy + 0.06, 9.6);
+      const wTipR = PH.P(cx + 0.34, cy + 0.22, 11.8);
+      const wLowR = PH.P(cx + 0.24, cy + 0.14, 8.6);
+      PH.poly([wBaseR, wTipR, wLowR], '#f1f5f9', '#64748b', 0.8);
+      // Little stone pitcher/urn held by Cupid
+      PH.cyl(cx + 0.14, cy - 0.04, 9.4, 0.075, 1.4, '#94a3b8');
 
       // Animated concentric water ripples & sparkling fountain water jets
       c.save();
       for (let i = 0; i < 2; i++) {
         const rp = ((PH.t / 90) + i * 0.5) % 1;
-        const p = PH.P(cx, cy, 2.85);
+        const p = PH.P(cx, cy, 2.75);
         c.strokeStyle = `rgba(224, 242, 254, ${(0.7 * (1 - rp)).toFixed(2)})`;
         c.lineWidth = 1.2;
         c.beginPath();
         c.ellipse(p.x, p.y, (4 + rp * 18) * z, (2.2 + rp * 9.5) * z, 0, 0, Math.PI * 2);
         c.stroke();
       }
-      // Sparkling water arcs cascading from the top spout into the bowls
-      const topP = PH.P(cx, cy, 11.4);
-      c.strokeStyle = 'rgba(186, 230, 253, 0.85)';
+      // Sparkling water arcs cascading from Cupid's urn into the stone basin
+      const topP = PH.P(cx + 0.14, cy - 0.04, 10.6);
+      c.strokeStyle = 'rgba(186, 230, 253, 0.88)';
       c.lineWidth = 1.4 * z;
-      for (const [dx, dy] of [[-0.28, -0.14], [0.28, -0.14], [-0.22, 0.20], [0.22, 0.20]]) {
-        const midP = PH.P(cx + dx * 0.55, cy + dy * 0.55, 12.6 + Math.sin(PH.t * 0.08) * 0.4);
-        const endP = PH.P(cx + dx, cy + dy, 7.7);
+      for (const [dx, dy] of [[0.34, -0.14], [0.28, 0.24], [-0.26, 0.18], [-0.24, -0.18]]) {
+        const midP = PH.P(cx + dx * 0.55, cy + dy * 0.55, 11.4 + Math.sin(PH.t * 0.08) * 0.4);
+        const endP = PH.P(cx + dx, cy + dy, 3.0);
         c.beginPath();
         c.moveTo(topP.x, topP.y);
         c.quadraticCurveTo(midP.x, midP.y, endP.x, endP.y);
@@ -1458,8 +1469,8 @@ const IsoRenderer = (() => {
       drawTreeWithFlowerbed(17.85, 3.35, 1.22, 1);
       drawParkBench(17.15, 4.45, false);
 
-      // 2. Central Carved-Stone Garden Fountain between the 2 Park Trees (y = 8.65 — no benches beside fountain)
-      drawGardenFountain(17.85, 8.65);
+      // 2. Central Carved-Stone Cupid Fountain aligned straight with the Building 2 Side Exit Door (y = 7.85) on natural park grass
+      drawGardenFountain(17.85, 7.85);
 
       // 3. South Shade Tree with Park Bench directly under its canopy (y: 13.4..14.8)
       drawTreeWithFlowerbed(17.85, 13.45, 1.22, 0);
@@ -1469,7 +1480,6 @@ const IsoRenderer = (() => {
       drawCobblestonePath(15.3, 1.15, 0.9, 14.85);
       drawCobblestonePath(16.2, 1.1, 17.6, 0.95);
       drawCobblestonePath(33.8, 1.15, 0.9, 14.85);
-      drawCobblestonePath(16.2, 7.25, 3.3, 1.2);
 
       // 3. East Swimming Pool Terrace directly beside Wellness & Movement Class (y: 2.2..7.6)
       drawSwimmingPool(35.15, 2.7, 1.75, 4.15);
