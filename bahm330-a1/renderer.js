@@ -68,8 +68,8 @@ const IsoRenderer = (() => {
       { type: 'line', x1: 1.5, y1: 18.5, x2: 38.2, y2: 18.5, w: 0.09, col: 'rgba(250,204,21,0.75)', dash: [0.6, 0.4] },
       // Hospital Main Entrance Pick-Up Bay (Facing Down at x: 11.2..14.2, y: 16.7..18.2)
       { type: 'hatch', x: 11.2, y: 16.7, w: 3.0, d: 1.5, col: 'rgba(14,165,233,0.65)' },
-      // Luxury Resort VIP Drop-Off Bay (Facing Down at x: 20.4..23.4, y: 16.7..18.2)
-      { type: 'hatch', x: 20.4, y: 16.7, w: 3.0, d: 1.5, col: 'rgba(212,175,55,0.72)', when: 'fut' }
+      // Luxury Resort VIP Drop-Off Bay (Facing Down at x: 20.1..23.1, y: 16.7..18.2, aligned with Lobby Main Entrance x=20.6..22.6)
+      { type: 'hatch', x: 20.1, y: 16.7, w: 3.0, d: 1.5, col: 'rgba(212,175,55,0.72)', when: 'fut' }
     ],
     walls: [
       // BUILDING 1 (LEFT — PARTNER HOSPITAL, x: 1..15, y: 1..16)
@@ -95,8 +95,8 @@ const IsoRenderer = (() => {
       { when: 'fut', x1: 19.6, y1: 2.6, x2: 33.6, y2: 2.6, kind: 'ext', col: '#faf8f5', windows: true },
       { when: 'fut', x1: 19.6, y1: 2.6, x2: 19.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 7.1, w: 1.5, type: 'slide', alwaysOpen: true }] },
       { when: 'fut', x1: 33.6, y1: 2.6, x2: 33.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 7.1, w: 1.5, type: 'slide', alwaysOpen: true }] },
-      // Building 2 Bottom Front Wall (y = 16) — Main Entrance opens directly into 5-Star Hotel Lobby (x = 21.0..23.4)
-      { when: 'fut', x1: 19.6, y1: 16, x2: 33.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 21.0, w: 2.4, type: 'slide', alwaysOpen: true }] },
+      // Building 2 Bottom Front Wall (y = 16) — Main Entrance opens directly into Clear Lobby Walk Axis (x = 20.6..22.6)
+      { when: 'fut', x1: 19.6, y1: 16, x2: 33.6, y2: 16, kind: 'ext', col: '#faf8f5', windows: true, open: [{ at: 20.6, w: 2.0, type: 'slide', alwaysOpen: true }] },
       // Top Wing Dividers: Visiting Doctor Room (19.6..23.1) | Suite 301 (23.1..26.6) | Suite 302 (26.6..30.1) | Suite 303 (30.1..33.6)
       { when: 'fut', x1: 23.1, y1: 2.6, x2: 23.1, y2: 6.8, kind: 'int', col: '#e2e8f0' },
       { when: 'fut', x1: 26.6, y1: 2.6, x2: 26.6, y2: 6.8, kind: 'int', col: '#e2e8f0' },
@@ -114,7 +114,7 @@ const IsoRenderer = (() => {
       {
         when: 'fut', x1: 19.6, y1: 8.8, x2: 33.6, y2: 8.8, kind: 'glass', col: '#f8fafc',
         open: [
-          { at: 21.2, w: 2.0, type: 'slide', alwaysOpen: true },
+          { at: 20.6, w: 2.0, type: 'slide', alwaysOpen: true },
           { at: 26.1, w: 1.6, type: 'slide', alwaysOpen: true },
           { at: 30.6, w: 1.6, type: 'slide', alwaysOpen: true }
         ]
@@ -1238,35 +1238,51 @@ const IsoRenderer = (() => {
     });
   }
 
-  // 9. Retreat Front-Left (x: 19.6..24.6, y: 8.8..16.0): Subtle, Understated Five-Star Hotel Entrance Lobby, Concierge & Lounge
+  // 9. Retreat Front-Left (x: 19.6..24.6, y: 8.8..16.0): Architectural Five-Star Hotel Entrance Lobby
+  // Layout:
+  // - West Wall (x = 19.8..20.8): Concierge Check-In Desk (y = 9.8..12.3) + Brass Bellhop Luggage Cart (y = 13.4..14.6)
+  // - Center-Left Walk Axis (x = 20.8..22.2, y = 8.8..16.0): 100% Clear Straight Walkthrough from Front Doors (x=20.6..22.6) to Promenade (x=20.6..22.6)
+  // - East Waiting Lounge Zone (x = 22.3..24.45, y = 9.5..15.2): Woven Silk Rug + Warm Terracotta Sofa + Marble Coffee Table + 2 Warm Apricot Armchairs
   function drawLuxuryHotelLobbyDetails() {
-    // Subtle Woven Pearl-Alabaster, Soft Warm Apricot & Muted Champagne-Brass Silk Area Rug (x = 21.35, y = 10.05)
-    PH.furniture(21.35, 10.05, 2.85, 4.25, 0, k => {
-      k.top(0, 0, 0.12, 2.85, 4.25, '#faf8f5', { stroke: '#c9a96e', lw: 1.2 });
-      k.top(0.18, 0.18, 0.15, 2.49, 3.89, '#fed7aa', { stroke: '#f4a261', lw: 0.9 });
-      k.top(0.42, 0.42, 0.18, 2.01, 3.41, '#fff7ed', { stroke: '#c9a96e', lw: 0.9 });
+    // 1. East Waiting Lounge Area Rug (x = 22.32, y = 9.65, w = 2.08, d = 4.65 — completely clear of the x=20.8..22.2 walk path!)
+    PH.furniture(22.32, 9.65, 2.08, 4.65, 0, k => {
+      k.top(0, 0, 0.12, 2.08, 4.65, '#faf8f5', { stroke: '#c9a96e', lw: 1.2 });
+      k.top(0.14, 0.16, 0.15, 1.80, 4.33, '#fed7aa', { stroke: '#e07a5f', lw: 0.9 });
+      k.top(0.30, 0.34, 0.18, 1.48, 3.97, '#fff7ed', { stroke: '#c9a96e', lw: 0.8 });
     });
 
-    // Understated Warm Terracotta-Amber & Muted-Brass Welcome Carpet Runner + Stanchion Posts inside Hotel Main Entrance (x = 21.3, y = 14.7)
-    PH.furniture(21.3, 14.7, 1.8, 1.25, 0, k => {
-      k.top(0.15, 0.02, 0.14, 1.50, 1.20, '#e07a5f', { stroke: '#c9a96e', lw: 1.2 });
-      k.cyl(0.08, 0.15, 0, 0.07, 8.5, '#c9a96e');
-      k.cyl(1.72, 0.15, 0, 0.07, 8.5, '#c9a96e');
-      k.cyl(0.08, 1.10, 0, 0.07, 8.5, '#c9a96e');
-      k.cyl(1.72, 1.10, 0, 0.07, 8.5, '#c9a96e');
+    // 2. Flat Flush Entrance Welcome Mat inside Main Sliding Doors (x = 20.9, y = 14.85 — zero vertical poles blocking doorway)
+    PH.furniture(20.9, 14.85, 1.4, 0.95, 0, k => {
+      k.top(0, 0, 0.12, 1.4, 0.95, '#e07a5f', { stroke: '#c9a96e', lw: 1.2 });
+      k.top(0.10, 0.10, 0.14, 1.2, 0.75, '#f4a261', { stroke: '#faf8f5', lw: 0.8 });
     });
 
-    // Subtle Alabaster Marble & White-Orchid Welcome Pedestal inside Main Entrance Foyer (x = 23.55, y = 14.45)
-    PH.furniture(23.55, 14.45, 0.72, 0.72, 0, k => {
-      k.cyl(0.36, 0.36, 0, 0.26, 1.0, '#c9a96e');
-      k.cyl(0.36, 0.36, 1.0, 0.21, 8.4, '#f8fafc');
-      k.cyl(0.36, 0.36, 9.4, 0.26, 0.9, '#c9a96e');
-      k.cyl(0.36, 0.36, 10.3, 0.16, 3.0, '#e2e8f0');
-      k.blob(0.36, 0.36, 14.8, 0.24, '#ffffff', 4);
-      k.blob(0.36, 0.36, 16.4, 0.18, '#fef3c7', 3);
+    // 3. Golden Brass Hotel Bellhop Luggage Cart & Leather Suitcases along West Wall (x = 19.85, y = 13.35)
+    PH.furniture(19.85, 13.35, 0.78, 1.15, 0, k => {
+      // 4 brass caster wheels + velvet platform base
+      k.box(0.06, 0.08, 0, 0.66, 0.98, 1.4, '#c9a96e');
+      k.top(0.08, 0.10, 1.45, 0.62, 0.94, '#e07a5f', { stroke: '#d4af37' });
+      // Brass bellhop arch rails & top hanging crossbar
+      k.cyl(0.12, 0.14, 1.4, 0.03, 12.5, '#d4af37');
+      k.cyl(0.66, 0.14, 1.4, 0.03, 12.5, '#d4af37');
+      k.cyl(0.12, 1.00, 1.4, 0.03, 12.5, '#d4af37');
+      k.cyl(0.66, 1.00, 1.4, 0.03, 12.5, '#d4af37');
+      k.box(0.10, 0.12, 13.9, 0.58, 0.90, 0.6, '#d4af37');
+      // 2 luxury leather suitcases on the cart
+      k.box(0.16, 0.22, 1.5, 0.44, 0.34, 4.2, '#b45309');
+      k.box(0.18, 0.62, 1.5, 0.40, 0.28, 3.4, '#f5efe6');
     });
 
-    // Sculptural White Marble & Muted-Brass Floral Art Pedestal in Resort Central Marble Promenade (x = 24.4, y = 7.35)
+    // 4. Sculptural White Marble & Orchid Pedestal in East Corner of Lobby (x = 23.65, y = 14.65)
+    PH.furniture(23.65, 14.65, 0.68, 0.68, 0, k => {
+      k.box(0.08, 0.08, 0, 0.52, 0.52, 8.8, '#faf8f5');
+      k.box(0.04, 0.04, 8.8, 0.60, 0.60, 0.9, '#c9a96e');
+      k.cyl(0.34, 0.34, 9.7, 0.16, 3.0, '#ffffff');
+      k.blob(0.34, 0.34, 14.2, 0.24, '#f4a261', 4);
+      k.blob(0.34, 0.34, 15.8, 0.18, '#fef3c7', 3);
+    });
+
+    // 5. Sculptural White Marble & Muted-Brass Floral Art Pedestal in Resort Central Marble Promenade (x = 24.4, y = 7.35)
     PH.furniture(24.4, 7.35, 0.72, 0.72, 0, k => {
       k.box(0.08, 0.08, 0, 0.56, 0.56, 9.6, '#ffffff');
       k.box(0.04, 0.04, 9.6, 0.64, 0.64, 0.9, '#c9a96e');
@@ -1380,17 +1396,15 @@ const IsoRenderer = (() => {
       drawNorthRecoverySuite(26.6, '#fde68a', '#d4af37', '#eab308', 302);
       drawNorthRecoverySuite(30.1, '#7c3aed', '#4c1d95', '#6d28d9', 303);
 
-      // 3. Main Entrance Five-Star Hotel Lobby, Concierge & Espresso Lounge (Front-Left, x: 19.6..24.6, y: 8.8..16 — Subtle Warm Orange / Hermès Apricot-Terracotta & Antique Brass)
+      // 3. Main Entrance Five-Star Hotel Lobby (Front-Left, x: 19.6..24.6, y: 8.8..16)
+      // West: Concierge Desk + Bellhop Cart | Center-Left (x=20.8..22.2): Clear Walkthrough | East (x=22.3..24.45): Waiting Lounge Seating
       drawLuxuryHotelLobbyDetails();
-      PHSprites.receptionDesk(19.85, 9.4, 1, 2.2, { col: '#c9a96e', wood: '#f8fafc', clutter: false });
-      drawWallEventScreen(21.8, 8.92);
-      drawEspressoBar(19.85, 12.6);
-      PHSprites.sofa(21.65, 10.3, 0, 1.8, '#f4a261');
-      drawCoffeeTableAndSet(22.55, 12.2);
-      PHSprites.sofa(21.65, 13.4, 0, 1.8, '#e07a5f');
-      PHSprites.armchair(23.55, 11.4, 0, { col: '#fb923c' });
-      drawIndoorPalm(23.75, 9.2);
-      drawIndoorPalm(19.85, 15.1);
+      PHSprites.receptionDesk(19.85, 9.8, 1, 2.5, { col: '#c9a96e', wood: '#f8fafc', clutter: false });
+      PHSprites.sofa(22.48, 9.95, 0, 1.72, '#e07a5f');
+      drawCoffeeTableAndSet(23.35, 11.75);
+      PHSprites.armchair(22.46, 12.85, 0, { col: '#f4a261' });
+      PHSprites.armchair(23.46, 12.85, 0, { col: '#f4a261' });
+      drawIndoorPalm(19.85, 14.95);
 
       // 4. Recreation & Games Club Room (x: 24.6..29.2) + Yoga, Wellness & Movement Studio (x: 29.2..33.6, beside East Pool)
       drawRecreationGamesClubRoom();

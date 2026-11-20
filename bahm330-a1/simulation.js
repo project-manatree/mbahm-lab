@@ -32,7 +32,7 @@ const SimApp = (() => {
     { id: 'st-6', roleLabel: '', role: 'reception', gx: 7.2, gy: 9.15, pose: 'TYPING_TERMINAL', taskCur: 'Rank 3: Serial GL (40m wait)', taskFut: 'Track C: Pre-GL & HL7 (10m) ✓', dur: 2.0, show: true },
     // Escort RN / Concierge operating the Left <-> Right transport between the two downward-facing Main Entrances
     { id: 'st-7', roleLabel: 'Concierge', role: 'concierge', gx: 12.7, gy: 16.2, pose: 'HANDOVER_INTERACTION', taskCur: 'Rank 2: Van Lag (45m)', taskFut: 'Hard-Stop ISBAR Gate ✓', dur: 2.2, show: true },
-    { id: 'st-8', retreat: true, roleLabel: 'Concierge', role: 'concierge', gx: 20.2, gy: 10.4, pose: 'TYPING_TERMINAL', taskCur: 'Duplicate Intake (25m)', taskFut: 'Hotel Lobby Concierge ✓', dur: 2.0, show: true },
+    { id: 'st-8', retreat: true, roleLabel: 'Concierge', role: 'concierge', gx: 20.15, gy: 11.0, pose: 'TYPING_TERMINAL', taskCur: 'Duplicate Intake (25m)', taskFut: 'Hotel Lobby Concierge ✓', dur: 2.0, show: true },
     { id: 'st-9', retreat: true, roleLabel: 'Doctor', role: 'doctor', gx: 20.55, gy: 2.85, pose: 'EXAMINING', taskCur: 'Delayed Handover', taskFut: 'ISBAR Clinical Salon ✓', dur: 2.4, show: true },
     { id: 'st-10', retreat: true, roleLabel: 'Instructor', role: 'therapist', gx: 31.1, gy: 9.8, pose: 'YOGA_STRETCH', taskCur: 'No Class', taskFut: 'Yoga Studio Class ✓', dur: 2.2, show: true },
     { id: 'st-11', retreat: true, roleLabel: 'Nurse', role: 'nurse', gx: 26.2, gy: 7.8, pose: 'HANDOVER_INTERACTION', taskCur: 'No Retreat RN', taskFut: 'Suites 301–303 RN ✓', dur: 2.5, show: true },
@@ -99,10 +99,10 @@ const SimApp = (() => {
     { gx: 30.50, gy: 12.7, pose: 'YOGA_STRETCH' },
     { gx: 32.40, gy: 12.7, pose: 'YOGA_STRETCH' },
     { gx: 32.40, gy: 14.2, pose: 'YOGA_STRETCH' },
-    // 5-STAR HOTEL ENTRANCE LOBBY & LOUNGE (x: 19.6..24.6, y: 8.8..16.0) (3)
-    { gx: 22.2, gy: 10.7, pose: 'SITTING' },
-    { gx: 23.0, gy: 10.7, pose: 'SITTING' },
-    { gx: 22.2, gy: 13.7, pose: 'SITTING' },
+    // 5-STAR HOTEL ENTRANCE LOBBY & LOUNGE (x: 22.35..24.45 East Waiting Lounge Zone, clear of x=20.8..22.2 entrance walkthrough) (3)
+    { gx: 22.95, gy: 10.35, pose: 'SITTING' },
+    { gx: 23.75, gy: 10.35, pose: 'SITTING' },
+    { gx: 22.89, gy: 13.25, pose: 'SITTING' },
     // OUTDOOR AL-FRESCO GARDEN BISTRO RESTAURANT PAVILION (x: 34.8..38.5, y: 8.4..15.6) (2)
     { gx: 35.95, gy: 11.55, pose: 'SITTING' }, // Outdoor Garden Bistro Table 1
     { gx: 37.35, gy: 13.95, pose: 'SITTING' }, // Outdoor Garden Bistro Table 2
@@ -458,12 +458,12 @@ const SimApp = (() => {
           ag.pose = 'SITTING';
           return;
         } else if (into18 < 13.5) {
-          // Step down automated side/rear ramp into Luxury Hotel Lobby Entrance (Lobby Bypass!)
+          // Step down automated side/rear ramp into Luxury Hotel Lobby Entrance (Unobstructed Walkthrough at x=21.6!)
           ag.inVehicle = false;
           if (ag.gy > 16.6 || ag.gx < 19.6) {
-            ag.gx = 22.1; ag.gy = 16.35; ag.z = 0;
+            ag.gx = 21.6; ag.gy = 16.35; ag.z = 0;
           }
-          tx = 22.1; ty = 15.3; ag.pose = 'HANDOVER_INTERACTION';
+          tx = 21.6; ty = 14.8; ag.pose = 'HANDOVER_INTERACTION';
           stepKey = 'p0-exit'; stepText = 'Hotel Lobby Bypass → Suite ✓'; ag.taskProg = (into18 - 12.5) / 1.0;
         } else if (into18 < 15.8) {
           tx = 31.8; ty = 6.1; ag.pose = 'HANDOVER_INTERACTION';
@@ -510,11 +510,11 @@ const SimApp = (() => {
         const cPos = (tSec + 2.0) % 12.0;
         const stg = Math.floor(cPos / 4.0);
         if (stg === 0) {
-          tx = 21.8; ty = 10.6; ag.pose = 'SITTING';
+          tx = 21.3; ty = 11.2; ag.pose = 'HANDOVER_INTERACTION';
         } else if (stg === 1) {
-          tx = 21.1; ty = 13.3; ag.pose = 'IDLE';
+          tx = 21.6; ty = 13.8; ag.pose = 'IDLE';
         } else {
-          tx = 22.6; ty = 13.7; ag.pose = 'SITTING';
+          tx = 23.89; ty = 13.25; ag.pose = 'SITTING';
         }
         PH.stepAgentPhysics(ag, tx, ty, dtSec, { baseSpeed: 7.4, corridorY: null, splitX: 18, snap });
         ag.roleLabel = '';
