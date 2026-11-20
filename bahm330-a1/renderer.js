@@ -794,12 +794,16 @@ const IsoRenderer = (() => {
   }
 
   function drawParkBench(gx, gy, alongY = false, faceNorth = false) {
-    PH.furniture(gx, gy, alongY ? 0.55 : 1.45, alongY ? 1.45 : 0.55, alongY ? 1 : 0, k => {
-      // Cast-iron legs + slatted warm teak park bench (100% identical dimensions for North & South benches)
-      k.box(0.08, 0.08, 0, 0.10, 0.40, 4.4, '#334155');
-      k.box(1.26, 0.08, 0, 0.10, 0.40, 4.4, '#334155');
-      k.box(0.05, 0.08, 4.4, 1.34, 0.38, 1.2, '#b47842', { tex: 'deskwood', texAlpha: 0.45 });
-      k.box(0.05, faceNorth ? 0.40 : 0.06, 5.6, 1.34, 0.08, 4.8, '#9a6332');
+    PH.furniture(gx, gy, alongY ? 0.34 : 1.45, alongY ? 1.45 : 0.34, alongY ? 1 : 0, k => {
+      // Slim modern resort teak & cast-iron park bench (matched visual screen height for North & South orientations)
+      k.box(0.08, 0.07, 0, 0.10, 0.20, 4.2, '#334155');
+      k.box(1.26, 0.07, 0, 0.10, 0.20, 4.2, '#334155');
+      k.box(0.05, 0.06, 4.2, 1.34, 0.22, 1.1, '#b47842', { tex: 'deskwood', texAlpha: 0.45 });
+      if (faceNorth) {
+        k.box(0.05, 0.22, 5.3, 1.34, 0.06, 5.0, '#9a6332');
+      } else {
+        k.box(0.05, 0.05, 5.3, 1.34, 0.06, 1.8, '#9a6332');
+      }
     });
   }
 
