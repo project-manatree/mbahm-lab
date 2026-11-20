@@ -1468,17 +1468,17 @@ const IsoRenderer = (() => {
       drawRecreationGamesClubRoom();
       drawYogaStudio();
 
-      // ---------------- MIDDLE RELAXATION & WALKING FOUNTAIN PARK (x: 15..19.6), EAST POOL (y: 2.2..7.6) & EAST GARDEN BISTRO PAVILION (y: 8.4..15.6)
-      // 1. North Shade Tree (x = 17.85) with Park Bench on its inner (south) side facing the Central Fountain
-      drawTreeWithFlowerbed(17.85, 3.15, 1.18, 1);
-      drawParkBench(17.15, 4.35, false, false);
+      // ---------------- MIDDLE RELAXATION & WALKING FOUNTAIN PARK (x: 16.2..19.6, exact centerline x = 17.90)
+      // 1. North Shade Tree (x = 17.90) with Park Bench centered on its inner (south) side facing the Central Fountain
+      drawTreeWithFlowerbed(17.90, 3.15, 1.18, 1);
+      drawParkBench(17.18, 4.35, false, false);
 
       // 2. Central Carved-Stone Cupid Fountain aligned straight with the Building 2 Side Exit Door (y = 7.85) on natural park grass
-      drawGardenFountain(17.85, 7.85);
+      drawGardenFountain(17.90, 7.85);
 
-      // 3. South Shade Tree (original x = 17.85, y = 14.35) with identical-size Park Bench snug right above its inner (north) canopy facing the Central Fountain
-      drawParkBench(16.80, 12.35, false, true);
-      drawTreeWithFlowerbed(17.85, 14.35, 1.18, 0);
+      // 3. South Shade Tree (x = 17.90) with identical-size Park Bench aligned at gx = 17.18 (exact center x = 17.90) facing the Central Fountain
+      drawParkBench(17.18, 12.35, false, true);
+      drawTreeWithFlowerbed(17.90, 14.35, 1.18, 0);
 
       // Continuous Full Perimeter Walking Park Loop around Building B
       drawCobblestonePath(15.3, 1.15, 0.9, 14.85);
