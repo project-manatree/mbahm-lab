@@ -108,7 +108,7 @@ const SimApp = (() => {
     { gx: 37.35, gy: 13.95, pose: 'SITTING' }, // Outdoor Garden Bistro Table 2
     // RESORT GARDEN FOUNTAIN PARK (2) — Strictly Outdoors on Inner Benches under North & South Shade Trees facing Fountain
     { gx: 17.85, gy: 4.70, pose: 'SITTING' },
-    { gx: 17.85, gy: 12.35, pose: 'SITTING' }
+    { gx: 17.85, gy: 11.35, pose: 'SITTING' }
   ];
 
   function setStepBubble(ag, key, text, type, tSec, active, maxSec = 1.8) {
