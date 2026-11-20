@@ -1240,16 +1240,16 @@ const IsoRenderer = (() => {
 
   // 9. Retreat Front-Left (x: 19.6..24.6, y: 8.8..16.0): Subtle, Understated Five-Star Hotel Entrance Lobby, Concierge & Lounge
   function drawLuxuryHotelLobbyDetails() {
-    // Subtle Woven Pearl-Alabaster, Soft Dove-Slate & Muted Champagne-Brass Silk Area Rug (x = 21.35, y = 10.05)
+    // Subtle Woven Pearl-Alabaster, Soft Warm Apricot & Muted Champagne-Brass Silk Area Rug (x = 21.35, y = 10.05)
     PH.furniture(21.35, 10.05, 2.85, 4.25, 0, k => {
       k.top(0, 0, 0.12, 2.85, 4.25, '#faf8f5', { stroke: '#c9a96e', lw: 1.2 });
-      k.top(0.18, 0.18, 0.15, 2.49, 3.89, '#cbd5e1', { stroke: '#e2e8f0', lw: 0.9 });
-      k.top(0.42, 0.42, 0.18, 2.01, 3.41, '#f8fafc', { stroke: '#c9a96e', lw: 0.9 });
+      k.top(0.18, 0.18, 0.15, 2.49, 3.89, '#fed7aa', { stroke: '#f4a261', lw: 0.9 });
+      k.top(0.42, 0.42, 0.18, 2.01, 3.41, '#fff7ed', { stroke: '#c9a96e', lw: 0.9 });
     });
 
-    // Understated Deep-Slate & Muted-Brass Welcome Carpet Runner + Stanchion Posts inside Hotel Main Entrance (x = 21.3, y = 14.7)
+    // Understated Warm Terracotta-Amber & Muted-Brass Welcome Carpet Runner + Stanchion Posts inside Hotel Main Entrance (x = 21.3, y = 14.7)
     PH.furniture(21.3, 14.7, 1.8, 1.25, 0, k => {
-      k.top(0.15, 0.02, 0.14, 1.50, 1.20, '#334155', { stroke: '#c9a96e', lw: 1.2 });
+      k.top(0.15, 0.02, 0.14, 1.50, 1.20, '#e07a5f', { stroke: '#c9a96e', lw: 1.2 });
       k.cyl(0.08, 0.15, 0, 0.07, 8.5, '#c9a96e');
       k.cyl(1.72, 0.15, 0, 0.07, 8.5, '#c9a96e');
       k.cyl(0.08, 1.10, 0, 0.07, 8.5, '#c9a96e');
@@ -1380,15 +1380,15 @@ const IsoRenderer = (() => {
       drawNorthRecoverySuite(26.6, '#fde68a', '#d4af37', '#eab308', 302);
       drawNorthRecoverySuite(30.1, '#7c3aed', '#4c1d95', '#6d28d9', 303);
 
-      // 3. Main Entrance Five-Star Hotel Lobby, Concierge & Espresso Lounge (Front-Left, x: 19.6..24.6, y: 8.8..16 — Subtle Pearl-Alabaster, Muted Slate-Blue & Antique Champagne-Brass)
+      // 3. Main Entrance Five-Star Hotel Lobby, Concierge & Espresso Lounge (Front-Left, x: 19.6..24.6, y: 8.8..16 — Subtle Warm Orange / Hermès Apricot-Terracotta & Antique Brass)
       drawLuxuryHotelLobbyDetails();
       PHSprites.receptionDesk(19.85, 9.4, 1, 2.2, { col: '#c9a96e', wood: '#f8fafc', clutter: false });
       drawWallEventScreen(21.8, 8.92);
       drawEspressoBar(19.85, 12.6);
-      PHSprites.sofa(21.65, 10.3, 0, 1.8, '#f8fafc');
+      PHSprites.sofa(21.65, 10.3, 0, 1.8, '#f4a261');
       drawCoffeeTableAndSet(22.55, 12.2);
-      PHSprites.sofa(21.65, 13.4, 0, 1.8, '#475569');
-      PHSprites.armchair(23.55, 11.4, 0, { col: '#64748b' });
+      PHSprites.sofa(21.65, 13.4, 0, 1.8, '#e07a5f');
+      PHSprites.armchair(23.55, 11.4, 0, { col: '#fb923c' });
       drawIndoorPalm(23.75, 9.2);
       drawIndoorPalm(19.85, 15.1);
 
