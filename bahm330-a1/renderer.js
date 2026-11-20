@@ -795,18 +795,11 @@ const IsoRenderer = (() => {
 
   function drawParkBench(gx, gy, alongY = false, faceNorth = false) {
     PH.furniture(gx, gy, alongY ? 0.55 : 1.45, alongY ? 1.45 : 0.55, alongY ? 1 : 0, k => {
-      // Cast-iron legs + slatted warm teak park bench (identical 1.45 x 0.55 size in both orientations)
+      // Cast-iron legs + slatted warm teak park bench (100% identical dimensions for North & South benches)
       k.box(0.08, 0.08, 0, 0.10, 0.40, 4.4, '#334155');
       k.box(1.26, 0.08, 0, 0.10, 0.40, 4.4, '#334155');
       k.box(0.05, 0.08, 4.4, 1.34, 0.38, 1.2, '#b47842', { tex: 'deskwood', texAlpha: 0.45 });
-      if (faceNorth) {
-        // Slatted backrest on south edge so seat planks remain clearly visible from isometric south view
-        k.box(0.08, 0.40, 5.6, 0.08, 0.07, 4.2, '#334155');
-        k.box(1.28, 0.40, 5.6, 0.08, 0.07, 4.2, '#334155');
-        k.box(0.05, 0.41, 7.6, 1.34, 0.07, 2.2, '#9a6332');
-      } else {
-        k.box(0.05, 0.06, 5.6, 1.34, 0.08, 4.8, '#9a6332');
-      }
+      k.box(0.05, faceNorth ? 0.40 : 0.06, 5.6, 1.34, 0.08, 4.8, '#9a6332');
     });
   }
 
@@ -1472,16 +1465,16 @@ const IsoRenderer = (() => {
       drawYogaStudio();
 
       // ---------------- MIDDLE RELAXATION & WALKING FOUNTAIN PARK (x: 15..19.6), EAST POOL (y: 2.2..7.6) & EAST GARDEN BISTRO PAVILION (y: 8.4..15.6)
-      // 1. North Shade Tree with Park Bench directly under its inner (south) side facing the Central Fountain
-      drawTreeWithFlowerbed(17.85, 3.15, 1.10, 1);
+      // 1. North Shade Tree (x = 17.85) with Park Bench on its inner (south) side facing the Central Fountain
+      drawTreeWithFlowerbed(17.85, 3.15, 1.18, 1);
       drawParkBench(17.15, 4.35, false, false);
 
       // 2. Central Carved-Stone Cupid Fountain aligned straight with the Building 2 Side Exit Door (y = 7.85) on natural park grass
       drawGardenFountain(17.85, 7.85);
 
-      // 3. South Shade Tree with identical-size Park Bench tucked right under its inner-west shade facing the Central Fountain (completely visible!)
-      drawParkBench(16.75, 13.15, false, true);
-      drawTreeWithFlowerbed(18.65, 14.05, 1.10, 0);
+      // 3. South Shade Tree (original x = 17.85) with identical-size Park Bench on its inner (north) side facing the Central Fountain
+      drawParkBench(17.15, 11.65, false, true);
+      drawTreeWithFlowerbed(17.85, 14.35, 1.18, 0);
 
       // Continuous Full Perimeter Walking Park Loop around Building B
       drawCobblestonePath(15.3, 1.15, 0.9, 14.85);
