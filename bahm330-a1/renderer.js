@@ -48,7 +48,7 @@ const IsoRenderer = (() => {
       { x: 23.1, y: 2.6, w: 10.5, d: 4.2, mat: { cur: null, fut: 'travertine' } },  // 3 Private Recovery Suites 301, 302 & 303 (Roman Travertine Stone)
       { x: 19.6, y: 6.8, w: 14.0, d: 2.0, mat: { cur: null, fut: 'marble' } },      // Resort Central White Calacatta Marble Promenade
       { x: 19.6, y: 8.8, w: 5.0, d: 7.2, mat: { cur: null, fut: 'travertine' } },   // Main Entrance 5-Star Subtle Travertine & Pearl Hotel Lobby
-      { x: 24.6, y: 8.8, w: 4.6, d: 7.2, mat: { cur: null, fut: 'ceramicCream' } }, // Recreation & Games Club Room (Ivory Porcelain + Royal Sapphire)
+      { x: 24.6, y: 8.8, w: 4.6, d: 7.2, mat: { cur: null, fut: 'plainLounge' } }, // Recreation & Games Club Room (Seamless Plain Matte Floor — Zero Tiles)
       { x: 29.2, y: 8.8, w: 4.4, d: 7.2, mat: { cur: null, fut: 'oak' } },          // Yoga, Wellness & Movement Studio (Warm Studio Hardwood)
 
       // ---------------- FRONT WALKWAY & CONCIERGE TRANSPORT ROAD (y: 16..20.4)
@@ -611,11 +611,11 @@ const IsoRenderer = (() => {
     });
   }
 
-  function drawYogaMat(gx, gy, col = '#2563eb') {
+  function drawYogaMat(gx, gy, col = '#fef08a') {
     PH.furniture(gx, gy, 1.35, 0.62, 0, k => {
-      k.top(0.04, 0.04, 0.15, 1.26, 0.54, col, { stroke: '#d4af37' });
+      k.top(0.04, 0.04, 0.15, 1.26, 0.54, col, { stroke: '#d4af37', lw: 1.1 });
       k.cyl(0.18, 0.31, 0.2, 0.07, 0.44, '#ffffff');
-    });
+    }, -0.8);
   }
 
   function drawRoundBistroTable(cx, cy) {
@@ -1156,194 +1156,269 @@ const IsoRenderer = (() => {
   }
 
   // Retreat Bottom-Middle (x: 24.6..29.2, y: 8.8..16.0, 4.6 x 7.2): Recreation & Games Club Room
-  // (Gloss Ebony, White Marble, Brushed Gold & Royal Sapphire-Blue Tournament Felt — zero brown, zero green)
+  // Features on Plain Matte Floor (Zero Tiles): 2 SEGA Arcade Machines, Drink/Snack Vending Machine,
+  // Championship Pool Table (with Clear 3D Balls & Pool Sticks), Dartboard & Cozy Cinema Corner
   function drawRecreationGamesClubRoom() {
-    // 1. Wall-Mounted Ebony & Brushed-Gold Billiard Cue Rack on West Wall (x = 24.72, y = 9.55)
-    PH.furniture(24.72, 9.55, 0.28, 1.55, 0, k => {
-      k.box(0.02, 0.04, 2.0, 0.16, 1.46, 17.5, '#0f172a');
-      k.box(0.0, 0.02, 19.5, 0.20, 1.50, 0.9, '#d4af37');
+    // 1. Two Upright Retro SEGA Arcade Cabinets along North-Left Wall (facing +y, left of x=26.1..27.7 entrance)
+    const drawSegaCabinet = (gx, gy, trimCol, marqueeCol, screenAccent) => {
+      PH.furniture(gx, gy, 0.58, 0.72, 0, k => {
+        // Tall dark arcade body & glowing side-art trim strips
+        k.box(0.02, 0.02, 0, 0.54, 0.56, 21.5, '#18181b');
+        k.box(0.0, 0.04, 0.5, 0.05, 0.52, 20.5, trimCol);
+        k.box(0.53, 0.04, 0.5, 0.05, 0.52, 20.5, trimCol);
+        // Protruding backlit SEGA-style marquee header box at top (+v front banner facing camera)
+        k.box(0.02, 0.06, 18.8, 0.54, 0.66, 3.0, '#0f172a');
+        k.panel('+v', 0.725, 0.05, 0.53, 19.0, 21.6, marqueeCol, { layer: 2 });
+        k.panel('+v', 0.73, 0.12, 0.46, 19.7, 20.9, '#ffffff', { layer: 3 });
+        // Recessed CRT arcade monitor screen with vivid retro game art on +v
+        k.panel('+v', 0.585, 0.06, 0.52, 11.4, 18.2, '#090d16', { layer: 2 });
+        k.panel('+v', 0.59, 0.10, 0.48, 12.0, 17.6, '#0f172a', { layer: 3 });
+        k.panel('+v', 0.595, 0.12, 0.46, 12.2, 14.0, '#16a34a', { layer: 4 });
+        k.panel('+v', 0.595, 0.22, 0.36, 13.8, 16.4, screenAccent, { layer: 4 });
+        k.panel('+v', 0.595, 0.12, 0.46, 16.6, 17.4, '#facc15', { layer: 4 });
+        // Protruding arcade control deck with two 3D ball-top joysticks & colorful push buttons
+        k.box(0.02, 0.52, 8.6, 0.54, 0.30, 1.8, '#27272a');
+        k.box(0.04, 0.54, 10.4, 0.50, 0.26, 0.3, trimCol);
+        k.cyl(0.16, 0.68, 10.7, 0.018, 1.5, '#090d16');
+        k.blob(0.16, 0.68, 12.4, 0.045, '#ef4444', 4);
+        k.cyl(0.32, 0.68, 10.7, 0.018, 1.5, '#090d16');
+        k.blob(0.32, 0.68, 12.4, 0.045, '#facc15', 4);
+        k.cyl(0.24, 0.72, 10.7, 0.028, 0.5, '#22c55e');
+        k.cyl(0.42, 0.70, 10.7, 0.028, 0.5, '#ef4444');
+        k.cyl(0.48, 0.73, 10.7, 0.028, 0.5, '#f59e0b');
+        // Lower front coin-slot panel on +v
+        k.panel('+v', 0.585, 0.14, 0.44, 2.2, 7.2, '#27272a', { layer: 2 });
+        k.panel('+v', 0.59, 0.20, 0.26, 4.4, 6.2, '#f97316', { layer: 3 });
+        k.panel('+v', 0.59, 0.32, 0.38, 4.4, 6.2, '#f97316', { layer: 3 });
+      });
+    };
+    drawSegaCabinet(24.76, 8.95, '#dc2626', '#facc15', '#ef4444');
+    drawSegaCabinet(25.42, 8.95, '#ea580c', '#dc2626', '#38bdf8');
+
+    // 2. Illuminated Snack & Cold-Drink Vending Machine along North-Right Wall (facing +y, right of entrance)
+    PH.furniture(27.92, 8.95, 1.06, 0.72, 0, k => {
+      // Classic crimson-ruby vending cabinet & top brushed trim
+      k.box(0.02, 0.02, 0, 1.02, 0.66, 22.2, '#991b1b');
+      k.box(0.0, 0.0, 22.2, 1.06, 0.70, 0.8, '#e2e8f0');
+      k.box(0.04, 0.64, 0.8, 0.98, 0.06, 21.4, '#18181b');
+      // Stocked backlit glass display front (+v) with 4 shelves of colorful drinks & snacks
+      k.panel('+v', 0.705, 0.07, 0.72, 6.2, 20.8, '#f8fafc', { layer: 2 });
+      const shelfColors = [
+        ['#ef4444', '#f97316', '#facc15', '#22c55e', '#38bdf8'],
+        ['#eab308', '#a855f7', '#ec4899', '#ef4444', '#22c55e'],
+        ['#38bdf8', '#22c55e', '#f97316', '#facc15', '#dc2626'],
+        ['#fb923c', '#ef4444', '#a855f7', '#38bdf8', '#16a34a']
+      ];
+      [17.6, 14.3, 11.0, 7.7].forEach((sz, rIdx) => {
+        k.panel('+v', 0.71, 0.09, 0.70, sz - 0.5, sz, '#334155', { layer: 3 });
+        shelfColors[rIdx].forEach((pCol, cIdx) => {
+          const px0 = 0.11 + cIdx * 0.118;
+          k.panel('+v', 0.712, px0, px0 + 0.085, sz + 0.1, sz + 2.3, pCol, { layer: 4 });
+        });
+      });
+      // Right-side digital selection keypad, green LED display & coin acceptor
+      k.panel('+v', 0.705, 0.76, 0.98, 7.5, 19.2, '#27272a', { layer: 2 });
+      k.panel('+v', 0.71, 0.79, 0.95, 16.4, 18.4, '#10b981', { layer: 3 });
+      k.panel('+v', 0.71, 0.79, 0.95, 11.8, 15.6, '#cbd5e1', { layer: 3 });
+      k.panel('+v', 0.71, 0.83, 0.91, 9.0, 10.6, '#f59e0b', { layer: 3 });
+      // Bottom pickup dispense flap chute
+      k.panel('+v', 0.705, 0.09, 0.72, 1.4, 4.8, '#090d16', { layer: 2 });
+      k.panel('+v', 0.71, 0.13, 0.68, 3.6, 4.4, '#cbd5e1', { layer: 3 });
+    });
+
+    // 3. West-Wall Walnut & Brass Pool Cue Stick Rack (x = 24.68, y = 10.35)
+    PH.furniture(24.68, 10.35, 0.24, 1.50, 0, k => {
+      k.box(0.02, 0.04, 2.0, 0.14, 1.42, 17.5, '#3b1f0e');
+      k.box(0.0, 0.02, 19.2, 0.18, 1.46, 0.8, '#d4af37');
       for (const cy of [0.22, 0.44, 0.66, 0.88, 1.10, 1.32]) {
-        k.cyl(0.14, cy, 3.0, 0.025, 15.6, '#f8fafc');
+        k.cyl(0.12, cy, 2.6, 0.024, 6.2, '#3b1f0e');
+        k.cyl(0.12, cy, 8.8, 0.020, 9.6, '#fde68a');
+        k.cyl(0.12, cy, 18.4, 0.020, 0.7, '#38bdf8');
       }
     });
 
-    // 2. Championship Royal-Sapphire Blue Felt, Gloss-Ebony & Brushed-Gold Billiards / Pool Table (x = 25.15, y = 9.55, w = 2.25, d = 1.38)
-    PH.furniture(25.15, 9.55, 2.25, 1.38, 0, k => {
-      // Woven pearl-white & gold silk club carpet beneath billiards table
-      k.top(-0.18, -0.18, 0.10, 2.61, 1.74, '#ffffff', { stroke: '#d4af37', lw: 1.4 });
-      k.top(-0.08, -0.08, 0.13, 2.41, 1.54, '#f1f5f9', { stroke: '#94a3b8', lw: 0.9 });
-      // 4 gloss-ebony pedestal legs with brushed-gold feet
-      for (const [lx, ly] of [[0.14, 0.14], [1.85, 0.14], [0.14, 0.98], [1.85, 0.98]]) {
-        k.box(lx, ly, 0, 0.26, 0.26, 1.4, '#d4af37');
-        k.box(lx + 0.02, ly + 0.02, 1.4, 0.22, 0.22, 6.2, '#0f172a');
+    // 4. Championship Pool / Billiards Table with Clear 3D Balls & Two-Tone Pool Sticks (x = 24.98, y = 10.35, w = 2.55, d = 1.40)
+    PH.furniture(24.98, 10.35, 2.55, 1.40, 0, k => {
+      // 4 carved walnut pedestal legs with brushed-brass feet (sits directly on clean plain floor)
+      for (const [lx, ly] of [[0.14, 0.14], [2.15, 0.14], [0.14, 1.00], [2.15, 1.00]]) {
+        k.box(lx, ly, 0, 0.26, 0.26, 1.3, '#d4af37');
+        k.box(lx + 0.02, ly + 0.02, 1.3, 0.22, 0.22, 6.0, '#3b1f0e');
       }
-      // Gloss-ebony & brushed-gold slate cabinet
-      k.box(0.06, 0.06, 7.2, 2.13, 1.26, 2.4, '#0f172a');
-      k.box(0.02, 0.02, 9.6, 2.21, 1.34, 1.4, '#1e293b');
-      // Rich Royal-Bordeaux / Burgundy tournament baize felt playing surface (Five-Star Mayfair Club style, zero blue)
-      k.top(0.16, 0.16, 11.05, 1.93, 1.06, '#7e3b45', { stroke: '#d4af37', lw: 1.2 });
-      k.top(0.22, 0.22, 11.10, 1.81, 0.94, '#881337');
-      // 6 brushed-gold & onyx billiard pockets (4 corners + 2 side pockets)
-      for (const [px, py] of [[0.14, 0.14], [1.12, 0.12], [2.10, 0.14], [0.14, 1.24], [1.12, 1.26], [2.10, 1.24]]) {
-        k.cyl(px, py, 10.6, 0.09, 0.6, '#d4af37');
-        k.cyl(px, py, 10.9, 0.065, 0.4, '#0f172a');
+      // Mahogany & dark walnut apron body with brushed-brass corner brackets
+      k.box(0.06, 0.06, 7.2, 2.43, 1.28, 2.4, '#3b1f0e');
+      k.box(0.02, 0.02, 9.6, 2.51, 1.36, 1.4, '#5c3317');
+      // Classic Tournament Emerald Baize Felt surface + crisp white break line
+      k.top(0.16, 0.16, 11.05, 2.23, 1.08, '#166534', { stroke: '#d4af37', lw: 1.2 });
+      k.top(0.22, 0.22, 11.10, 2.11, 0.96, '#15803d');
+      k.top(0.76, 0.22, 11.12, 0.03, 0.96, 'rgba(255,255,255,0.65)');
+      // 6 brass & leather billiard pockets (4 corners + 2 side pockets)
+      for (const [px, py] of [[0.14, 0.14], [1.275, 0.12], [2.41, 0.14], [0.14, 1.26], [1.275, 1.28], [2.41, 1.26]]) {
+        k.cyl(px, py, 10.6, 0.105, 0.65, '#d4af37');
+        k.cyl(px, py, 10.9, 0.078, 0.45, '#090d16');
       }
-      // Racked colorful billiard balls + white cue ball + brass triangle rack + chalk + 2 cues
+      // 12 Glossy 3D Billiard Balls (white cue ball + colorful triangle rack + 2 active balls)
       const balls = [
-        [0.62, 0.69, '#ffffff'],
-        [1.42, 0.69, '#facc15'],
-        [1.54, 0.61, '#ef4444'], [1.54, 0.77, '#f97316'],
-        [1.66, 0.53, '#fde047'], [1.66, 0.69, '#0f172a'], [1.66, 0.85, '#f472b6']
+        [0.66, 0.70, '#ffffff'],
+        [1.62, 0.70, '#facc15'],
+        [1.74, 0.61, '#ef4444'], [1.74, 0.79, '#2563eb'],
+        [1.86, 0.52, '#f97316'], [1.86, 0.70, '#111827'], [1.86, 0.88, '#9333ea'],
+        [1.98, 0.44, '#be123c'], [1.98, 0.61, '#eab308'], [1.98, 0.79, '#0d9488'], [1.98, 0.96, '#dc2626'],
+        [1.12, 0.36, '#ef4444'], [1.26, 1.04, '#facc15']
       ];
       for (const [bx, by, bcol] of balls) {
-        k.cyl(bx, by, 11.15, 0.048, 0.75, bcol);
+        k.blob(bx, by, 11.65, 0.082, bcol, 3);
       }
-      // Brass triangle rack & chalk cubes on corner rails
-      k.box(1.36, 0.50, 11.15, 0.04, 0.38, 0.4, '#d4af37');
-      k.box(0.22, 0.08, 11.15, 0.07, 0.07, 0.45, '#f8fafc');
-      k.box(2.02, 1.24, 11.15, 0.07, 0.07, 0.45, '#7e3b45');
-      k.box(0.32, 0.35, 11.2, 0.95, 0.03, 0.3, '#f8fafc');
-      k.box(0.85, 0.98, 11.2, 0.95, 0.03, 0.3, '#fde68a');
-      // Overhead Brass & Amber-Glass Billiard Chandelier Light Bar suspended above table
-      k.cyl(0.68, 0.69, 24.5, 0.19, 1.4, '#d4af37');
-      k.cyl(0.68, 0.69, 23.8, 0.16, 0.8, '#fef08a');
-      k.cyl(1.56, 0.69, 24.5, 0.19, 1.4, '#d4af37');
-      k.cyl(1.56, 0.69, 23.8, 0.16, 0.8, '#fef08a');
-      k.box(0.66, 0.66, 25.9, 0.92, 0.06, 0.5, '#d4af37');
+      // Chalk cubes resting on corner wooden rails
+      k.box(0.24, 0.06, 11.05, 0.08, 0.08, 0.55, '#38bdf8');
+      k.box(2.26, 1.28, 11.05, 0.08, 0.08, 0.55, '#38bdf8');
+      // 2 Prominent Two-Tone Pool Sticks (Cues) resting across/on the table
+      // Cue 1 (front-left rail aiming toward white cue ball)
+      k.line(0.04, 1.44, 12.10, 0.30, 1.12, 11.95, '#3b1f0e', 3.8, 4);
+      k.line(0.30, 1.12, 11.95, 0.55, 0.82, 11.75, '#fde68a', 2.6, 4);
+      k.line(0.55, 0.82, 11.75, 0.58, 0.78, 11.73, '#38bdf8', 2.6, 4);
+      // Cue 2 (resting diagonally along far-right rail)
+      k.line(2.44, 0.14, 11.80, 1.90, 0.20, 11.75, '#3b1f0e', 3.6, 4);
+      k.line(1.90, 0.20, 11.75, 1.22, 0.28, 11.70, '#fde68a', 2.5, 4);
+      k.line(1.22, 0.28, 11.70, 1.18, 0.285, 11.70, '#38bdf8', 2.5, 4);
     });
 
-    // 3. Concert Ebony & Brushed-Gold Baby Grand Piano + Pearl-White Leather Piano Bench (x = 25.05, y = 12.95)
-    PH.furniture(25.05, 12.95, 1.85, 1.75, 0, k => {
-      for (const [lx, ly] of [[0.18, 0.18], [1.48, 0.22], [0.24, 1.38]]) {
-        k.cyl(lx, ly, 0, 0.06, 1.2, '#d4af37');
-        k.cyl(lx, ly, 1.2, 0.07, 6.8, '#0f172a');
-      }
-      k.box(0.28, 0.78, 0, 0.12, 0.28, 7.6, '#d4af37');
-      k.box(0.12, 0.12, 8.0, 1.12, 1.48, 3.6, '#0f172a');
-      k.box(1.12, 0.16, 8.0, 0.56, 1.06, 3.6, '#0f172a');
-      k.top(0.20, 0.20, 11.7, 1.40, 1.28, '#d4af37', { stroke: '#eab308' });
-      k.box(0.18, 0.16, 14.8, 1.42, 1.26, 0.5, '#1e293b');
-      k.cyl(1.42, 1.28, 11.7, 0.025, 3.4, '#d4af37');
-      k.box(0.02, 0.22, 9.2, 0.22, 1.24, 1.4, '#f8fafc');
-      k.box(0.08, 0.26, 10.6, 0.12, 1.16, 0.4, '#1e293b');
-      k.box(0.22, 0.56, 11.7, 0.08, 0.52, 2.8, '#f8fafc');
-      // Pearl-white & gold tufted piano bench
-      k.box(0.32, 1.56, 0, 0.74, 0.34, 5.4, '#d4af37');
-      k.box(0.30, 1.54, 5.4, 0.78, 0.38, 1.2, '#ffffff');
+    // 5. East-Wall Tournament Dartboard & High-Top Club Chalk/Drinks Pedestal (x = 28.0..29.1, y = 10.3..12.2)
+    PH.furniture(28.92, 10.35, 0.20, 0.95, 0, k => {
+      k.box(0.02, 0.04, 10.0, 0.12, 0.86, 11.5, '#18181b');
+      k.cyl(0.05, 0.47, 15.6, 0.32, 0.4, '#faf8f5');
+      k.cyl(0.03, 0.47, 15.6, 0.20, 0.5, '#dc2626');
+      k.cyl(0.01, 0.47, 15.6, 0.08, 0.6, '#16a34a');
+    });
+    PH.furniture(28.12, 11.42, 0.58, 0.58, 0, k => {
+      k.cyl(0.29, 0.29, 0, 0.20, 1.0, '#d4af37');
+      k.cyl(0.29, 0.29, 1.0, 0.05, 8.0, '#18181b');
+      k.cyl(0.29, 0.29, 9.0, 0.28, 0.9, '#3b1f0e');
+      k.part(0.29, 0.29, 1, () => k.now.disc(0.29, 0.29, 9.95, 0.27, '#5c3317', '#d4af37'));
+      k.cyl(0.22, 0.24, 10.0, 0.045, 1.3, '#f59e0b');
+      k.cyl(0.36, 0.33, 10.0, 0.045, 1.3, '#ef4444');
     });
 
-    // 4. VIP White-Marble & Brushed-Gold Mahjong Table with Champagne-Camel Velvet Surface & Burgundy Club Chairs (x = 27.65, y = 9.75)
-    PH.furniture(27.65, 9.75, 1.22, 1.22, 0, k => {
-      // 2 pearl-white & royal-burgundy velvet club chairs (North & South of Mahjong table)
-      k.box(0.38, -0.26, 0, 0.46, 0.36, 5.2, '#f8fafc');
-      k.box(0.38, -0.28, 5.2, 0.46, 0.10, 5.4, '#7e3b45');
-      k.box(0.38, 1.12, 0, 0.46, 0.36, 5.2, '#f8fafc');
-      k.box(0.38, 1.38, 5.2, 0.46, 0.10, 5.4, '#7e3b45');
-      // Square white Calacatta marble & gold mahjong table with warm champagne-camel velvet surface
-      k.cyl(0.61, 0.61, 0, 0.26, 1.0, '#d4af37');
-      k.cyl(0.61, 0.61, 1.0, 0.10, 7.6, '#e2e8f0');
-      k.box(0.08, 0.08, 8.6, 1.06, 1.06, 1.6, '#ffffff');
-      k.top(0.16, 0.16, 10.25, 0.90, 0.90, '#c89b6e', { stroke: '#d4af37', lw: 1.1 });
-      // 4 miniature ivory & gold mahjong tile walls + center dice puck + 4 porcelain tea cups
-      k.box(0.30, 0.26, 10.3, 0.62, 0.06, 0.7, '#ffffff');
-      k.box(0.30, 0.90, 10.3, 0.62, 0.06, 0.7, '#ffffff');
-      k.box(0.26, 0.32, 10.3, 0.06, 0.56, 0.7, '#ffffff');
-      k.box(0.90, 0.32, 10.3, 0.06, 0.56, 0.7, '#ffffff');
-      k.cyl(0.61, 0.61, 10.3, 0.08, 0.4, '#d4af37');
-      for (const [tx, ty] of [[0.22, 0.22], [1.00, 0.22], [0.22, 1.00], [1.00, 1.00]]) {
-        k.cyl(tx, ty, 10.3, 0.045, 0.8, '#faf8f5');
+    // 6. Cozy Private Cinema Corner (x: 25.45..28.90, y: 12.85..15.60)
+    // Solid matte dark charcoal cinema zone mat (zero pattern/tiles)
+    PH.furniture(25.45, 12.85, 3.45, 2.75, 0, k => {
+      k.top(0, 0, 0.10, 3.45, 2.75, '#27272a', { stroke: '#d4af37', lw: 1.2 });
+    }, -0.9);
+
+    // Wide 16:9 Illuminated Cinema Screen, Theater Curtains, Soundbar & Tower Speakers (facing +y)
+    PH.furniture(25.65, 12.95, 2.95, 0.45, 0, k => {
+      // Matte black media console & brushed-gold soundbar
+      k.box(0.30, 0.06, 0, 2.35, 0.34, 4.5, '#18181b');
+      k.box(0.65, 0.14, 4.5, 1.65, 0.22, 1.0, '#d4af37');
+      // Floor-standing left & right tower speakers
+      for (const sx of [0.02, 2.69]) {
+        k.box(sx, 0.06, 0, 0.24, 0.32, 14.8, '#111827');
+        k.panel('+v', 0.385, sx + 0.04, sx + 0.20, 8.2, 12.6, '#c89b6e', { layer: 2 });
+        k.panel('+v', 0.385, sx + 0.04, sx + 0.20, 2.8, 7.0, '#c89b6e', { layer: 2 });
       }
+      // Cinema screen frame + velvet curtains + colorful illuminated movie scene on +v
+      k.box(0.30, 0.08, 6.0, 2.35, 0.30, 11.6, '#090d16');
+      k.panel('+v', 0.385, 0.32, 0.50, 6.2, 17.4, '#991b1b', { layer: 2 });
+      k.panel('+v', 0.385, 2.45, 2.63, 6.2, 17.4, '#991b1b', { layer: 2 });
+      k.panel('+v', 0.385, 0.50, 2.45, 6.5, 17.1, '#1e1b4b', { layer: 2 });
+      k.panel('+v', 0.39, 0.52, 2.43, 10.0, 15.8, '#7c2d12', { layer: 3 });
+      k.panel('+v', 0.395, 0.52, 2.43, 8.2, 12.6, '#d97706', { layer: 4 });
+      k.panel('+v', 0.40, 1.18, 1.78, 11.2, 14.8, '#fbbf24', { layer: 5 });
+      k.panel('+v', 0.40, 0.52, 2.43, 6.6, 8.4, '#0f172a', { layer: 5 });
     });
 
-    // 5. White Calacatta Marble & Brushed-Gold Royal Chess Table with Tall 3D Chess Pieces & Brass Clock (x = 27.65, y = 12.95)
-    PH.furniture(27.65, 12.95, 1.22, 1.22, 0, k => {
-      // 2 pearl-white & champagne-gold velvet club chairs
-      k.box(0.38, -0.26, 0, 0.46, 0.36, 5.2, '#f8fafc');
-      k.box(0.38, -0.28, 5.2, 0.46, 0.10, 5.4, '#d4af37');
-      k.box(0.38, 1.12, 0, 0.46, 0.36, 5.2, '#f8fafc');
-      k.box(0.38, 1.38, 5.2, 0.46, 0.10, 5.4, '#d4af37');
-      // White marble & gold pedestal table with checkered chessboard inlay
-      k.cyl(0.61, 0.61, 0, 0.26, 1.0, '#d4af37');
-      k.cyl(0.61, 0.61, 1.0, 0.10, 7.6, '#e2e8f0');
-      k.box(0.10, 0.10, 8.6, 1.02, 1.02, 1.6, '#ffffff');
-      k.top(0.22, 0.22, 10.25, 0.78, 0.78, '#f8fafc', { stroke: '#d4af37', lw: 1.1 });
-      k.top(0.32, 0.32, 10.30, 0.28, 0.28, '#1e293b');
-      k.top(0.60, 0.60, 10.30, 0.28, 0.28, '#1e293b');
-      // Sculpted 3D Gold & Ebony King/Queen/Rook chess pieces + brass chess clock
-      for (const [i, px] of [[0, 0.36], [1, 0.51], [2, 0.66], [3, 0.81]]) {
-        const h = (i === 1 || i === 2) ? 1.8 : 1.3;
-        k.cyl(px, 0.36, 10.35, 0.042, h, '#d4af37');
-        k.cyl(px, 0.84, 10.35, 0.042, h, '#1e293b');
-      }
-      k.box(1.02, 0.50, 10.30, 0.10, 0.22, 0.9, '#d4af37');
+    // Low Walnut Cinema Coffee Table with Red-Striped Popcorn Bucket & Soda Cups
+    PH.furniture(26.35, 13.80, 1.55, 0.46, 0, k => {
+      k.box(0.06, 0.06, 0, 1.43, 0.34, 3.4, '#4a2c1d', { top: '#6d442b' });
+      // Popcorn bucket (crimson bucket + white stripe + yellow popcorn top)
+      k.cyl(0.68, 0.23, 3.4, 0.11, 2.2, '#dc2626');
+      k.cyl(0.68, 0.23, 4.1, 0.115, 0.7, '#ffffff');
+      k.blob(0.68, 0.23, 5.7, 0.12, '#fef08a', 4);
+      // Two soda cups with white straws
+      k.cyl(0.32, 0.23, 3.4, 0.055, 1.7, '#ef4444');
+      k.cyl(0.32, 0.23, 5.1, 0.015, 1.1, '#ffffff');
+      k.cyl(1.18, 0.23, 3.4, 0.055, 1.7, '#f59e0b');
+      k.cyl(1.18, 0.23, 5.1, 0.015, 1.1, '#ffffff');
     });
 
-    // 6. Wall-Mounted Tournament Dartboard Cabinet & Board-Game Vitrine on East Side of Club Room
-    PH.furniture(28.88, 11.4, 0.22, 1.05, 0, k => {
-      k.box(0.02, 0.04, 10.0, 0.14, 0.96, 12.0, '#0f172a');
-      k.cyl(0.06, 0.52, 15.8, 0.34, 0.4, '#faf8f5');
-      k.cyl(0.04, 0.52, 15.8, 0.22, 0.5, '#7e3b45');
-      k.cyl(0.02, 0.52, 15.8, 0.08, 0.6, '#d4af37');
+    // 3-Seat Plush Burgundy Velvet Cinema Recliner Row (facing north toward the cinema screen)
+    PH.furniture(25.65, 14.55, 2.95, 0.85, 0, k => {
+      // Base frame & 3 wide individual burgundy recliner cushions
+      k.box(0.04, 0.06, 0, 2.87, 0.72, 3.0, '#18181b');
+      for (let i = 0; i < 3; i++) {
+        const sx = 0.14 + i * 0.94;
+        k.box(sx, 0.06, 3.0, 0.78, 0.62, 1.6, '#881337', { tex: 'fabric', texAlpha: 0.4 });
+        k.box(sx, 0.64, 4.6, 0.78, 0.18, 4.4, '#7e3b45', { tex: 'fabric', texAlpha: 0.4 });
+      }
+      // 4 Padded recliner armrests with brass/dark cupholder dots
+      for (const ax of [0.02, 0.92, 1.86, 2.78]) {
+        k.box(ax, 0.08, 3.0, 0.15, 0.70, 3.2, '#4c0519');
+        k.cyl(ax + 0.075, 0.22, 6.2, 0.04, 0.3, '#d4af37');
+      }
+    }, -1.2);
+
+    // 7. Bottom-Left Warm Brass Floor Lamp & Corner Tropical Palm beside Cinema Corner
+    PH.furniture(24.82, 13.30, 0.45, 0.45, 0, k => {
+      k.cyl(0.22, 0.22, 0, 0.15, 0.9, '#d4af37');
+      k.cyl(0.22, 0.22, 0.9, 0.035, 13.0, '#d4af37');
+      k.cyl(0.22, 0.22, 13.9, 0.17, 3.4, '#fef3c7');
     });
-    PH.furniture(27.55, 14.95, 1.35, 0.62, 0, k => {
-      k.box(0.04, 0.04, 0, 1.26, 0.54, 8.8, '#0f172a');
-      k.box(0.02, 0.02, 8.8, 1.30, 0.58, 0.9, '#d4af37');
-      // Stacked luxury board-game boxes (Backgammon, Cards) & crystal water carafe
-      k.box(0.18, 0.14, 9.7, 0.44, 0.34, 1.4, '#7e3b45');
-      k.box(0.22, 0.16, 11.1, 0.36, 0.28, 1.1, '#c89b6e');
-      k.cyl(0.98, 0.30, 9.7, 0.09, 2.6, '#f8fafc');
-    });
+    drawIndoorPalm(24.78, 14.85);
   }
 
-  // Retreat Bottom-Right (x: 29.2..33.6, y: 8.8..16.0, 4.4 x 7.2): Yoga, Wellness & Movement Studio (beside East Pool & Terrace)
+  // Retreat Bottom-Right (x: 29.2..33.6, y: 8.8..16.0, 4.4 x 7.2): Yoga, Wellness & Movement Studio
+  // 4 soft-yellow yoga mats + raised wooden instructor stage at the bottom (south) wall
   function drawYogaStudio() {
-    // Floor-to-ceiling crystal mirror wall & brushed-gold ballet/stretch barre along the south wall
-    PH.furniture(29.45, 15.62, 3.9, 0.3, 0, k => {
-      k.box(0.0, 0.18, 0, 3.9, 0.08, 24.0, '#e0f2fe', { alpha: 0.75 });
-      k.box(0.0, 0.16, 0, 3.9, 0.12, 0.8, '#d4af37');
-      k.box(0.0, 0.02, 10.2, 3.9, 0.08, 0.8, '#d4af37');
-      for (const px of [0.2, 1.4, 2.6, 3.7]) k.box(px, 0.04, 0, 0.06, 0.12, 10.2, '#d4af37');
-    });
-    // White marble instructor platform with sound-healing golden gong (front of class)
-    PH.furniture(29.45, 9.05, 0.95, 1.35, 0, k => {
-      k.box(0.06, 0.08, 0, 0.84, 1.20, 1.6, '#ffffff');
-      k.cyl(0.42, 0.22, 1.6, 0.04, 15.0, '#d4af37');
-      k.cyl(0.42, 1.08, 1.6, 0.04, 15.0, '#d4af37');
-      k.box(0.38, 0.18, 16.4, 0.10, 0.96, 0.8, '#d4af37');
-      k.box(0.40, 0.38, 5.4, 0.06, 0.54, 9.4, '#facc15');
-    });
-    // 6 Yoga mats in a calm 5-Star Spa Champagne-Taupe, Royal-Burgundy & Warm-Sandstone palette (zero blue)
-    const mats = [
-      [29.85, 10.9, '#c89b6e'], [31.75, 10.9, '#7e3b45'],
-      [29.85, 12.4, '#7e3b45'], [31.75, 12.4, '#c89b6e'],
-      [29.85, 13.9, '#a88b73'], [31.75, 13.9, '#7e3b45']
-    ];
-    for (const [mx, my, mc] of mats) drawYogaMat(mx, my, mc);
-    // 3D Yoga Blocks & Cylindrical Meditation Bolsters beside mats so studio has vertical depth
-    PH.furniture(31.22, 10.95, 0.42, 0.48, 0, k => {
-      k.box(0.06, 0.08, 0, 0.22, 0.14, 1.4, '#c89b6e');
-      k.box(0.06, 0.08, 1.4, 0.22, 0.14, 1.4, '#7e3b45');
-      k.cyl(0.22, 0.34, 0, 0.11, 1.8, '#faf8f5');
-    });
-    PH.furniture(31.22, 13.95, 0.42, 0.48, 0, k => {
-      k.box(0.06, 0.08, 0, 0.22, 0.14, 1.4, '#a88b73');
-      k.cyl(0.22, 0.34, 0, 0.11, 1.8, '#c89b6e');
-    });
-    // Stability Pilates Balls & Warm Glowing Ambient Spa Lanterns near mirror wall
-    PH.furniture(32.55, 14.55, 0.85, 0.85, 0, k => {
-      k.blob(0.32, 0.32, 2.8, 0.28, '#c89b6e', 4);
-      k.blob(0.62, 0.56, 2.5, 0.24, '#f8fafc', 4);
-    });
-    PH.furniture(29.45, 14.85, 0.45, 0.45, 0, k => {
-      k.cyl(0.22, 0.22, 0, 0.12, 1.2, '#d4af37');
-      k.cyl(0.22, 0.22, 1.2, 0.10, 4.2, '#fed7aa');
-    });
-    // White marble & gold props shelf with kettlebells, rolled mats, towels & infused-water dispenser
+    // Clean North wall corners (keeping sliding door x=30.6..32.2 open): Indoor palm + Props Shelf
+    drawIndoorPalm(29.45, 9.05);
     PH.furniture(32.35, 9.05, 0.98, 0.5, 0, k => {
       k.box(0.04, 0.04, 0, 0.90, 0.42, 9.0, '#f8fafc');
       k.box(0.02, 0.02, 9.0, 0.94, 0.46, 0.8, '#d4af37');
-      for (const [px, c] of [[0.18, '#c89b6e'], [0.42, '#7e3b45'], [0.66, '#a88b73']]) k.cyl(px, 0.22, 9.8, 0.09, 2.6, c);
+      for (const [px, c] of [[0.18, '#fef08a'], [0.42, '#faf8f5'], [0.66, '#fde68a']]) k.cyl(px, 0.22, 9.8, 0.09, 2.6, c);
       k.cyl(0.82, 0.22, 9.8, 0.08, 3.2, '#fef08a');
+    });
+
+    // Exactly 4 Soft-Yellow Yoga Mats (2x2 grid facing the instructor stage at the bottom wall)
+    const mats = [
+      [29.75, 10.45, '#fef08a'], [31.70, 10.45, '#fef08a'],
+      [29.75, 12.15, '#fef08a'], [31.70, 12.15, '#fef08a']
+    ];
+    for (const [mx, my, mc] of mats) drawYogaMat(mx, my, mc);
+
+    // Compact Yoga Block & Bolster stack cleanly between Row 1 and Row 2
+    PH.furniture(31.22, 11.45, 0.42, 0.48, 0, k => {
+      k.box(0.06, 0.08, 0, 0.22, 0.14, 1.4, '#e6ccb2');
+      k.box(0.06, 0.08, 1.4, 0.22, 0.14, 1.4, '#d4af37');
+      k.cyl(0.22, 0.34, 0, 0.11, 1.8, '#faf8f5');
+    });
+
+    // Raised Wooden & Brushed-Gold Instructor Stage along the Bottom (South) Wall (x = 30.15, y = 14.30)
+    PH.furniture(30.15, 14.30, 2.50, 1.35, 0, k => {
+      // North-facing entry step riser & gold trim
+      k.box(0.35, -0.22, 0, 1.80, 0.26, 1.6, '#b08253', { tex: 'deskwood', texAlpha: 0.4 });
+      k.box(0.35, -0.23, 1.5, 1.80, 0.04, 0.25, '#d4af37');
+      // Main raised stage deck with brushed-gold trim
+      k.box(0.0, 0.04, 0, 2.50, 1.28, 3.2, '#8c6239', { top: '#d9b382', tex: 'deskwood', texAlpha: 0.45 });
+      k.box(-0.02, 0.02, 3.1, 2.54, 1.32, 0.35, '#d4af37');
+      // Instructor's soft-yellow mat + white head bolster centered on top of stage
+      k.top(0.58, 0.36, 3.55, 1.34, 0.56, '#fef08a', { stroke: '#d4af37', lw: 1.1 });
+      k.cyl(0.72, 0.64, 3.60, 0.065, 0.42, '#ffffff');
+      // Pair of warm glowing spa lanterns on stage front corners
+      for (const lx of [0.18, 2.32]) {
+        k.cyl(lx, 0.20, 3.5, 0.09, 0.9, '#d4af37');
+        k.cyl(lx, 0.20, 4.4, 0.075, 2.8, '#fde68a');
+      }
+    }, -1.2);
+
+    // Golden Sound-Healing Gong (bottom-left beside stage) & Pilates Balls (bottom-right beside stage)
+    PH.furniture(29.38, 14.45, 0.62, 0.95, 0, k => {
+      k.cyl(0.31, 0.16, 0, 0.04, 13.0, '#d4af37');
+      k.cyl(0.31, 0.78, 0, 0.04, 13.0, '#d4af37');
+      k.box(0.27, 0.12, 12.8, 0.08, 0.70, 0.7, '#d4af37');
+      k.box(0.29, 0.24, 4.2, 0.05, 0.46, 7.6, '#facc15');
+    });
+    PH.furniture(32.80, 14.60, 0.72, 0.78, 0, k => {
+      k.blob(0.24, 0.24, 2.4, 0.22, '#fef08a', 3);
+      k.blob(0.50, 0.50, 2.2, 0.20, '#faf8f5', 3);
     });
   }
 

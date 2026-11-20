@@ -196,6 +196,10 @@
   defMat('ceramic', 1, tileGen('#eef1f2', '#c3c9cc', 4));
   defMat('ceramicBlue', 1, tileGen('#d8e8ef', '#a9bec8', 4));
   defMat('ceramicCream', 1, tileGen('#f7f2e7', '#dfd6c3', 3));
+  defMat('plainLounge', 2, (g, size) => {
+    g.fillStyle = '#ede8df';
+    g.fillRect(0, 0, size, size);
+  });
   defMat('oak', 2, woodGen('#c39762', 8, 'x'));
   defMat('oakY', 2, woodGen('#c39762', 8, 'y'));
   defMat('walnut', 2, woodGen('#7d5537', 8, 'x'));

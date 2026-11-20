@@ -34,7 +34,7 @@ const SimApp = (() => {
     { id: 'st-7', roleLabel: 'Concierge', role: 'concierge', gx: 12.7, gy: 16.2, pose: 'HANDOVER_INTERACTION', taskCur: 'Rank 2: Van Lag (45m)', taskFut: 'Hard-Stop ISBAR Gate ✓', dur: 2.2, show: true },
     { id: 'st-8', retreat: true, roleLabel: 'Concierge', role: 'concierge', gx: 20.15, gy: 11.0, pose: 'TYPING_TERMINAL', taskCur: 'Duplicate Intake (25m)', taskFut: 'Hotel Lobby Concierge ✓', dur: 2.0, show: true },
     { id: 'st-9', retreat: true, roleLabel: 'Doctor', role: 'doctor', gx: 20.55, gy: 2.85, pose: 'EXAMINING', taskCur: 'Delayed Handover', taskFut: 'ISBAR Clinical Salon ✓', dur: 2.4, show: true },
-    { id: 'st-10', retreat: true, roleLabel: 'Instructor', role: 'therapist', gx: 31.1, gy: 9.8, pose: 'YOGA_STRETCH', taskCur: 'No Class', taskFut: 'Yoga Studio Class ✓', dur: 2.2, show: true },
+    { id: 'st-10', retreat: true, roleLabel: 'Instructor', role: 'therapist', gx: 31.40, gy: 14.95, z: 3.5, pose: 'YOGA_STRETCH', taskCur: 'No Class', taskFut: 'Yoga Studio Class ✓', dur: 2.2, show: true },
     { id: 'st-11', retreat: true, roleLabel: 'Nurse', role: 'nurse', gx: 26.2, gy: 7.8, pose: 'HANDOVER_INTERACTION', taskCur: 'No Retreat RN', taskFut: 'Suites 301–303 RN ✓', dur: 2.5, show: true },
     { id: 'st-12', retreat: true, roleLabel: 'Chef', role: 'chef', gx: 36.4, gy: 9.4, pose: 'HANDOVER_INTERACTION', taskCur: 'No Kitchen', taskFut: 'Garden Bistro Chef ✓', dur: 2.3, show: false }
   ];
@@ -89,16 +89,16 @@ const SimApp = (() => {
     // SUITES 301 & 302 FAMILY VISITOR ARMCHAIRS (2)
     { gx: 23.79, gy: 5.89, pose: 'SITTING' },
     { gx: 27.29, gy: 5.89, pose: 'SITTING' },
-    // RECREATION & GAMES CLUB ROOM (x: 24.6..29.2, y: 8.8..16.0 — Billiards Table, Grand Piano & Mahjong Table) (3)
-    { gx: 26.25, gy: 11.20, pose: 'HANDOVER_INTERACTION' }, // Playing Billiards / Pool
-    { gx: 25.55, gy: 14.75, pose: 'SITTING' },              // Playing Baby Grand Piano
-    { gx: 28.26, gy: 11.05, pose: 'SITTING' },              // Playing Mahjong
-    // YOGA, WELLNESS & MOVEMENT STUDIO (x: 29.2..33.6, y: 8.8..16.0, beside East Pool) — 5 of 6 Yoga Mats (5)
-    { gx: 30.50, gy: 11.2, pose: 'YOGA_STRETCH' },
-    { gx: 32.40, gy: 11.2, pose: 'YOGA_STRETCH' },
-    { gx: 30.50, gy: 12.7, pose: 'YOGA_STRETCH' },
-    { gx: 32.40, gy: 12.7, pose: 'YOGA_STRETCH' },
-    { gx: 32.40, gy: 14.2, pose: 'YOGA_STRETCH' },
+    // RECREATION & GAMES CLUB ROOM (x: 24.6..29.2, y: 8.8..16.0 — Pool, SEGA Arcade, Vending Machine & Cinema Corner) (5)
+    { gx: 26.20, gy: 11.98, pose: 'HANDOVER_INTERACTION' }, // Playing Pool / Billiards
+    { gx: 25.05, gy: 9.88, pose: 'TYPING_TERMINAL' },       // Playing SEGA Arcade Machine 1
+    { gx: 28.42, gy: 9.88, pose: 'HANDOVER_INTERACTION' },  // Using Snack & Drink Vending Machine
+    { gx: 26.35, gy: 14.88, pose: 'SITTING' },              // Cinema Corner Seat 1
+    { gx: 27.75, gy: 14.88, pose: 'SITTING' },              // Cinema Corner Seat 3
+    // YOGA, WELLNESS & MOVEMENT STUDIO (x: 29.2..33.6, y: 8.8..16.0, beside East Pool) — 3 of 4 Soft-Yellow Mats (3)
+    { gx: 30.42, gy: 10.76, pose: 'YOGA_STRETCH' },
+    { gx: 32.38, gy: 10.76, pose: 'YOGA_STRETCH' },
+    { gx: 32.38, gy: 12.46, pose: 'YOGA_STRETCH' },
     // 5-STAR HOTEL ENTRANCE LOBBY & LOUNGE (x: 22.35..24.45 East Waiting Lounge Zone, clear of x=20.8..22.2 entrance walkthrough) (3)
     { gx: 22.95, gy: 10.35, pose: 'SITTING' },
     { gx: 23.75, gy: 10.35, pose: 'SITTING' },
@@ -175,7 +175,7 @@ const SimApp = (() => {
         role: sd.role,
         gx: sd.gx,
         gy: sd.gy,
-        z: 0,
+        z: sd.z || 0,
         dir: 'SE',
         pose: sd.pose,
         taskCur: sd.taskCur,
@@ -495,10 +495,10 @@ const SimApp = (() => {
           tx = 21.1; ty = 4.4; ag.pose = 'SITTING';
           stepKey = 'p3-md'; stepText = 'Doctor Salon Check ✓';
         } else if (stg === 1) {
-          tx = 28.26; ty = 14.25; ag.pose = 'SITTING';
-          stepKey = 'p3-spa'; stepText = 'Billiards & Games Club ✓';
+          tx = 25.70; ty = 9.88; ag.pose = 'TYPING_TERMINAL';
+          stepKey = 'p3-spa'; stepText = 'Arcade & Games Club ✓';
         } else {
-          tx = 30.50; ty = 14.2; ag.pose = 'YOGA_STRETCH';
+          tx = 30.42; ty = 12.46; ag.pose = 'YOGA_STRETCH';
           stepKey = 'p3-bistro'; stepText = 'Yoga Studio Class ✓';
         }
         ag.taskProg = sProg;
