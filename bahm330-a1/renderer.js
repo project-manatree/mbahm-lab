@@ -47,7 +47,7 @@ const IsoRenderer = (() => {
       { x: 35.05, y: 8.75, w: 3.2, d: 6.5, mat: { cur: null, fut: 'deck' } },       // Outdoor Garden Bistro Warm Teak Dining Deck
 
       // BUILDING 2 (FIVE-STAR LUXURY RETREAT: HOTEL LOBBY + DOCTOR ROOM + 3 RECOVERY SUITES 301–303 + RECREATION & GAMES CLUB + YOGA STUDIO)
-      { x: 19.6, y: 2.6, w: 3.5, d: 4.2, mat: { cur: null, fut: 'ceramicBlue' } },  // Visiting Doctor & ISBAR Clinical Room
+      { x: 19.6, y: 2.6, w: 3.5, d: 4.2, mat: { cur: null, fut: 'marble' } },        // Visiting Doctor & ISBAR Clinical Salon (Italian Marble)
       { x: 23.1, y: 2.6, w: 10.5, d: 4.2, mat: { cur: null, fut: 'oak' } },         // 3 Private Recovery Suites 301, 302 & 303 (3.5 x 4.2 each)
       { x: 19.6, y: 6.8, w: 14.0, d: 2.0, mat: { cur: null, fut: 'marble' } },      // Resort Central Marble Promenade
       { x: 19.6, y: 8.8, w: 5.0, d: 7.2, mat: { cur: null, fut: 'carpetBeige' } },  // Main Entrance 5-Star Hotel Lobby & Lounge
@@ -62,8 +62,8 @@ const IsoRenderer = (() => {
     decals: [
       // Hospital corridor wayfinding line
       { type: 'line', x1: 1.5, y1: 7.5, x2: 14.5, y2: 7.5, w: 0.10, col: '#0ea5e9' },
-      // Resort marble promenade accent trim
-      { type: 'line', x1: 20.0, y1: 7.8, x2: 33.2, y2: 7.8, w: 0.10, col: '#10b981', when: 'fut' },
+      // Resort marble promenade brushed-gold accent inlay
+      { type: 'line', x1: 20.0, y1: 7.8, x2: 33.2, y2: 7.8, w: 0.10, col: '#d4af37', when: 'fut' },
       // Road center divider (Left <-> Right)
       { type: 'line', x1: 1.5, y1: 18.5, x2: 38.2, y2: 18.5, w: 0.09, col: 'rgba(250,204,21,0.75)', dash: [0.6, 0.4] },
       // Hospital Main Entrance Pick-Up Bay (Facing Down at x: 11.2..14.2, y: 16.7..18.2)
@@ -514,14 +514,14 @@ const IsoRenderer = (() => {
     PH.furniture(gx, gy, 0.72, 1.48, 0, k => {
       // Warm teak sun-lounger frame
       k.box(0.06, 0.06, 0, 0.60, 1.36, 3.0, '#b47842', { tex: 'deskwood', texAlpha: 0.45 });
-      // Plush waterproof cushion + reclined backrest + aqua head pillow
+      // Plush waterproof cushion + reclined backrest + champagne-gold head pillow
       k.box(0.04, 0.04, 3.0, 0.64, 1.40, 1.9, cushionCol, { tex: 'fabric', texAlpha: 0.3 });
       k.box(0.04, 0.04, 4.9, 0.64, 0.44, 2.5, cushionCol);
-      k.cyl(0.36, 0.24, 7.4, 0.08, 0.44, '#14b8a6');
+      k.cyl(0.36, 0.24, 7.4, 0.08, 0.44, '#d4af37');
     });
   }
 
-  function drawPoolUmbrella(cx, cy, colA = '#0d9488', colB = '#fefce8') {
+  function drawPoolUmbrella(cx, cy, colA = '#7e3b45', colB = '#fefce8') {
     PH.item(cx + cy, () => {
       const c = PH.S.ctx;
       const z = PH.zoom;
@@ -614,10 +614,10 @@ const IsoRenderer = (() => {
     });
   }
 
-  function drawYogaMat(gx, gy, col = '#14b8a6') {
+  function drawYogaMat(gx, gy, col = '#c89b6e') {
     PH.furniture(gx, gy, 1.35, 0.62, 0, k => {
-      k.top(0.04, 0.04, 0.15, 1.26, 0.54, col, { stroke: '#0f766e' });
-      k.cyl(0.18, 0.31, 0.2, 0.07, 0.44, '#f8fafc');
+      k.top(0.04, 0.04, 0.15, 1.26, 0.54, col, { stroke: '#d4af37' });
+      k.cyl(0.18, 0.31, 0.2, 0.07, 0.44, '#f5efe6');
     });
   }
 
@@ -625,28 +625,28 @@ const IsoRenderer = (() => {
     PH.item(cx + cy + 0.5, () => {
       const c = PH.S.ctx;
       const z = PH.zoom;
-      // 4 Curved Oak Bistro Chairs around Round Table (Zero beds)
+      // 4 Curved Walnut & Royal Burgundy Velvet Bistro Chairs around Round Table
       const offsets = [[-0.68, 0], [0.68, 0], [0, -0.68], [0, 0.68]];
       offsets.forEach(([ox, oy]) => {
         const chx = cx + ox - 0.17;
         const chy = cy + oy - 0.17;
-        PH.box(chx, chy, 0, 0.34, 0.34, 5.2, '#b88655', { tex: 'deskwood', texAlpha: 0.4 });
-        PH.box(chx + 0.03, chy + 0.03, 5.2, 0.28, 0.28, 1.2, '#0d9488');
+        PH.box(chx, chy, 0, 0.34, 0.34, 5.2, '#784e32', { tex: 'deskwood', texAlpha: 0.45 });
+        PH.box(chx + 0.03, chy + 0.03, 5.2, 0.28, 0.28, 1.2, '#7e3b45');
         // Wooden chair backrest
         const bx = ox < 0 ? chx : ox > 0 ? chx + 0.26 : chx + 0.02;
         const by = oy < 0 ? chy : oy > 0 ? chy + 0.26 : chy + 0.02;
         const bw = Math.abs(ox) > 0 ? 0.08 : 0.30;
         const bd = Math.abs(oy) > 0 ? 0.08 : 0.30;
-        PH.box(bx, by, 6.4, bw, bd, 4.8, '#b88655');
+        PH.box(bx, by, 6.4, bw, bd, 4.8, '#784e32');
       });
       // Brass & Cast-Iron Pedestal
       PH.cyl(cx, cy, 0, 0.24, 1.2, '#d4af37');
       PH.cyl(cx, cy, 1.2, 0.08, 8.6, '#475569');
       // Round White-Clothed Table Drape & Tabletop
       PH.cyl(cx, cy, 8.4, 0.52, 2.2, '#ffffff');
-      PH.disc(cx, cy, 10.65, 0.54, '#ffffff', '#e2e8f0');
+      PH.disc(cx, cy, 10.65, 0.54, '#ffffff', '#d4af37');
       // Plated Gourmet Meals + Wine Goblets + Golden Candle Centerpiece
-      for (const [px, py, mealCol] of [[-0.24, 0, '#fb923c'], [0.24, 0, '#4ade80'], [0, -0.24, '#f87171'], [0, 0.24, '#facc15']]) {
+      for (const [px, py, mealCol] of [[-0.24, 0, '#fb923c'], [0.24, 0, '#d4af37'], [0, -0.24, '#f87171'], [0, 0.24, '#facc15']]) {
         PH.disc(cx + px, cy + py, 10.8, 0.11, '#f8fafc', '#cbd5e1');
         PH.disc(cx + px, cy + py, 10.95, 0.06, mealCol);
       }
@@ -659,11 +659,11 @@ const IsoRenderer = (() => {
 
   function drawCoffeeTableAndSet(cx, cy) {
     PH.furniture(cx - 0.55, cy - 0.38, 1.1, 0.76, 0, k => {
-      k.box(0.08, 0.08, 0, 0.94, 0.60, 4.8, '#85583a', { tex: 'deskwood', texAlpha: 0.45 });
-      k.box(0.04, 0.04, 4.8, 1.02, 0.68, 1.0, '#d4a373');
-      // Ceramic tea service + floral centerpiece
+      k.box(0.08, 0.08, 0, 0.94, 0.60, 4.8, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
+      k.box(0.04, 0.04, 4.8, 1.02, 0.68, 1.0, '#faf8f5');
+      // Porcelain & gold tea service + floral centerpiece
       k.cyl(0.50, 0.38, 5.8, 0.08, 2.2, '#f8fafc');
-      k.cyl(0.28, 0.38, 5.8, 0.06, 2.8, '#10b981');
+      k.cyl(0.28, 0.38, 5.8, 0.06, 2.8, '#d4af37');
       k.cyl(0.75, 0.38, 5.8, 0.12, 0.5, '#fef08a');
     });
   }
@@ -1024,8 +1024,8 @@ const IsoRenderer = (() => {
       k.box(0.02, 0.04, 3.2, 1.81, 0.90, 0.8, '#d4af37');
       k.box(0.08, 0.10, 4.0, 1.69, 0.78, 3.4, '#faf8f5', { tex: 'quilt', texAlpha: 0.35 });
       k.box(0.12, 0.14, 7.4, 0.32, 0.70, 3.0, '#f5efe6');
-      k.box(0.38, 0.20, 7.4, 0.20, 0.54, 2.2, '#10b981');
-      k.box(1.28, 0.12, 7.4, 0.44, 0.74, 0.6, '#059669');
+      k.box(0.38, 0.20, 7.4, 0.20, 0.54, 2.2, '#d4af37');
+      k.box(1.28, 0.12, 7.4, 0.44, 0.74, 0.6, '#7e3b45');
     });
 
     // Italian Marble & Brass Medical Vanity Credenza with Orchid & ISBAR Tablet (x = 21.8, y = 3.2)
@@ -1104,21 +1104,22 @@ const IsoRenderer = (() => {
       }
     });
 
-    // 2. Championship Emerald-Green Felt Mahogany & Brass Billiards / Pool Table (x = 25.15, y = 9.55, w = 2.25, d = 1.38)
+    // 2. Championship Royal-Bordeaux Velvet & Brushed-Gold Billiards / Pool Table (x = 25.15, y = 9.55, w = 2.25, d = 1.38 — zero green)
     PH.furniture(25.15, 9.55, 2.25, 1.38, 0, k => {
-      // Woven burgundy & gold club carpet beneath billiards table
-      k.top(-0.18, -0.18, 0.10, 2.61, 1.74, '#7e3b45', { stroke: '#d4af37', lw: 1.3 });
-      // 4 carved mahogany pedestal legs with brushed-brass feet
+      // Woven ivory-cream & gold silk club carpet beneath billiards table
+      k.top(-0.18, -0.18, 0.10, 2.61, 1.74, '#f5efe6', { stroke: '#d4af37', lw: 1.4 });
+      k.top(-0.08, -0.08, 0.13, 2.41, 1.54, '#efe7d6', { stroke: '#b47842', lw: 0.9 });
+      // 4 carved burl-walnut pedestal legs with brushed-brass feet
       for (const [lx, ly] of [[0.14, 0.14], [1.85, 0.14], [0.14, 0.98], [1.85, 0.98]]) {
         k.box(lx, ly, 0, 0.26, 0.26, 1.4, '#d4af37');
         k.box(lx + 0.02, ly + 0.02, 1.4, 0.22, 0.22, 6.2, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
       }
-      // Mahogany slate cabinet & brass trim
+      // Mahogany slate cabinet & brushed-gold trim
       k.box(0.06, 0.06, 7.2, 2.13, 1.26, 2.4, '#5c3a21', { tex: 'deskwood', texAlpha: 0.58 });
       k.box(0.02, 0.02, 9.6, 2.21, 1.34, 1.4, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
-      // Vivid tournament emerald-green baize felt playing surface
-      k.top(0.16, 0.16, 11.05, 1.93, 1.06, '#059669', { stroke: '#047857', lw: 1.2 });
-      k.top(0.22, 0.22, 11.10, 1.81, 0.94, '#10b981');
+      // Rich Royal-Bordeaux / Burgundy tournament baize felt playing surface (Five-Star Mayfair Club style)
+      k.top(0.16, 0.16, 11.05, 1.93, 1.06, '#7e3b45', { stroke: '#d4af37', lw: 1.2 });
+      k.top(0.22, 0.22, 11.10, 1.81, 0.94, '#881337');
       // 6 brass & leather billiard pockets (4 corners + 2 side pockets)
       for (const [px, py] of [[0.14, 0.14], [1.12, 0.12], [2.10, 0.14], [0.14, 1.24], [1.12, 1.26], [2.10, 1.24]]) {
         k.cyl(px, py, 10.6, 0.09, 0.6, '#d4af37');
@@ -1128,8 +1129,8 @@ const IsoRenderer = (() => {
       const balls = [
         [0.62, 0.69, '#ffffff'],
         [1.42, 0.69, '#facc15'],
-        [1.54, 0.61, '#ef4444'], [1.54, 0.77, '#3b82f6'],
-        [1.66, 0.53, '#f97316'], [1.66, 0.69, '#0f172a'], [1.66, 0.85, '#a855f7']
+        [1.54, 0.61, '#f97316'], [1.54, 0.77, '#38bdf8'],
+        [1.66, 0.53, '#fde047'], [1.66, 0.69, '#0f172a'], [1.66, 0.85, '#f472b6']
       ];
       for (const [bx, by, bcol] of balls) {
         k.cyl(bx, by, 11.15, 0.048, 0.75, bcol);
@@ -1163,23 +1164,23 @@ const IsoRenderer = (() => {
       k.box(0.30, 1.54, 5.4, 0.78, 0.38, 1.2, '#d4af37');
     });
 
-    // 4. VIP Jade-Felt Mahjong & Card Club Table with 4 Tile Walls & Club Chairs (x = 27.65, y = 9.75)
+    // 4. VIP Champagne-Velvet & Burl-Walnut Mahjong & Card Club Table with 4 Tile Walls & Burgundy Club Chairs (x = 27.65, y = 9.75)
     PH.furniture(27.65, 9.75, 1.22, 1.22, 0, k => {
-      // 2 walnut & cream club chairs (North & South of Mahjong table)
+      // 2 walnut & Royal Burgundy velvet club chairs (North & South of Mahjong table)
       k.box(0.38, -0.26, 0, 0.46, 0.36, 5.2, '#784e32', { tex: 'deskwood', texAlpha: 0.5 });
-      k.box(0.38, -0.28, 5.2, 0.46, 0.10, 5.4, '#0d9488');
+      k.box(0.38, -0.28, 5.2, 0.46, 0.10, 5.4, '#7e3b45');
       k.box(0.38, 1.12, 0, 0.46, 0.36, 5.2, '#784e32', { tex: 'deskwood', texAlpha: 0.5 });
-      k.box(0.38, 1.38, 5.2, 0.46, 0.10, 5.4, '#0d9488');
-      // Square burl-walnut & brass mahjong table
+      k.box(0.38, 1.38, 5.2, 0.46, 0.10, 5.4, '#7e3b45');
+      // Square burl-walnut & brass mahjong table with warm champagne-camel velvet surface
       k.cyl(0.61, 0.61, 0, 0.26, 1.0, '#d4af37');
       k.cyl(0.61, 0.61, 1.0, 0.10, 7.6, '#5c3a21');
       k.box(0.08, 0.08, 8.6, 1.06, 1.06, 1.6, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
-      k.top(0.16, 0.16, 10.25, 0.90, 0.90, '#047857', { stroke: '#d4af37', lw: 1.0 });
-      // 4 miniature ivory mahjong tile walls in a square
-      k.box(0.30, 0.26, 10.3, 0.62, 0.06, 0.7, '#f8fafc');
-      k.box(0.30, 0.90, 10.3, 0.62, 0.06, 0.7, '#f8fafc');
-      k.box(0.26, 0.32, 10.3, 0.06, 0.56, 0.7, '#f8fafc');
-      k.box(0.90, 0.32, 10.3, 0.06, 0.56, 0.7, '#f8fafc');
+      k.top(0.16, 0.16, 10.25, 0.90, 0.90, '#c89b6e', { stroke: '#d4af37', lw: 1.1 });
+      // 4 miniature ivory & gold mahjong tile walls in a square
+      k.box(0.30, 0.26, 10.3, 0.62, 0.06, 0.7, '#faf8f5');
+      k.box(0.30, 0.90, 10.3, 0.62, 0.06, 0.7, '#faf8f5');
+      k.box(0.26, 0.32, 10.3, 0.06, 0.56, 0.7, '#faf8f5');
+      k.box(0.90, 0.32, 10.3, 0.06, 0.56, 0.7, '#faf8f5');
     });
 
     // 5. Inlaid Marble & Walnut Royal Chess & Backgammon Table with Club Chairs (x = 27.65, y = 12.95)
@@ -1221,18 +1222,18 @@ const IsoRenderer = (() => {
       k.box(0.38, 0.18, 16.4, 0.10, 0.96, 0.8, '#d4af37');
       k.box(0.40, 0.38, 5.4, 0.06, 0.54, 9.4, '#f59e0b');
     });
-    // 6 Yoga mats in a spacious 2 x 3 studio grid
+    // 6 Yoga mats in a cohesive 5-Star Spa Champagne-Gold, Royal-Burgundy & Cognac-Bronze palette (zero green)
     const mats = [
-      [29.85, 10.9, '#14b8a6'], [31.75, 10.9, '#0ea5e9'],
-      [29.85, 12.4, '#f472b6'], [31.75, 12.4, '#14b8a6'],
-      [29.85, 13.9, '#0ea5e9'], [31.75, 13.9, '#a78bfa']
+      [29.85, 10.9, '#c89b6e'], [31.75, 10.9, '#7e3b45'],
+      [29.85, 12.4, '#7e3b45'], [31.75, 12.4, '#c89b6e'],
+      [29.85, 13.9, '#85583a'], [31.75, 13.9, '#7e3b45']
     ];
     for (const [mx, my, mc] of mats) drawYogaMat(mx, my, mc);
     // Props shelf: rolled mats, blocks, bolsters & infused-water station
     PH.furniture(32.35, 9.05, 0.98, 0.5, 0, k => {
       k.box(0.04, 0.04, 0, 0.90, 0.42, 9.0, '#b47842', { tex: 'deskwood', texAlpha: 0.5 });
-      for (const [px, c] of [[0.18, '#14b8a6'], [0.42, '#a78bfa'], [0.66, '#0ea5e9']]) k.cyl(px, 0.22, 9.0, 0.09, 2.6, c);
-      k.cyl(0.82, 0.22, 9.0, 0.07, 2.8, '#bae6fd');
+      for (const [px, c] of [[0.18, '#d4af37'], [0.42, '#7e3b45'], [0.66, '#c89b6e']]) k.cyl(px, 0.22, 9.0, 0.09, 2.6, c);
+      k.cyl(0.82, 0.22, 9.0, 0.07, 2.8, '#fef08a');
     });
   }
 
@@ -1292,10 +1293,10 @@ const IsoRenderer = (() => {
       k.box(0.04, 0.06, 0, 2.72, 0.78, 10.6, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
       k.box(0.02, 0.02, 10.6, 2.76, 0.86, 1.3, '#faf8f5');
       k.box(0.04, 0.80, 2.4, 2.72, 0.06, 6.4, '#d4af37');
-      // Brass heat-lamp bridge, golden cloche serving domes & botanical elixir jars
+      // Brass heat-lamp bridge, golden cloche serving domes & Bordeaux wine / amber decanters
       k.cyl(0.55, 0.44, 11.9, 0.18, 2.2, '#d4af37');
       k.cyl(1.15, 0.44, 11.9, 0.18, 2.2, '#d4af37');
-      k.cyl(1.85, 0.44, 11.9, 0.12, 3.6, '#10b981');
+      k.cyl(1.85, 0.44, 11.9, 0.12, 3.6, '#7e3b45');
       k.cyl(2.25, 0.44, 11.9, 0.12, 3.6, '#f59e0b');
     });
 
@@ -1361,20 +1362,20 @@ const IsoRenderer = (() => {
       // 1. Visiting Doctor & ISBAR Clinical Salon (Top-Left, x: 19.6..23.1, y: 2.6..6.8)
       drawLuxuryExecutiveSalon();
 
-      // 2. Three North Private Luxury Recovery Suites 301, 302 & 303 (x: 23.1..33.6, y: 2.6..6.8, each 3.5 x 4.2 — no therapist/spa room)
-      drawNorthRecoverySuite(23.1, '#0d9488', '#115e59', '#059669', 301);
-      drawNorthRecoverySuite(26.6, '#d4af37', '#784e32', '#d4a373', 302);
-      drawNorthRecoverySuite(30.1, '#0284c7', '#1e3a8a', '#0d9488', 303);
+      // 2. Three North Private Luxury Recovery Suites 301, 302 & 303 (x: 23.1..33.6, y: 2.6..6.8 — unified Five-Star Champagne Gold, Royal Burgundy & Cognac palette)
+      drawNorthRecoverySuite(23.1, '#f5efe6', '#7e3b45', '#7e3b45', 301);
+      drawNorthRecoverySuite(26.6, '#d4af37', '#5c3a21', '#b47842', 302);
+      drawNorthRecoverySuite(30.1, '#e6d5b8', '#784e32', '#7e3b45', 303);
 
-      // 3. Main Entrance Five-Star Hotel Lobby, Concierge & Espresso Lounge (Front-Left, x: 19.6..24.6, y: 8.8..16)
+      // 3. Main Entrance Five-Star Hotel Lobby, Concierge & Espresso Lounge (Front-Left, x: 19.6..24.6, y: 8.8..16 — Royal Burgundy, Ivory Velvet & Cognac Leather, zero green)
       drawLuxuryHotelLobbyDetails();
       PHSprites.receptionDesk(19.85, 9.4, 1, 2.2, { col: '#d4af37', wood: '#784e32', clutter: false });
       drawWallEventScreen(21.8, 8.92);
       drawEspressoBar(19.85, 12.6);
       PHSprites.sofa(21.65, 10.3, 0, 1.8, '#f5efe6');
       drawCoffeeTableAndSet(22.55, 12.2);
-      PHSprites.sofa(21.65, 13.4, 0, 1.8, '#059669');
-      PHSprites.armchair(23.55, 11.4, 0, { col: '#059669' });
+      PHSprites.sofa(21.65, 13.4, 0, 1.8, '#7e3b45');
+      PHSprites.armchair(23.55, 11.4, 0, { col: '#b47842' });
       drawIndoorPalm(23.75, 9.2);
       drawIndoorPalm(19.85, 15.1);
 
@@ -1402,9 +1403,9 @@ const IsoRenderer = (() => {
 
       // 3. East Swimming Pool Terrace directly beside Wellness & Movement Class (y: 2.2..7.6)
       drawSwimmingPool(35.15, 2.7, 1.75, 4.15);
-      drawPoolLounger(37.15, 2.80, '#f8fafc');
-      drawPoolUmbrella(37.55, 4.72, '#0d9488', '#fefce8');
-      drawPoolLounger(37.15, 5.20, '#f0fdfa');
+      drawPoolLounger(37.15, 2.80, '#f5efe6');
+      drawPoolUmbrella(37.55, 4.72, '#7e3b45', '#fefce8');
+      drawPoolLounger(37.15, 5.20, '#f5efe6');
       drawHedge(34.9, 7.7, 3.4, 0.35, true);
 
       // 4. Outdoor Al-Fresco Garden Bistro Pavilion on the East Lawn (x: 34.8..38.5, y: 8.4..15.6)
