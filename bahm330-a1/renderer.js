@@ -44,13 +44,13 @@ const IsoRenderer = (() => {
       { x: 35.15, y: 2.7, w: 1.75, d: 4.15, mat: { cur: null, fut: 'water' } },     // Outdoor Resort Swimming Pool
       { x: 33.6, y: 7.1, w: 1.25, d: 1.5, mat: { cur: null, fut: 'travertine' } },  // Promenade -> East Pool & Garden Bistro Bridge
       { x: 34.8, y: 8.4, w: 3.7, d: 7.2, mat: { cur: null, fut: 'travertine' } },   // Outdoor Garden Bistro Travertine Terrace
-      { x: 35.05, y: 8.75, w: 3.2, d: 6.5, mat: { cur: null, fut: 'marble' } },     // Outdoor Garden Bistro White Calacatta Marble Dining Deck
+      { x: 35.05, y: 8.75, w: 3.2, d: 6.5, mat: { cur: null, fut: 'oak' } },         // Outdoor Garden Bistro Warm Honey-Oak Culinary Deck
 
       // BUILDING 2 (FIVE-STAR LUXURY RETREAT: LUMINOUS WHITE MARBLE, TRAVERTINE, BRUSHED GOLD & ROYAL SAPPHIRE — ZERO MUDDY BROWN)
       { x: 19.6, y: 2.6, w: 3.5, d: 4.2, mat: { cur: null, fut: 'ceramicCream' } }, // Visiting Doctor & ISBAR Clinical Salon (Ivory Porcelain)
       { x: 23.1, y: 2.6, w: 10.5, d: 4.2, mat: { cur: null, fut: 'travertine' } },  // 3 Private Recovery Suites 301, 302 & 303 (Roman Travertine Stone)
       { x: 19.6, y: 6.8, w: 14.0, d: 2.0, mat: { cur: null, fut: 'marble' } },      // Resort Central White Calacatta Marble Promenade
-      { x: 19.6, y: 8.8, w: 5.0, d: 7.2, mat: { cur: null, fut: 'ceramicCream' } }, // Main Entrance 5-Star Warm Champagne-Ivory Hotel Lobby & Lounge
+      { x: 19.6, y: 8.8, w: 5.0, d: 7.2, mat: { cur: null, fut: 'travertine' } },   // Main Entrance 5-Star Subtle Travertine & Pearl Hotel Lobby
       { x: 24.6, y: 8.8, w: 4.6, d: 7.2, mat: { cur: null, fut: 'ceramicCream' } }, // Recreation & Games Club Room (Ivory Porcelain + Royal Sapphire)
       { x: 29.2, y: 8.8, w: 4.4, d: 7.2, mat: { cur: null, fut: 'oak' } },          // Yoga, Wellness & Movement Studio (Warm Studio Hardwood)
 
@@ -625,63 +625,65 @@ const IsoRenderer = (() => {
     PH.item(cx + cy + 0.5, () => {
       const c = PH.S.ctx;
       const z = PH.zoom;
-      // 4 Pearl-Ivory & Royal Sapphire Velvet Bistro Chairs with Brushed-Gold Frames around Round Table
+      // 4 Warm Honey-Oak & Appetizing Terracotta-Velvet Fine-Dining Bistro Chairs around Round Table
       const offsets = [[-0.68, 0], [0.68, 0], [0, -0.68], [0, 0.68]];
       offsets.forEach(([ox, oy]) => {
         const chx = cx + ox - 0.17;
         const chy = cy + oy - 0.17;
-        PH.box(chx, chy, 0, 0.34, 0.34, 5.2, '#f8fafc');
-        PH.box(chx + 0.03, chy + 0.03, 5.2, 0.28, 0.28, 1.2, '#1e3a8a');
-        // Pearl & gold chair backrest
+        PH.box(chx, chy, 0, 0.34, 0.34, 5.2, '#b47842', { tex: 'deskwood', texAlpha: 0.4 });
+        PH.box(chx + 0.03, chy + 0.03, 5.2, 0.28, 0.28, 1.2, '#c2410c');
+        // Warm honey-oak & brass chair backrest
         const bx = ox < 0 ? chx : ox > 0 ? chx + 0.26 : chx + 0.02;
         const by = oy < 0 ? chy : oy > 0 ? chy + 0.26 : chy + 0.02;
         const bw = Math.abs(ox) > 0 ? 0.08 : 0.30;
         const bd = Math.abs(oy) > 0 ? 0.08 : 0.30;
-        PH.box(bx, by, 6.4, bw, bd, 4.8, '#d4af37');
+        PH.box(bx, by, 6.4, bw, bd, 4.8, '#b47842');
       });
-      // Brass & Cast-Iron Pedestal
+      // Brushed-Brass & Warm Bronze Pedestal
       PH.cyl(cx, cy, 0, 0.24, 1.2, '#d4af37');
-      PH.cyl(cx, cy, 1.2, 0.08, 8.6, '#cbd5e1');
-      // Round White-Clothed Table Drape & Tabletop
-      PH.cyl(cx, cy, 8.4, 0.52, 2.2, '#ffffff');
-      PH.disc(cx, cy, 10.65, 0.54, '#ffffff', '#d4af37');
-      // Plated Gourmet Meals + Wine Goblets + Golden Candle Centerpiece
-      for (const [px, py, mealCol] of [[-0.24, 0, '#fb923c'], [0.24, 0, '#d4af37'], [0, -0.24, '#f87171'], [0, 0.24, '#facc15']]) {
-        PH.disc(cx + px, cy + py, 10.8, 0.11, '#f8fafc', '#cbd5e1');
-        PH.disc(cx + px, cy + py, 10.95, 0.06, mealCol);
+      PH.cyl(cx, cy, 1.2, 0.08, 8.6, '#784e32');
+      // Warm Champagne-Cream Linen Tablecloth & Golden Rim Tabletop (appetizing, never hospital white)
+      PH.cyl(cx, cy, 8.4, 0.52, 2.2, '#fffbeb');
+      PH.disc(cx, cy, 10.65, 0.54, '#fef3c7', '#d4af37');
+      // Sizzling Gourmet Entrées, Ruby Wine Goblets & Warm Amber Table Lantern
+      for (const [px, py, mealCol] of [[-0.24, 0, '#ea580c'], [0.24, 0, '#d97706'], [0, -0.24, '#dc2626'], [0, 0.24, '#eab308']]) {
+        PH.disc(cx + px, cy + py, 10.8, 0.11, '#fffbeb', '#d4af37');
+        PH.disc(cx + px, cy + py, 10.95, 0.065, mealCol);
       }
-      PH.cyl(cx, cy, 10.8, 0.05, 2.4, '#d4af37');
+      PH.cyl(cx + 0.14, cy + 0.14, 10.8, 0.035, 1.5, '#be123c');
+      PH.cyl(cx - 0.14, cy - 0.14, 10.8, 0.035, 1.5, '#be123c');
+      PH.cyl(cx, cy, 10.8, 0.055, 2.4, '#f59e0b');
       const fl = PH.P(cx, cy, 13.6);
-      c.fillStyle = 'rgba(253, 224, 71, 0.65)';
-      c.beginPath(); c.arc(fl.x, fl.y, 2.4 * z, 0, Math.PI * 2); c.fill();
+      c.fillStyle = 'rgba(251, 146, 60, 0.75)';
+      c.beginPath(); c.arc(fl.x, fl.y, 2.8 * z, 0, Math.PI * 2); c.fill();
     });
   }
 
   function drawCoffeeTableAndSet(cx, cy) {
     PH.furniture(cx - 0.55, cy - 0.38, 1.1, 0.76, 0, k => {
-      // Brushed champagne-gold frame with warm cream marble tabletop
-      k.box(0.08, 0.08, 0, 0.94, 0.60, 4.8, '#d4af37');
-      k.box(0.04, 0.04, 4.8, 1.02, 0.68, 1.0, '#fffbeb');
-      // Golden welcome tea service + blooming rose-orchid floral centerpiece
-      k.cyl(0.50, 0.38, 5.8, 0.10, 2.2, '#ffffff');
-      k.blob(0.50, 0.38, 9.2, 0.18, '#fb7185', 3);
-      k.cyl(0.24, 0.38, 5.8, 0.07, 2.6, '#d4af37');
-      k.cyl(0.78, 0.38, 5.8, 0.11, 0.6, '#fde047');
+      // Muted champagne-brass frame with soft alabaster marble tabletop
+      k.box(0.08, 0.08, 0, 0.94, 0.60, 4.8, '#c9a96e');
+      k.box(0.04, 0.04, 4.8, 1.02, 0.68, 1.0, '#faf8f5');
+      // Subtle porcelain tea service + white orchid centerpiece
+      k.cyl(0.50, 0.38, 5.8, 0.10, 2.2, '#e2e8f0');
+      k.blob(0.50, 0.38, 9.2, 0.16, '#f8fafc', 3);
+      k.cyl(0.24, 0.38, 5.8, 0.07, 2.6, '#c9a96e');
+      k.cyl(0.78, 0.38, 5.8, 0.10, 0.6, '#cbd5e1');
     });
   }
 
   function drawEspressoBar(gx, gy) {
     PH.furniture(gx, gy, 1.1, 2.2, 0, k => {
-      // Warm champagne-ivory marble & brushed-gold welcome bar counter
-      k.box(0.08, 0.05, 0, 0.62, 2.1, 11.2, '#fffbeb');
-      k.box(0.06, 0.04, 0, 0.66, 2.12, 1.2, '#d4af37');
+      // Subtle alabaster marble & muted champagne-brass bar counter
+      k.box(0.08, 0.05, 0, 0.62, 2.1, 11.2, '#f8fafc');
+      k.box(0.06, 0.04, 0, 0.66, 2.12, 1.2, '#c9a96e');
       k.box(0.04, 0.02, 11.2, 0.70, 2.16, 1.4, '#ffffff');
-      // Brushed-gold espresso machine + crystal pastry display
-      k.box(0.14, 0.25, 12.6, 0.38, 0.52, 4.6, '#d4af37');
-      k.box(0.14, 1.15, 12.6, 0.38, 0.58, 4.2, '#fde68a', { alpha: 0.75 });
-      // Two warm sunset-rose & gold barstools in front of bar
-      k.cyl(0.92, 0.62, 0, 0.16, 8.2, '#e11d48');
-      k.cyl(0.92, 1.52, 0, 0.16, 8.2, '#e11d48');
+      // Brushed steel espresso machine + glass display
+      k.box(0.14, 0.25, 12.6, 0.38, 0.52, 4.6, '#cbd5e1');
+      k.box(0.14, 1.15, 12.6, 0.38, 0.58, 4.2, '#e2e8f0', { alpha: 0.7 });
+      // Two muted slate-blue & brass barstools in front of bar
+      k.cyl(0.92, 0.62, 0, 0.16, 8.2, '#475569');
+      k.cyl(0.92, 1.52, 0, 0.16, 8.2, '#475569');
     });
   }
 
@@ -1236,77 +1238,79 @@ const IsoRenderer = (() => {
     });
   }
 
-  // 9. Retreat Front-Left (x: 19.6..24.6, y: 8.8..16.0): Warm, Welcoming Five-Star Hotel Entrance Lobby, Concierge & Lounge
+  // 9. Retreat Front-Left (x: 19.6..24.6, y: 8.8..16.0): Subtle, Understated Five-Star Hotel Entrance Lobby, Concierge & Lounge
   function drawLuxuryHotelLobbyDetails() {
-    // Sunlit Champagne-Cream, Sunset Rose-Coral & Brushed-Gold Medallion Silk Area Rug under the Hotel Lobby Sofas (x = 21.35, y = 10.05)
+    // Subtle Woven Pearl-Alabaster, Soft Dove-Slate & Muted Champagne-Brass Silk Area Rug (x = 21.35, y = 10.05)
     PH.furniture(21.35, 10.05, 2.85, 4.25, 0, k => {
-      k.top(0, 0, 0.12, 2.85, 4.25, '#fffbeb', { stroke: '#d4af37', lw: 1.5 });
-      k.top(0.18, 0.18, 0.15, 2.49, 3.89, '#fb7185', { stroke: '#fde047', lw: 1.1 });
-      k.top(0.42, 0.42, 0.18, 2.01, 3.41, '#fef3c7', { stroke: '#d4af37', lw: 1.0 });
+      k.top(0, 0, 0.12, 2.85, 4.25, '#faf8f5', { stroke: '#c9a96e', lw: 1.2 });
+      k.top(0.18, 0.18, 0.15, 2.49, 3.89, '#cbd5e1', { stroke: '#e2e8f0', lw: 0.9 });
+      k.top(0.42, 0.42, 0.18, 2.01, 3.41, '#f8fafc', { stroke: '#c9a96e', lw: 0.9 });
     });
 
-    // VIP Royal Red-Carpet & Brushed-Gold Welcome Runner + Brass Stanchion Posts inside Hotel Main Entrance (x = 21.3, y = 14.7)
+    // Understated Deep-Slate & Muted-Brass Welcome Carpet Runner + Stanchion Posts inside Hotel Main Entrance (x = 21.3, y = 14.7)
     PH.furniture(21.3, 14.7, 1.8, 1.25, 0, k => {
-      k.top(0.15, 0.02, 0.14, 1.50, 1.20, '#e11d48', { stroke: '#fde047', lw: 1.5 });
-      k.cyl(0.08, 0.15, 0, 0.07, 8.5, '#d4af37');
-      k.cyl(1.72, 0.15, 0, 0.07, 8.5, '#d4af37');
-      k.cyl(0.08, 1.10, 0, 0.07, 8.5, '#d4af37');
-      k.cyl(1.72, 1.10, 0, 0.07, 8.5, '#d4af37');
+      k.top(0.15, 0.02, 0.14, 1.50, 1.20, '#334155', { stroke: '#c9a96e', lw: 1.2 });
+      k.cyl(0.08, 0.15, 0, 0.07, 8.5, '#c9a96e');
+      k.cyl(1.72, 0.15, 0, 0.07, 8.5, '#c9a96e');
+      k.cyl(0.08, 1.10, 0, 0.07, 8.5, '#c9a96e');
+      k.cyl(1.72, 1.10, 0, 0.07, 8.5, '#c9a96e');
     });
 
-    // Grand Blooming Orchid & Golden Crystal Welcome Pedestal inside Main Entrance Foyer (x = 23.55, y = 14.45)
+    // Subtle Alabaster Marble & White-Orchid Welcome Pedestal inside Main Entrance Foyer (x = 23.55, y = 14.45)
     PH.furniture(23.55, 14.45, 0.72, 0.72, 0, k => {
-      k.cyl(0.36, 0.36, 0, 0.28, 1.2, '#d4af37');
-      k.cyl(0.36, 0.36, 1.2, 0.22, 8.4, '#fffbeb');
-      k.cyl(0.36, 0.36, 9.6, 0.28, 1.0, '#d4af37');
-      k.cyl(0.36, 0.36, 10.6, 0.18, 3.2, '#ffffff');
-      k.blob(0.36, 0.36, 15.2, 0.28, '#fb7185', 4);
-      k.blob(0.36, 0.36, 17.0, 0.22, '#fde047', 4);
+      k.cyl(0.36, 0.36, 0, 0.26, 1.0, '#c9a96e');
+      k.cyl(0.36, 0.36, 1.0, 0.21, 8.4, '#f8fafc');
+      k.cyl(0.36, 0.36, 9.4, 0.26, 0.9, '#c9a96e');
+      k.cyl(0.36, 0.36, 10.3, 0.16, 3.0, '#e2e8f0');
+      k.blob(0.36, 0.36, 14.8, 0.24, '#ffffff', 4);
+      k.blob(0.36, 0.36, 16.4, 0.18, '#fef3c7', 3);
     });
 
-    // Sculptural White Marble & Gold Floral Art Pedestal in Resort Central Marble Promenade (x = 24.4, y = 7.35)
+    // Sculptural White Marble & Muted-Brass Floral Art Pedestal in Resort Central Marble Promenade (x = 24.4, y = 7.35)
     PH.furniture(24.4, 7.35, 0.72, 0.72, 0, k => {
       k.box(0.08, 0.08, 0, 0.56, 0.56, 9.6, '#ffffff');
-      k.box(0.04, 0.04, 9.6, 0.64, 0.64, 0.9, '#d4af37');
-      k.cyl(0.36, 0.36, 10.5, 0.18, 3.2, '#d4af37');
-      k.blob(0.36, 0.36, 15.2, 0.26, '#f472b6', 3);
-      k.blob(0.36, 0.36, 17.0, 0.20, '#fef08a', 4);
+      k.box(0.04, 0.04, 9.6, 0.64, 0.64, 0.9, '#c9a96e');
+      k.cyl(0.36, 0.36, 10.5, 0.18, 3.2, '#e2e8f0');
+      k.blob(0.36, 0.36, 15.2, 0.24, '#f8fafc', 3);
+      k.blob(0.36, 0.36, 16.8, 0.18, '#fef3c7', 4);
     });
   }
 
-  // Outdoor Al-Fresco White-Marble & Brushed-Gold Garden Bistro Pavilion on the East Lawn (x: 34.8..38.5, y: 8.4..15.6)
+  // Outdoor Al-Fresco Warm Mediterranean & Copper-Grill Garden Bistro Pavilion on the East Lawn (x: 34.8..38.5, y: 8.4..15.6)
   function drawOutdoorGardenBistroPavilion() {
-    // Open-air architectural white marble & brushed-gold colonnade pergola + overhead beams (zero brown wood)
+    // Open-air architectural warm bronze-gold & terracotta pergola columns + overhead trellis with glowing amber lanterns
     PH.furniture(34.95, 8.55, 3.4, 6.8, 0, k => {
       const posts = [[0.08, 0.08], [3.16, 0.08], [0.08, 3.32], [3.16, 3.32], [0.08, 6.56], [3.16, 6.56]];
       for (const [px, py] of posts) {
         k.box(px, py, 0, 0.16, 0.16, 1.4, '#d4af37');
-        k.box(px + 0.02, py + 0.02, 1.4, 0.12, 0.12, 20.6, '#f8fafc');
+        k.box(px + 0.02, py + 0.02, 1.4, 0.12, 0.12, 20.6, '#b47842', { tex: 'deskwood', texAlpha: 0.45 });
       }
-      // White marble & gold perimeter top beams & cross rafters
+      // Warm champagne-gold & honey-cedar perimeter top beams & cross rafters
       k.box(0.06, 0.06, 22.0, 3.28, 0.14, 1.1, '#d4af37');
       k.box(0.06, 6.60, 22.0, 3.28, 0.14, 1.1, '#d4af37');
-      k.box(0.06, 0.06, 22.0, 0.14, 6.68, 1.1, '#f8fafc');
-      k.box(3.20, 0.06, 22.0, 0.14, 6.68, 1.1, '#f8fafc');
+      k.box(0.06, 0.06, 22.0, 0.14, 6.68, 1.1, '#b47842');
+      k.box(3.20, 0.06, 22.0, 0.14, 6.68, 1.1, '#b47842');
       for (let r = 1; r <= 4; r++) {
         const ry = r * 1.34;
-        k.box(0.14, ry, 22.4, 3.12, 0.08, 0.7, '#e2e8f0');
-        // Warm glowing golden bistro festoon lights along pergola rafters
-        k.cyl(1.10, ry + 0.04, 21.4, 0.06, 1.0, '#fef08a');
-        k.cyl(2.30, ry + 0.04, 21.4, 0.06, 1.0, '#fef08a');
+        k.box(0.14, ry, 22.4, 3.12, 0.08, 0.7, '#d4a373');
+        // Warm glowing amber-orange & golden bistro festoon lanterns along pergola rafters
+        k.cyl(1.10, ry + 0.04, 21.2, 0.075, 1.2, '#f59e0b');
+        k.cyl(2.30, ry + 0.04, 21.2, 0.075, 1.2, '#fde047');
       }
     });
 
-    // Chef's Open-Air White Calacatta Marble & Brushed-Gold Culinary Tasting Bar at North end of Garden Bistro (x = 35.25, y = 8.85)
+    // Chef's Live Wood-Fired Terracotta & Copper-Brass Culinary Grill & Tasting Bar at North end of Garden Bistro (x = 35.25, y = 8.85)
     PH.furniture(35.25, 8.85, 2.8, 0.92, 0, k => {
-      k.box(0.04, 0.06, 0, 2.72, 0.78, 10.6, '#f8fafc');
-      k.box(0.02, 0.02, 10.6, 2.76, 0.86, 1.3, '#ffffff');
+      // Warm terracotta-stone & brushed-gold culinary counter with champagne travertine pass top
+      k.box(0.04, 0.06, 0, 2.72, 0.78, 10.6, '#b45309', { tex: 'paver', texAlpha: 0.35 });
+      k.box(0.02, 0.02, 10.6, 2.76, 0.86, 1.3, '#fef3c7');
       k.box(0.04, 0.80, 2.4, 2.72, 0.06, 6.4, '#d4af37');
-      // Brass heat-lamp bridge, golden cloche serving domes & crystal decanters
-      k.cyl(0.55, 0.44, 11.9, 0.18, 2.2, '#d4af37');
-      k.cyl(1.15, 0.44, 11.9, 0.18, 2.2, '#d4af37');
-      k.cyl(1.85, 0.44, 11.9, 0.12, 3.6, '#1e3a8a');
-      k.cyl(2.25, 0.44, 11.9, 0.12, 3.6, '#f59e0b');
+      // Wood-fired copper dome pizza/roast oven with glowing ember hearth + sizzling copper skillet & ruby wine decanters
+      k.cyl(0.58, 0.44, 11.9, 0.28, 3.4, '#d97706');
+      k.box(0.46, 0.64, 11.9, 0.24, 0.08, 1.6, '#f97316');
+      k.cyl(1.30, 0.44, 11.9, 0.18, 2.2, '#d4af37');
+      k.cyl(1.85, 0.44, 11.9, 0.13, 3.6, '#be123c');
+      k.cyl(2.28, 0.44, 11.9, 0.14, 3.2, '#ea580c');
     });
 
     // Two Round White-Clothed Al-Fresco Bistro Tables with 4 Oak Chairs & Gourmet Plated Meals
@@ -1376,15 +1380,15 @@ const IsoRenderer = (() => {
       drawNorthRecoverySuite(26.6, '#fde68a', '#d4af37', '#eab308', 302);
       drawNorthRecoverySuite(30.1, '#7c3aed', '#4c1d95', '#6d28d9', 303);
 
-      // 3. Main Entrance Five-Star Hotel Lobby, Concierge & Espresso Lounge (Front-Left, x: 19.6..24.6, y: 8.8..16 — Warm Sunlit Champagne, Sunset Rose-Coral & Brushed Gold)
+      // 3. Main Entrance Five-Star Hotel Lobby, Concierge & Espresso Lounge (Front-Left, x: 19.6..24.6, y: 8.8..16 — Subtle Pearl-Alabaster, Muted Slate-Blue & Antique Champagne-Brass)
       drawLuxuryHotelLobbyDetails();
-      PHSprites.receptionDesk(19.85, 9.4, 1, 2.2, { col: '#d4af37', wood: '#fef3c7', clutter: false });
+      PHSprites.receptionDesk(19.85, 9.4, 1, 2.2, { col: '#c9a96e', wood: '#f8fafc', clutter: false });
       drawWallEventScreen(21.8, 8.92);
       drawEspressoBar(19.85, 12.6);
-      PHSprites.sofa(21.65, 10.3, 0, 1.8, '#fde68a');
+      PHSprites.sofa(21.65, 10.3, 0, 1.8, '#f8fafc');
       drawCoffeeTableAndSet(22.55, 12.2);
-      PHSprites.sofa(21.65, 13.4, 0, 1.8, '#e11d48');
-      PHSprites.armchair(23.55, 11.4, 0, { col: '#f59e0b' });
+      PHSprites.sofa(21.65, 13.4, 0, 1.8, '#475569');
+      PHSprites.armchair(23.55, 11.4, 0, { col: '#64748b' });
       drawIndoorPalm(23.75, 9.2);
       drawIndoorPalm(19.85, 15.1);
 
