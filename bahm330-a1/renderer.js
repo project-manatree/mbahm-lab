@@ -50,9 +50,9 @@ const IsoRenderer = (() => {
       { x: 19.6, y: 2.6, w: 3.5, d: 4.2, mat: { cur: null, fut: 'ceramicCream' } }, // Visiting Doctor & ISBAR Clinical Salon (Ivory Porcelain)
       { x: 23.1, y: 2.6, w: 10.5, d: 4.2, mat: { cur: null, fut: 'travertine' } },  // 3 Private Recovery Suites 301, 302 & 303 (Roman Travertine Stone)
       { x: 19.6, y: 6.8, w: 14.0, d: 2.0, mat: { cur: null, fut: 'marble' } },      // Resort Central White Calacatta Marble Promenade
-      { x: 19.6, y: 8.8, w: 5.0, d: 7.2, mat: { cur: null, fut: 'marble' } },       // Main Entrance 5-Star White Marble Hotel Lobby & Lounge
-      { x: 24.6, y: 8.8, w: 4.6, d: 7.2, mat: { cur: null, fut: 'ceramicCream' } }, // Recreation & Games Club Room (Ivory Porcelain + Royal Navy Carpet)
-      { x: 29.2, y: 8.8, w: 4.4, d: 7.2, mat: { cur: null, fut: 'travertine' } },   // Yoga, Wellness & Movement Studio (Limestone Spa Stone)
+      { x: 19.6, y: 8.8, w: 5.0, d: 7.2, mat: { cur: null, fut: 'ceramicCream' } }, // Main Entrance 5-Star Warm Champagne-Ivory Hotel Lobby & Lounge
+      { x: 24.6, y: 8.8, w: 4.6, d: 7.2, mat: { cur: null, fut: 'ceramicCream' } }, // Recreation & Games Club Room (Ivory Porcelain + Royal Sapphire)
+      { x: 29.2, y: 8.8, w: 4.4, d: 7.2, mat: { cur: null, fut: 'oak' } },          // Yoga, Wellness & Movement Studio (Warm Studio Hardwood)
 
       // ---------------- FRONT WALKWAY & CONCIERGE TRANSPORT ROAD (y: 16..20.4)
       { x: 1, y: 16.0, w: 14, d: 0.6, mat: 'paver' },            // Hospital Front Entrance Apron
@@ -659,28 +659,29 @@ const IsoRenderer = (() => {
 
   function drawCoffeeTableAndSet(cx, cy) {
     PH.furniture(cx - 0.55, cy - 0.38, 1.1, 0.76, 0, k => {
-      // Brushed champagne-gold frame with white Calacatta marble tabletop
+      // Brushed champagne-gold frame with warm cream marble tabletop
       k.box(0.08, 0.08, 0, 0.94, 0.60, 4.8, '#d4af37');
-      k.box(0.04, 0.04, 4.8, 1.02, 0.68, 1.0, '#ffffff');
-      // Porcelain & gold tea service + floral centerpiece
-      k.cyl(0.50, 0.38, 5.8, 0.08, 2.2, '#1e3a8a');
-      k.cyl(0.28, 0.38, 5.8, 0.06, 2.8, '#d4af37');
-      k.cyl(0.75, 0.38, 5.8, 0.12, 0.5, '#fef08a');
+      k.box(0.04, 0.04, 4.8, 1.02, 0.68, 1.0, '#fffbeb');
+      // Golden welcome tea service + blooming rose-orchid floral centerpiece
+      k.cyl(0.50, 0.38, 5.8, 0.10, 2.2, '#ffffff');
+      k.blob(0.50, 0.38, 9.2, 0.18, '#fb7185', 3);
+      k.cyl(0.24, 0.38, 5.8, 0.07, 2.6, '#d4af37');
+      k.cyl(0.78, 0.38, 5.8, 0.11, 0.6, '#fde047');
     });
   }
 
   function drawEspressoBar(gx, gy) {
     PH.furniture(gx, gy, 1.1, 2.2, 0, k => {
-      // White Calacatta marble & brushed-gold champagne bar counter
-      k.box(0.08, 0.05, 0, 0.62, 2.1, 11.2, '#f8fafc');
+      // Warm champagne-ivory marble & brushed-gold welcome bar counter
+      k.box(0.08, 0.05, 0, 0.62, 2.1, 11.2, '#fffbeb');
       k.box(0.06, 0.04, 0, 0.66, 2.12, 1.2, '#d4af37');
       k.box(0.04, 0.02, 11.2, 0.70, 2.16, 1.4, '#ffffff');
-      // Chrome & gold espresso machine + crystal pastry display
+      // Brushed-gold espresso machine + crystal pastry display
       k.box(0.14, 0.25, 12.6, 0.38, 0.52, 4.6, '#d4af37');
-      k.box(0.14, 1.15, 12.6, 0.38, 0.58, 4.2, '#bae6fd', { alpha: 0.65 });
-      // Two royal-sapphire & gold barstools in front of bar
-      k.cyl(0.92, 0.62, 0, 0.16, 8.2, '#1e3a8a');
-      k.cyl(0.92, 1.52, 0, 0.16, 8.2, '#1e3a8a');
+      k.box(0.14, 1.15, 12.6, 0.38, 0.58, 4.2, '#fde68a', { alpha: 0.75 });
+      // Two warm sunset-rose & gold barstools in front of bar
+      k.cyl(0.92, 0.62, 0, 0.16, 8.2, '#e11d48');
+      k.cyl(0.92, 1.52, 0, 0.16, 8.2, '#e11d48');
     });
   }
 
@@ -1235,29 +1236,39 @@ const IsoRenderer = (() => {
     });
   }
 
-  // 9. Retreat Front-Left (x: 19.6..24.6, y: 8.8..16.0): Five-Star Hotel Entrance Lobby, Concierge & Lounge
+  // 9. Retreat Front-Left (x: 19.6..24.6, y: 8.8..16.0): Warm, Welcoming Five-Star Hotel Entrance Lobby, Concierge & Lounge
   function drawLuxuryHotelLobbyDetails() {
-    // Woven Pearl-Ivory, Royal-Sapphire & Champagne-Gold Silk Area Rug under the Hotel Lobby Sofas (x = 21.4, y = 10.1)
-    PH.furniture(21.4, 10.1, 2.8, 4.2, 0, k => {
-      k.top(0, 0, 0.12, 2.8, 4.2, '#ffffff', { stroke: '#d4af37', lw: 1.5 });
-      k.top(0.20, 0.20, 0.15, 2.40, 3.80, '#1e3a8a', { stroke: '#fde68a', lw: 1.1 });
-      k.top(0.45, 0.45, 0.18, 1.90, 3.30, '#f8fafc', { stroke: '#d4af37', lw: 0.9 });
+    // Sunlit Champagne-Cream, Sunset Rose-Coral & Brushed-Gold Medallion Silk Area Rug under the Hotel Lobby Sofas (x = 21.35, y = 10.05)
+    PH.furniture(21.35, 10.05, 2.85, 4.25, 0, k => {
+      k.top(0, 0, 0.12, 2.85, 4.25, '#fffbeb', { stroke: '#d4af37', lw: 1.5 });
+      k.top(0.18, 0.18, 0.15, 2.49, 3.89, '#fb7185', { stroke: '#fde047', lw: 1.1 });
+      k.top(0.42, 0.42, 0.18, 2.01, 3.41, '#fef3c7', { stroke: '#d4af37', lw: 1.0 });
     });
 
-    // VIP Royal-Sapphire & Gold Welcome Carpet Runner + Brass Stanchion Posts inside Hotel Main Entrance (x = 21.3, y = 14.7)
+    // VIP Royal Red-Carpet & Brushed-Gold Welcome Runner + Brass Stanchion Posts inside Hotel Main Entrance (x = 21.3, y = 14.7)
     PH.furniture(21.3, 14.7, 1.8, 1.25, 0, k => {
-      k.top(0.15, 0.02, 0.14, 1.50, 1.20, '#1e3a8a', { stroke: '#d4af37', lw: 1.4 });
+      k.top(0.15, 0.02, 0.14, 1.50, 1.20, '#e11d48', { stroke: '#fde047', lw: 1.5 });
       k.cyl(0.08, 0.15, 0, 0.07, 8.5, '#d4af37');
       k.cyl(1.72, 0.15, 0, 0.07, 8.5, '#d4af37');
       k.cyl(0.08, 1.10, 0, 0.07, 8.5, '#d4af37');
       k.cyl(1.72, 1.10, 0, 0.07, 8.5, '#d4af37');
     });
 
+    // Grand Blooming Orchid & Golden Crystal Welcome Pedestal inside Main Entrance Foyer (x = 23.55, y = 14.45)
+    PH.furniture(23.55, 14.45, 0.72, 0.72, 0, k => {
+      k.cyl(0.36, 0.36, 0, 0.28, 1.2, '#d4af37');
+      k.cyl(0.36, 0.36, 1.2, 0.22, 8.4, '#fffbeb');
+      k.cyl(0.36, 0.36, 9.6, 0.28, 1.0, '#d4af37');
+      k.cyl(0.36, 0.36, 10.6, 0.18, 3.2, '#ffffff');
+      k.blob(0.36, 0.36, 15.2, 0.28, '#fb7185', 4);
+      k.blob(0.36, 0.36, 17.0, 0.22, '#fde047', 4);
+    });
+
     // Sculptural White Marble & Gold Floral Art Pedestal in Resort Central Marble Promenade (x = 24.4, y = 7.35)
     PH.furniture(24.4, 7.35, 0.72, 0.72, 0, k => {
       k.box(0.08, 0.08, 0, 0.56, 0.56, 9.6, '#ffffff');
       k.box(0.04, 0.04, 9.6, 0.64, 0.64, 0.9, '#d4af37');
-      k.cyl(0.36, 0.36, 10.5, 0.18, 3.2, '#1e3a8a');
+      k.cyl(0.36, 0.36, 10.5, 0.18, 3.2, '#d4af37');
       k.blob(0.36, 0.36, 15.2, 0.26, '#f472b6', 3);
       k.blob(0.36, 0.36, 17.0, 0.20, '#fef08a', 4);
     });
@@ -1365,15 +1376,15 @@ const IsoRenderer = (() => {
       drawNorthRecoverySuite(26.6, '#fde68a', '#d4af37', '#eab308', 302);
       drawNorthRecoverySuite(30.1, '#7c3aed', '#4c1d95', '#6d28d9', 303);
 
-      // 3. Main Entrance Five-Star Hotel Lobby, Concierge & Espresso Lounge (Front-Left, x: 19.6..24.6, y: 8.8..16 — White Marble, Brushed Gold, Pearl Ivory & Royal Sapphire Velvet)
+      // 3. Main Entrance Five-Star Hotel Lobby, Concierge & Espresso Lounge (Front-Left, x: 19.6..24.6, y: 8.8..16 — Warm Sunlit Champagne, Sunset Rose-Coral & Brushed Gold)
       drawLuxuryHotelLobbyDetails();
-      PHSprites.receptionDesk(19.85, 9.4, 1, 2.2, { col: '#d4af37', wood: '#f8fafc', clutter: false });
+      PHSprites.receptionDesk(19.85, 9.4, 1, 2.2, { col: '#d4af37', wood: '#fef3c7', clutter: false });
       drawWallEventScreen(21.8, 8.92);
       drawEspressoBar(19.85, 12.6);
-      PHSprites.sofa(21.65, 10.3, 0, 1.8, '#ffffff');
+      PHSprites.sofa(21.65, 10.3, 0, 1.8, '#fde68a');
       drawCoffeeTableAndSet(22.55, 12.2);
-      PHSprites.sofa(21.65, 13.4, 0, 1.8, '#1e3a8a');
-      PHSprites.armchair(23.55, 11.4, 0, { col: '#eab308' });
+      PHSprites.sofa(21.65, 13.4, 0, 1.8, '#e11d48');
+      PHSprites.armchair(23.55, 11.4, 0, { col: '#f59e0b' });
       drawIndoorPalm(23.75, 9.2);
       drawIndoorPalm(19.85, 15.1);
 
