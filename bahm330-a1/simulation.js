@@ -89,10 +89,10 @@ const SimApp = (() => {
     // SUITES 301 & 302 FAMILY VISITOR ARMCHAIRS (2)
     { gx: 23.79, gy: 5.89, pose: 'SITTING' },
     { gx: 27.29, gy: 5.89, pose: 'SITTING' },
-    // LUXURY CINEMA, LIBRARY & SOCIAL RECOVERY LOUNGE (x: 24.6..29.2, y: 8.8..16.0) (3)
-    { gx: 26.15, gy: 10.75, pose: 'SITTING' },
-    { gx: 26.15, gy: 13.70, pose: 'SITTING' },
-    { gx: 28.38, gy: 10.85, pose: 'SITTING' },
+    // RECREATION & GAMES CLUB ROOM (x: 24.6..29.2, y: 8.8..16.0 — Billiards Table, Grand Piano & Mahjong Table) (3)
+    { gx: 26.25, gy: 11.20, pose: 'HANDOVER_INTERACTION' }, // Playing Billiards / Pool
+    { gx: 25.55, gy: 14.75, pose: 'SITTING' },              // Playing Baby Grand Piano
+    { gx: 28.26, gy: 11.05, pose: 'SITTING' },              // Playing Mahjong
     // YOGA, WELLNESS & MOVEMENT STUDIO (x: 29.2..33.6, y: 8.8..16.0, beside East Pool) — 5 of 6 Yoga Mats (5)
     { gx: 30.50, gy: 11.2, pose: 'YOGA_STRETCH' },
     { gx: 32.40, gy: 11.2, pose: 'YOGA_STRETCH' },
@@ -487,7 +487,7 @@ const SimApp = (() => {
           if (pIdx === 1 && into18 >= 8.5) { stepKey = 'p1-staging'; stepText = 'Shuttle Staging ✓'; ag.taskProg = sProg; }
         }
       } else if (pIdx === 3) {
-        // Building B Indoor Wellness Loop (Doctor Clinical Salon -> Luxury Cinema, Library & Social Lounge -> Yoga Studio)
+        // Building B Indoor Wellness Loop (Doctor Clinical Salon -> Recreation & Games Club Room -> Yoga Studio)
         const cPos = tSec % 12.0;
         const stg = Math.floor(cPos / 4.0);
         const sProg = (cPos % 4.0) / 4.0;
@@ -495,8 +495,8 @@ const SimApp = (() => {
           tx = 21.1; ty = 4.4; ag.pose = 'SITTING';
           stepKey = 'p3-md'; stepText = 'Doctor Salon Check ✓';
         } else if (stg === 1) {
-          tx = 28.38; ty = 13.55; ag.pose = 'SITTING';
-          stepKey = 'p3-spa'; stepText = 'Cinema & Library Lounge ✓';
+          tx = 28.26; ty = 14.25; ag.pose = 'SITTING';
+          stepKey = 'p3-spa'; stepText = 'Billiards & Games Club ✓';
         } else {
           tx = 30.50; ty = 14.2; ag.pose = 'YOGA_STRETCH';
           stepKey = 'p3-bistro'; stepText = 'Yoga Studio Class ✓';

@@ -6,7 +6,7 @@
 //   Billing & Clearance Hall, Departure Lobby, Main Entrance facing DOWN at y=16)
 // - Middle Garden Park & Perimeter Walk (x: 15..19.6): Continuous Walking Loop & Fountain
 // - Right Building (x: 19.6..33.6, y: 2.6..16): Luxury Retreat (Hotel Lobby, Doctor Room,
-//   3 Recovery Suites, Cinema/Library Social Lounge, Yoga Studio)
+//   3 Recovery Suites, Recreation & Games Club Room, Yoga Studio)
 // - East Pool (y: 2.2..7.6) & Outdoor Garden Bistro Restaurant (y: 8.4..15.6) on East Lawn
 // - Front Two-Lane Road (x: 1..38.8, y: 16..20.4): Concierge Transport Left <-> Right
 // ============================================================================
@@ -46,12 +46,12 @@ const IsoRenderer = (() => {
       { x: 34.8, y: 8.4, w: 3.7, d: 7.2, mat: { cur: null, fut: 'travertine' } },   // Outdoor Garden Bistro Travertine Terrace
       { x: 35.05, y: 8.75, w: 3.2, d: 6.5, mat: { cur: null, fut: 'deck' } },       // Outdoor Garden Bistro Warm Teak Dining Deck
 
-      // BUILDING 2 (FIVE-STAR LUXURY RETREAT: HOTEL LOBBY + DOCTOR ROOM + 3 RECOVERY SUITES 301–303 + CINEMA/LIBRARY LOUNGE + YOGA STUDIO)
+      // BUILDING 2 (FIVE-STAR LUXURY RETREAT: HOTEL LOBBY + DOCTOR ROOM + 3 RECOVERY SUITES 301–303 + RECREATION & GAMES CLUB + YOGA STUDIO)
       { x: 19.6, y: 2.6, w: 3.5, d: 4.2, mat: { cur: null, fut: 'ceramicBlue' } },  // Visiting Doctor & ISBAR Clinical Room
       { x: 23.1, y: 2.6, w: 10.5, d: 4.2, mat: { cur: null, fut: 'oak' } },         // 3 Private Recovery Suites 301, 302 & 303 (3.5 x 4.2 each)
       { x: 19.6, y: 6.8, w: 14.0, d: 2.0, mat: { cur: null, fut: 'marble' } },      // Resort Central Marble Promenade
       { x: 19.6, y: 8.8, w: 5.0, d: 7.2, mat: { cur: null, fut: 'carpetBeige' } },  // Main Entrance 5-Star Hotel Lobby & Lounge
-      { x: 24.6, y: 8.8, w: 4.6, d: 7.2, mat: { cur: null, fut: 'oak' } },          // Luxury Cinema, Library & Social Recovery Lounge
+      { x: 24.6, y: 8.8, w: 4.6, d: 7.2, mat: { cur: null, fut: 'oak' } },          // Recreation & Games Club Room (Billiards, Grand Piano, Chess & Mahjong)
       { x: 29.2, y: 8.8, w: 4.4, d: 7.2, mat: { cur: null, fut: 'deck' } },         // Yoga, Wellness & Movement Studio (beside East Pool & Terrace)
 
       // ---------------- FRONT WALKWAY & CONCIERGE TRANSPORT ROAD (y: 16..20.4)
@@ -1092,57 +1092,116 @@ const IsoRenderer = (() => {
     });
   }
 
-  // Retreat Bottom-Middle (x: 24.6..29.2, y: 8.8..16.0, 4.6 x 7.2): Luxury Cinema, Library & Social Recovery Lounge
-  function drawCinemaLibraryLounge() {
-    // Plush royal-navy & gold woven acoustic cinema & library salon carpet
-    PH.furniture(25.3, 10.1, 3.55, 5.2, 0, k => {
-      k.top(0, 0, 0.12, 3.55, 5.2, '#f5efe6', { stroke: '#d4af37', lw: 1.4 });
-      k.top(0.18, 0.18, 0.15, 3.19, 4.84, '#1e3a8a', { stroke: '#fde68a', lw: 1.0 });
-      k.top(0.40, 0.40, 0.18, 2.75, 4.40, '#efe7d6', { stroke: '#d4af37', lw: 0.9 });
-    });
-    // Floor-to-ceiling Burl-Walnut & Brass Library Bookshelf Wall along West divider (x = 24.75, y = 9.25)
-    PH.furniture(24.75, 9.25, 0.55, 3.6, 0, k => {
-      k.box(0.02, 0.04, 0, 0.48, 3.52, 22.0, '#5c3a21', { tex: 'deskwood', texAlpha: 0.58 });
-      k.box(0.0, 0.02, 22.0, 0.52, 3.56, 1.2, '#d4af37');
-      // 4 tiers of colorful leather-bound books & brass bookends
-      const bookCols = ['#7e3b45', '#0d9488', '#d4af37', '#1e3a8a', '#059669', '#b45309'];
-      for (const z of [4.2, 9.0, 13.8, 18.2]) {
-        k.box(0.04, 0.08, z - 0.5, 0.44, 3.44, 0.5, '#784e32');
-        for (let bi = 0; bi < 6; bi++) {
-          const by = 0.22 + bi * 0.52;
-          k.box(0.12, by, z, 0.32, 0.36, 3.2, bookCols[(bi + Math.round(z)) % bookCols.length]);
-        }
+  // Retreat Bottom-Middle (x: 24.6..29.2, y: 8.8..16.0, 4.6 x 7.2): Recreation & Games Club Room
+  // (Championship Green-Felt Billiards/Pool Table, Concert Ebony Grand Piano, Mahjong Table & Royal Chess Table)
+  function drawRecreationGamesClubRoom() {
+    // 1. Wall-Mounted Mahogany & Brass Billiard Cue Rack & Club Scoreboard on West Wall (x = 24.72, y = 9.55)
+    PH.furniture(24.72, 9.55, 0.28, 1.55, 0, k => {
+      k.box(0.02, 0.04, 2.0, 0.16, 1.46, 17.5, '#5c3a21', { tex: 'deskwood', texAlpha: 0.58 });
+      k.box(0.0, 0.02, 19.5, 0.20, 1.50, 0.9, '#d4af37');
+      for (const cy of [0.22, 0.44, 0.66, 0.88, 1.10, 1.32]) {
+        k.cyl(0.14, cy, 3.0, 0.025, 15.6, '#d4a373');
       }
     });
-    // Grand Curved 85-inch 4K Cinema Theatre Wall & Dolby Walnut Media Credenza along North-East / South wall (x = 25.35, y = 14.95)
-    PH.furniture(25.35, 14.95, 3.4, 0.72, 0, k => {
-      // Burl-walnut & brass Dolby media credenza
-      k.box(0.06, 0.08, 0, 3.28, 0.56, 7.6, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
-      k.box(0.04, 0.06, 7.6, 3.32, 0.60, 1.0, '#d4af37');
-      // Left & right brushed-brass tower acoustic speakers
-      k.cyl(0.26, 0.34, 8.6, 0.12, 11.5, '#1e293b');
-      k.cyl(0.26, 0.34, 20.1, 0.13, 0.8, '#d4af37');
-      k.cyl(3.14, 0.34, 8.6, 0.12, 11.5, '#1e293b');
-      k.cyl(3.14, 0.34, 20.1, 0.13, 0.8, '#d4af37');
-      // 85-inch widescreen 4K cinema display with glowing ambient frame
-      k.box(0.52, 0.24, 9.2, 2.36, 0.14, 13.4, '#0f172a');
-      k.box(0.48, 0.22, 8.8, 2.44, 0.18, 0.6, '#d4af37');
-      k.box(0.60, 0.20, 10.0, 2.20, 0.06, 11.6, '#38bdf8', { alpha: 0.82 });
-      k.box(0.95, 0.18, 12.2, 1.50, 0.04, 7.2, '#fde047', { alpha: 0.75 });
+
+    // 2. Championship Emerald-Green Felt Mahogany & Brass Billiards / Pool Table (x = 25.15, y = 9.55, w = 2.25, d = 1.38)
+    PH.furniture(25.15, 9.55, 2.25, 1.38, 0, k => {
+      // Woven burgundy & gold club carpet beneath billiards table
+      k.top(-0.18, -0.18, 0.10, 2.61, 1.74, '#7e3b45', { stroke: '#d4af37', lw: 1.3 });
+      // 4 carved mahogany pedestal legs with brushed-brass feet
+      for (const [lx, ly] of [[0.14, 0.14], [1.85, 0.14], [0.14, 0.98], [1.85, 0.98]]) {
+        k.box(lx, ly, 0, 0.26, 0.26, 1.4, '#d4af37');
+        k.box(lx + 0.02, ly + 0.02, 1.4, 0.22, 0.22, 6.2, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
+      }
+      // Mahogany slate cabinet & brass trim
+      k.box(0.06, 0.06, 7.2, 2.13, 1.26, 2.4, '#5c3a21', { tex: 'deskwood', texAlpha: 0.58 });
+      k.box(0.02, 0.02, 9.6, 2.21, 1.34, 1.4, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
+      // Vivid tournament emerald-green baize felt playing surface
+      k.top(0.16, 0.16, 11.05, 1.93, 1.06, '#059669', { stroke: '#047857', lw: 1.2 });
+      k.top(0.22, 0.22, 11.10, 1.81, 0.94, '#10b981');
+      // 6 brass & leather billiard pockets (4 corners + 2 side pockets)
+      for (const [px, py] of [[0.14, 0.14], [1.12, 0.12], [2.10, 0.14], [0.14, 1.24], [1.12, 1.26], [2.10, 1.24]]) {
+        k.cyl(px, py, 10.6, 0.09, 0.6, '#d4af37');
+        k.cyl(px, py, 10.9, 0.065, 0.4, '#0f172a');
+      }
+      // Racked colorful billiard balls + white cue ball + 2 maple pool cues
+      const balls = [
+        [0.62, 0.69, '#ffffff'],
+        [1.42, 0.69, '#facc15'],
+        [1.54, 0.61, '#ef4444'], [1.54, 0.77, '#3b82f6'],
+        [1.66, 0.53, '#f97316'], [1.66, 0.69, '#0f172a'], [1.66, 0.85, '#a855f7']
+      ];
+      for (const [bx, by, bcol] of balls) {
+        k.cyl(bx, by, 11.15, 0.048, 0.75, bcol);
+      }
+      k.box(0.32, 0.35, 11.2, 0.95, 0.03, 0.3, '#fde68a');
+      k.box(0.85, 0.98, 11.2, 0.95, 0.03, 0.3, '#d4a373');
     });
-    // Two tiered rows of plush velvet cinema & family lounge sofas + marble refreshment table
-    PHSprites.sofa(25.55, 10.35, 0, 1.85, '#f5efe6');
-    drawCoffeeTableAndSet(26.45, 12.15);
-    PHSprites.sofa(25.55, 13.30, 0, 1.85, '#059669');
-    // Quiet library reading armchairs & warm brass floor lamp along East side of lounge
-    PHSprites.armchair(27.95, 10.45, 0, { col: '#d4a373' });
-    PHSprites.armchair(27.95, 13.15, 0, { col: '#0d9488' });
-    PH.furniture(28.15, 12.0, 0.45, 0.45, 0, k => {
-      k.cyl(0.22, 0.22, 0, 0.16, 0.8, '#d4af37');
-      k.cyl(0.22, 0.22, 0.8, 0.03, 13.5, '#d4af37');
-      k.cyl(0.22, 0.22, 14.3, 0.18, 3.2, '#fef3c7');
+
+    // 3. Concert Ebony & Brushed-Gold Baby Grand Piano + Tufted Leather Piano Bench (x = 25.05, y = 12.95)
+    PH.furniture(25.05, 12.95, 1.85, 1.75, 0, k => {
+      // Three solid ebony legs with brass casters
+      for (const [lx, ly] of [[0.18, 0.18], [1.48, 0.22], [0.24, 1.38]]) {
+        k.cyl(lx, ly, 0, 0.06, 1.2, '#d4af37');
+        k.cyl(lx, ly, 1.2, 0.07, 6.8, '#0f172a');
+      }
+      // Brass pedal lyre
+      k.box(0.28, 0.78, 0, 0.12, 0.28, 7.6, '#d4af37');
+      // Gloss ebony grand piano main wing & curved tail
+      k.box(0.12, 0.12, 8.0, 1.12, 1.48, 3.6, '#0f172a');
+      k.box(1.12, 0.16, 8.0, 0.56, 1.06, 3.6, '#0f172a');
+      // Golden harp soundboard interior + raised angled ebony lid with brass prop stick
+      k.top(0.20, 0.20, 11.7, 1.40, 1.28, '#d4af37', { stroke: '#b45309' });
+      k.box(0.18, 0.16, 14.8, 1.42, 1.26, 0.5, '#1e293b');
+      k.cyl(1.42, 1.28, 11.7, 0.025, 3.4, '#d4af37');
+      // 88-key ivory & ebony piano keyboard along west/south front + brass music desk
+      k.box(0.02, 0.22, 9.2, 0.22, 1.24, 1.4, '#f8fafc');
+      k.box(0.08, 0.26, 10.6, 0.12, 1.16, 0.4, '#1e293b');
+      k.box(0.22, 0.56, 11.7, 0.08, 0.52, 2.8, '#f8fafc');
+      // Tufted ebony & gold piano bench (on south side for pianist at gx=25.55, gy=14.95)
+      k.box(0.32, 1.56, 0, 0.74, 0.34, 5.4, '#1e293b');
+      k.box(0.30, 1.54, 5.4, 0.78, 0.38, 1.2, '#d4af37');
     });
-    drawIndoorPalm(28.35, 9.05);
+
+    // 4. VIP Jade-Felt Mahjong & Card Club Table with 4 Tile Walls & Club Chairs (x = 27.65, y = 9.75)
+    PH.furniture(27.65, 9.75, 1.22, 1.22, 0, k => {
+      // 2 walnut & cream club chairs (North & South of Mahjong table)
+      k.box(0.38, -0.26, 0, 0.46, 0.36, 5.2, '#784e32', { tex: 'deskwood', texAlpha: 0.5 });
+      k.box(0.38, -0.28, 5.2, 0.46, 0.10, 5.4, '#0d9488');
+      k.box(0.38, 1.12, 0, 0.46, 0.36, 5.2, '#784e32', { tex: 'deskwood', texAlpha: 0.5 });
+      k.box(0.38, 1.38, 5.2, 0.46, 0.10, 5.4, '#0d9488');
+      // Square burl-walnut & brass mahjong table
+      k.cyl(0.61, 0.61, 0, 0.26, 1.0, '#d4af37');
+      k.cyl(0.61, 0.61, 1.0, 0.10, 7.6, '#5c3a21');
+      k.box(0.08, 0.08, 8.6, 1.06, 1.06, 1.6, '#784e32', { tex: 'deskwood', texAlpha: 0.55 });
+      k.top(0.16, 0.16, 10.25, 0.90, 0.90, '#047857', { stroke: '#d4af37', lw: 1.0 });
+      // 4 miniature ivory mahjong tile walls in a square
+      k.box(0.30, 0.26, 10.3, 0.62, 0.06, 0.7, '#f8fafc');
+      k.box(0.30, 0.90, 10.3, 0.62, 0.06, 0.7, '#f8fafc');
+      k.box(0.26, 0.32, 10.3, 0.06, 0.56, 0.7, '#f8fafc');
+      k.box(0.90, 0.32, 10.3, 0.06, 0.56, 0.7, '#f8fafc');
+    });
+
+    // 5. Inlaid Marble & Walnut Royal Chess & Backgammon Table with Club Chairs (x = 27.65, y = 12.95)
+    PH.furniture(27.65, 12.95, 1.22, 1.22, 0, k => {
+      // 2 walnut & gold club chairs (North & South of Chess table)
+      k.box(0.38, -0.26, 0, 0.46, 0.36, 5.2, '#784e32', { tex: 'deskwood', texAlpha: 0.5 });
+      k.box(0.38, -0.28, 5.2, 0.46, 0.10, 5.4, '#d4a373');
+      k.box(0.38, 1.12, 0, 0.46, 0.36, 5.2, '#784e32', { tex: 'deskwood', texAlpha: 0.5 });
+      k.box(0.38, 1.38, 5.2, 0.46, 0.10, 5.4, '#d4a373');
+      // Walnut pedestal table with checkered chessboard inlay
+      k.cyl(0.61, 0.61, 0, 0.26, 1.0, '#d4af37');
+      k.cyl(0.61, 0.61, 1.0, 0.10, 7.6, '#5c3a21');
+      k.box(0.10, 0.10, 8.6, 1.02, 1.02, 1.6, '#5c3a21', { tex: 'deskwood', texAlpha: 0.55 });
+      k.top(0.22, 0.22, 10.25, 0.78, 0.78, '#faf8f5', { stroke: '#d4af37', lw: 1.1 });
+      k.top(0.32, 0.32, 10.30, 0.28, 0.28, '#1e293b');
+      k.top(0.60, 0.60, 10.30, 0.28, 0.28, '#1e293b');
+      // Gold & ivory chess pieces
+      for (const px of [0.38, 0.52, 0.66, 0.80]) {
+        k.cyl(px, 0.38, 10.35, 0.035, 1.1, '#d4af37');
+        k.cyl(px, 0.82, 10.35, 0.035, 1.1, '#f8fafc');
+      }
+    });
   }
 
   // Retreat Bottom-Right (x: 29.2..33.6, y: 8.8..16.0, 4.4 x 7.2): Yoga, Wellness & Movement Studio (beside East Pool & Terrace)
@@ -1319,8 +1378,8 @@ const IsoRenderer = (() => {
       drawIndoorPalm(23.75, 9.2);
       drawIndoorPalm(19.85, 15.1);
 
-      // 4. Luxury Cinema, Library & Social Recovery Lounge (x: 24.6..29.2) + Yoga, Wellness & Movement Studio (x: 29.2..33.6, beside East Pool)
-      drawCinemaLibraryLounge();
+      // 4. Recreation & Games Club Room (x: 24.6..29.2) + Yoga, Wellness & Movement Studio (x: 29.2..33.6, beside East Pool)
+      drawRecreationGamesClubRoom();
       drawYogaStudio();
 
       // ---------------- MIDDLE REST & BBQ PARK (x: 15..19.6), EAST POOL (y: 2.2..7.6) & EAST GARDEN BISTRO PAVILION (y: 8.4..15.6)
